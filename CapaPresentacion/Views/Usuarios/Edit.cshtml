@@ -1,0 +1,156 @@
+﻿<script type="text/javascript">
+    function InvalidMsg(textbox, str) {
+
+        if (textbox.value.length == 0) {
+            textbox.setCustomValidity(str);
+        }
+        else {
+            textbox.setCustomValidity('');
+        }
+        return true;
+    }
+</script>
+@model CapaEntidad.Control.Ent_Usuario
+@{
+    Layout = null;
+}
+@Scripts.Render("~/bundles/bootstrap-select")
+@Styles.Render("~/Content/Bootstrap-Select/css")
+<link rel="stylesheet" type="text/css" href="~/Content/bootstrap-select.css" />
+@using (Ajax.BeginForm("Edit", new AjaxOptions { OnBegin = "OnEditar_Grabar();" }))
+{
+    <div class="modal-content">
+        <div class="modal-header modal-header-danger">
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+            <h4 class="modal-title" id="myModalLabel">Editando Usuario [@Model.usu_nombre]</h4>
+        </div>
+        <div class="modal-body">
+            <input type="hidden" id="idusu" value="@Model.usu_id" />
+            <table class="table table-striped">
+                <tr>
+                    <td><label for="dwtipo">Tipo Usuario</label></td>
+                    <td>
+                        @Html.DropDownList("dwtipo", new SelectList(ViewBag.usuariotipo, "usu_tip_id", "usu_tip_nombre",Model.usu_tip_id), new { @class = "selectCountry form-control", @data_live_search = "false", @id = "dwtipo" })
+                    </td>
+                </tr>
+                <tr>
+                    <td><label for="dwestado">Estado</label></td>
+                    <td>
+                        @Html.DropDownList("dwestado", new SelectList(ViewBag.estado, "est_id", "est_descripcion",Model.usu_est_id), new { @class = "selectCountry form-control", @data_live_search = "false", @id = "dwestado" })
+                    </td>
+                </tr>
+                <tr>
+                    <td><label for="nombre">Nombres</label></td>
+                    <td>
+                        <input type="text" id="nombre" name="nombre" value="@Model.usu_nombre" placeholder="Ingese el nombres" class="form-control" oninvalid="InvalidMsg(this, 'Ingrese el nombre')" required="required" />
+                    </td>
+                </tr>
+                <tr>
+                    <td><label for="login">Login</label></td>
+                    <td>
+
+                        <div class="form-inline" role="form">
+                            <div class="form-group has-feedback">
+                                <input type="text" class="form-control" value="@Model.usu_login" name="login" id="login" disabled="disabled" placeholder="Ingrese el Login" oninvalid="InvalidMsg(this, 'Ingrese el login')" required="required">
+                                <span class="glyphicon glyphicon-user form-control-feedback"></span>
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <td><label for="password">Password</label></td>
+                    <td>
+                        <div class="form-inline" role="form">
+                            <div class="form-group has-feedback">
+                                <input type="password" class="form-control" id="password" readonly="readonly" name="password" placeholder="Ingrese el Password" oninvalid="InvalidMsg(this, 'Ingrese el password')" required="required">
+                                <span class="glyphicon glyphicon-lock form-control-feedback"></span>
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <td></td>
+                    <td>
+                        <div class="form-inline" role="form">
+                            <div class="checkbox icheck">
+                                <label>
+                                    <input type="checkbox" id="editpass" name="editpass" value="false"> Cambiar Password
+                                </label>
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+            </table>
+        </div>
+        <div class="modal-footer" style="margin-top:-30px">
+            <button type="button" class="btn btn-default" data-dismiss="modal">Cerrar</button>
+            <input type="submit" class="btn btn-primary" id="btnSubmit" value="Aceptar" />
+        </div>
+    </div>
+}
+
+
+<script>
+    $('#editpass').change(function () {
+        if (this.checked == true) {
+            $("#password").removeAttr('readonly');
+        }
+        else {            
+            $("#password").attr('readonly', 'readonly');
+        }
+    });
+
+//$(document).ready(function() {
+//    $("#dwfuncion").select({
+//        dropdownParent: $("#myModal")
+//  });
+//});
+
+</script>
+<script type="text/javascript">
+    function OnEditar_Grabar() {
+        var msg_titulo = 'Mensaje Aquarella!';
+        var _id = $("#idusu").val();
+        var _nombre = $("#nombre").val();
+        var _tipo = $('select[name=dwtipo]').selectpicker('val');
+        var _estado = $('select[name=dwestado]').selectpicker('val');
+        var _password = $("#password").val();
+
+        var _pasedit='0'
+       
+        if ($('#editpass').prop('checked')) {
+            _pasedit = '1'
+        }
+
+        //var orden = $("#orden").val();
+        waitingDialog.show('Espere un momento por favor');
+        $.ajax
+             ({
+                 url: '../Usuarios/Edit',
+                 dataType: "json",
+                 type: "POST",
+                 data: { id: _id, nombre: _nombre, password: _password, tipo: _tipo, estado: _estado, pass: _pasedit },
+                 success: function (data, textStatus, XMLHttpRequest) {
+                     if (data.estado == '1') {
+
+                         $('#myModal').modal('hide');
+                         $('body').removeClass('modal-open');
+                         $('.modal-backdrop').remove();
+
+                         $('#lista').load('@Url.Action("ListaUsuario", "Usuarios")', {});
+                         waitingDialog.hide();
+                         toastr.success(data.desmsg, msg_titulo);
+                     }
+                     else {
+                         waitingDialog.hide();
+                         toastr.error(data.desmsg, msg_titulo);
+                     }
+                 },
+                 error: function (xhr) {
+                     waitingDialog.hide();
+                     toastr.error(xhr, msg_titulo);
+                 }
+             })
+
+    }
+</script>

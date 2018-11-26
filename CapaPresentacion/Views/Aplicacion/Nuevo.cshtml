@@ -1,0 +1,96 @@
+﻿@{
+    Layout = null;
+}
+@using (Ajax.BeginForm("Nuevo", new AjaxOptions { OnBegin = "OnNuevo_Grabar();" }))
+{
+    <div class="modal-content">
+        <div class="modal-header modal-header-danger">
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+            <h4 class="modal-title" id="myModalLabel">Creando Nueva Aplicación</h4>
+        </div>
+        <div class="modal-body">
+
+            <table class="table table-striped">
+                <tr>
+                    <td><label for="nombre">Nombre</label></td>
+                    <td>
+                        <input type="text" id="nombre" value="" placeholder="Ingrese el nombre" autofocus class="form-control" oninvalid="InvalidMsg(this,'Ingrese el nombre')" required="required" />
+                    </td>
+                </tr>               
+                <tr>
+                    <td><label for="orden">Orden</label></td>
+                    <td>
+                        <input type="text" id="orden" placeholder="Ingese el orden" class="form-control" />
+                    </td>
+                </tr>                
+                <tr>
+                    <td><label for="controller">Controller</label></td>
+                    <td>
+                        <input type="text" id="controller" placeholder="Ingrese el controller" class="form-control" oninvalid="InvalidMsg(this,'Ingrese el controller')" required="required" />
+                    </td>
+                </tr>
+                <tr>
+                    <td><label for="action">Action</label></td>
+                    <td>
+                        <input type="text" id="action" placeholder="Ingrese el action" class="form-control" oninvalid="InvalidMsg(this,'Ingrese el action')" required="required" />
+                    </td>
+                </tr>
+
+            </table>
+        </div>
+        <div class="modal-footer" style="margin-top:-30px">
+            <button type="button" class="btn btn-default" data-dismiss="modal">Cerrar</button>
+            <input type="submit" class="btn btn-primary" id="btnSubmit" value="Aceptar" />
+        </div>
+    </div>
+}
+<script type="text/javascript">
+    function InvalidMsg(textbox, str) {
+
+        if (textbox.value.length == 0) {
+            textbox.setCustomValidity(str);
+        }
+        else {
+            textbox.setCustomValidity('');
+        }
+        return true;
+    }
+</script>
+<script type="text/javascript">
+    function OnNuevo_Grabar() {
+         var msg_titulo = 'Mensaje Aquarella!';
+        var nombre = $("#nombre").val();      
+        var orden = $("#orden").val();        
+        var controller = $("#controller").val();
+        var action = $("#action").val();
+
+        waitingDialog.show('Espere un momento por favor');
+        $.ajax
+             ({
+                 url: '../Aplicacion/Nuevo',
+                 dataType: "json",
+                 type: "POST",
+                 data: { apl_nombre: nombre,  apl_orden: orden,  apl_controller: controller, apl_action: action },
+                 success: function (data, textStatus, XMLHttpRequest) {
+                     if (data.estado == '1') {
+
+                         $('#myModal').modal('hide');
+                         $('body').removeClass('modal-open');
+                         $('.modal-backdrop').remove();
+
+                         $('#lista').load('@Url.Action("ListaAplicacion", "Aplicacion")', {});
+                         waitingDialog.hide();
+                         toastr.success(data.desmsg, msg_titulo);
+                     }
+                     else {
+                         waitingDialog.hide();
+                         toastr.error(data.desmsg, msg_titulo);
+                     }
+                 },
+                 error: function (xhr) {
+                     waitingDialog.hide();
+                     toastr.error(xhr, msg_titulo);
+                 }
+             })
+    }
+</script> 

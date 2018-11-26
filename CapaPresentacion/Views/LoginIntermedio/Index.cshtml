@@ -1,0 +1,78 @@
+﻿@model CapaPresentacion.Models.Control.LoginViewModel
+@{
+    ViewBag.Title = "Iniciar Sessión";
+}
+@section Scripts
+{
+    <script type="text/javascript">
+
+        function InvalidMsg(textbox,str) {
+
+            if (textbox.value.length == 0) {
+                textbox.setCustomValidity(str);
+            }
+            else {
+                    textbox.setCustomValidity('');
+            }
+            return true;
+        }
+    </script>
+}
+<section class="content">
+    <div class="row">
+        <div class="login-box">
+            <div class="login-logo">
+                <a href=""><b>Acceso al Sistema</b></a>
+            </div>
+            <!-- /.login-logo -->
+            <div class="login-box-body">
+                @using (Html.BeginForm("Login", "Control", new { returnUrl = Model.returnUrl }, FormMethod.Post, new { @id = "signupform" }))
+                {
+              
+                    <p class="login-box-msg">Accede para comenzar tu sesión</p>
+                    @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+                    <div class="form-group has-feedback">
+                        <input type="text" class="form-control" name="Usuario" placeholder="Usuario" value="@Model.Usuario">
+                        <span class="glyphicon glyphicon-user form-control-feedback"></span>
+                    </div>
+                    <div class="form-group has-feedback">
+                        <input type="password" class="form-control" name="Password" placeholder="Password" value="@Model.Password" oninvalid="InvalidMsg(this, 'Ingrese el password')" required="required">
+                        <span class="glyphicon glyphicon-lock form-control-feedback"></span>
+                    </div>
+                    <div class="row">
+                        <div class="col-xs-8">
+                            <div class="checkbox icheck">
+                                <label>
+                                    <input type="checkbox" id="Recordar" name="Recordar" value="true" @(Model.Recordar ? "checked=\"checked\"" : "")> Recordármelo la próxima vez
+                                </label>
+                            </div>
+                        </div>
+                        <!-- /.col -->
+                        <div class="col-xs-4">
+                            <button type="submit" class="btn btn-primary btn-block btn-flat">Ingresar</button>
+                        </div>
+                        <!-- /.col -->
+                    </div>
+                    <a href="#">¿Ha olvidado la contraseña?</a><br>
+                    }
+               
+            </div>
+            <!-- /.login-box-body -->
+        </div>
+    </div>
+</section>
+<script src="~/Scripts/bootstrap.min.js"></script>
+<script src="~/ScriptsSelect/bootstrap-select.js"></script>
+<script src="~/Scripts/BI.js"></script>
+<script>
+    $(document).ready(function () {
+
+        document.getElementById('signupform').submit();
+        @*var contras = (@Model.Password).toString();
+        var usuario = @Model.Usuario;*@
+        //alert(usuario)
+
+    });
+
+</script>
+

@@ -1,0 +1,143 @@
+﻿
+<table class="table table-hover dataTable  table-striped table-responsive">
+    <thead>
+        <tr style="background-color:#dd4b39; color:#ecf0f1">
+            <th>Id</th>
+            <th>Nombre</th>
+            <th>Orden</th>
+            <th>Padre</th>
+            <th>                
+            </th>
+        </tr>
+    </thead>
+    <tbody data-bind="foreach:">
+        @using CapaEntidad.Control
+        @model IEnumerable<Ent_Funcion>
+
+        @foreach (Ent_Funcion item in Model)
+        {
+            <tr>
+                <td>@item.fun_id.ToString()</td>
+                <td>@item.fun_nombre.ToString()</td>
+                <td>@item.fun_orden</td>
+                <td>@item.fun_padre</td>
+                <td>
+                    <div class="pull-right">
+                        <button title="Editar Funcion" style="border-radius:50%" class="btneditar btn btn-primary" data-id="@item.fun_id" data-modal="" data-toggle="modal"><span class="glyphicon glyphicon-pencil"></span></button>
+                        &nbsp;
+                        <button title="Agregar Aplicación" style="border-radius:50%" class="btnapli btn btn-success" data-id="@item.fun_id" data-modal="" data-toggle="modal"><span class="glyphicon glyphicon-list-alt"></span></button>
+                    </div>
+                </td>
+            </tr>
+
+        }
+    </tbody>
+    @if (Model.Count() != 0)
+    {
+        <tfoot>
+            <tr>
+                <th>Id</th>
+                <th>Nombre</th>
+                <th>Orden</th>
+                <th>Padre</th>
+                <th>
+                </th>
+            </tr>
+        </tfoot>
+    }
+</table>
+<div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" ng-app>
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div id='myModalContent'></div>
+        </div>
+    </div>
+</div>
+<script>
+    $(document).ready(function () {
+        $('.table').dataTable({
+            "language": {
+                "url": "../Scripts/DataTables/Spanish.json"
+            }
+        });
+    });
+</script>
+<script>
+
+    $(function () {
+        $(".btneditar").click(function () {
+            var TeamDetailPostBackURL ="@Url.Action("Edit", "Funcion")";
+            //debugger;
+            var $buttonClicked = $(this);
+            waitingDialog.show('Espere un momento por favor');
+            var id = $buttonClicked.attr('data-id');
+            var options = { "backdrop": "static", keyboard: true };
+            $.ajax({
+                type: "GET",
+                url: TeamDetailPostBackURL,
+                contentType: "application/json; charset=utf-8",
+                data: { "Id": id },
+                datatype: "json",
+                cache: true,
+                success: function (data) {
+                    //debugger;
+                    waitingDialog.hide();
+                    $('#myModalContent').html(data);
+                    $('#myModal').modal(options);
+                    $('#myModal').modal('show');
+                    // debugger;
+
+                },
+                error: function () {
+                    waitingDialog.hide();
+                    alert("Dynamic content load failed.");
+                }
+            });
+        });
+
+
+        $("#closbtn").click(function () {
+            // debugger;
+            waitingDialog.hide();
+            $('#myModal').modal('hide');
+        });
+    });
+    $(function () {
+        $(".btnapli").click(function () {
+            var TeamDetailPostBackURL ="@Url.Action("Aplicacion", "Funcion")";
+            //debugger;
+            var $buttonClicked = $(this);
+            var id = $buttonClicked.attr('data-id');
+            waitingDialog.show('Espere un momento por favor');
+            var options = { "backdrop": "static", keyboard: true };
+            $.ajax({
+                type: "GET",
+                url: TeamDetailPostBackURL,
+                contentType: "application/json; charset=utf-8",
+                data: { "Id": id },
+                datatype: "json",
+                cache: true,
+                success: function (data) {
+                    waitingDialog.hide();
+                    //debugger;
+                    $('#myModalContent').html(data);
+                    $('#myModal').modal(options);
+                    $('#myModal').modal('show');
+                    // debugger;
+
+                },
+                error: function () {
+                    waitingDialog.hide();
+                    alert("Dynamic content load failed.");
+                }
+            });
+        });
+
+
+        $("#closbtn").click(function () {
+            // debugger;
+            waitingDialog.hide();
+            $('#myModal').modal('hide');
+        });
+    });
+</script>

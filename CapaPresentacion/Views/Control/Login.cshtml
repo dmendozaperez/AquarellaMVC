@@ -1,0 +1,63 @@
+﻿@model CapaPresentacion.Models.Control.LoginViewModel
+@{
+    Layout = null;
+}
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Login - Aquarella</title>
+    <link rel="icon" type="image/x-icon" href="@Url.Content("~/Images/lock-favicon.png")" />    
+    @Styles.Render("~/Content/vendors/bootstrap/dist/css/bootstrap.min.css")
+    @Styles.Render("~/Content/vendors/font-awesome/css/font-awesome.min.css")
+    @Styles.Render("~/Content/vendors/pnotify/dist/pnotify.css")
+    @Styles.Render("~/Content/vendors/pnotify/dist/pnotify.buttons.css")
+    @Styles.Render("~/Content/vendors/pnotify/dist/pnotify.nonblock.css")
+    @Styles.Render("~/Content/custom.css") 
+  
+</head>
+<body style="background:#F7F7F7;">
+    <div id="pageWrapper" class="">
+        <a class="hiddenanchor" id="toregister"></a>
+        <a class="hiddenanchor" id="tologin"></a>
+        <div id="wrapper" class="mod_wrapper">
+            <div id="login" class="form">
+                <div style="text-align:center;">
+                    <img src="@Url.Content("~/Content/AdminLTE/img/Logo_aq_Ico.jpg")" style="width: 80px;height: 80px;border-radius: 40px;" alt="Aquarella" width="150" height="150">
+                    @*border:2px solid red*@                   
+                </div>
+                <section class="login_content">
+                    @using (Html.BeginForm("Login", "Control", new { returnUrl = Model.returnUrl }, FormMethod.Post, new { @class = "login-box-body" }))
+                    {
+                        <h1>Iniciar Sesión</h1>
+                        <div>
+                            <input name="Usuario" id="Usuario" type="text" class="form-control" placeholder="Usuario" data-parsley-maxlength="255" data-parsley-maxlength-message="Ingresar un nombre de usuario valido" required="required" />
+                        </div>
+                        <div>
+                            <input name="Password" id="txtContrasena" type="Password" class="form-control" placeholder="Contraseña" data-parsley-maxlength="255" data-parsley-maxlength-message="Ingresar una contraseña valida" required="required" />
+                        </div>
+                        <div>
+                            <input id="btnEnviar" type="submit" class="btn btn-default submit"  value="Iniciar sesión" />
+                
+                        </div>
+                        <div class="clearfix"></div>
+                        <div class="separator">
+                            <div class="clearfix"></div>
+                            <br />
+                            <div>
+                                <h1><img src="@Url.Content("~/Content/AdminLTE/img/Logo_aq_Ico.jpg")"  style="border-radius: 23px;" width=46 height=46 >&nbsp;&nbsp;Aquarella</h1>
+                                <p>Área de Sistemas - Bata Perú - &copy; @DateTime.Now.Year</p>
+                            </div>
+                        </div>                 
+                    }
+                </section>
+            </div>
+        </div>
+    </div>   
+</body>
+</html>
+
+

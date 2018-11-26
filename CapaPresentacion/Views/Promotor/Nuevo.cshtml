@@ -1,0 +1,60 @@
+﻿@using CapaEntidad.Control
+@model IEnumerable<Ent_Funcion>
+@{
+    ViewBag.Title = "Registro de Promotora";
+}
+<p class="text-danger">(*):Datos obligatorios..</p>
+@Scripts.Render("~/bundles/bootstrap")
+@*<p class="text-danger">Muestra la lista de Funciones utilizadas. Permite crear nuevas funciones dentro del sistema y editar las existentes.</p>*@
+<div class="box box-body box-default">@*box-danger">*@
+       
+    <form id="form1">
+        <div class="row" style="margin-top:10px;margin-left:10px;margin-right:10px;margin-bottom:10px;background-color:#f4f4f4;border-radius:5px;padding-top:10px;padding-bottom:10px;">
+
+            <div class="col-sm-3" style="margin-top:2px;margin-bottom:2px;">
+                <label for="disponible">Nro. Documento</label>
+            </div>
+            <div class="col-sm-3" style="margin-top:2px;margin-bottom:2px;">
+                <input id="txtdocumento" type="text" placeholder="Ingrese documento" style="width :100%;" autofocus class="form-control" />
+            </div>
+            <div class="col-sm-3" style="margin-top:2px;margin-bottom:2px;">
+                <button type="submit" id="btnConsultar" name="btnaceptar" style="width:50%" title="Consultar" class="nuevo btn btn-small btn-primary" data-modal="" data-toggle="modal">Consultar</button>
+
+            </div>
+            <div class="col-sm-2">
+            </div>
+            <div class="col-sm-1">
+               
+            </div>
+            <div class="col-sm-2">
+
+            </div>
+            <div class="col-sm-1">
+
+            </div>
+            <div class="col-sm-1">
+
+            </div>
+            <div class="col-sm-1">
+
+            </div>
+
+
+        </div>
+
+        <div class="modal-content">
+            <div class="modal-header modal-header-danger">
+                <h4 class="modal-title" id="myModalLabel">Creando Nueva Función</h4>
+            </div>
+            <div class="modal-body">
+
+              
+            </div>
+            
+        </div>
+    </form>
+</div>
+
+<script>
+   
+</script>

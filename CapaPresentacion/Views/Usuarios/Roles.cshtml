@@ -1,0 +1,83 @@
+﻿@using CapaEntidad.Control
+@model IEnumerable<Ent_Roles>
+@{
+    Layout = null;
+}
+@Scripts.Render("~/bundles/bootstrap-select")
+@Styles.Render("~/Content/Bootstrap-Select/css")
+<link rel="stylesheet" type="text/css" href="~/Content/bootstrap-select.css" />
+
+<div class="modal-content">
+    <div style="background-color:#c0392b; color:white;" class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="myModalLabel">Adicionar Roles a Usuario</h4>
+    </div>
+    <div class="modal-body">
+        @using (Ajax.BeginForm("Edit", new AjaxOptions { OnBegin = "onAgregar_Rol();" }))
+        {
+            <form id="editfuncion" role="form">
+                <input type="hidden" id="idusu" value="@ViewBag.usuid" />
+                <div class="form-group">
+                    <div class="input-group">
+                        <label for="dwapl">Roles {Usuario - @ViewBag.usunombre}</label>
+                    </div>
+                    <div class="input-group">
+                        @Html.DropDownList("dwrol", new SelectList(ViewBag.roles, "rol_id", "rol_nombre"), new { @class = "selectCountry form-control", @data_live_search = "true", @id = "dwrol", @required = "required" })
+                        <span class="input-group-btn">
+                            <button type="submit" title="Agregar aplicación" class="btn btn-primary btn-flat">
+                                <span class="glyphicon glyphicon-plus"></span>
+                            </button>
+                        </span>
+
+                    </div>
+                </div>
+            </form>
+        }
+        <div class="form-group" id="listarol">
+            @{Html.RenderPartial("ListaRolUsu", Model); }
+        </div>
+    </div>
+
+</div>
+<script>
+
+
+$(document).ready(function() {
+    $("#dwrol").select({
+        dropdownParent: $("#myModal")
+  });
+});
+
+</script>
+<script>
+    function onAgregar_Rol() {
+        var msg_titulo = 'Mensaje Aquarella!';
+        var usuid = $("#idusu").val();
+        var rolid = $('select[name=dwrol]').selectpicker('val');
+        waitingDialog.show('Espere un momento por favor');
+        $.ajax
+             ({
+                 url: '../Usuarios/Agregar_Rol',
+                 dataType: "json",
+                 type: "POST",
+                 data: { usu_id: usuid, rol_id: rolid },
+                 success: function (data, textStatus, XMLHttpRequest) {
+                     if (data.estado == '1') {
+                         $('#listarol').load('@Url.Action("ListaRolUsu", "Usuarios")', { usuid: usuid });
+                         waitingDialog.hide();
+                         toastr.success(data.desmsg, msg_titulo);
+
+                     }
+                     else {
+                         waitingDialog.hide();
+                         toastr.error(data.desmsg, msg_titulo);
+                     }
+                 },
+                 error: function (xhr) {
+                     waitingDialog.hide();
+                     toastr.error(xhr, msg_titulo);
+                 }
+             })
+
+    }
+</script>

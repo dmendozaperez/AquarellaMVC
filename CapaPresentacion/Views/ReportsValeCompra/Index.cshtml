@@ -1,0 +1,150 @@
+﻿@using CapaEntidad.ReportsValeCompra
+@model IEnumerable<Reporte_Resultado>
+@{
+    ViewBag.Title = "Reporte Vales de compra";
+    AjaxOptions options = new AjaxOptions
+    {
+        HttpMethod = "GET",
+        InsertionMode = InsertionMode.Replace,
+        UpdateTargetId = "lista",
+        OnComplete = "waitingDialog.hide();",
+        OnBegin = "waitingDialog.show('Espere un momento por favor');",
+        OnFailure = "waitingDialog.hide();"
+    };
+
+}
+
+@*@Scripts.Render("~/bundles/bootstrap-select_Select")*@
+<link href="~/ContentSelect/bootstrap-select.css" rel="stylesheet" />
+<style>
+#dwcliente{
+ width:200px;   
+}
+</style>
+<p class="text-danger"></p>
+<div class="box box-body box-primary">
+    @using (Ajax.BeginForm("ListaValeCompra", options))
+    {   
+            <form id="form1">
+                <div class="row">
+                    <div class="col-sm-5">
+                        <table style="width:100%">
+                            <tr>
+                                <td width="40%"><label for="disponible">Cl. Institucional &nbsp;&nbsp;&nbsp;&nbsp;</label></td>
+                                <td  width="60%">
+                                    <div class="input-group">
+                                        @Html.DropDownList("dwcliente", new SelectList(ViewBag.cliente, "cli_Ruc", "cli_razonSocial", "0"), new { @class = "selectpicker", multiple = "multiple", @data_live_search = "true", @id = "dwcliente", @name = "dwcliente", style = "width:270px;max-width:270px;" })
+                                    </div>
+                                </td>
+                            </tr>
+
+                        </table>
+                    </div>
+                    <div class="col-sm-5">
+                        <table style="width:100%">
+                            <tr>
+                                <td  width="40%"><label for="disponible">Estado&nbsp;&nbsp;&nbsp;&nbsp;</label></td>
+                                <td  width="60%">
+                                    <div class="input-group">
+                                        <select class="selectpicker" id="estado" name="estado">
+                                            <option value="">---Todos---</option>
+                                            <option value="CO">Consumido</option>
+                                            <option value="DS">Disponible</option>
+                                        </select>
+                                    </div>
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
+                    <div class="col-sm-2">
+                        <table style="width:100%">
+                            <tr>
+                                <td width="40%">
+                                    <label></label>
+                                    <button type="submit" title="Consultar" class="btn btn-primary">
+                                        <span class="glyphicon glyphicon-search"></span>
+                                    </button>
+                                    <a href="@Url.Action("ExportToExcel")" title="Exportar a excel" class="btn btn-primary">Exportar</a>
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
+                    
+                </div>
+                <div class="row">
+                    <div class="col-sm-5">
+                        <table style="width:100%">
+                        <tr><td  width="40%"><label for="disponible">Total Disponible (S/.) &nbsp;&nbsp;&nbsp;&nbsp;</label></td>
+                            <td width="60%"><div class="input-group">
+                                    <input id="txtDisponible" type="text" value="" disabled autofocus class="form-control" />
+                                </div>
+                            </td>
+                            </tr>
+                        </table>
+                    </div>
+                    <div class="col-sm-5">
+                        <table  style="width:100%">
+                            <tr>
+                                <td  width="40%"><label for="consumido">Total Consumido (S/.) &nbsp;&nbsp;&nbsp;&nbsp;</label></td>
+                                <td  width="60%">
+                                    <div class="input-group">
+                                        <input id="txtconsumido" type="text" value="" disabled autofocus class="form-control" />
+                                    </div>
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
+                                      
+               </div>
+               
+            </form>  
+    }
+    <div class="box-body" id="lista">
+        @{Html.RenderPartial("ListaValeCompra", Model);}
+    </div>
+    <br />
+
+
+</div>
+<script src="~/Scripts/bootstrap.min.js"></script>
+<script src="~/ScriptsSelect/bootstrap-select.js"></script>
+<script>
+    $(document).ready(function () {
+       
+        //MostrarListado()
+    });
+
+    function MostrarListado() {
+        var estado = $('#estado').val();
+        var strRuc = '';
+
+        var TeamDetailPostBackURL ="@Url.Action("ListaValeCompra", "ReportsValeCompra")";
+
+        var options = { "backdrop": "static", keyboard: true };
+        $.ajax({
+            type: "GET",
+            url: TeamDetailPostBackURL,
+            contentType: "application/json; charset=utf-8",
+            data: {},
+            datatype: "json",
+            cache: true,
+            success: function (data) {
+                document.getElementById("lista").innerHTML = data;
+
+            },
+            error: function () {
+
+            }
+        });
+
+    }
+
+    function GenerarExcel() {
+        waitingDialog.show('Espere un momento por favor');
+        $('.xlsExportButton').click();
+        waitingDialog.hide()
+    }
+
+
+</script>
+

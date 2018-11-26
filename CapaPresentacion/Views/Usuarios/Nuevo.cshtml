@@ -1,0 +1,140 @@
+﻿@{
+    Layout = null;
+}
+@Scripts.Render("~/bundles/bootstrap-select")
+@Styles.Render("~/Content/Bootstrap-Select/css")
+<link rel="stylesheet" type="text/css" href="~/Content/bootstrap-select.css" />
+@using (Ajax.BeginForm("Nuevo", new AjaxOptions { OnBegin = "OnNuevo_Grabar();" }))
+{ 
+<div class="modal-content">
+    <div class="modal-header modal-header-danger">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="myModalLabel">Nuevo Usuario</h4>
+    </div>
+    <div class="modal-body">       
+        <div class="panel panel-info">
+            <div class="panel-heading">
+                <h3 class="panel-title">Datos del Usuario</h3>
+            </div>
+            <table class="table table-striped">
+                <tr>
+                    <td><label for="dwtipo">Tipo Usuario</label></td>
+                    <td>
+                        @Html.DropDownList("dwtipo", new SelectList(ViewBag.usuariotipo, "usu_tip_id", "usu_tip_nombre", "0"), new { @class = "selectCountry form-control", @data_live_search = "false", @id = "dwtipo"})
+                    </td>
+                </tr>
+                <tr>
+                    <td><label for="nombre">Nombres</label></td>
+                    <td>
+                        <input type="text" id="nombre" name="nombre"  placeholder="Ingese el nombres" class="form-control" oninvalid="InvalidMsg(this, 'Ingrese el nombre')" required="required"  />                       
+                    </td>
+                </tr>                
+                <tr>
+                    <td><label for="login">Login</label></td>
+                    <td>
+                       
+                        <div class="form-inline" role="form">
+                            <div class="form-group has-feedback">
+                                <input type="text" class="form-control" name="login" id="login" placeholder="Ingrese el Login" oninvalid="InvalidMsg(this, 'Ingrese el login')" required="required">
+                                <span class="glyphicon glyphicon-user form-control-feedback"></span>
+                            </div>
+                        </div>                    
+                    </td>
+                </tr>
+                <tr>
+                    <td><label for="password">Password</label></td>
+                    <td>
+                        <div class="form-inline" role="form">
+                            <div class="form-group has-feedback">
+                                <input type="password" class="form-control" id="password" name="password"  placeholder="Ingrese el Password" oninvalid="InvalidMsg(this, 'Ingrese el password')" required="required">
+                                <span class="glyphicon glyphicon-lock form-control-feedback"></span>
+                            </div>
+                        </div>           
+                    </td>
+                </tr>
+                @*<tr>
+                    <td><label for="cpassword">Confirmar Password</label></td>
+                    <td>
+                        <div class="form-inline" role="form">
+                            <div class="form-group has-feedback">
+                                <input type="password" class="form-control" id="cpassword" name="cpassword" placeholder="Ingrese de nuevo Password" oninvalid="InvalidMsg(this, 'Ingrese el password a confirmar')" required="required">
+                                <span class="glyphicon glyphicon-lock form-control-feedback"></span>
+                            </div>
+                        </div>          
+                    </td>
+                </tr>*@
+            </table>
+        </div><!-- END PANEL -->       
+    </div>
+    <div class="modal-footer" style="margin-top:-30px">
+        <button type="button" class="btn btn-danger" data-dismiss="modal">Cerrar</button>
+        <input type="submit" class="btn btn-primary" id="btnSubmit" value="Guardar" />
+    </div>
+</div>
+}
+<script>
+$(document).ready(function() {
+    //$("#dwtipo").select({
+    //    dropdownParent: $("#myModal")
+
+     
+    //});
+
+    //var ip = java.net.InetAddress.getLocalHost().getHostAddress();
+    //console.log('Tu IP es: "' + ip + '"')
+});
+</script>
+<script type="text/javascript">
+   
+    function InvalidMsg(textbox, str) {
+
+        if (textbox.value.length == 0) {
+            textbox.setCustomValidity(str);
+        }
+        else {
+            textbox.setCustomValidity('');
+        }
+        return true;
+    }
+</script>
+<script type="text/javascript">   
+    function OnNuevo_Grabar() {
+        
+        var msg_titulo = 'Mensaje Aquarella!';
+        var _tipo = $('select[name=dwtipo]').selectpicker('val');
+     
+        var _nombres = $("#nombre").val();
+        var _login = $("#login").val();
+        var _password = $("#password").val();
+        waitingDialog.show('Espere un momento por favor');
+        $.ajax
+             ({
+                 url: '../Usuarios/Nuevo',
+                 dataType: "json",
+                 type: "POST",
+                 data: { nombre: _nombres, login: _login, password: _password, tipo: _tipo },
+                 success: function (data, textStatus, XMLHttpRequest) {
+                     if (data.estado == '1') {
+
+                         $('body').removeClass('modal-open');
+                         $('#myModal').modal('hide');
+
+                         $('.modal-backdrop').remove();
+
+                         $('#lista').load('@Url.Action("ListaUsuario", "Usuarios")', {});
+
+                         waitingDialog.hide();
+                         toastr.success(data.desmsg, msg_titulo);
+                     }
+                     else {
+                         waitingDialog.hide();
+                         toastr.error(data.desmsg, msg_titulo);
+                     }
+                 },
+                 error: function (xhr) {
+                     waitingDialog.hide();
+                     toastr.error(xhr, msg_titulo);
+                 }
+             })
+    }
+</script> 

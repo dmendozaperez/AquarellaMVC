@@ -1,0 +1,63 @@
+﻿@using CapaEntidad.Control
+@model IEnumerable<Ent_Aplicacion>
+@{
+    ViewBag.Title = "Control de Aplicaciones";
+}
+@Scripts.Render("~/bundles/bootstrap")
+
+<p class="text-danger">Muestra la lista de Aplicaciones (Formularios Web). Permite crear nuevas Aplicación para utilizar en el Sistema y editar las existentes.</p>
+<div class="box box-body box-default">
+
+    <button type="submit" id="btnaceptar" name="btnaceptar" title="Agregar" class="nuevo btn btn-small btn-primary" data-modal="" data-toggle="modal">Agregar Aplicación</button>
+
+    <div class="box-body" id="lista">
+        @{Html.RenderPartial("ListaAplicacion", Model); }
+    </div>
+</div>
+
+<script>
+    $(function () {
+        $(".nuevo").click(function () {
+            waitingDialog.show('Espere un momento por favor');
+            var TeamDetailPostBackURL ="@Url.Action("Nuevo", "Aplicacion")";
+
+            var $buttonClicked = $(this);
+            //var id = $buttonClicked.attr('data-id');
+
+            var options = { "backdrop": "static", keyboard: true };
+            $.ajax({
+                type: "GET",
+                url: TeamDetailPostBackURL,
+                contentType: "application/json; charset=utf-8",
+                data: {},
+                datatype: "json",
+                cache: true,
+                success: function (data) {
+                    waitingDialog.hide();
+
+                    //debugger;
+                    $('#myModalContent').html(data);
+                    $('#myModal').modal(options);
+                    $('#myModal').modal('show');
+
+
+                },
+                error: function () {
+                    waitingDialog.hide();
+                    // waitingDialog.hide();
+                    //removeLoading();
+                    alert("Dynamic content load failed.");
+
+                }
+            });
+        });
+
+
+        $("#closbtn").click(function () {
+            // debugger;
+            waitingDialog.hide();
+            //removeLoading();
+            $('#myModal').modal('hide');
+        });
+    });
+</script>

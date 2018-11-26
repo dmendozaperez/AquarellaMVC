@@ -1,0 +1,76 @@
+﻿@model CapaEntidad.Control.Ent_Roles
+@{
+    Layout = null;
+}
+@using (Ajax.BeginForm("Edit", new AjaxOptions { OnBegin = "OnEditar_Grabar();" }))
+{
+    <div class="modal-content">
+        <div class="modal-header modal-header-danger">
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+            <h4 class="modal-title" id="myModalLabel">Editando Roles</h4>
+        </div>
+        <div class="modal-body">
+            <input type="hidden" id="idrol" value="@Model.rol_id" />
+            <table class="table table-striped">
+                <tr>
+                    <td><label for="nombre">Nombre</label></td>
+                    <td>
+                        <input type="text" id="nombre" value=@Model.rol_nombre placeholder="Ingrese el nombre" autofocus class="form-control" oninvalid="InvalidMsg(this,'Ingrese el nombre')" required="required" />
+                    </td>
+                </tr>              
+            </table>
+        </div>
+        <div class="modal-footer" style="margin-top:-30px">
+            <button type="button" class="btn btn-default" data-dismiss="modal">Cerrar</button>
+            <input type="submit" class="btn btn-primary" id="btnSubmit" value="Aceptar" />
+        </div>
+    </div>
+}
+<script type="text/javascript">
+    function InvalidMsg(textbox, str) {
+
+        if (textbox.value.length == 0) {
+            textbox.setCustomValidity(str);
+        }
+        else {
+            textbox.setCustomValidity('');
+        }
+        return true;
+    }
+</script>
+<script type="text/javascript">
+    function OnEditar_Grabar() {
+        var msg_titulo = 'Mensaje Aquarella!';
+        var id = $("#idrol").val();
+        var nombre = $("#nombre").val();     
+        waitingDialog.show('Espere un momento por favor');
+        $.ajax
+             ({
+                 url: '../Roles/Edit',
+                 dataType: "json",
+                 type: "POST",
+                 data: { id: id,nombre: nombre},
+                 success: function (data, textStatus, XMLHttpRequest) {
+                     if (data.estado == '1') {
+
+                         $('#myModal').modal('hide');
+                         $('body').removeClass('modal-open');
+                         $('.modal-backdrop').remove();
+
+                         $('#lista').load('@Url.Action("ListaRoles", "Roles")', {});
+                         waitingDialog.hide();
+                         toastr.success(data.desmsg, msg_titulo);
+                     }
+                     else {
+                         waitingDialog.hide();
+                         toastr.error(data.desmsg, msg_titulo);
+                     }
+                 },
+                 error: function (xhr) {
+                     waitingDialog.hide();
+                     toastr.error(xhr, msg_titulo);
+                 }
+             })
+
+    }
+</script>
