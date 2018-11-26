@@ -13,6 +13,10 @@ namespace CapaDato.ReportsValeCompra
 {
     public class Dat_ArticuloStock
     {
+        public Boolean ba()
+        {
+            return false;
+        }
         public List<Articulo_Stock_Tienda> listar_ArticuloStock(string Cod_Articulo)  
         {
             string sqlquery = "USP_Obtener_Articulo_StockTienda";
