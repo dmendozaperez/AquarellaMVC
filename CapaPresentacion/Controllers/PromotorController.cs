@@ -1,14 +1,17 @@
 ﻿using CapaDato.Control;
+using CapaDato.Util;
 using CapaEntidad.Control;
 using CapaEntidad.Menu;
 using CapaEntidad.Util;
 using CapaPresentacion.Bll;
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 using System.Net;
 using System.Web;
 using System.Web.Mvc;
+using System.Web.Script.Serialization;
 
 namespace CapaPresentacion.Controllers
 {
@@ -16,6 +19,8 @@ namespace CapaPresentacion.Controllers
     {
         // GET: Funcion
         private Dat_Funcion funcion = new Dat_Funcion();
+
+        private Dat_Util datUtil = new Dat_Util();
         private string _session_listfuncion_private = "session_listfun_private";
         [Authorize]
         public ActionResult Nuevo()
@@ -40,6 +45,29 @@ namespace CapaPresentacion.Controllers
                 #endregion
                 if (valida_rol)
                 {
+
+              
+                    Ent_Promotor_Maestros maestros = datUtil.ListarEnt_Maestros_Promotor("");
+                    
+                    List<Ent_Combo> listobj = new List<Ent_Combo>();
+                    Ent_Combo cbo = new Ent_Combo();
+                    cbo.codigo = "-1";
+                    cbo.descripcion = "------Selecccione------";
+                    listobj.Add(cbo);
+
+                    ViewBag.listDepartamento = maestros.combo_ListDepartamento;
+                    ViewBag.listLider = maestros.combo_ListLider;
+                    ViewBag.listTipoDoc = maestros.combo_ListTipoDoc;
+                    ViewBag.listTipoPersona = maestros.combo_ListTipoPersona;
+                    ViewBag.listTipoUsuario = maestros.combo_ListTipoUsuario;
+
+
+
+
+
+                    ViewBag.General = listobj;
+
+
                     return View();
                 }
                 else
@@ -49,6 +77,31 @@ namespace CapaPresentacion.Controllers
             }
 
         }
-       
+
+        public JsonResult GenerarCombo(int Numsp, string Params)
+        {
+            string strJson = "";
+            JsonResult jRespuesta = null;
+            var serializer = new JavaScriptSerializer();
+
+
+            switch (Numsp)
+            {
+                case 1:
+                    strJson = datUtil.listarStr_Provincia(Params);
+                    jRespuesta = Json(serializer.Deserialize<List<Ent_Combo>>(strJson), JsonRequestBehavior.AllowGet);
+                    break;
+                case 2:
+                    String[] substrings = Params.Split('|');
+                    strJson = datUtil.listarStr_Distrito(Params);
+                    jRespuesta = Json(serializer.Deserialize<List<Ent_Combo>>(strJson), JsonRequestBehavior.AllowGet);
+                    break;
+                default:
+                    Console.WriteLine("Default case");
+                    break;
+            }
+            return jRespuesta;
+        }
+
     }
 }

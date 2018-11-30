@@ -71,43 +71,43 @@ namespace CapaDato.ReportsValeCompra
         }
 
 
-        public List<Departamento> listar_Departamento()
-        {
-            string sqlquery = "USP_Obtener_Articulo_StockDepartamento";
-            List<Departamento> lista = null;
-            try
-            {
-                using (SqlConnection cn = new SqlConnection(Ent_Conexion.conexionPosPeru))
-                {
-                    using (SqlCommand cmd = new SqlCommand(sqlquery, cn))
-                    {
+        //public List<Departamento> listar_Departamento()
+        //{
+        //    string sqlquery = "USP_Obtener_Articulo_StockDepartamento";
+        //    List<Departamento> lista = null;
+        //    try
+        //    {
+        //        using (SqlConnection cn = new SqlConnection(Ent_Conexion.conexionPosPeru))
+        //        {
+        //            using (SqlCommand cmd = new SqlCommand(sqlquery, cn))
+        //            {
                       
-                        cmd.CommandTimeout = 0;
-                        cmd.CommandType = CommandType.StoredProcedure;
-                        using (SqlDataAdapter da = new SqlDataAdapter(cmd))
-                        {
-                            DataTable dt = new DataTable();
-                            da.Fill(dt);
-                            lista = new List<Departamento>();
-                            lista = (from DataRow dr in dt.Rows
-                                     select new Departamento()
-                                     {
-                                         Dep_Id = dr["DEP_ID"].ToString(),
-                                         Dep_Descripcion = dr["DEP_DESCRIPCION"].ToString(),
+        //                cmd.CommandTimeout = 0;
+        //                cmd.CommandType = CommandType.StoredProcedure;
+        //                using (SqlDataAdapter da = new SqlDataAdapter(cmd))
+        //                {
+        //                    DataTable dt = new DataTable();
+        //                    da.Fill(dt);
+        //                    lista = new List<Departamento>();
+        //                    lista = (from DataRow dr in dt.Rows
+        //                             select new Departamento()
+        //                             {
+        //                                 Dep_Id = dr["DEP_ID"].ToString(),
+        //                                 Dep_Descripcion = dr["DEP_DESCRIPCION"].ToString(),
                                                                                 
-                                     }).ToList();
+        //                             }).ToList();
 
-                        }
-                    }
-                }
-            }
-            catch (Exception exc)
-            {
+        //                }
+        //            }
+        //        }
+        //    }
+        //    catch (Exception exc)
+        //    {
 
-                lista = null;
-            }
-            return lista;
-        }
+        //        lista = null;
+        //    }
+        //    return lista;
+        //}
 
         public List<Provincia> listar_Provincia(string CodDepartamento)
         {

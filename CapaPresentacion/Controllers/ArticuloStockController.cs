@@ -215,14 +215,14 @@ namespace CapaPresentacion.Controllers
             {
                 if (_accesoMenu == true)
                 {
-                    var lista = datArticuloStock.listar_Departamento();
-                    var obj = lista[0];
-                    List<Departamento> listobj = new List<Departamento>();
-                    listobj.Add(obj);
+                    //var lista = datArticuloStock.listar_Departamento();
+                    //var obj = lista[0];
+                    //List<Departamento> listobj = new List<Departamento>();
+                    //listobj.Add(obj);
 
-                    ViewBag.listDepartamento = lista;
-                    ViewBag.General = listobj;
-                    ViewBag.Usuario = _usuario.usu_nombre;
+                    //ViewBag.listDepartamento = lista;
+                    //ViewBag.General = listobj;
+                    //ViewBag.Usuario = _usuario.usu_nombre;
 
                     return View();
                 }
@@ -239,14 +239,14 @@ namespace CapaPresentacion.Controllers
                     #endregion
                     if (valida_rol)
                     {
-                        var lista = datArticuloStock.listar_Departamento();
-                        var obj = lista[0];
-                        List<Departamento> listobj = new List<Departamento>();
-                        listobj.Add(obj);
+                        //var lista = datArticuloStock.listar_Departamento();
+                        //var obj = lista[0];
+                        //List<Departamento> listobj = new List<Departamento>();
+                        //listobj.Add(obj);
 
-                        ViewBag.listDepartamento = lista;
-                        ViewBag.General = listobj;
-                        ViewBag.Usuario = _usuario.usu_nombre;
+                        //ViewBag.listDepartamento = lista;
+                        //ViewBag.General = listobj;
+                        //ViewBag.Usuario = _usuario.usu_nombre;
                     
                         return View();
                     }

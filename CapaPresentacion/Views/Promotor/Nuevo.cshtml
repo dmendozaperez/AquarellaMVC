@@ -4,57 +4,445 @@
     ViewBag.Title = "Registro de Promotora";
 }
 <p class="text-danger">(*):Datos obligatorios..</p>
-@Scripts.Render("~/bundles/bootstrap")
+
+@*@Scripts.Render("~/bundles/bootstrap")*@
+@*<link href="~/Content/css/style.css" rel="stylesheet" />*@
+@*<link href="~/Content/style.css" rel="stylesheet" />*@
 @*<p class="text-danger">Muestra la lista de Funciones utilizadas. Permite crear nuevas funciones dentro del sistema y editar las existentes.</p>*@
-<div class="box box-body box-default">@*box-danger">*@
-       
-    <form id="form1">
-        <div class="row" style="margin-top:10px;margin-left:10px;margin-right:10px;margin-bottom:10px;background-color:#f4f4f4;border-radius:5px;padding-top:10px;padding-bottom:10px;">
+<link href="~/ContentSelect/bootstrap-select.css" rel="stylesheet" />
+<div class="box box-body box-default">
 
-            <div class="col-sm-3" style="margin-top:2px;margin-bottom:2px;">
-                <label for="disponible">Nro. Documento</label>
-            </div>
-            <div class="col-sm-3" style="margin-top:2px;margin-bottom:2px;">
-                <input id="txtdocumento" type="text" placeholder="Ingrese documento" style="width :100%;" autofocus class="form-control" />
-            </div>
-            <div class="col-sm-3" style="margin-top:2px;margin-bottom:2px;">
-                <button type="submit" id="btnConsultar" name="btnaceptar" style="width:50%" title="Consultar" class="nuevo btn btn-small btn-primary" data-modal="" data-toggle="modal">Consultar</button>
+   
+    <div class="row" style="margin-top:10px;margin-left:10px;margin-right:10px;margin-bottom:10px;background-color:#f4f4f4;border-radius:5px;padding-top:10px;padding-bottom:10px;">
 
-            </div>
-            <div class="col-sm-2">
-            </div>
-            <div class="col-sm-1">
-               
-            </div>
-            <div class="col-sm-2">
-
-            </div>
-            <div class="col-sm-1">
-
-            </div>
-            <div class="col-sm-1">
-
-            </div>
-            <div class="col-sm-1">
-
-            </div>
-
+        <div class="col-sm-3" style="margin-top:2px;margin-bottom:2px;">
+            <label for="disponible">*Nro. Documento</label>
+        </div>
+        <div class="col-sm-3" style="margin-top:2px;margin-bottom:2px;">
+            <input id="txtdocumentoIni" type="text" placeholder="Ingrese documento" style="width :100%;" autofocus class="form-control" />
+        </div>
+        <div class="col-sm-3" style="margin-top:2px;margin-bottom:2px;">
+            <button type="submit" id="btnConsultar" name="btnaceptar" style="width:50%" title="Consultar" class="nuevo btn btn-small btn-primary" data-modal="" data-toggle="modal">Consultar</button>
 
         </div>
+   
+    </div> 
+    
+   
+    
 
+
+    <div class="row" style="margin-top:10px;margin-left:10px;margin-right:10px;margin-bottom:10px;border-radius:5px;padding-top:10px;padding-bottom:10px;">
+            <div class="modal-content">
+                <div class="modal-header modal-header-danger">
+                    <h5 class="modal-title" id="myModalLabel">Datos Básicos</h5>
+                </div>
+                <div class="modal-body">
+
+                    <div class="row" style="margin-top:10px;margin-left:10px;margin-right:10px;margin-bottom:10px;border-radius:5px;padding-top:10px;padding-bottom:10px;">
+
+                        <div class="col-sm-3" style="margin-top:2px;margin-bottom:2px;">
+                            <label for="disponible">*Tipo Documento</label>
+                        </div>
+                        <div class="col-sm-3" style="margin-top:2px;margin-bottom:2px;">
+                          @Html.DropDownList("dwTipoDoc", new SelectList(ViewBag.listTipoDoc, "codigo", "descripcion", "-1"), new { @class = "selectpicker", @data_live_search = "true", @id = "dwTipoDoc", @placeholder = ".col-xs-1" })
+                        </div>
+                        <div class="col-sm-3" style="margin-top:2px;margin-bottom:2px;">
+                            <label for="disponible">*Nro. Documento</label>
+                        </div>
+                        <div class="col-sm-3" style="margin-top:2px;margin-bottom:2px;">
+                            <input id="txtdocumento" type="text" placeholder="Ingrese documento" style="width :100%;" autofocus class="form-control" />
+                        </div>
+
+                    </div>
+                    
+                    <div class="row" style="margin-top:10px;margin-left:10px;margin-right:10px;margin-bottom:10px;border-radius:5px;padding-top:10px;padding-bottom:10px;">
+
+                        <div class="col-sm-3" style="margin-top:2px;margin-bottom:2px;">
+                            <label for="disponible">*Primer Nombre</label>
+                        </div>
+                        <div class="col-sm-3" style="margin-top:2px;margin-bottom:2px;">
+                            <input id="txtPrimernombre" type="text" placeholder="Ingrese nombre" style="width :100%;" autofocus class="form-control" />
+                        </div>
+                        <div class="col-sm-3" style="margin-top:2px;margin-bottom:2px;">
+                            <label for="disponible">Segundo Nombre</label>
+                        </div>
+                        <div class="col-sm-3" style="margin-top:2px;margin-bottom:2px;">
+                            <input id="txtSegundonombre" type="text" placeholder="Ingrese nombre" style="width :100%;" autofocus class="form-control" />
+                        </div>
+
+                    </div>
+                    <div class="row" style="margin-top:10px;margin-left:10px;margin-right:10px;margin-bottom:10px;border-radius:5px;padding-top:10px;padding-bottom:10px;">
+
+                        <div class="col-sm-3" style="margin-top:2px;margin-bottom:2px;">
+                            <label for="disponible">*Primer Apellido</label>
+                        </div>
+                        <div class="col-sm-3" style="margin-top:2px;margin-bottom:2px;">
+                            <input id="txtPrimeroapellido" type="text" placeholder="Ingrese apellido" style="width :100%;" autofocus class="form-control" />
+                        </div>
+                        <div class="col-sm-3" style="margin-top:2px;margin-bottom:2px;">
+                            <label for="disponible">Segundo Apellido</label>
+                        </div>
+                        <div class="col-sm-3" style="margin-top:2px;margin-bottom:2px;">
+                            <input id="txtSegundoapellido" type="text" placeholder="Ingrese apellido" style="width :100%;" autofocus class="form-control" />
+                        </div>
+
+                    </div> 
+                   
+                    <div class="row" style="margin-top:10px;margin-left:10px;margin-right:10px;margin-bottom:10px;border-radius:5px;padding-top:10px;padding-bottom:10px;">
+
+                        <div class="col-sm-3" style="margin-top:2px;margin-bottom:2px;">
+                            <label for="disponible">*Fecha Nacimiento</label>
+                        </div>
+                        <div class="col-sm-3" style="margin-top:2px;margin-bottom:2px;">
+                            <div class="form-group">
+                                <div class="input-group">
+                                    <div id="datepickerini" class="input-group date" data-date-format="dd-mm-yyyy">
+                                        <input id="fecini" name="fecini" value="" class="form-control custom-input" placeholder="dd-mm-yyyy" type="text" />
+                                        <span class="input-group-addon  bg-white"><img src="~/Content/images/wall-calendar-with-lines.svg" height="20" width="20"></span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-sm-3" style="margin-top:2px;margin-bottom:2px;">
+
+                            <div class="radio i-checks"><label> <input type="radio" value="option1" name="a"> <i></i><b> Femenino </b></label></div>
+
+
+                        </div>
+                        <div class="col-sm-3" style="margin-top:2px;margin-bottom:2px;">
+                            <div class="radio i-checks"><label> <input type="radio" checked="" value="option2" name="a"> <i></i> <b>Masculino</b> </label></div>
+                        </div>
+
+                    </div>
+                 
+
+                    
+
+                </div>
+
+            </div>
+        </div>
+    
+    
+
+    <div class="row" style="margin-top:10px;margin-left:10px;margin-right:10px;margin-bottom:10px;border-radius:5px;padding-top:10px;padding-bottom:10px;">
         <div class="modal-content">
             <div class="modal-header modal-header-danger">
-                <h4 class="modal-title" id="myModalLabel">Creando Nueva Función</h4>
+                <h5 class="modal-title" id="myModalLabel">Tipo Persona y Otros</h5>
             </div>
             <div class="modal-body">
 
-              
+                <div class="row" style="margin-top:10px;margin-left:10px;margin-right:10px;margin-bottom:10px;border-radius:5px;padding-top:10px;padding-bottom:10px;">
+
+                    <div class="col-sm-3" style="margin-top:2px;margin-bottom:2px;">
+                        <label for="disponible">*Tipo Persona</label>
+                    </div>
+                    <div class="col-sm-3" style="margin-top:2px;margin-bottom:2px;">
+                        @Html.DropDownList("dwTipoPersona", new SelectList(ViewBag.listTipoPersona, "codigo", "descripcion", "-1"), new { @class = "selectpicker", @data_live_search = "true", @id = "dwTipoPersona", @placeholder = ".col-xs-1" })
+                    </div>
+                    <div class="col-sm-3" style="margin-top:2px;margin-bottom:2px;">
+                       
+                    </div>
+                    <div class="col-sm-3" style="margin-top:2px;margin-bottom:2px;">
+                     </div>
+
+                </div>
+
+                <div class="row" style="margin-top:10px;margin-left:10px;margin-right:10px;margin-bottom:10px;border-radius:5px;padding-top:10px;padding-bottom:10px;">
+
+                    <div class="col-sm-3" style="margin-top:2px;margin-bottom:2px;">
+                        <label for="disponible">*E-mail</label>
+                    </div>
+                    <div class="col-sm-3" style="margin-top:2px;margin-bottom:2px;">
+                        <input id="txtCorreo" type="text" placeholder="Ingrese correo" style="width :100%;" autofocus class="form-control" />
+                    </div>
+                    <div class="col-sm-3" style="margin-top:2px;margin-bottom:2px;">
+                        <label for="disponible">Telefono</label>
+                    </div>
+                    <div class="col-sm-3" style="margin-top:2px;margin-bottom:2px;">
+                        <input id="txtTelefono" type="text" placeholder="Ingrese telefono" style="width :100%;" autofocus class="form-control" />
+                    </div>
+
+                </div>
+                <div class="row" style="margin-top:10px;margin-left:10px;margin-right:10px;margin-bottom:10px;border-radius:5px;padding-top:10px;padding-bottom:10px;">
+
+                    <div class="col-sm-3" style="margin-top:2px;margin-bottom:2px;">
+                        <label for="disponible">Nro. Fax</label>
+                    </div>
+                    <div class="col-sm-3" style="margin-top:2px;margin-bottom:2px;">
+                        <input id="txtFax" type="text" placeholder="Ingrese fax" style="width :100%;" autofocus class="form-control" />
+                    </div>
+                    <div class="col-sm-3" style="margin-top:2px;margin-bottom:2px;">
+                        <label for="disponible">Celular</label>
+                    </div>
+                    <div class="col-sm-3" style="margin-top:2px;margin-bottom:2px;">
+                        <input id="txtCelular" type="text" placeholder="Ingrese nro celular" style="width :100%;" autofocus class="form-control" />
+                    </div>
+
+                </div>
+
+
+
+
+
             </div>
-            
+
         </div>
-    </form>
+    </div>
+
+    <div class="row" style="margin-top:10px;margin-left:10px;margin-right:10px;margin-bottom:10px;border-radius:5px;padding-top:10px;padding-bottom:10px;">
+        <div class="modal-content">
+            <div class="modal-header modal-header-danger">
+                <h5 class="modal-title" id="myModalLabel">Ubicación</h5>
+            </div>
+            <div class="modal-body">
+
+                <div class="row" style="margin-top:10px;margin-left:10px;margin-right:10px;margin-bottom:10px;border-radius:5px;padding-top:10px;padding-bottom:10px;">
+
+                    <div class="col-sm-3" style="margin-top:2px;margin-bottom:2px;">
+                        <label for="disponible">*Departamento</label>
+                    </div>
+                    <div class="col-sm-3" style="margin-top:2px;margin-bottom:2px;">
+                        @Html.DropDownList("dwDep", new SelectList(ViewBag.listDepartamento, "codigo", "descripcion", "-1"), new { @class = "selectpicker", @data_live_search = "true", @id = "dwDep", @onchange = "ListarProvincia()", @placeholder = ".col-xs-1" })
+                    </div>
+                    <div class="col-sm-3" style="margin-top:2px;margin-bottom:2px;">
+                        <label for="disponible">*Provincia</label>
+                    </div>
+                    <div id="divProvincia" class="col-sm-3" style="margin-top:2px;margin-bottom:2px;">
+                        @Html.DropDownList("dwProv", new SelectList(ViewBag.General, "codigo", "descripcion", "-1"), new { @class = "selectpicker", @data_live_search = "true", @id = "dwProv",  @placeholder = ".col-xs-1" })
+                        
+                    </div>
+
+                </div>
+
+                <div class="row" style="margin-top:10px;margin-left:10px;margin-right:10px;margin-bottom:10px;border-radius:5px;padding-top:10px;padding-bottom:10px;">
+
+                    <div class="col-sm-3" style="margin-top:2px;margin-bottom:2px;">
+                        <label for="disponible">*Distrito</label>
+                    </div>
+                    <div id="divDistrito" class="col-sm-3" style="margin-top:2px;margin-bottom:2px;">
+                        @Html.DropDownList("dwDist", new SelectList(ViewBag.General, "codigo", "descripcion", "-1"), new { @class = "selectpicker", @data_live_search = "true", @id = "dwDist", @placeholder = ".col-xs-1" })
+                    </div>
+                    <div class="col-sm-3" style="margin-top:2px;margin-bottom:2px;">
+                        <label for="disponible">* Direccion</label>
+                    </div>
+                    <div class="col-sm-3" style="margin-top:2px;margin-bottom:2px;">
+                        <input id="txtDireccion" type="text" placeholder="Ingrese direccion" style="width :100%;" autofocus class="form-control" />
+                    </div>
+
+                </div>
+                <div class="row" style="margin-top:10px;margin-left:10px;margin-right:10px;margin-bottom:10px;border-radius:5px;padding-top:10px;padding-bottom:10px;">
+
+                    <div class="col-sm-3" style="margin-top:2px;margin-bottom:2px;">
+                        <label for="disponible">*Lider</label>
+                    </div>
+                    <div class="col-sm-3" style="margin-top:2px;margin-bottom:2px;">
+                        @Html.DropDownList("dwLider", new SelectList(ViewBag.listLider, "codigo", "descripcion", "-1"), new { @class = "selectpicker", @data_live_search = "true", @id = "dwLider",  @placeholder = ".col-xs-1" })
+                    </div>
+                    <div class="col-sm-3" style="margin-top:2px;margin-bottom:2px;">
+                       
+                    </div>
+                    <div class="col-sm-3" style="margin-top:2px;margin-bottom:2px;">
+                       
+                    </div>
+
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <div class="row" style="margin-top:10px;margin-left:10px;margin-right:10px;margin-bottom:10px;border-radius:5px;padding-top:10px;padding-bottom:10px;">
+        <div class="modal-content">
+            <div class="modal-header modal-header-danger">
+                <h5 class="modal-title" id="myModalLabel">Información especifica</h5>
+            </div>
+            <div class="modal-body">
+
+                <div class="row" style="margin-top:10px;margin-left:10px;margin-right:10px;margin-bottom:10px;border-radius:5px;padding-top:10px;padding-bottom:10px;">
+
+                    <div class="col-sm-3" style="margin-top:2px;margin-bottom:2px;">
+                        <label for="disponible">Agencia</label>
+                    </div>
+                    <div class="col-sm-3" style="margin-top:2px;margin-bottom:2px;">
+                        <input id="txtAgencia" type="text" placeholder="Ingrese agencia" style="width :100%;" autofocus class="form-control" />
+                    </div>
+                    <div class="col-sm-3" style="margin-top:2px;margin-bottom:2px;">
+                        <label for="disponible">Destino</label>
+                    </div>
+                    <div class="col-sm-3" style="margin-top:2px;margin-bottom:2px;">
+                        <input id="txtDestino" type="text" placeholder="Ingrese destino" style="width :100%;" autofocus class="form-control" />
+                    </div>
+
+                </div>
+
+                <div class="row" style="margin-top:10px;margin-left:10px;margin-right:10px;margin-bottom:10px;border-radius:5px;padding-top:10px;padding-bottom:10px;">
+
+                    <div class="col-sm-3" style="margin-top:2px;margin-bottom:2px;">
+                        <label for="disponible">Agencia Ruc</label>
+                    </div>
+                    <div class="col-sm-3" style="margin-top:2px;margin-bottom:2px;">
+                        <input id="txtagencia" type="text" placeholder="Ingrese ruc de agencia" style="width :100%;" autofocus class="form-control" />
+                    </div>
+                    <div class="col-sm-3" style="margin-top:2px;margin-bottom:2px;">
+                        
+                    </div>
+                    <div class="col-sm-3" style="margin-top:2px;margin-bottom:2px;">
+                       
+                    </div>
+
+                </div>
+               
+            </div>
+
+        </div>
+    </div>
 </div>
+<script src="~/Scripts/bootstrap.min.js"></script>
+<script src="~/ScriptsSelect/bootstrap-select.js"></script>
+<script src="~/Scripts/BI.js"></script>
+<script>
+    $(document).ready(function () {
+        ListarProvincia()       
+
+    });
+
+</script>
 
 <script>
-   
+
+    $(function () {
+        $("#datepickerini").datepicker({
+            autoclose: true,
+            todayHighlight: true
+        }).datepicker("setDate", "0");;
+    });
+    
+    function ListarProvincia() {
+        var combo;
+        var CodDepartamento = $("#dwDep").val();
+        var onchangeFuncion = 'ListarDistrito'
+        combo = GenerarLista('1', CodDepartamento);
+        llenarCombo('divProvincia', 'dwProv', combo, '-1', 'Seleccione', 'ListarDistrito');
+        llenarComboVacio('divDistrito', 'dwDist',  '-1', 'Seleccione', '');
+       
+    }
+
+    function ListarDistrito() {
+        var combo;
+        var CodProvincia= $("#dwProv").val();
+        var onchangeFuncion = 'ListarDistrito'
+        combo = GenerarLista('2', CodProvincia);
+        llenarCombo('divDistrito', 'dwDist', combo, '-1', 'Seleccione', '');
+
+    }
+
+    function GenerarLista(Numsp, Params) {
+        var Data
+
+        var url = '@Url.Action("GenerarCombo", "Promotor")';
+        function exito(rpta) {
+            Data = rpta
+        }
+        function error(rpta) {
+            BI.AbrirPopup(20, 15, "Comuniquese con Soporte Tecnico<br>" + rpta.statusText, 'Disculpe!!!', false, true, false)
+        }
+        BI.AjaxJsonSeg("post", url, { Numsp: Numsp, Params: Params }, false, exito, error);
+
+        return Data
+    }
+
+    function llenarCombo(DivId, IdControl, Data, codDefecto, desDefecto,onchangeFuncion) {
+
+        var str = '<select class="selectpicker" data-live-search="true" onchangeFuncion data-width="100%" id="' + IdControl + '" name="' + IdControl + '">';
+        var ItemNormal = '<option value="codItem">desItem</option>';
+        var colectItemNormal = '';
+
+        if (codDefecto != '') { str += '<option value="' + codDefecto + '" selected="selected">------' + desDefecto + '------</option>';}
+        
+        if (onchangeFuncion != '') { onchangeFuncion = 'onchange = "' + onchangeFuncion + '()"' }
+        str = str.replace("onchangeFuncion", onchangeFuncion);
+
+        $.each(Data, function (index, item) {
+
+            colectItemNormal = colectItemNormal + ItemNormal
+            colectItemNormal = colectItemNormal.replace("codItem", item.codigo);
+            colectItemNormal = colectItemNormal.replace("desItem", item.descripcion);
+
+        });       
+
+        str += colectItemNormal
+        str += '</select>'
+
+        document.getElementById(DivId).innerHTML = str
+
+        $('.selectpicker').selectpicker({
+            liveSearch: true,
+            showSubtext: true
+        });
+        
+    }
+
+
+    function llenarCombo(DivId, IdControl, Data, codDefecto, desDefecto, onchangeFuncion) {
+
+        var str = '<select class="selectpicker" data-live-search="true" onchangeFuncion data-width="100%" id="' + IdControl + '" name="' + IdControl + '">';
+        var ItemNormal = '<option value="codItem">desItem</option>';
+        var colectItemNormal = '';
+
+        if (codDefecto != '') { str += '<option value="' + codDefecto + '" selected="selected">------' + desDefecto + '------</option>'; }
+
+        if (onchangeFuncion != '') { onchangeFuncion = 'onchange = "' + onchangeFuncion + '()"' }
+        str = str.replace("onchangeFuncion", onchangeFuncion);
+
+        $.each(Data, function (index, item) {
+
+            colectItemNormal = colectItemNormal + ItemNormal
+            colectItemNormal = colectItemNormal.replace("codItem", item.codigo);
+            colectItemNormal = colectItemNormal.replace("desItem", item.descripcion);
+
+        });
+
+        str += colectItemNormal
+        str += '</select>'
+
+        document.getElementById(DivId).innerHTML = str
+
+        $('.selectpicker').selectpicker({
+            liveSearch: true,
+            showSubtext: true
+        });
+
+    }
+
+    function llenarComboVacio(DivId, IdControl, codDefecto, desDefecto, onchangeFuncion) {
+
+        var str = '<select class="selectpicker" data-live-search="true" onchangeFuncion data-width="100%" id="' + IdControl + '" name="' + IdControl + '">';
+        var ItemNormal = '<option value="codItem">desItem</option>';
+        var colectItemNormal = '';
+
+        if (codDefecto != '') { str += '<option value="' + codDefecto + '" selected="selected">------' + desDefecto + '------</option>'; }
+
+        if (onchangeFuncion != '') { onchangeFuncion = 'onchange = "' + onchangeFuncion + '()"' }
+        str = str.replace("onchangeFuncion", onchangeFuncion);
+
+        str += colectItemNormal
+        str += '</select>'
+
+        document.getElementById(DivId).innerHTML = str
+
+        $('.selectpicker').selectpicker({
+            liveSearch: true,
+            showSubtext: true
+        });
+
+    }
+
+
+
+
+    
+
+
 </script>

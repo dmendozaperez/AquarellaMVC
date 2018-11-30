@@ -9,7 +9,10 @@ namespace CapaEntidad.Util
     public class Ent_Combo
     {
         public string cbo_codigo { get; set; }
-        public string cbo_descripcion { get; set; }        
+        public string cbo_descripcion { get; set; }
+
+        public string codigo { get; set; }
+        public string descripcion { get; set; }
 
     }
 }

@@ -58,6 +58,7 @@
     <Compile Include="Reporte\Dat_Combo.cs" />
     <Compile Include="ReportsValeCompra\Dat_ReportValeCompra.cs" />
     <Compile Include="Reports\Dat_Bataclub.cs" />
+    <Compile Include="Util\Dat_Util.cs" />
     <Compile Include="ValeCompra\Dat_Cliente.cs" />
     <Compile Include="ValeCompra\Dat_ValeCompra.cs" />
   </ItemGroup>

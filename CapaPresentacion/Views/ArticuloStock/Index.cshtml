@@ -34,8 +34,7 @@
         <div class="col-sm-1">
             <label for="disponible">Depto.</label>
         </div>
-        <div class="col-sm-2">
-            
+        <div class="col-sm-2">            
          @Html.DropDownList("dwDep", new SelectList(ViewBag.listDepartamento, "Dep_Id", "Dep_Descripcion", "-1"), new { @class = "selectpicker", @data_live_search = "true", @id = "dwDep", @onchange = "ListarProvincia()",@placeholder = ".col-xs-1" })
         </div>
         <div class="col-sm-1">
