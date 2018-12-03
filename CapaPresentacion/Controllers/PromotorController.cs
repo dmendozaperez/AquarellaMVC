@@ -1,6 +1,8 @@
 ﻿using CapaDato.Control;
 using CapaDato.Util;
+using CapaDato.Persona;
 using CapaEntidad.Control;
+using CapaEntidad.Persona;
 using CapaEntidad.Menu;
 using CapaEntidad.Util;
 using CapaPresentacion.Bll;
@@ -18,9 +20,8 @@ namespace CapaPresentacion.Controllers
     public class PromotorController : Controller
     {
         // GET: Funcion
-        private Dat_Funcion funcion = new Dat_Funcion();
-
         private Dat_Util datUtil = new Dat_Util();
+        private Dat_Persona datPersona = new Dat_Persona();
         private string _session_listfuncion_private = "session_listfun_private";
         [Authorize]
         public ActionResult Nuevo()
@@ -61,10 +62,6 @@ namespace CapaPresentacion.Controllers
                     ViewBag.listTipoPersona = maestros.combo_ListTipoPersona;
                     ViewBag.listTipoUsuario = maestros.combo_ListTipoUsuario;
 
-
-
-
-
                     ViewBag.General = listobj;
 
 
@@ -102,6 +99,106 @@ namespace CapaPresentacion.Controllers
             }
             return jRespuesta;
         }
+
+        public static DataTable _consultaReniec(string _dni)
+        {
+            DataTable dt = null;
+            try
+            {
+
+                ws_clientedniruc.Cons_ClienteSoapClient ws_cliente = new ws_clientedniruc.Cons_ClienteSoapClient();
+                dt = ws_cliente.ws_persona_reniec(_dni);
+
+            }
+            catch (Exception exc)
+            {
+                dt = null;
+            }
+            return dt;
+        }
+
+        public JsonResult ConsultaReniec(string nroDocumento)
+        {
+            string strJson = "";
+            JsonResult jRespuesta = null;
+            var serializer = new JavaScriptSerializer();
+
+            strJson = datPersona.strBuscarPersona(nroDocumento);
+
+            if (strJson != "[]")
+            {
+               jRespuesta = Json(serializer.Deserialize<List<Persona>>(strJson), JsonRequestBehavior.AllowGet);
+            }
+            else {
+
+                DataTable dt = null;
+                Persona persona = new Persona();
+                ws_clientedniruc.Cons_ClienteSoapClient ws_cliente = new ws_clientedniruc.Cons_ClienteSoapClient();
+                dt = ws_cliente.ws_persona_reniec(nroDocumento);
+                Int32 EstadoReniec = Convert.ToInt32(dt.Rows[0]["estado"]);
+                string state = "";
+                switch (EstadoReniec)
+                {
+                    case 217:
+                        state = "2";//error de Capcha
+                        break;
+                    case 231:
+                        state = "0";//todo bien
+                        break;
+                    case 232:
+                        state = "0";//todo bien
+                        break;
+                    case 222:
+                        state = "1";//no se encontre a la persona
+                        break;
+                    default:
+                        state = "3";//Error
+                        break;
+                }
+
+                string nombres = (dt.Rows[0]["nombres"]).ToString();
+                string[] arrNombres = splitString(nombres, ' ');
+
+                if (state == "0") {
+                    string strDni = (dt.Rows[0]["dni"]).ToString();
+                    string apepat = (dt.Rows[0]["apepat"]).ToString();
+
+                    if (nombres != "" && apepat != "")
+                    {
+                        persona.Bas_Documento = (dt.Rows[0]["dni"]).ToString();
+
+                        persona.Bas_Primer_Nombre = arrNombres[0].ToString();
+                        persona.Bas_Primer_Apellido = (dt.Rows[0]["apepat"]).ToString();
+                        persona.Bas_Segundo_Apellido = (dt.Rows[0]["apemat"]).ToString();
+                        if (arrNombres.Length > 1)
+                            persona.Bas_segundo_nombre = arrNombres[1].ToString();
+
+                        state = "3";
+                    }
+                    persona.Estado = state;
+                    persona.Bas_id = "0";
+
+                    
+                }
+                List<Persona> list = new List<Persona>();
+                list.Add(persona);
+                jRespuesta = Json(list, JsonRequestBehavior.AllowGet);
+
+            }
+          
+            return jRespuesta;
+        }
+
+        private static string[] splitString(string _textString, char _character)
+        {
+            string[] split = null;
+            if (!string.IsNullOrEmpty(_textString))
+            {
+                split = _textString.Split(new Char[] { _character });
+            }
+            return split;
+        }
+
 
     }
 }

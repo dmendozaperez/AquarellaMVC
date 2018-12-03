@@ -48,6 +48,7 @@
     <Compile Include="ArticuloSustituto\Articulo_Sustituto_Tienda.cs" />
     <Compile Include="Control\Ent_Aplicacion.cs" />
     <Compile Include="Control\Ent_Tienda.cs" />
+    <Compile Include="Persona\Persona.cs" />
     <Compile Include="Promotor\Ent_Maestro.cs" />
     <Compile Include="ReportsValeCompra\Reporte_Resultado.cs" />
     <Compile Include="ReportsValeCompra\Reporte_Filtro.cs" />

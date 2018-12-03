@@ -3,12 +3,12 @@
 @{
     ViewBag.Title = "Registro de Promotora";
 }
+
 <p class="text-danger">(*):Datos obligatorios..</p>
 
 @*@Scripts.Render("~/bundles/bootstrap")*@
-@*<link href="~/Content/css/style.css" rel="stylesheet" />*@
-@*<link href="~/Content/style.css" rel="stylesheet" />*@
-@*<p class="text-danger">Muestra la lista de Funciones utilizadas. Permite crear nuevas funciones dentro del sistema y editar las existentes.</p>*@
+<link href="~/Content/plugins/iCheck/custom.css" rel="stylesheet" />
+
 <link href="~/ContentSelect/bootstrap-select.css" rel="stylesheet" />
 <div class="box box-body box-default">
 
@@ -22,16 +22,12 @@
             <input id="txtdocumentoIni" type="text" placeholder="Ingrese documento" style="width :100%;" autofocus class="form-control" />
         </div>
         <div class="col-sm-3" style="margin-top:2px;margin-bottom:2px;">
-            <button type="submit" id="btnConsultar" name="btnaceptar" style="width:50%" title="Consultar" class="nuevo btn btn-small btn-primary" data-modal="" data-toggle="modal">Consultar</button>
+            <button type="submit" id="btnConsultar" name="btnConsultar" onclick="BuscarDocumento()" style="width:50%" title="Consultar" class="nuevo btn btn-small btn-primary" data-modal="" data-toggle="modal">Consultar</button>
 
         </div>
    
     </div> 
     
-   
-    
-
-
     <div class="row" style="margin-top:10px;margin-left:10px;margin-right:10px;margin-bottom:10px;border-radius:5px;padding-top:10px;padding-bottom:10px;">
             <div class="modal-content">
                 <div class="modal-header modal-header-danger">
@@ -105,10 +101,7 @@
                             </div>
                         </div>
                         <div class="col-sm-3" style="margin-top:2px;margin-bottom:2px;">
-
                             <div class="radio i-checks"><label> <input type="radio" value="option1" name="a"> <i></i><b> Femenino </b></label></div>
-
-
                         </div>
                         <div class="col-sm-3" style="margin-top:2px;margin-bottom:2px;">
                             <div class="radio i-checks"><label> <input type="radio" checked="" value="option2" name="a"> <i></i> <b>Masculino</b> </label></div>
@@ -302,8 +295,15 @@
 <script src="~/Scripts/bootstrap.min.js"></script>
 <script src="~/ScriptsSelect/bootstrap-select.js"></script>
 <script src="~/Scripts/BI.js"></script>
+<script src="~/Scripts/Plugins/iCheck/icheck.min.js"></script>
 <script>
     $(document).ready(function () {
+
+        $('.i-checks').iCheck({
+            checkboxClass: 'icheckbox_square-green',
+            radioClass: 'iradio_square-green',
+        });
+
         ListarProvincia()       
 
     });
@@ -325,8 +325,7 @@
         var onchangeFuncion = 'ListarDistrito'
         combo = GenerarLista('1', CodDepartamento);
         llenarCombo('divProvincia', 'dwProv', combo, '-1', 'Seleccione', 'ListarDistrito');
-        llenarComboVacio('divDistrito', 'dwDist',  '-1', 'Seleccione', '');
-       
+        llenarComboVacio('divDistrito', 'dwDist',  '-1', 'Seleccione', '');       
     }
 
     function ListarDistrito() {
@@ -352,6 +351,34 @@
 
         return Data
     }
+
+    function BuscarDocumento() {
+      
+        var nroDocumento = $('#txtdocumentoIni').val();
+        var url = '@Url.Action("ConsultaReniec", "Promotor")';
+        function exito(rpta) {
+           
+            verificarDocumento(rpta)
+        }
+        function error(rpta) {
+            BI.AbrirPopup(20, 15, "Comuniquese con Soporte Tecnico<br>" + rpta.statusText, 'Disculpe!!!', false, true, false)
+        }
+        BI.AjaxJsonSeg("post", url, { nroDocumento: nroDocumento }, false, exito, error);
+
+      
+    }
+
+    function verificarDocumento(data) {
+   
+        $.each(data, function (index, item) {
+            alert(item.Bas_id)
+
+        });
+
+    }
+
+
+    
 
     function llenarCombo(DivId, IdControl, Data, codDefecto, desDefecto,onchangeFuncion) {
 

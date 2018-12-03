@@ -1,0 +1,1150 @@
+<?xml version="1.0" encoding="utf-8"?>
+<wsdl:definitions xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/" xmlns:tm="http://microsoft.com/wsdl/mime/textMatching/" xmlns:mime="http://schemas.xmlsoap.org/wsdl/mime/" xmlns:tns="http://www.consultabata.com/" xmlns:http="http://schemas.xmlsoap.org/wsdl/http/" xmlns:s="http://www.w3.org/2001/XMLSchema" xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/" targetNamespace="http://www.consultabata.com/" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">
+  <wsdl:types>
+    <s:schema elementFormDefault="qualified" targetNamespace="http://www.consultabata.com/">
+      <s:element name="ws_validatdabgwb">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="_cod_tda" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="ws_validatdabgwbResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="ws_validatdabgwbResult" type="s:boolean" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="ws_update_cliente">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="_ruc" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="_nombres" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="_apepat" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="_apemat" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="_telefono" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="_email" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="_tda" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="ws_update_clienteResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="ws_update_clienteResult" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="ws_update_venta_empl">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="_Tip_Id_Ven" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="_Nro_Dni_Ven" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="_Cod_Tda_Ven" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="_Nro_Doc_Ven" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="_Tip_Doc_Ven" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="_Ser_Doc_Ven" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="_Num_Doc_Ven" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="_Fec_Doc_Ven" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="_Est_Doc_Ven" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="_Fc_Nin_Ven" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="ws_update_venta_emplResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="ws_update_venta_emplResult" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="ws_update_vales">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="_serie" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="_correlativo" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="_cod_tda_venta" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="_dni_venta" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="_nombres_venta" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="_fecha_doc" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="_tipo_doc" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="_serie_doc" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="_numero_doc" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="_estado_doc" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="_fc_nint" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="_email_venta" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="_telefono_venta" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="ws_update_valesResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="ws_update_valesResult" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="ws_buscar_barra_dni">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="dni" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="ws_buscar_barra_dniResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="ws_buscar_barra_dniResult" type="tns:ArrayOfBarra" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:complexType name="ArrayOfBarra">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="unbounded" name="Barra" nillable="true" type="tns:Barra" />
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="Barra">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="barra" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="promocion" type="s:string" />
+          <s:element minOccurs="1" maxOccurs="1" name="fechac" type="s:dateTime" />
+        </s:sequence>
+      </s:complexType>
+      <s:element name="generacupon">
+        <s:complexType />
+      </s:element>
+      <s:element name="generacuponResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="generacuponResult" type="tns:GeneraCuponBata" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:complexType name="GeneraCuponBata">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="nombres_prin" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="nombres" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="apepat" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="apemat" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="email" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="dni" type="s:string" />
+          <s:element minOccurs="1" maxOccurs="1" name="pordes" type="s:decimal" />
+          <s:element minOccurs="1" maxOccurs="1" name="fechaini" type="s:dateTime" />
+          <s:element minOccurs="1" maxOccurs="1" name="fechafin" type="s:dateTime" />
+          <s:element minOccurs="1" maxOccurs="1" name="paresmax" type="s:decimal" />
+          <s:element minOccurs="0" maxOccurs="1" name="grupo" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="barra" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="correlativo" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="serie" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="tipcup" type="s:string" />
+        </s:sequence>
+      </s:complexType>
+      <s:element name="ws_getbarra">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="genera_cupon" type="tns:GeneraCuponBata" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="ws_getbarraResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="ws_getbarraResult" type="tns:GeneraCuponBata" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="ws_getprombata">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="cod" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="tda" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="dni" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="ws_getprombataResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="ws_getprombataResult" type="tns:PromBata" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:complexType name="PromBata">
+        <s:sequence>
+          <s:element minOccurs="1" maxOccurs="1" name="valida" type="s:boolean" />
+          <s:element minOccurs="0" maxOccurs="1" name="nom_prom" type="s:string" />
+          <s:element minOccurs="1" maxOccurs="1" name="fecha_ini" type="s:dateTime" />
+          <s:element minOccurs="1" maxOccurs="1" name="fecha_fin" type="s:dateTime" />
+          <s:element minOccurs="1" maxOccurs="1" name="por_des" type="s:decimal" />
+          <s:element minOccurs="1" maxOccurs="1" name="max_par" type="s:decimal" />
+        </s:sequence>
+      </s:complexType>
+      <s:element name="ws_buscar_vales">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="_correlativo" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="_code" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="_tda" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="ws_buscar_valesResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="ws_buscar_valesResult">
+              <s:complexType>
+                <s:sequence>
+                  <s:element ref="s:schema" />
+                  <s:any />
+                </s:sequence>
+              </s:complexType>
+            </s:element>
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="ws_buscar_desxdni">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="_dni" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="_codtda" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="_tip_des" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="ws_buscar_desxdniResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="ws_buscar_desxdniResult">
+              <s:complexType>
+                <s:sequence>
+                  <s:element ref="s:schema" />
+                  <s:any />
+                </s:sequence>
+              </s:complexType>
+            </s:element>
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="ws_conscliente">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="_dniruc" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="ws_consclienteResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="ws_consclienteResult">
+              <s:complexType>
+                <s:sequence>
+                  <s:any minOccurs="0" maxOccurs="unbounded" namespace="http://www.w3.org/2001/XMLSchema" processContents="lax" />
+                  <s:any minOccurs="1" namespace="urn:schemas-microsoft-com:xml-diffgram-v1" processContents="lax" />
+                </s:sequence>
+              </s:complexType>
+            </s:element>
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="ws_conscliente_bata">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="_dniruc" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="ws_conscliente_bataResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="ws_conscliente_bataResult">
+              <s:complexType>
+                <s:sequence>
+                  <s:any minOccurs="0" maxOccurs="unbounded" namespace="http://www.w3.org/2001/XMLSchema" processContents="lax" />
+                  <s:any minOccurs="1" namespace="urn:schemas-microsoft-com:xml-diffgram-v1" processContents="lax" />
+                </s:sequence>
+              </s:complexType>
+            </s:element>
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="ws_insertcliente_bata">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="dniruc" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="nombres" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="apelpat" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="apemat" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="email" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="telefono" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="codtda" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="ws_insertcliente_bataResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="ws_insertcliente_bataResult" type="s:boolean" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="ws_persona_reniec">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="_dni" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="ws_persona_reniecResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="ws_persona_reniecResult">
+              <s:complexType>
+                <s:sequence>
+                  <s:any minOccurs="0" maxOccurs="unbounded" namespace="http://www.w3.org/2001/XMLSchema" processContents="lax" />
+                  <s:any minOccurs="1" namespace="urn:schemas-microsoft-com:xml-diffgram-v1" processContents="lax" />
+                </s:sequence>
+              </s:complexType>
+            </s:element>
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="ws_info_sunat">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="_ruc" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="ws_info_sunatResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="ws_info_sunatResult" type="tns:Data_Sunat" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:complexType name="Data_Sunat">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="error" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="direccion" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="nombres" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="ruc" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="telefono" type="s:string" />
+        </s:sequence>
+      </s:complexType>
+      <s:element name="ws_persona_sunat">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="_ruc" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="ws_persona_sunatResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="ws_persona_sunatResult">
+              <s:complexType>
+                <s:sequence>
+                  <s:any minOccurs="0" maxOccurs="unbounded" namespace="http://www.w3.org/2001/XMLSchema" processContents="lax" />
+                  <s:any minOccurs="1" namespace="urn:schemas-microsoft-com:xml-diffgram-v1" processContents="lax" />
+                </s:sequence>
+              </s:complexType>
+            </s:element>
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="ws_ActivaGiftCard">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="numero" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="dni_activa" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="nombres" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="apepat" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="apemat" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="ws_ActivaGiftCardResponse">
+        <s:complexType />
+      </s:element>
+      <s:element name="ws_GrabarSQL_Ticket">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="tienda" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="serie" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="codigo" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="fecha" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="dni" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="nombres" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="apepat" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="apemat" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="forpag" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="tarjeta" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="nro_tarj" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="detail" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="ws_GrabarSQL_TicketResponse">
+        <s:complexType />
+      </s:element>
+      <s:element name="ws_BuscarGiftCard">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="numero" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="ws_BuscarGiftCardResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="ws_BuscarGiftCardResult">
+              <s:complexType>
+                <s:sequence>
+                  <s:any minOccurs="0" maxOccurs="unbounded" namespace="http://www.w3.org/2001/XMLSchema" processContents="lax" />
+                  <s:any minOccurs="1" namespace="urn:schemas-microsoft-com:xml-diffgram-v1" processContents="lax" />
+                </s:sequence>
+              </s:complexType>
+            </s:element>
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="ws_BuscarTicketGF">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="empresa" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="serie" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="numero" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="ws_BuscarTicketGFResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="ws_BuscarTicketGFResult">
+              <s:complexType>
+                <s:sequence>
+                  <s:any minOccurs="0" maxOccurs="unbounded" namespace="http://www.w3.org/2001/XMLSchema" processContents="lax" />
+                  <s:any minOccurs="1" namespace="urn:schemas-microsoft-com:xml-diffgram-v1" processContents="lax" />
+                </s:sequence>
+              </s:complexType>
+            </s:element>
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="ws_verifica_version_apltda">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="_cod_tda" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="_nom_apl" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="_ver_apl" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="ws_verifica_version_apltdaResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="ws_verifica_version_apltdaResult" type="s:boolean" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="ws_update_apltda">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="_cod_tda" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="_nom_apl" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="_ver_apl" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="ws_update_apltdaResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="ws_update_apltdaResult" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="ws_lista_soporte">
+        <s:complexType />
+      </s:element>
+      <s:element name="ws_lista_soporteResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="ws_lista_soporteResult" type="tns:ArrayOfSoporte" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:complexType name="ArrayOfSoporte">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="unbounded" name="Soporte" nillable="true" type="tns:Soporte" />
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="Soporte">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="nombre" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="celular" type="s:string" />
+        </s:sequence>
+      </s:complexType>
+    </s:schema>
+  </wsdl:types>
+  <wsdl:message name="ws_validatdabgwbSoapIn">
+    <wsdl:part name="parameters" element="tns:ws_validatdabgwb" />
+  </wsdl:message>
+  <wsdl:message name="ws_validatdabgwbSoapOut">
+    <wsdl:part name="parameters" element="tns:ws_validatdabgwbResponse" />
+  </wsdl:message>
+  <wsdl:message name="ws_update_clienteSoapIn">
+    <wsdl:part name="parameters" element="tns:ws_update_cliente" />
+  </wsdl:message>
+  <wsdl:message name="ws_update_clienteSoapOut">
+    <wsdl:part name="parameters" element="tns:ws_update_clienteResponse" />
+  </wsdl:message>
+  <wsdl:message name="ws_update_venta_emplSoapIn">
+    <wsdl:part name="parameters" element="tns:ws_update_venta_empl" />
+  </wsdl:message>
+  <wsdl:message name="ws_update_venta_emplSoapOut">
+    <wsdl:part name="parameters" element="tns:ws_update_venta_emplResponse" />
+  </wsdl:message>
+  <wsdl:message name="ws_update_valesSoapIn">
+    <wsdl:part name="parameters" element="tns:ws_update_vales" />
+  </wsdl:message>
+  <wsdl:message name="ws_update_valesSoapOut">
+    <wsdl:part name="parameters" element="tns:ws_update_valesResponse" />
+  </wsdl:message>
+  <wsdl:message name="ws_buscar_barra_dniSoapIn">
+    <wsdl:part name="parameters" element="tns:ws_buscar_barra_dni" />
+  </wsdl:message>
+  <wsdl:message name="ws_buscar_barra_dniSoapOut">
+    <wsdl:part name="parameters" element="tns:ws_buscar_barra_dniResponse" />
+  </wsdl:message>
+  <wsdl:message name="generacuponSoapIn">
+    <wsdl:part name="parameters" element="tns:generacupon" />
+  </wsdl:message>
+  <wsdl:message name="generacuponSoapOut">
+    <wsdl:part name="parameters" element="tns:generacuponResponse" />
+  </wsdl:message>
+  <wsdl:message name="ws_getbarraSoapIn">
+    <wsdl:part name="parameters" element="tns:ws_getbarra" />
+  </wsdl:message>
+  <wsdl:message name="ws_getbarraSoapOut">
+    <wsdl:part name="parameters" element="tns:ws_getbarraResponse" />
+  </wsdl:message>
+  <wsdl:message name="ws_getprombataSoapIn">
+    <wsdl:part name="parameters" element="tns:ws_getprombata" />
+  </wsdl:message>
+  <wsdl:message name="ws_getprombataSoapOut">
+    <wsdl:part name="parameters" element="tns:ws_getprombataResponse" />
+  </wsdl:message>
+  <wsdl:message name="ws_buscar_valesSoapIn">
+    <wsdl:part name="parameters" element="tns:ws_buscar_vales" />
+  </wsdl:message>
+  <wsdl:message name="ws_buscar_valesSoapOut">
+    <wsdl:part name="parameters" element="tns:ws_buscar_valesResponse" />
+  </wsdl:message>
+  <wsdl:message name="ws_buscar_desxdniSoapIn">
+    <wsdl:part name="parameters" element="tns:ws_buscar_desxdni" />
+  </wsdl:message>
+  <wsdl:message name="ws_buscar_desxdniSoapOut">
+    <wsdl:part name="parameters" element="tns:ws_buscar_desxdniResponse" />
+  </wsdl:message>
+  <wsdl:message name="ws_consclienteSoapIn">
+    <wsdl:part name="parameters" element="tns:ws_conscliente" />
+  </wsdl:message>
+  <wsdl:message name="ws_consclienteSoapOut">
+    <wsdl:part name="parameters" element="tns:ws_consclienteResponse" />
+  </wsdl:message>
+  <wsdl:message name="ws_conscliente_bataSoapIn">
+    <wsdl:part name="parameters" element="tns:ws_conscliente_bata" />
+  </wsdl:message>
+  <wsdl:message name="ws_conscliente_bataSoapOut">
+    <wsdl:part name="parameters" element="tns:ws_conscliente_bataResponse" />
+  </wsdl:message>
+  <wsdl:message name="ws_insertcliente_bataSoapIn">
+    <wsdl:part name="parameters" element="tns:ws_insertcliente_bata" />
+  </wsdl:message>
+  <wsdl:message name="ws_insertcliente_bataSoapOut">
+    <wsdl:part name="parameters" element="tns:ws_insertcliente_bataResponse" />
+  </wsdl:message>
+  <wsdl:message name="ws_persona_reniecSoapIn">
+    <wsdl:part name="parameters" element="tns:ws_persona_reniec" />
+  </wsdl:message>
+  <wsdl:message name="ws_persona_reniecSoapOut">
+    <wsdl:part name="parameters" element="tns:ws_persona_reniecResponse" />
+  </wsdl:message>
+  <wsdl:message name="ws_info_sunatSoapIn">
+    <wsdl:part name="parameters" element="tns:ws_info_sunat" />
+  </wsdl:message>
+  <wsdl:message name="ws_info_sunatSoapOut">
+    <wsdl:part name="parameters" element="tns:ws_info_sunatResponse" />
+  </wsdl:message>
+  <wsdl:message name="ws_persona_sunatSoapIn">
+    <wsdl:part name="parameters" element="tns:ws_persona_sunat" />
+  </wsdl:message>
+  <wsdl:message name="ws_persona_sunatSoapOut">
+    <wsdl:part name="parameters" element="tns:ws_persona_sunatResponse" />
+  </wsdl:message>
+  <wsdl:message name="ws_ActivaGiftCardSoapIn">
+    <wsdl:part name="parameters" element="tns:ws_ActivaGiftCard" />
+  </wsdl:message>
+  <wsdl:message name="ws_ActivaGiftCardSoapOut">
+    <wsdl:part name="parameters" element="tns:ws_ActivaGiftCardResponse" />
+  </wsdl:message>
+  <wsdl:message name="ws_GrabarSQL_TicketSoapIn">
+    <wsdl:part name="parameters" element="tns:ws_GrabarSQL_Ticket" />
+  </wsdl:message>
+  <wsdl:message name="ws_GrabarSQL_TicketSoapOut">
+    <wsdl:part name="parameters" element="tns:ws_GrabarSQL_TicketResponse" />
+  </wsdl:message>
+  <wsdl:message name="ws_BuscarGiftCardSoapIn">
+    <wsdl:part name="parameters" element="tns:ws_BuscarGiftCard" />
+  </wsdl:message>
+  <wsdl:message name="ws_BuscarGiftCardSoapOut">
+    <wsdl:part name="parameters" element="tns:ws_BuscarGiftCardResponse" />
+  </wsdl:message>
+  <wsdl:message name="ws_BuscarTicketGFSoapIn">
+    <wsdl:part name="parameters" element="tns:ws_BuscarTicketGF" />
+  </wsdl:message>
+  <wsdl:message name="ws_BuscarTicketGFSoapOut">
+    <wsdl:part name="parameters" element="tns:ws_BuscarTicketGFResponse" />
+  </wsdl:message>
+  <wsdl:message name="ws_verifica_version_apltdaSoapIn">
+    <wsdl:part name="parameters" element="tns:ws_verifica_version_apltda" />
+  </wsdl:message>
+  <wsdl:message name="ws_verifica_version_apltdaSoapOut">
+    <wsdl:part name="parameters" element="tns:ws_verifica_version_apltdaResponse" />
+  </wsdl:message>
+  <wsdl:message name="ws_update_apltdaSoapIn">
+    <wsdl:part name="parameters" element="tns:ws_update_apltda" />
+  </wsdl:message>
+  <wsdl:message name="ws_update_apltdaSoapOut">
+    <wsdl:part name="parameters" element="tns:ws_update_apltdaResponse" />
+  </wsdl:message>
+  <wsdl:message name="ws_lista_soporteSoapIn">
+    <wsdl:part name="parameters" element="tns:ws_lista_soporte" />
+  </wsdl:message>
+  <wsdl:message name="ws_lista_soporteSoapOut">
+    <wsdl:part name="parameters" element="tns:ws_lista_soporteResponse" />
+  </wsdl:message>
+  <wsdl:portType name="Cons_ClienteSoap">
+    <wsdl:operation name="ws_validatdabgwb">
+      <wsdl:input message="tns:ws_validatdabgwbSoapIn" />
+      <wsdl:output message="tns:ws_validatdabgwbSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="ws_update_cliente">
+      <wsdl:input message="tns:ws_update_clienteSoapIn" />
+      <wsdl:output message="tns:ws_update_clienteSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="ws_update_venta_empl">
+      <wsdl:input message="tns:ws_update_venta_emplSoapIn" />
+      <wsdl:output message="tns:ws_update_venta_emplSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="ws_update_vales">
+      <wsdl:input message="tns:ws_update_valesSoapIn" />
+      <wsdl:output message="tns:ws_update_valesSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="ws_buscar_barra_dni">
+      <wsdl:input message="tns:ws_buscar_barra_dniSoapIn" />
+      <wsdl:output message="tns:ws_buscar_barra_dniSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="generacupon">
+      <wsdl:input message="tns:generacuponSoapIn" />
+      <wsdl:output message="tns:generacuponSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="ws_getbarra">
+      <wsdl:input message="tns:ws_getbarraSoapIn" />
+      <wsdl:output message="tns:ws_getbarraSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="ws_getprombata">
+      <wsdl:input message="tns:ws_getprombataSoapIn" />
+      <wsdl:output message="tns:ws_getprombataSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="ws_buscar_vales">
+      <wsdl:input message="tns:ws_buscar_valesSoapIn" />
+      <wsdl:output message="tns:ws_buscar_valesSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="ws_buscar_desxdni">
+      <wsdl:input message="tns:ws_buscar_desxdniSoapIn" />
+      <wsdl:output message="tns:ws_buscar_desxdniSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="ws_conscliente">
+      <wsdl:input message="tns:ws_consclienteSoapIn" />
+      <wsdl:output message="tns:ws_consclienteSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="ws_conscliente_bata">
+      <wsdl:input message="tns:ws_conscliente_bataSoapIn" />
+      <wsdl:output message="tns:ws_conscliente_bataSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="ws_insertcliente_bata">
+      <wsdl:input message="tns:ws_insertcliente_bataSoapIn" />
+      <wsdl:output message="tns:ws_insertcliente_bataSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="ws_persona_reniec">
+      <wsdl:input message="tns:ws_persona_reniecSoapIn" />
+      <wsdl:output message="tns:ws_persona_reniecSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="ws_info_sunat">
+      <wsdl:input message="tns:ws_info_sunatSoapIn" />
+      <wsdl:output message="tns:ws_info_sunatSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="ws_persona_sunat">
+      <wsdl:input message="tns:ws_persona_sunatSoapIn" />
+      <wsdl:output message="tns:ws_persona_sunatSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="ws_ActivaGiftCard">
+      <wsdl:input message="tns:ws_ActivaGiftCardSoapIn" />
+      <wsdl:output message="tns:ws_ActivaGiftCardSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="ws_GrabarSQL_Ticket">
+      <wsdl:input message="tns:ws_GrabarSQL_TicketSoapIn" />
+      <wsdl:output message="tns:ws_GrabarSQL_TicketSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="ws_BuscarGiftCard">
+      <wsdl:input message="tns:ws_BuscarGiftCardSoapIn" />
+      <wsdl:output message="tns:ws_BuscarGiftCardSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="ws_BuscarTicketGF">
+      <wsdl:input message="tns:ws_BuscarTicketGFSoapIn" />
+      <wsdl:output message="tns:ws_BuscarTicketGFSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="ws_verifica_version_apltda">
+      <wsdl:input message="tns:ws_verifica_version_apltdaSoapIn" />
+      <wsdl:output message="tns:ws_verifica_version_apltdaSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="ws_update_apltda">
+      <wsdl:input message="tns:ws_update_apltdaSoapIn" />
+      <wsdl:output message="tns:ws_update_apltdaSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="ws_lista_soporte">
+      <wsdl:input message="tns:ws_lista_soporteSoapIn" />
+      <wsdl:output message="tns:ws_lista_soporteSoapOut" />
+    </wsdl:operation>
+  </wsdl:portType>
+  <wsdl:binding name="Cons_ClienteSoap" type="tns:Cons_ClienteSoap">
+    <soap:binding transport="http://schemas.xmlsoap.org/soap/http" />
+    <wsdl:operation name="ws_validatdabgwb">
+      <soap:operation soapAction="http://www.consultabata.com/ws_validatdabgwb" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="ws_update_cliente">
+      <soap:operation soapAction="http://www.consultabata.com/ws_update_cliente" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="ws_update_venta_empl">
+      <soap:operation soapAction="http://www.consultabata.com/ws_update_venta_empl" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="ws_update_vales">
+      <soap:operation soapAction="http://www.consultabata.com/ws_update_vales" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="ws_buscar_barra_dni">
+      <soap:operation soapAction="http://www.consultabata.com/ws_buscar_barra_dni" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="generacupon">
+      <soap:operation soapAction="http://www.consultabata.com/generacupon" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="ws_getbarra">
+      <soap:operation soapAction="http://www.consultabata.com/ws_getbarra" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="ws_getprombata">
+      <soap:operation soapAction="http://www.consultabata.com/ws_getprombata" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="ws_buscar_vales">
+      <soap:operation soapAction="http://www.consultabata.com/ws_buscar_vales" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="ws_buscar_desxdni">
+      <soap:operation soapAction="http://www.consultabata.com/ws_buscar_desxdni" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="ws_conscliente">
+      <soap:operation soapAction="http://www.consultabata.com/ws_conscliente" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="ws_conscliente_bata">
+      <soap:operation soapAction="http://www.consultabata.com/ws_conscliente_bata" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="ws_insertcliente_bata">
+      <soap:operation soapAction="http://www.consultabata.com/ws_insertcliente_bata" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="ws_persona_reniec">
+      <soap:operation soapAction="http://www.consultabata.com/ws_persona_reniec" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="ws_info_sunat">
+      <soap:operation soapAction="http://www.consultabata.com/ws_info_sunat" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="ws_persona_sunat">
+      <soap:operation soapAction="http://www.consultabata.com/ws_persona_sunat" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="ws_ActivaGiftCard">
+      <soap:operation soapAction="http://www.consultabata.com/ws_ActivaGiftCard" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="ws_GrabarSQL_Ticket">
+      <soap:operation soapAction="http://www.consultabata.com/ws_GrabarSQL_Ticket" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="ws_BuscarGiftCard">
+      <soap:operation soapAction="http://www.consultabata.com/ws_BuscarGiftCard" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="ws_BuscarTicketGF">
+      <soap:operation soapAction="http://www.consultabata.com/ws_BuscarTicketGF" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="ws_verifica_version_apltda">
+      <soap:operation soapAction="http://www.consultabata.com/ws_verifica_version_apltda" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="ws_update_apltda">
+      <soap:operation soapAction="http://www.consultabata.com/ws_update_apltda" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="ws_lista_soporte">
+      <soap:operation soapAction="http://www.consultabata.com/ws_lista_soporte" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+  </wsdl:binding>
+  <wsdl:binding name="Cons_ClienteSoap12" type="tns:Cons_ClienteSoap">
+    <soap12:binding transport="http://schemas.xmlsoap.org/soap/http" />
+    <wsdl:operation name="ws_validatdabgwb">
+      <soap12:operation soapAction="http://www.consultabata.com/ws_validatdabgwb" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="ws_update_cliente">
+      <soap12:operation soapAction="http://www.consultabata.com/ws_update_cliente" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="ws_update_venta_empl">
+      <soap12:operation soapAction="http://www.consultabata.com/ws_update_venta_empl" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="ws_update_vales">
+      <soap12:operation soapAction="http://www.consultabata.com/ws_update_vales" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="ws_buscar_barra_dni">
+      <soap12:operation soapAction="http://www.consultabata.com/ws_buscar_barra_dni" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="generacupon">
+      <soap12:operation soapAction="http://www.consultabata.com/generacupon" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="ws_getbarra">
+      <soap12:operation soapAction="http://www.consultabata.com/ws_getbarra" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="ws_getprombata">
+      <soap12:operation soapAction="http://www.consultabata.com/ws_getprombata" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="ws_buscar_vales">
+      <soap12:operation soapAction="http://www.consultabata.com/ws_buscar_vales" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="ws_buscar_desxdni">
+      <soap12:operation soapAction="http://www.consultabata.com/ws_buscar_desxdni" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="ws_conscliente">
+      <soap12:operation soapAction="http://www.consultabata.com/ws_conscliente" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="ws_conscliente_bata">
+      <soap12:operation soapAction="http://www.consultabata.com/ws_conscliente_bata" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="ws_insertcliente_bata">
+      <soap12:operation soapAction="http://www.consultabata.com/ws_insertcliente_bata" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="ws_persona_reniec">
+      <soap12:operation soapAction="http://www.consultabata.com/ws_persona_reniec" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="ws_info_sunat">
+      <soap12:operation soapAction="http://www.consultabata.com/ws_info_sunat" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="ws_persona_sunat">
+      <soap12:operation soapAction="http://www.consultabata.com/ws_persona_sunat" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="ws_ActivaGiftCard">
+      <soap12:operation soapAction="http://www.consultabata.com/ws_ActivaGiftCard" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="ws_GrabarSQL_Ticket">
+      <soap12:operation soapAction="http://www.consultabata.com/ws_GrabarSQL_Ticket" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="ws_BuscarGiftCard">
+      <soap12:operation soapAction="http://www.consultabata.com/ws_BuscarGiftCard" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="ws_BuscarTicketGF">
+      <soap12:operation soapAction="http://www.consultabata.com/ws_BuscarTicketGF" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="ws_verifica_version_apltda">
+      <soap12:operation soapAction="http://www.consultabata.com/ws_verifica_version_apltda" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="ws_update_apltda">
+      <soap12:operation soapAction="http://www.consultabata.com/ws_update_apltda" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="ws_lista_soporte">
+      <soap12:operation soapAction="http://www.consultabata.com/ws_lista_soporte" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+  </wsdl:binding>
+  <wsdl:service name="Cons_Cliente">
+    <wsdl:port name="Cons_ClienteSoap" binding="tns:Cons_ClienteSoap">
+      <soap:address location="http://10.10.10.208/web_site_cliente/Cons_Cliente.asmx" />
+    </wsdl:port>
+    <wsdl:port name="Cons_ClienteSoap12" binding="tns:Cons_ClienteSoap12">
+      <soap12:address location="http://10.10.10.208/web_site_cliente/Cons_Cliente.asmx" />
+    </wsdl:port>
+  </wsdl:service>
+</wsdl:definitions>

@@ -121,6 +121,7 @@
     <Reference Include="System.IO.Compression" />
     <Reference Include="System.IO.Compression.FileSystem" />
     <Reference Include="System.Runtime.Serialization" />
+    <Reference Include="System.ServiceModel" />
     <Reference Include="System.Web.DynamicData" />
     <Reference Include="System.Web.Entity" />
     <Reference Include="System.Web.ApplicationServices" />
@@ -208,6 +209,11 @@
     </Compile>
     <Compile Include="Models\Control\LoginViewModel.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Service References\ws_clientedniruc\Reference.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Compile>
     <Compile Include="Startup.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -276,6 +282,9 @@
     <Content Include="Content\images\glyphicons-halflings.png" />
     <Content Include="Content\images\lupa.jpg" />
     <Content Include="Content\images\wall-calendar-with-lines.svg" />
+    <Content Include="Content\plugins\iCheck\custom.css" />
+    <Content Include="Content\plugins\iCheck\green%402x.png" />
+    <Content Include="Content\plugins\iCheck\green.png" />
     <Content Include="Content\style.css" />
     <Content Include="Content\sweetalert.css" />
     <Content Include="Content\toastr.css" />
@@ -1039,6 +1048,8 @@
     <Content Include="Content\vendors\pnotify\bower.json" />
     <Content Include="Content\vendors\pnotify\COPYING" />
     <Content Include="Content\vendors\pnotify\README.md" />
+    <Content Include="Properties\DataSources\System.Data.DataSet.datasource" />
+    <Content Include="Properties\DataSources\System.Data.DataTable.datasource" />
     <None Include="Properties\PublishProfiles\BATAWEB.pubxml" />
     <None Include="Scripts\jquery-1.10.2.intellisense.js" />
     <Content Include="Scripts\DataTables\AutoFill-2.0.0\css\autoFill.bootstrap.css" />
@@ -1203,6 +1214,7 @@
     <Content Include="Scripts\MyJs\my.js" />
     <Content Include="Scripts\MyJs\spin.js" />
     <Content Include="Scripts\MyJs\TestPurchaseInvoice2.js" />
+    <Content Include="Scripts\Plugins\iCheck\icheck.min.js" />
     <Content Include="Scripts\respond.js" />
     <Content Include="Scripts\respond.min.js" />
     <Content Include="Scripts\script-bootstrap-select.js" />
@@ -1211,6 +1223,28 @@
     <Content Include="Scripts\toastr.min.js" />
     <Content Include="Scripts\waitingfor.js" />
     <Content Include="Scripts\_references.js" />
+    <Content Include="Service References\ws_clientedniruc\CapaPresentacion.ws_clientedniruc.Barra.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\ws_clientedniruc\CapaPresentacion.ws_clientedniruc.Data_Sunat.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\ws_clientedniruc\CapaPresentacion.ws_clientedniruc.GeneraCuponBata.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\ws_clientedniruc\CapaPresentacion.ws_clientedniruc.PromBata.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\ws_clientedniruc\CapaPresentacion.ws_clientedniruc.Soporte.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <None Include="Service References\ws_clientedniruc\Cons_Cliente.disco" />
+    <None Include="Service References\ws_clientedniruc\configuration91.svcinfo" />
+    <None Include="Service References\ws_clientedniruc\configuration.svcinfo" />
+    <None Include="Service References\ws_clientedniruc\Reference.svcmap">
+      <Generator>WCF Proxy Generator</Generator>
+      <LastGenOutput>Reference.cs</LastGenOutput>
+    </None>
     <Content Include="Web.config">
       <SubType>Designer</SubType>
     </Content>
@@ -1287,6 +1321,7 @@
     <Content Include="Views\Promotor\ListaAplFun.cshtml" />
     <Content Include="Views\Promotor\ListaFuncion.cshtml" />
     <Content Include="Views\Promotor\Nuevo_.cshtml" />
+    <None Include="Service References\ws_clientedniruc\Cons_Cliente.wsdl" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
@@ -1315,6 +1350,9 @@
       <Project>{d766eb68-5a6b-4719-b604-60e1a87a999c}</Project>
       <Name>CapaEntidad</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <WCFMetadataStorage Include="Service References\ws_clientedniruc\" />
   </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>
