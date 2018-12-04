@@ -33,14 +33,14 @@
                 <div class="modal-header modal-header-danger">
                     <h5 class="modal-title" id="myModalLabel">Datos Básicos</h5>
                 </div>
-                <div class="modal-body">
+                <div id="DivBasico" style="display:none" class="modal-body">
 
                     <div class="row" style="margin-top:10px;margin-left:10px;margin-right:10px;margin-bottom:10px;border-radius:5px;padding-top:10px;padding-bottom:10px;">
 
                         <div class="col-sm-3" style="margin-top:2px;margin-bottom:2px;">
                             <label for="disponible">*Tipo Documento</label>
                         </div>
-                        <div class="col-sm-3" style="margin-top:2px;margin-bottom:2px;">
+                        <div id="divTipoDoc" class="col-sm-3" style="margin-top:2px;margin-bottom:2px;">
                           @Html.DropDownList("dwTipoDoc", new SelectList(ViewBag.listTipoDoc, "codigo", "descripcion", "-1"), new { @class = "selectpicker", @data_live_search = "true", @id = "dwTipoDoc", @placeholder = ".col-xs-1" })
                         </div>
                         <div class="col-sm-3" style="margin-top:2px;margin-bottom:2px;">
@@ -124,7 +124,7 @@
             <div class="modal-header modal-header-danger">
                 <h5 class="modal-title" id="myModalLabel">Tipo Persona y Otros</h5>
             </div>
-            <div class="modal-body">
+            <div id="DivTipoPersona" style="display:none" class="modal-body">
 
                 <div class="row" style="margin-top:10px;margin-left:10px;margin-right:10px;margin-bottom:10px;border-radius:5px;padding-top:10px;padding-bottom:10px;">
 
@@ -189,7 +189,7 @@
             <div class="modal-header modal-header-danger">
                 <h5 class="modal-title" id="myModalLabel">Ubicación</h5>
             </div>
-            <div class="modal-body">
+            <div id="DivUbicacion" style="display:none" class="modal-body">
 
                 <div class="row" style="margin-top:10px;margin-left:10px;margin-right:10px;margin-bottom:10px;border-radius:5px;padding-top:10px;padding-bottom:10px;">
 
@@ -251,7 +251,7 @@
             <div class="modal-header modal-header-danger">
                 <h5 class="modal-title" id="myModalLabel">Información especifica</h5>
             </div>
-            <div class="modal-body">
+            <div id="DivInformacion" style="display:none" class="modal-body">
 
                 <div class="row" style="margin-top:10px;margin-left:10px;margin-right:10px;margin-bottom:10px;border-radius:5px;padding-top:10px;padding-bottom:10px;">
 
@@ -297,8 +297,8 @@
 <script src="~/Scripts/BI.js"></script>
 <script src="~/Scripts/Plugins/iCheck/icheck.min.js"></script>
 <script>
-    $(document).ready(function () {
-
+    $(document).ready(function () {          
+              
         $('.i-checks').iCheck({
             checkboxClass: 'icheckbox_square-green',
             radioClass: 'iradio_square-green',
@@ -326,6 +326,13 @@
         combo = GenerarLista('1', CodDepartamento);
         llenarCombo('divProvincia', 'dwProv', combo, '-1', 'Seleccione', 'ListarDistrito');
         llenarComboVacio('divDistrito', 'dwDist',  '-1', 'Seleccione', '');       
+    }
+
+    function borrarEspacio(cadena) {
+
+        cadena = cadena.replace(/ /g, "")
+
+        return cadena;
     }
 
     function ListarDistrito() {
@@ -364,21 +371,93 @@
             BI.AbrirPopup(20, 15, "Comuniquese con Soporte Tecnico<br>" + rpta.statusText, 'Disculpe!!!', false, true, false)
         }
         BI.AjaxJsonSeg("post", url, { nroDocumento: nroDocumento }, false, exito, error);
-
       
     }
 
     function verificarDocumento(data) {
    
         $.each(data, function (index, item) {
-            alert(item.Bas_id)
 
+            if (parseInt(item.Bas_id) > 0) {
+                var nombres = item.Bas_Primer_Nombre + ' ' + item.Bas_Primer_Apellido
+                toastr.error("El Cliente " + nombres + ", ya se encuentra registrado.", "Mensaje Aquarella");
+            } else {
+            
+              
+                if (item.Bas_Primer_Apellido != "" && item.Bas_Primer_Apellido != null) {
+                    var nombres = item.Bas_Primer_Nombre + ' ' + item.Bas_Primer_Apellido
+                    toastr.success("Cliente " + nombres, "Mensaje Aquarella");
+                    var nroDoc = item.Bas_Documento;
+
+                    $('#txtdocumento').val(nroDoc);
+                    $('#txtPrimernombre').val(item.Bas_Primer_Nombre);
+                    $('#txtSegundonombre').val(item.Bas_segundo_nombre);
+                    $('#txtPrimeroapellido').val(item.Bas_Primer_Apellido);
+                    $('#txtSegundoapellido').val(item.Bas_Segundo_Apellido);
+
+                    soloLecturaInput('txtdocumento')
+                    soloLecturaInput('txtPrimernombre')
+                    soloLecturaInput('txtSegundonombre')
+                    soloLecturaInput('txtPrimeroapellido')
+                    soloLecturaInput('txtSegundoapellido')
+                    
+                    var longDocumento = nroDoc.length;
+                    var tipoDoc='';
+                    var tipoPersona='';
+                  
+                    switch(longDocumento) {
+                        case 8://dni
+                            tipoDoc='1';
+                            tipoPersona='1';
+                            break;
+                        case 12://carnet de extranjeria
+                            tipoDoc='3';
+                            tipoPersona='1';
+                            break;
+                        case 11://RUC
+                            tipoDoc = '2';
+                            tipoPersona = '2';
+                            break;
+                        default:
+                            ''
+                    }                   
+             
+                    //console.log('seteand')
+                    //$('select[name=' + 'dwTipoDoc' + ']').val('2');
+                    //$('select[name=' + nameControl + ']').val(valor);
+                    setearComboSelectpicker('dwTipoDoc', tipoDoc, 1)
+                    setearComboSelectpicker('dwTipoPersona', tipoPersona, 1)
+                    alert('ini')
+                    $("#DivBasico").show();
+                    $("#DivTipoPersona").show();
+                    $("#DivUbicacion").show();
+                    $("#DivInformacion").show();
+                    alert('fin')
+                    //console.log('fin seteand')
+
+                
+                
+                } else {
+
+                    toastr.error("Número de documento Incorrecto.", "Mensaje Aquarella");
+                }
+
+            }
         });
 
     }
 
+    function soloLecturaInput(IdInput) {
 
-    
+        document.getElementById(IdInput).readOnly = true;
+
+    }
+
+    function bloquearDiv(idDiv) {
+
+        $('#' + idDiv + ' *').prop('disabled', true);
+   
+    }    
 
     function llenarCombo(DivId, IdControl, Data, codDefecto, desDefecto,onchangeFuncion) {
 
@@ -466,7 +545,11 @@
 
     }
 
-
+    function setearComboSelectpicker(nameControl,valor,bloqueo) {
+        
+        $('select[name=' + nameControl + ']').val(valor);
+        $('select[name=' + nameControl + ']').change();
+    }
 
 
     
