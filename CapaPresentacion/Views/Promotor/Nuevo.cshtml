@@ -29,30 +29,41 @@
     </div> 
     
     <div class="row" style="margin-top:10px;margin-left:10px;margin-right:10px;margin-bottom:10px;border-radius:5px;padding-top:10px;padding-bottom:10px;">
-            <div class="modal-content">
-                <div class="modal-header modal-header-danger">
-                    <h5 class="modal-title" id="myModalLabel">Datos Básicos</h5>
-                </div>
-                <div id="DivBasico" style="display:none" class="modal-body">
+            
+         <div id="DivHBasico" style="display:none"  class="modal-content">
+             <div class="modal-header modal-header-danger">
+                 <h5 class="modal-title" id="myModalLabel">
+                    <table style="border-bottom:0px;font-size:14px;width:100%;">
+                        <tr>
+                         <td style="font-size:14px;width:50%;text-align:left;">Datos Básicos</td>
+                          <td style="font-size:14px;width:50%;text-align:right;">
+                         <span id="bocu" onclick="ocultarDiv('DivBasico'); mostrarDivFast('bver'); ocultarDivFast('bocu')" class="glyphicon glyphicon-minus-sign"></span>
+                         <span id="bver" style="display:none" onclick="mostrarDiv('DivBasico'); mostrarDivFast('bocu'); ocultarDivFast('bver')" class="glyphicon glyphicon-plus-sign"></span>
+                         </td>
+                        </tr>
+                     </table>
+                 </h5>
+               </div>
+                <div id="DivBasico" class="modal-body">
 
-                    <div class="row" style="margin-top:10px;margin-left:10px;margin-right:10px;margin-bottom:10px;border-radius:5px;padding-top:10px;padding-bottom:10px;">
+                    <div class="row" style="margin-top:0px;margin-left:10px;margin-right:10px;margin-bottom:0px;border-radius:5px;padding-top:10px;padding-bottom:10px;">
 
-                        <div class="col-sm-3" style="margin-top:2px;margin-bottom:2px;">
+                        <div class="col-xs-3 col-sm-3" style="margin-top:2px;margin-bottom:2px;">
                             <label for="disponible">*Tipo Documento</label>
                         </div>
-                        <div id="divTipoDoc" class="col-sm-3" style="margin-top:2px;margin-bottom:2px;">
+                        <div id="divTipoDoc" class="col-xs-3 col-sm-3" style="margin-top:2px;margin-bottom:2px;">
                           @Html.DropDownList("dwTipoDoc", new SelectList(ViewBag.listTipoDoc, "codigo", "descripcion", "-1"), new { @class = "selectpicker", @data_live_search = "true", @id = "dwTipoDoc", @placeholder = ".col-xs-1" })
                         </div>
-                        <div class="col-sm-3" style="margin-top:2px;margin-bottom:2px;">
+                        <div class="col-xs-3 col-sm-3" style="margin-top:2px;margin-bottom:2px;">
                             <label for="disponible">*Nro. Documento</label>
                         </div>
-                        <div class="col-sm-3" style="margin-top:2px;margin-bottom:2px;">
+                        <div class="col-xs-3 col-sm-3" style="margin-top:2px;margin-bottom:2px;">
                             <input id="txtdocumento" type="text" placeholder="Ingrese documento" style="width :100%;" autofocus class="form-control" />
                         </div>
 
                     </div>
                     
-                    <div class="row" style="margin-top:10px;margin-left:10px;margin-right:10px;margin-bottom:10px;border-radius:5px;padding-top:10px;padding-bottom:10px;">
+                    <div class="row" style="margin-top:0px;margin-left:10px;margin-right:10px;margin-bottom:0px;border-radius:5px;padding-top:10px;padding-bottom:10px;">
 
                         <div class="col-sm-3" style="margin-top:2px;margin-bottom:2px;">
                             <label for="disponible">*Primer Nombre</label>
@@ -68,7 +79,7 @@
                         </div>
 
                     </div>
-                    <div class="row" style="margin-top:10px;margin-left:10px;margin-right:10px;margin-bottom:10px;border-radius:5px;padding-top:10px;padding-bottom:10px;">
+                    <div class="row" style="margin-top:0px;margin-left:10px;margin-right:10px;margin-bottom:0px;border-radius:5px;padding-top:10px;padding-bottom:10px;">
 
                         <div class="col-sm-3" style="margin-top:2px;margin-bottom:2px;">
                             <label for="disponible">*Primer Apellido</label>
@@ -85,7 +96,7 @@
 
                     </div> 
                    
-                    <div class="row" style="margin-top:10px;margin-left:10px;margin-right:10px;margin-bottom:10px;border-radius:5px;padding-top:10px;padding-bottom:10px;">
+                    <div class="row" style="margin-top:0px;margin-left:10px;margin-right:10px;margin-bottom:0px;border-radius:5px;padding-top:10px;padding-bottom:10px;">
 
                         <div class="col-sm-3" style="margin-top:2px;margin-bottom:2px;">
                             <label for="disponible">*Fecha Nacimiento</label>
@@ -113,20 +124,27 @@
                     
 
                 </div>
-
             </div>
-        </div>
-    
-    
+        </div>       
 
     <div class="row" style="margin-top:10px;margin-left:10px;margin-right:10px;margin-bottom:10px;border-radius:5px;padding-top:10px;padding-bottom:10px;">
-        <div class="modal-content">
+        <div id="DivHTipoPersona" style="display:none"  class="modal-content">
             <div class="modal-header modal-header-danger">
-                <h5 class="modal-title" id="myModalLabel">Tipo Persona y Otros</h5>
+                <h5 class="modal-title" id="myModalLabel">
+                    <table style="border-bottom:0px;font-size:14px;width:100%;">
+                        <tr>
+                            <td style="font-size:14px;width:50%;text-align:left;">Tipo Persona y Otros</td>
+                            <td style="font-size:14px;width:50%;text-align:right;">
+                                <span id="tpocu" onclick="ocultarDiv('DivTipoPersona'); mostrarDivFast('tpver'); ocultarDivFast('tpocu')" class="glyphicon glyphicon-minus-sign"></span>
+                                <span id="tpver" style="display:none" onclick="mostrarDiv('DivTipoPersona'); mostrarDivFast('tpocu'); ocultarDivFast('tpver')" class="glyphicon glyphicon-plus-sign"></span>
+                            </td>
+                        </tr>
+                    </table>
+                </h5>
             </div>
-            <div id="DivTipoPersona" style="display:none" class="modal-body">
+            <div id="DivTipoPersona" class="modal-body">
 
-                <div class="row" style="margin-top:10px;margin-left:10px;margin-right:10px;margin-bottom:10px;border-radius:5px;padding-top:10px;padding-bottom:10px;">
+                <div class="row" style="margin-top:0px;margin-left:10px;margin-right:10px;margin-bottom:0px;border-radius:5px;padding-top:10px;padding-bottom:10px;">
 
                     <div class="col-sm-3" style="margin-top:2px;margin-bottom:2px;">
                         <label for="disponible">*Tipo Persona</label>
@@ -142,7 +160,7 @@
 
                 </div>
 
-                <div class="row" style="margin-top:10px;margin-left:10px;margin-right:10px;margin-bottom:10px;border-radius:5px;padding-top:10px;padding-bottom:10px;">
+                <div class="row" style="margin-top:0px;margin-left:10px;margin-right:10px;margin-bottom:0px;border-radius:5px;padding-top:10px;padding-bottom:10px;">
 
                     <div class="col-sm-3" style="margin-top:2px;margin-bottom:2px;">
                         <label for="disponible">*E-mail</label>
@@ -158,7 +176,7 @@
                     </div>
 
                 </div>
-                <div class="row" style="margin-top:10px;margin-left:10px;margin-right:10px;margin-bottom:10px;border-radius:5px;padding-top:10px;padding-bottom:10px;">
+                <div class="row" style="margin-top:0px;margin-left:10px;margin-right:10px;margin-bottom:0px;border-radius:5px;padding-top:10px;padding-bottom:10px;">
 
                     <div class="col-sm-3" style="margin-top:2px;margin-bottom:2px;">
                         <label for="disponible">Nro. Fax</label>
@@ -185,13 +203,23 @@
     </div>
 
     <div class="row" style="margin-top:10px;margin-left:10px;margin-right:10px;margin-bottom:10px;border-radius:5px;padding-top:10px;padding-bottom:10px;">
-        <div class="modal-content">
+        <div id="DivHUbicacion" style="display:none"  class="modal-content">
             <div class="modal-header modal-header-danger">
-                <h5 class="modal-title" id="myModalLabel">Ubicación</h5>
+                <h5 class="modal-title" id="myModalLabel">
+                    <table style="border-bottom:0px;font-size:14px;width:100%;">
+                        <tr>
+                            <td style="font-size:14px;width:50%;text-align:left;">Ubicación</td>
+                            <td style="font-size:14px;width:50%;text-align:right;">
+                                <span id="ubocu" onclick="ocultarDiv('DivUbicacion'); mostrarDivFast('ubver'); ocultarDivFast('ubocu')" class="glyphicon glyphicon-minus-sign"></span>
+                                <span id="ubver" style="display:none" onclick="mostrarDiv('DivUbicacion'); mostrarDivFast('ubocu'); ocultarDivFast('ubver')" class="glyphicon glyphicon-plus-sign"></span>
+                            </td>
+                        </tr>
+                    </table>
+                </h5>
             </div>
-            <div id="DivUbicacion" style="display:none" class="modal-body">
+            <div id="DivUbicacion" class="modal-body">
 
-                <div class="row" style="margin-top:10px;margin-left:10px;margin-right:10px;margin-bottom:10px;border-radius:5px;padding-top:10px;padding-bottom:10px;">
+                <div class="row" style="margin-top:0px;margin-left:10px;margin-right:10px;margin-bottom:0px;border-radius:5px;padding-top:10px;padding-bottom:10px;">
 
                     <div class="col-sm-3" style="margin-top:2px;margin-bottom:2px;">
                         <label for="disponible">*Departamento</label>
@@ -209,7 +237,7 @@
 
                 </div>
 
-                <div class="row" style="margin-top:10px;margin-left:10px;margin-right:10px;margin-bottom:10px;border-radius:5px;padding-top:10px;padding-bottom:10px;">
+                <div class="row" style="margin-top:0px;margin-left:10px;margin-right:10px;margin-bottom:0px;border-radius:5px;padding-top:10px;padding-bottom:10px;">
 
                     <div class="col-sm-3" style="margin-top:2px;margin-bottom:2px;">
                         <label for="disponible">*Distrito</label>
@@ -225,7 +253,7 @@
                     </div>
 
                 </div>
-                <div class="row" style="margin-top:10px;margin-left:10px;margin-right:10px;margin-bottom:10px;border-radius:5px;padding-top:10px;padding-bottom:10px;">
+                <div class="row" style="margin-top:0px;margin-left:10px;margin-right:10px;margin-bottom:0px;border-radius:5px;padding-top:10px;padding-bottom:10px;">
 
                     <div class="col-sm-3" style="margin-top:2px;margin-bottom:2px;">
                         <label for="disponible">*Lider</label>
@@ -247,13 +275,23 @@
     </div>
 
     <div class="row" style="margin-top:10px;margin-left:10px;margin-right:10px;margin-bottom:10px;border-radius:5px;padding-top:10px;padding-bottom:10px;">
-        <div class="modal-content">
+        <div id="DivHInformacion" style="display:none" class="modal-content">
             <div class="modal-header modal-header-danger">
-                <h5 class="modal-title" id="myModalLabel">Información especifica</h5>
+                <h5 class="modal-title" id="myModalLabel">
+                    <table style="border-bottom:0px;font-size:14px;width:100%;">
+                        <tr>
+                            <td style="font-size:14px;width:50%;text-align:left;">Información especifica</td>
+                            <td style="font-size:14px;width:50%;text-align:right;">
+                                <span id="infocu" onclick="ocultarDiv('DivInformacion'); mostrarDivFast('infver'); ocultarDivFast('infocu')" class="glyphicon glyphicon-minus-sign"></span>
+                                <span id="infver" style="display:none" onclick="mostrarDiv('DivInformacion'); mostrarDivFast('infocu'); ocultarDivFast('infver')" class="glyphicon glyphicon-plus-sign"></span>
+                            </td>
+                        </tr>
+                    </table>
+                </h5>
             </div>
-            <div id="DivInformacion" style="display:none" class="modal-body">
+            <div id="DivInformacion"class="modal-body">
 
-                <div class="row" style="margin-top:10px;margin-left:10px;margin-right:10px;margin-bottom:10px;border-radius:5px;padding-top:10px;padding-bottom:10px;">
+                <div class="row" style="margin-top:0px;margin-left:10px;margin-right:10px;margin-bottom:0px;border-radius:5px;padding-top:10px;padding-bottom:10px;">
 
                     <div class="col-sm-3" style="margin-top:2px;margin-bottom:2px;">
                         <label for="disponible">Agencia</label>
@@ -270,7 +308,7 @@
 
                 </div>
 
-                <div class="row" style="margin-top:10px;margin-left:10px;margin-right:10px;margin-bottom:10px;border-radius:5px;padding-top:10px;padding-bottom:10px;">
+                <div class="row" style="margin-top:0px;margin-left:10px;margin-right:10px;margin-bottom:0px;border-radius:5px;padding-top:10px;padding-bottom:10px;">
 
                     <div class="col-sm-3" style="margin-top:2px;margin-bottom:2px;">
                         <label for="disponible">Agencia Ruc</label>
@@ -375,15 +413,20 @@
     }
 
     function verificarDocumento(data) {
-   
+
         $.each(data, function (index, item) {
 
+            var bOcultar = false;
+
             if (parseInt(item.Bas_id) > 0) {
+
                 var nombres = item.Bas_Primer_Nombre + ' ' + item.Bas_Primer_Apellido
+                bOcultar = true
+
                 toastr.error("El Cliente " + nombres + ", ya se encuentra registrado.", "Mensaje Aquarella");
+
             } else {
-            
-              
+
                 if (item.Bas_Primer_Apellido != "" && item.Bas_Primer_Apellido != null) {
                     var nombres = item.Bas_Primer_Nombre + ' ' + item.Bas_Primer_Apellido
                     toastr.success("Cliente " + nombres, "Mensaje Aquarella");
@@ -400,19 +443,19 @@
                     soloLecturaInput('txtSegundonombre')
                     soloLecturaInput('txtPrimeroapellido')
                     soloLecturaInput('txtSegundoapellido')
-                    
+
                     var longDocumento = nroDoc.length;
-                    var tipoDoc='';
-                    var tipoPersona='';
-                  
-                    switch(longDocumento) {
+                    var tipoDoc = '';
+                    var tipoPersona = '';
+
+                    switch (longDocumento) {
                         case 8://dni
-                            tipoDoc='1';
-                            tipoPersona='1';
+                            tipoDoc = '1';
+                            tipoPersona = '1';
                             break;
                         case 12://carnet de extranjeria
-                            tipoDoc='3';
-                            tipoPersona='1';
+                            tipoDoc = '3';
+                            tipoPersona = '1';
                             break;
                         case 11://RUC
                             tipoDoc = '2';
@@ -420,33 +463,43 @@
                             break;
                         default:
                             ''
-                    }                   
-             
+                    }
+
                     //console.log('seteand')
                     //$('select[name=' + 'dwTipoDoc' + ']').val('2');
                     //$('select[name=' + nameControl + ']').val(valor);
                     setearComboSelectpicker('dwTipoDoc', tipoDoc, 1)
                     setearComboSelectpicker('dwTipoPersona', tipoPersona, 1)
-                    alert('ini')
-                    $("#DivBasico").show();
-                    $("#DivTipoPersona").show();
-                    $("#DivUbicacion").show();
-                    $("#DivInformacion").show();
-                    alert('fin')
+
+                    mostrarDiv('DivHBasico')
+                    mostrarDiv('DivHTipoPersona')
+                    mostrarDiv('DivHUbicacion')
+                    mostrarDiv('DivHInformacion')
+
                     //console.log('fin seteand')
 
-                
-                
+
+
                 } else {
 
+                    bOcultar = true
                     toastr.error("Número de documento Incorrecto.", "Mensaje Aquarella");
                 }
+
+            }
+
+            if (bOcultar) {
+
+                ocultarDiv('DivHBasico')
+                ocultarDiv('DivHTipoPersona')
+                ocultarDiv('DivHUbicacion')
+                ocultarDiv('DivHInformacion')
 
             }
         });
 
     }
-
+    
     function soloLecturaInput(IdInput) {
 
         document.getElementById(IdInput).readOnly = true;
@@ -550,6 +603,27 @@
         $('select[name=' + nameControl + ']').val(valor);
         $('select[name=' + nameControl + ']').change();
     }
+
+    function ocultarDiv(divId) {
+
+        $("#" + divId).hide("slow");
+    }
+
+    function mostrarDiv(divId) {
+
+        $("#" + divId).show("slow");
+    }
+
+    function ocultarDivFast(divId) {
+
+        $("#" + divId).hide();
+    }
+
+    function mostrarDivFast(divId) {
+
+        $("#" + divId).show();
+    }
+
 
 
     
