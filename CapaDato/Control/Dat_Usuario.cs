@@ -182,7 +182,7 @@ namespace CapaDato.Control
 
         public List<Ent_Usuario> get_lista(Boolean listar = false)
         {
-            string sqlquery = "[USP_Leer_Usuarios_Web]";
+            string sqlquery = "[USP_LEER_USUARIOS_MVC]";
             List<Ent_Usuario> list = null;
             try
             {

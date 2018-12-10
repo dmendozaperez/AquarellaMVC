@@ -1,5 +1,5 @@
-﻿@using CapaEntidad.Control
-@model IEnumerable<Ent_Funcion>
+﻿@using CapaEntidad.Promotor
+@model Ent_Promotor
 @{
     ViewBag.Title = "Registro de Promotora";
 }
@@ -11,8 +11,8 @@
 
 <link href="~/ContentSelect/bootstrap-select.css" rel="stylesheet" />
 <div class="box box-body box-default">
+ 
 
-   
     <div class="row" style="margin-top:10px;margin-left:10px;margin-right:10px;margin-bottom:10px;background-color:#f4f4f4;border-radius:5px;padding-top:10px;padding-bottom:10px;">
 
         <div class="col-sm-3" style="margin-top:2px;margin-bottom:2px;">
@@ -27,7 +27,7 @@
         </div>
    
     </div> 
-    
+
     <div class="row" style="margin-top:10px;margin-left:10px;margin-right:10px;margin-bottom:10px;border-radius:5px;padding-top:10px;padding-bottom:10px;">
             
          <div id="DivHBasico" style="display:none"  class="modal-content">
@@ -35,8 +35,8 @@
                  <h5 class="modal-title" id="myModalLabel">
                     <table style="border-bottom:0px;font-size:14px;width:100%;">
                         <tr>
-                         <td style="font-size:14px;width:50%;text-align:left;">Datos Básicos</td>
-                          <td style="font-size:14px;width:50%;text-align:right;">
+                         <td style="font-size:14px;width:90%;text-align:left;">Datos Básicos</td>
+                          <td style="font-size:14px;width:10%;text-align:right;">
                          <span id="bocu" onclick="ocultarDiv('DivBasico'); mostrarDivFast('bver'); ocultarDivFast('bocu')" class="glyphicon glyphicon-minus-sign"></span>
                          <span id="bver" style="display:none" onclick="mostrarDiv('DivBasico'); mostrarDivFast('bocu'); ocultarDivFast('bver')" class="glyphicon glyphicon-plus-sign"></span>
                          </td>
@@ -48,16 +48,16 @@
 
                     <div class="row" style="margin-top:0px;margin-left:10px;margin-right:10px;margin-bottom:0px;border-radius:5px;padding-top:10px;padding-bottom:10px;">
 
-                        <div class="col-xs-3 col-sm-3" style="margin-top:2px;margin-bottom:2px;">
+                        <div class="col-sm-3" style="margin-top:2px;margin-bottom:2px;">
                             <label for="disponible">*Tipo Documento</label>
                         </div>
-                        <div id="divTipoDoc" class="col-xs-3 col-sm-3" style="margin-top:2px;margin-bottom:2px;">
+                        <div id="divTipoDoc" class="col-sm-3" style="margin-top:2px;margin-bottom:2px;">
                           @Html.DropDownList("dwTipoDoc", new SelectList(ViewBag.listTipoDoc, "codigo", "descripcion", "-1"), new { @class = "selectpicker", @data_live_search = "true", @id = "dwTipoDoc", @placeholder = ".col-xs-1" })
                         </div>
-                        <div class="col-xs-3 col-sm-3" style="margin-top:2px;margin-bottom:2px;">
+                        <div class="col-sm-3" style="margin-top:2px;margin-bottom:2px;">
                             <label for="disponible">*Nro. Documento</label>
                         </div>
-                        <div class="col-xs-3 col-sm-3" style="margin-top:2px;margin-bottom:2px;">
+                        <div class="col-sm-3" style="margin-top:2px;margin-bottom:2px;">
                             <input id="txtdocumento" type="text" placeholder="Ingrese documento" style="width :100%;" autofocus class="form-control" />
                         </div>
 
@@ -85,7 +85,7 @@
                             <label for="disponible">*Primer Apellido</label>
                         </div>
                         <div class="col-sm-3" style="margin-top:2px;margin-bottom:2px;">
-                            <input id="txtPrimeroapellido" type="text" placeholder="Ingrese apellido" style="width :100%;" autofocus class="form-control" />
+                            <input id="txtPrimerapellido" type="text" placeholder="Ingrese apellido" style="width :100%;" autofocus class="form-control" />
                         </div>
                         <div class="col-sm-3" style="margin-top:2px;margin-bottom:2px;">
                             <label for="disponible">Segundo Apellido</label>
@@ -112,10 +112,10 @@
                             </div>
                         </div>
                         <div class="col-sm-3" style="margin-top:2px;margin-bottom:2px;">
-                            <div class="radio i-checks"><label> <input type="radio" value="option1" name="a"> <i></i><b> Femenino </b></label></div>
+                            <div class="radio i-checks"><label> <input id="chkFem" type="radio" value="option1" name="a"> <i></i><b> Femenino </b></label></div>
                         </div>
                         <div class="col-sm-3" style="margin-top:2px;margin-bottom:2px;">
-                            <div class="radio i-checks"><label> <input type="radio" checked="" value="option2" name="a"> <i></i> <b>Masculino</b> </label></div>
+                            <div class="radio i-checks"><label> <input id="chkMas"  type="radio" checked="" value="option2" name="a"> <i></i> <b>Masculino</b> </label></div>
                         </div>
 
                     </div>
@@ -133,8 +133,8 @@
                 <h5 class="modal-title" id="myModalLabel">
                     <table style="border-bottom:0px;font-size:14px;width:100%;">
                         <tr>
-                            <td style="font-size:14px;width:50%;text-align:left;">Tipo Persona y Otros</td>
-                            <td style="font-size:14px;width:50%;text-align:right;">
+                            <td style="font-size:14px;width:90%;text-align:left;">Tipo Persona y Otros</td>
+                            <td style="font-size:14px;width:10%;text-align:right;">
                                 <span id="tpocu" onclick="ocultarDiv('DivTipoPersona'); mostrarDivFast('tpver'); ocultarDivFast('tpocu')" class="glyphicon glyphicon-minus-sign"></span>
                                 <span id="tpver" style="display:none" onclick="mostrarDiv('DivTipoPersona'); mostrarDivFast('tpocu'); ocultarDivFast('tpver')" class="glyphicon glyphicon-plus-sign"></span>
                             </td>
@@ -208,8 +208,8 @@
                 <h5 class="modal-title" id="myModalLabel">
                     <table style="border-bottom:0px;font-size:14px;width:100%;">
                         <tr>
-                            <td style="font-size:14px;width:50%;text-align:left;">Ubicación</td>
-                            <td style="font-size:14px;width:50%;text-align:right;">
+                            <td style="font-size:14px;width:90%;text-align:left;">Ubicación</td>
+                            <td style="font-size:14px;width:10%;text-align:right;">
                                 <span id="ubocu" onclick="ocultarDiv('DivUbicacion'); mostrarDivFast('ubver'); ocultarDivFast('ubocu')" class="glyphicon glyphicon-minus-sign"></span>
                                 <span id="ubver" style="display:none" onclick="mostrarDiv('DivUbicacion'); mostrarDivFast('ubocu'); ocultarDivFast('ubver')" class="glyphicon glyphicon-plus-sign"></span>
                             </td>
@@ -231,7 +231,7 @@
                         <label for="disponible">*Provincia</label>
                     </div>
                     <div id="divProvincia" class="col-sm-3" style="margin-top:2px;margin-bottom:2px;">
-                        @Html.DropDownList("dwProv", new SelectList(ViewBag.General, "codigo", "descripcion", "-1"), new { @class = "selectpicker", @data_live_search = "true", @id = "dwProv",  @placeholder = ".col-xs-1" })
+                        @Html.DropDownList("dwProv", new SelectList(ViewBag.General, "codigo", "descripcion", "-1"), new { @class = "selectpicker", @data_live_search = "true", @id = "dwProv", @placeholder = ".col-xs-1" })
                         
                     </div>
 
@@ -259,7 +259,7 @@
                         <label for="disponible">*Lider</label>
                     </div>
                     <div class="col-sm-3" style="margin-top:2px;margin-bottom:2px;">
-                        @Html.DropDownList("dwLider", new SelectList(ViewBag.listLider, "codigo", "descripcion", "-1"), new { @class = "selectpicker", @data_live_search = "true", @id = "dwLider",  @placeholder = ".col-xs-1" })
+                        @Html.DropDownList("dwLider", new SelectList(ViewBag.listLider, "codigo", "descripcion", "-1"), new { @class = "selectpicker", @data_live_search = "true", @id = "dwLider", @placeholder = ".col-xs-1" })
                     </div>
                     <div class="col-sm-3" style="margin-top:2px;margin-bottom:2px;">
                        
@@ -280,8 +280,8 @@
                 <h5 class="modal-title" id="myModalLabel">
                     <table style="border-bottom:0px;font-size:14px;width:100%;">
                         <tr>
-                            <td style="font-size:14px;width:50%;text-align:left;">Información especifica</td>
-                            <td style="font-size:14px;width:50%;text-align:right;">
+                            <td style="font-size:14px;width:90%;text-align:left;">Información especifica</td>
+                            <td style="font-size:14px;width:10%;text-align:right;">
                                 <span id="infocu" onclick="ocultarDiv('DivInformacion'); mostrarDivFast('infver'); ocultarDivFast('infocu')" class="glyphicon glyphicon-minus-sign"></span>
                                 <span id="infver" style="display:none" onclick="mostrarDiv('DivInformacion'); mostrarDivFast('infocu'); ocultarDivFast('infver')" class="glyphicon glyphicon-plus-sign"></span>
                             </td>
@@ -300,21 +300,22 @@
                         <input id="txtAgencia" type="text" placeholder="Ingrese agencia" style="width :100%;" autofocus class="form-control" />
                     </div>
                     <div class="col-sm-3" style="margin-top:2px;margin-bottom:2px;">
-                        <label for="disponible">Destino</label>
+                        <label for="disponible">Agencia Ruc</label>
                     </div>
                     <div class="col-sm-3" style="margin-top:2px;margin-bottom:2px;">
-                        <input id="txtDestino" type="text" placeholder="Ingrese destino" style="width :100%;" autofocus class="form-control" />
+                        <input id="txtagenciaRuc" type="text" placeholder="Ingrese ruc de agencia" style="width :100%;" autofocus class="form-control" />
                     </div>
+                    
 
                 </div>
 
                 <div class="row" style="margin-top:0px;margin-left:10px;margin-right:10px;margin-bottom:0px;border-radius:5px;padding-top:10px;padding-bottom:10px;">
 
                     <div class="col-sm-3" style="margin-top:2px;margin-bottom:2px;">
-                        <label for="disponible">Agencia Ruc</label>
+                        <label for="disponible">Destino</label>
                     </div>
                     <div class="col-sm-3" style="margin-top:2px;margin-bottom:2px;">
-                        <input id="txtagencia" type="text" placeholder="Ingrese ruc de agencia" style="width :100%;" autofocus class="form-control" />
+                        <input id="txtDestino" type="text" placeholder="Ingrese destino" style="width :100%;" autofocus class="form-control" />
                     </div>
                     <div class="col-sm-3" style="margin-top:2px;margin-bottom:2px;">
                         
@@ -329,12 +330,30 @@
 
         </div>
     </div>
+
+    <div class="row" style="margin-top:10px;margin-left:10px;margin-right:10px;margin-bottom:10px;border-radius:5px;padding-top:10px;padding-bottom:10px;">
+        <div id="DivHGuardar"  style="display:none;">
+            <div class="col-sm-4" style="margin-top:2px;margin-bottom:2px;">
+            </div>
+            <div  class="col-sm-4" style="margin-top:2px;margin-bottom:2px;">
+                <button type="button" id="btnRegistrar" name="btnRegistrar" onclick="GuardarPromotor()" style="width:100%" title="Consultar" class="nuevo btn btn-small btn-danger" data-modal="" data-toggle="modal">Registrar Promotor</button>
+            </div>
+            <div class="col-sm-4" style="margin-top:2px;margin-bottom:2px;">
+            </div>
+        </div>
+    </div>
+
+
 </div>
 <script src="~/Scripts/bootstrap.min.js"></script>
 <script src="~/ScriptsSelect/bootstrap-select.js"></script>
 <script src="~/Scripts/BI.js"></script>
 <script src="~/Scripts/Plugins/iCheck/icheck.min.js"></script>
+
 <script>
+    var gTipoDoc = '';
+    var gTipoPer = '';
+
     $(document).ready(function () {          
               
         $('.i-checks').iCheck({
@@ -342,7 +361,8 @@
             radioClass: 'iradio_square-green',
         });
 
-        ListarProvincia()       
+        ListarProvincia()   
+      
 
     });
 
@@ -356,20 +376,153 @@
             todayHighlight: true
         }).datepicker("setDate", "0");;
     });
-    
+
+    function GuardarPromotor() {
+
+        if (validarPromotor()) {
+
+                var prt_tipoDoc = gTipoDoc;
+                var prt_numDoc = $("#txtdocumento").val();
+                var prt_Nomb1 = $("#txtPrimernombre").val();
+                var prt_Nomb2 = $("#txtSegundonombre").val();
+                var prt_apePat = $("#txtPrimerapellido").val();
+                var prt_apeMat = $("#txtSegundoapellido").val();
+                var prt_fecNac = $("#fecini").val();
+                var prt_tSexo = "";
+
+                if ($('#chkFem').is(':checked'))
+                    prt_tSexo = "F";
+
+                if ($('#chkMas').is(':checked'))
+                    prt_tSexo = "M";
+
+                var prt_tPers = gTipoPer;
+                var prt_correo   = $("#txtCorreo").val();
+                var prt_telefono = $("#txtTelefono").val();
+                var prt_fax      = $("#txtFax").val();
+                var prt_celular  = $("#txtCelular").val();
+
+                var prt_depa     = $("#dwDep").val();
+                var prt_prov     = $("#dwProv").val();
+                var prt_dist     = $("#dwDist").val();
+                var prt_direc    = $("#txtDireccion").val();
+                var prt_AreaId    = $("#dwLider").val();
+
+                var prt_agencia = $("#txtAgencia").val();
+                var prt_destino = $("#txtDestino").val();
+                var prt_agenRuc = $("#txtagenciaRuc").val();
+
+                var objPromotor = {
+                    prmt_TipoDoc: prt_tipoDoc,
+                    prmt_NroDoc: prt_numDoc,
+                    prmt_Nombre1: prt_Nomb1,
+                    prmt_Nombre2: prt_Nomb2,
+                    prmt_ApePater: prt_apePat,
+                    prmt_ApeMater: prt_apeMat,
+                    prmt_FecNac: prt_fecNac,
+                    prmt_Sexo: prt_tSexo,
+                    prmt_TipoPer: prt_tPers,
+                    prmt_Correo: prt_correo,
+                    prmt_Telefono: prt_telefono,
+                    prmt_Fax: prt_fax,
+                    prmt_Celular: prt_celular,
+                    prmt_Depa: prt_depa,
+                    prmt_Prov: prt_prov,
+                    prmt_Dist: prt_dist,
+                    prmt_Direc: prt_direc,
+                    prmt_AreaId: prt_AreaId,
+                    prmt_Lider: 0,
+                    prmt_PromoDefecto:1,
+                    prmt_Agencia: prt_agencia,
+                    prmt_AgenciaRuc: prt_agenRuc,
+                    prmt_Destino: prt_destino,
+                    prmt_Defecto:1
+                }
+
+
+                    $.ajax
+                  ({
+                      url: '../Promotor/GuardarPromotor',
+                      dataType: "json",
+                      type: "POST",
+                      data: objPromotor,
+                      success: function (data, textStatus, XMLHttpRequest) {
+                          waitingDialog.hide();
+                          toastr.success("Se genero los vales.", msg_titulo);
+
+                      },
+                      error: function (xhr) {
+                          waitingDialog.hide();
+                          toastr.error(xhr, msg_titulo);
+                      }
+                  })
+        }
+    }
+
+    function validarPromotor() {
+
+        var prt_fecNac = $("#fecini").val();
+        var prt_correo = $("#txtCorreo").val();
+        var prt_depa = $("#dwDep").val();
+        var prt_prov = $("#dwProv").val();
+        var prt_dist = $("#dwDist").val();
+        var prt_direc = $("#txtDireccion").val();
+        var prt_AreaId = $("#dwLider").val();
+        var bValdiacion = true;
+  
+        var msjAlert = '';
+        var msjAlertFormat = '';
+     
+        bValdiacion = ((BorrarEspacio(prt_fecNac) == '') ? (msjAlert += 'Fecha Nacimiento.<br/>', false) : bValdiacion);
+        bValdiacion = ((BorrarEspacio(prt_correo) == '') ? (msjAlert += 'Correo.<br/>', false) : bValdiacion);
+        bValdiacion = ((BorrarEspacio(prt_depa) == '') ? (msjAlert += 'Departamento.<br/>', false) : bValdiacion);
+        bValdiacion = ((BorrarEspacio(prt_prov) == '' || BorrarEspacio(prt_prov) == '-1') ? (msjAlert += 'Provincia.<br/>', false) : bValdiacion);
+        bValdiacion = ((BorrarEspacio(prt_dist) == '' || BorrarEspacio(prt_dist) == '-1') ? (msjAlert += 'Distrito.<br/>', false) : bValdiacion);
+        bValdiacion = ((BorrarEspacio(prt_direc) == '') ? (msjAlert += 'Dirección.<br/>', false) : bValdiacion);
+        bValdiacion = ((BorrarEspacio(prt_AreaId) == '') ? (msjAlert += 'Lider.<br/>', false) : bValdiacion);
+       
+        if (bValdiacion) {
+      
+            bValdiacion = ((ValidarFormatoCorreo(prt_correo)) ? (msjAlertFormat += 'Correo incorrecto.<br/>', false) : bValdiacion);
+            bValdiacion = ((obtenerEdad(prt_fecNac) < 18) ? (msjAlertFormat += 'Edad minima es de 18 años.<br/>', false) : bValdiacion);
+        }
+
+        var msjTotal = ''
+
+        if (msjAlert != '') { msjTotal = msjTotal + '<br/>* Datos Obligatorios:<br/>' + msjAlert }
+        if (msjAlertFormat != '') { msjTotal = msjTotal + '<br/>* Datos Incorrectos:<br/>' + msjAlertFormat }
+      
+        if (msjTotal != '') {
+            toastr.error(msjTotal, "Error de datos.");
+        }       
+
+        return bValdiacion
+    }
+
+    function ValidarFormatoCorreo(correo) {
+
+        var bValida = false
+        var Regex = /^([\w-\.]+)@@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.)|(([\w-]+\.)+))([a-zA-Z]{2,4}|[0-9]{1,3})(\]?)$/;
+
+        bValida = ((Regex.test(correo)) ? true : false);
+
+        return bValida;
+        
+    }
+
+
     function ListarProvincia() {
         var combo;
         var CodDepartamento = $("#dwDep").val();
         var onchangeFuncion = 'ListarDistrito'
         combo = GenerarLista('1', CodDepartamento);
         llenarCombo('divProvincia', 'dwProv', combo, '-1', 'Seleccione', 'ListarDistrito');
-        llenarComboVacio('divDistrito', 'dwDist',  '-1', 'Seleccione', '');       
+        llenarComboVacio('divDistrito', 'dwDist',  '-1', 'Seleccione', '');
     }
 
-    function borrarEspacio(cadena) {
+    function BorrarEspacio(cadena) {
 
         cadena = cadena.replace(/ /g, "")
-
         return cadena;
     }
 
@@ -398,18 +551,18 @@
     }
 
     function BuscarDocumento() {
-      
+
         var nroDocumento = $('#txtdocumentoIni').val();
         var url = '@Url.Action("ConsultaReniec", "Promotor")';
         function exito(rpta) {
-           
+
             verificarDocumento(rpta)
         }
         function error(rpta) {
             BI.AbrirPopup(20, 15, "Comuniquese con Soporte Tecnico<br>" + rpta.statusText, 'Disculpe!!!', false, true, false)
         }
         BI.AjaxJsonSeg("post", url, { nroDocumento: nroDocumento }, false, exito, error);
-      
+
     }
 
     function verificarDocumento(data) {
@@ -435,13 +588,13 @@
                     $('#txtdocumento').val(nroDoc);
                     $('#txtPrimernombre').val(item.Bas_Primer_Nombre);
                     $('#txtSegundonombre').val(item.Bas_segundo_nombre);
-                    $('#txtPrimeroapellido').val(item.Bas_Primer_Apellido);
+                    $('#txtPrimerapellido').val(item.Bas_Primer_Apellido);
                     $('#txtSegundoapellido').val(item.Bas_Segundo_Apellido);
 
                     soloLecturaInput('txtdocumento')
                     soloLecturaInput('txtPrimernombre')
                     soloLecturaInput('txtSegundonombre')
-                    soloLecturaInput('txtPrimeroapellido')
+                    soloLecturaInput('txtPrimerapellido')
                     soloLecturaInput('txtSegundoapellido')
 
                     var longDocumento = nroDoc.length;
@@ -471,10 +624,14 @@
                     setearComboSelectpicker('dwTipoDoc', tipoDoc, 1)
                     setearComboSelectpicker('dwTipoPersona', tipoPersona, 1)
 
+                    gTipoDoc = tipoDoc;
+                    gTipoPer = tipoPersona;
+
                     mostrarDiv('DivHBasico')
                     mostrarDiv('DivHTipoPersona')
                     mostrarDiv('DivHUbicacion')
                     mostrarDiv('DivHInformacion')
+                    mostrarDiv('DivHGuardar')
 
                     //console.log('fin seteand')
 
@@ -494,12 +651,13 @@
                 ocultarDiv('DivHTipoPersona')
                 ocultarDiv('DivHUbicacion')
                 ocultarDiv('DivHInformacion')
+                ocultarDiv('DivHGuardar')
 
             }
         });
 
     }
-    
+
     function soloLecturaInput(IdInput) {
 
         document.getElementById(IdInput).readOnly = true;
@@ -509,8 +667,8 @@
     function bloquearDiv(idDiv) {
 
         $('#' + idDiv + ' *').prop('disabled', true);
-   
-    }    
+
+    }
 
     function llenarCombo(DivId, IdControl, Data, codDefecto, desDefecto,onchangeFuncion) {
 
@@ -519,7 +677,7 @@
         var colectItemNormal = '';
 
         if (codDefecto != '') { str += '<option value="' + codDefecto + '" selected="selected">------' + desDefecto + '------</option>';}
-        
+
         if (onchangeFuncion != '') { onchangeFuncion = 'onchange = "' + onchangeFuncion + '()"' }
         str = str.replace("onchangeFuncion", onchangeFuncion);
 
@@ -529,7 +687,7 @@
             colectItemNormal = colectItemNormal.replace("codItem", item.codigo);
             colectItemNormal = colectItemNormal.replace("desItem", item.descripcion);
 
-        });       
+        });
 
         str += colectItemNormal
         str += '</select>'
@@ -540,9 +698,8 @@
             liveSearch: true,
             showSubtext: true
         });
-        
-    }
 
+    }
 
     function llenarCombo(DivId, IdControl, Data, codDefecto, desDefecto, onchangeFuncion) {
 
@@ -599,7 +756,7 @@
     }
 
     function setearComboSelectpicker(nameControl,valor,bloqueo) {
-        
+
         $('select[name=' + nameControl + ']').val(valor);
         $('select[name=' + nameControl + ']').change();
     }
@@ -624,9 +781,34 @@
         $("#" + divId).show();
     }
 
+    function obtenerEdad(fecha){
+
+        var fechaParte = fecha.split("-");	
+        var dia = fechaParte[0];
+        var mes = fechaParte[1];
+        var anio = fechaParte[2];
+
+        var fechaHoy = new Date();
+		
+        var anioHoy = fechaHoy.getFullYear();
+        var mesHoy = fechaHoy.getMonth()+1;
+        var diaHoy = fechaHoy.getDate();
+		
+        var edad = (anioHoy) - anio;
+
+        if(mesHoy < mes)
+            edad=edad-1
+        else{
+            if(((mes) == mesHoy) && (diaHoy < dia))
+                edad--
+        }       
+			
+        return edad
+    }
 
 
-    
+
+
 
 
 </script>

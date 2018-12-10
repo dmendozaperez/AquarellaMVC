@@ -32,6 +32,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
+    <Reference Include="System.ComponentModel.DataAnnotations" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
@@ -49,12 +50,14 @@
     <Compile Include="Control\Ent_Aplicacion.cs" />
     <Compile Include="Control\Ent_Tienda.cs" />
     <Compile Include="Persona\Persona.cs" />
+    <Compile Include="Promotor\Ent_Promotor.cs" />
     <Compile Include="Promotor\Ent_Maestro.cs" />
     <Compile Include="ReportsValeCompra\Reporte_Resultado.cs" />
     <Compile Include="ReportsValeCompra\Reporte_Filtro.cs" />
     <Compile Include="Util\Departamento.cs" />
     <Compile Include="Util\Ent_Combo.cs" />
     <Compile Include="Util\Ent_Promotor_Maestro.cs" />
+    <Compile Include="Util\JsonResponse.cs" />
     <Compile Include="ValeCompra\Ent_Cliente.cs" />
     <Compile Include="Control\Ent_Funcion.cs" />
     <Compile Include="Control\Ent_Roles.cs" />

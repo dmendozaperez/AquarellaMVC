@@ -15,7 +15,7 @@ namespace CapaDato.Control
         public Ent_Roles rol { get; set; }
         public Boolean InsertarRoles()
         {
-            string sqlquery = "USP_Insertar_Roles";
+            string sqlquery = "USP_Insertar_Roles_MVC";
             Boolean valida = false;
             try
             {
@@ -33,7 +33,7 @@ namespace CapaDato.Control
                     }
                 }
             }
-            catch (Exception)
+            catch (Exception exc)
             {
 
                 valida = false;

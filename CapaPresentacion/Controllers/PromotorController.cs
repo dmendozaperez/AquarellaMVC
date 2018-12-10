@@ -1,10 +1,12 @@
 ﻿using CapaDato.Control;
 using CapaDato.Util;
 using CapaDato.Persona;
+using CapaDato.Promotor;
 using CapaEntidad.Control;
 using CapaEntidad.Persona;
 using CapaEntidad.Menu;
 using CapaEntidad.Util;
+using CapaEntidad.Promotor;
 using CapaPresentacion.Bll;
 using System;
 using System.Collections.Generic;
@@ -14,6 +16,9 @@ using System.Net;
 using System.Web;
 using System.Web.Mvc;
 using System.Web.Script.Serialization;
+using System.Security.Cryptography;
+using System.Text;
+using System.IO;
 
 namespace CapaPresentacion.Controllers
 {
@@ -22,7 +27,7 @@ namespace CapaPresentacion.Controllers
         // GET: Funcion
         private Dat_Util datUtil = new Dat_Util();
         private Dat_Persona datPersona = new Dat_Persona();
-        private string _session_listfuncion_private = "session_listfun_private";
+    
         [Authorize]
         public ActionResult Nuevo()
         {
@@ -48,7 +53,7 @@ namespace CapaPresentacion.Controllers
                 {
 
               
-                    Ent_Promotor_Maestros maestros = datUtil.ListarEnt_Maestros_Promotor("");
+                    Ent_Promotor_Maestros maestros = datUtil.ListarEnt_Maestros_Promotor(_usuario.usu_id);
                     
                     List<Ent_Combo> listobj = new List<Ent_Combo>();
                     Ent_Combo cbo = new Ent_Combo();
@@ -199,6 +204,71 @@ namespace CapaPresentacion.Controllers
             return split;
         }
 
+        public static string encrypt(string cadena)
+        {
+            // Create a new DES key.
+            DESCryptoServiceProvider key = new DESCryptoServiceProvider();
+            key.Key = Encoding.UTF8.GetBytes("_MANISOL");
+            key.IV = Encoding.UTF8.GetBytes("_BATA_SA");
 
-    }
+            // Encrypt a string to a byte array.
+            byte[] buffer = encrypt(cadena, key);
+
+            string cad;
+            //CONVIERTE EN STRING EL ARREGLO DE BYTES
+            cad = Convert.ToBase64String(buffer);
+
+            return cad;
+        }
+
+        private static byte[] encrypt(string PlainText, SymmetricAlgorithm key)
+        {
+            // Create a memory stream.
+            MemoryStream ms = new MemoryStream();
+
+            // Create a CryptoStream using the memory stream and the 
+            // CSP DES key.  
+            CryptoStream encStream = new CryptoStream(ms, key.CreateEncryptor(), CryptoStreamMode.Write);
+
+            // Create a StreamWriter to write a string
+            // to the stream.
+            StreamWriter sw = new StreamWriter(encStream);
+
+            // Write the plaintext to the stream.
+            sw.WriteLine(PlainText);
+
+            // Close the StreamWriter and CryptoStream.
+            sw.Close();
+            encStream.Close();
+
+            // Get an array of bytes that represents
+            // the memory stream.
+            byte[] buffer = ms.ToArray();
+
+            // Close the memory stream.
+            ms.Close();
+
+            // Return the encrypted byte array.
+            return buffer;
+        }
+
+        public JsonResult GuardarPromotor(Ent_Promotor _promotor)
+        {
+            var oJRespuesta = new JsonResponse();
+            Ent_Usuario _usuario = (Ent_Usuario)Session[Ent_Constantes.NameSessionUser];
+            Dat_Promotor datprot = new Dat_Promotor();
+            _promotor.usuId = _usuario.usu_id.ToString();
+            _promotor.prmt_contrasenia = encrypt(_promotor.prmt_NroDoc);
+            _promotor.prmt_UsuTipo = "02";
+
+            Boolean bPromotor = datprot.InsertarPromotor(_promotor);
+
+            oJRespuesta.Data = bPromotor;
+            oJRespuesta.Message = bPromotor.ToString();
+
+            return Json(oJRespuesta, JsonRequestBehavior.AllowGet);
+        }
+
+
+   }
 }

@@ -110,28 +110,28 @@ namespace CapaPresentacion.Controllers
 
         }
 
-        public JsonResult GuardarVale(Ent_ValeCompra _valeCompra)
-        {
-            var oJRespuesta = new JsonResponse();
-            Ent_Usuario _usuario = (Ent_Usuario)Session[Ent_Constantes.NameSessionUser];
+        //public JsonResult GuardarVale(Ent_ValeCompra _valeCompra)
+        //{
+        //    var oJRespuesta = new JsonResponse();
+        //    Ent_Usuario _usuario = (Ent_Usuario)Session[Ent_Constantes.NameSessionUser];
 
-            Dat_ValeCompra datCompra = new Dat_ValeCompra();
-            Ent_ValeCompra _compra = new Ent_ValeCompra();
+        //    Dat_ValeCompra datCompra = new Dat_ValeCompra();
+        //    Ent_ValeCompra _compra = new Ent_ValeCompra();
 
-            _valeCompra.valCompra_usuCreacion = _usuario.usu_login;
-            _valeCompra.valCompra_ipCreacion = _usuario.usu_ip;
+        //    _valeCompra.valCompra_usuCreacion = _usuario.usu_login;
+        //    _valeCompra.valCompra_ipCreacion = _usuario.usu_ip;
 
-            datCompra.valeCompra = _valeCompra;
+        //    datCompra.valeCompra = _valeCompra;
           
-            _compra = datCompra.InsertarGeneracionValeCompraEntidad();
+        //    _compra = datCompra.InsertarGeneracionValeCompraEntidad();
             
 
-            ejecuta_pdf(_compra);
+        //    ejecuta_pdf(_compra);
 
-            oJRespuesta.Message = _compra.valCompra_id.ToString();
+        //    oJRespuesta.Message = _compra.valCompra_id.ToString();
 
-            return Json(oJRespuesta, JsonRequestBehavior.AllowGet);
-        }
+        //    return Json(oJRespuesta, JsonRequestBehavior.AllowGet);
+        //}
 
         public FileResult Download(string strIdLote)
         {

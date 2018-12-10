@@ -83,7 +83,7 @@ namespace CapaDato.Util
         }
 
 
-        public Ent_Promotor_Maestros ListarEnt_Maestros_Promotor(string codUsuario)
+        public Ent_Promotor_Maestros ListarEnt_Maestros_Promotor(decimal usuarioId)
         {
             DataSet dsReturn = new DataSet();
             string sqlquery = "USP_LEER_DATOS_MAESTROS_MVC";
@@ -100,9 +100,9 @@ namespace CapaDato.Util
                 {
                     using (SqlCommand cmd = new SqlCommand(sqlquery, cn))
                     {
-                        SqlParameter oCodUsuario = cmd.Parameters.Add("@codUsuario", SqlDbType.VarChar);
+                        SqlParameter oCodUsuario = cmd.Parameters.Add("@IdUsuario", SqlDbType.Decimal);
                         oCodUsuario.Direction = ParameterDirection.Input;
-                        oCodUsuario.Value = codUsuario;
+                        oCodUsuario.Value = usuarioId;
 
                         cmd.CommandTimeout = 0;
                         cmd.CommandType = CommandType.StoredProcedure;
