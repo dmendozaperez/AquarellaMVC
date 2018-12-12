@@ -5,12 +5,35 @@
 }
 
 @*@Scripts.Render("~/bundles/bootstrap")*@
+<style>
+    #dwcliente {
+        width: 200px;
+    }
+
+    .imgRedonda {
+        width: 150px;
+        height: 120px;
+        border-radius: 15px;
+    }
+
+    #divImagen {
+        width: 100%;
+        height: 100%;
+    }
+
+    #lugar {
+        border-radius: 10px 10px 10px 10px;
+        -moz-border-radius: 10px 10px 10px 10px;
+        -webkit-border-radius: 10px 10px 10px 10px;
+        border: 2px;
+    }
+</style>
 <link href="~/Content/plugins/iCheck/custom.css" rel="stylesheet" />
 
 <link href="~/ContentSelect/bootstrap-select.css" rel="stylesheet" />
 <div class="box box-body box-default" style="margin-top:0px;margin-bottom:0px;padding-top:5px;padding-bottom:5px;">
  
-    <div class="row" style="margin-top:5px;margin-left:10px;margin-right:10px;margin-bottom:0px;border-radius:5px;padding-top:0px;padding-bottom:0px;">
+    <div class="row" style="margin-top:5px;margin-left:5px;margin-right:5px;margin-bottom:0px;border-radius:5px;padding-top:0px;padding-bottom:0px;">
 
         <div id="DivHBasico"  class="modal-content">
             <div class="modal-header modal-header-danger" style="margin-top:0px;margin-bottom:0px;padding-top:2px;padding-bottom:2px;">
@@ -71,10 +94,10 @@
                 <label for="disponible">Articulo</label>
             </div>
             <div class="col-sm-3" style="margin-top:2px;margin-bottom:2px;">
-                <input id="txtcodigo" type="text" placeholder="Ingrese codigo" style="width :100%;" autofocus class="form-control" />
+                <input id="txtArticulo" type="text" placeholder="Ingrese articulo" style="width :100%;" autofocus class="form-control" />
             </div>
             <div class="col-sm-3" style="margin-top:2px;margin-bottom:2px;">
-                <button type="submit" id="btnConsultar" name="btnConsultar" onclick="BuscarArticulo()" style="width:50%" title="Consultar" class="nuevo btn btn-small btn-primary" data-modal="" data-toggle="modal">Buscar</button>
+                <button type="submit" id="btnBuscar" name="btnConsultar" onclick="MostrarArticulo()" style="width:50%" title="Buscar" class="nuevo btn btn-small btn-primary" data-modal="" data-toggle="modal">Buscar</button>
 
             </div>
 
@@ -83,6 +106,13 @@
 
 
 
+</div>
+<div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" ng-app>
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div id='myModalContent'></div>
+        </div>
+    </div>
 </div>
 <script src="~/Scripts/bootstrap.min.js"></script>
 <script src="~/ScriptsSelect/bootstrap-select.js"></script>
@@ -99,395 +129,144 @@
 
     });
 
-</script>
 
-<script>
+    function MostrarArticulo() {
 
-    $(function () {
-        $("#datepickerini").datepicker({
-            autoclose: true,
-            todayHighlight: true
-        }).datepicker("setDate", "0");;
-    });
-
-    function GuardarPromotor() {
-
-        if (validarPromotor()) {
-
-                var prt_tipoDoc = gTipoDoc;
-                var prt_numDoc = $("#txtdocumento").val();
-                var prt_Nomb1 = $("#txtPrimernombre").val();
-                var prt_Nomb2 = $("#txtSegundonombre").val();
-                var prt_apePat = $("#txtPrimerapellido").val();
-                var prt_apeMat = $("#txtSegundoapellido").val();
-                var prt_fecNac = $("#fecini").val();
-                var prt_tSexo = "";
-
-                if ($('#chkFem').is(':checked'))
-                    prt_tSexo = "F";
-
-                if ($('#chkMas').is(':checked'))
-                    prt_tSexo = "M";
-
-                var prt_tPers = gTipoPer;
-                var prt_correo   = $("#txtCorreo").val();
-                var prt_telefono = $("#txtTelefono").val();
-                var prt_fax      = $("#txtFax").val();
-                var prt_celular  = $("#txtCelular").val();
-
-                var prt_depa     = $("#dwDep").val();
-                var prt_prov     = $("#dwProv").val();
-                var prt_dist     = $("#dwDist").val();
-                var prt_direc    = $("#txtDireccion").val();
-                var prt_AreaId    = $("#dwLider").val();
-
-                var prt_agencia = $("#txtAgencia").val();
-                var prt_destino = $("#txtDestino").val();
-                var prt_agenRuc = $("#txtagenciaRuc").val();
-
-                var objPromotor = {
-                    prmt_TipoDoc: prt_tipoDoc,
-                    prmt_NroDoc: prt_numDoc,
-                    prmt_Nombre1: prt_Nomb1,
-                    prmt_Nombre2: prt_Nomb2,
-                    prmt_ApePater: prt_apePat,
-                    prmt_ApeMater: prt_apeMat,
-                    prmt_FecNac: prt_fecNac,
-                    prmt_Sexo: prt_tSexo,
-                    prmt_TipoPer: prt_tPers,
-                    prmt_Correo: prt_correo,
-                    prmt_Telefono: prt_telefono,
-                    prmt_Fax: prt_fax,
-                    prmt_Celular: prt_celular,
-                    prmt_Depa: prt_depa,
-                    prmt_Prov: prt_prov,
-                    prmt_Dist: prt_dist,
-                    prmt_Direc: prt_direc,
-                    prmt_AreaId: prt_AreaId,
-                    prmt_Lider: 0,
-                    prmt_PromoDefecto:1,
-                    prmt_Agencia: prt_agencia,
-                    prmt_AgenciaRuc: prt_agenRuc,
-                    prmt_Destino: prt_destino,
-                    prmt_Defecto:1
-                }
-
-
-                    $.ajax
-                  ({
-                      url: '../Promotor/GuardarPromotor',
-                      dataType: "json",
-                      type: "POST",
-                      data: objPromotor,
-                      success: function (data, textStatus, XMLHttpRequest) {
-                          waitingDialog.hide();
-                          toastr.success("Se genero los vales.", msg_titulo);
-
-                      },
-                      error: function (xhr) {
-                          waitingDialog.hide();
-                          toastr.error(xhr, msg_titulo);
-                      }
-                  })
-        }
-    }
-
-    function validarPromotor() {
-
-        var prt_fecNac = $("#fecini").val();
-        var prt_correo = $("#txtCorreo").val();
-        var prt_depa = $("#dwDep").val();
-        var prt_prov = $("#dwProv").val();
-        var prt_dist = $("#dwDist").val();
-        var prt_direc = $("#txtDireccion").val();
-        var prt_AreaId = $("#dwLider").val();
-        var bValdiacion = true;
-  
-        var msjAlert = '';
-        var msjAlertFormat = '';
-     
-        bValdiacion = ((BorrarEspacio(prt_fecNac) == '') ? (msjAlert += 'Fecha Nacimiento.<br/>', false) : bValdiacion);
-        bValdiacion = ((BorrarEspacio(prt_correo) == '') ? (msjAlert += 'Correo.<br/>', false) : bValdiacion);
-        bValdiacion = ((BorrarEspacio(prt_depa) == '') ? (msjAlert += 'Departamento.<br/>', false) : bValdiacion);
-        bValdiacion = ((BorrarEspacio(prt_prov) == '' || BorrarEspacio(prt_prov) == '-1') ? (msjAlert += 'Provincia.<br/>', false) : bValdiacion);
-        bValdiacion = ((BorrarEspacio(prt_dist) == '' || BorrarEspacio(prt_dist) == '-1') ? (msjAlert += 'Distrito.<br/>', false) : bValdiacion);
-        bValdiacion = ((BorrarEspacio(prt_direc) == '') ? (msjAlert += 'Dirección.<br/>', false) : bValdiacion);
-        bValdiacion = ((BorrarEspacio(prt_AreaId) == '') ? (msjAlert += 'Lider.<br/>', false) : bValdiacion);
        
-        if (bValdiacion) {
-      
-            bValdiacion = ((ValidarFormatoCorreo(prt_correo)) ? (msjAlertFormat += 'Correo incorrecto.<br/>', false) : bValdiacion);
-            bValdiacion = ((obtenerEdad(prt_fecNac) < 18) ? (msjAlertFormat += 'Edad minima es de 18 años.<br/>', false) : bValdiacion);
-        }
-
-        var msjTotal = ''
-
-        if (msjAlert != '') { msjTotal = msjTotal + '<br/>* Datos Obligatorios:<br/>' + msjAlert }
-        if (msjAlertFormat != '') { msjTotal = msjTotal + '<br/>* Datos Incorrectos:<br/>' + msjAlertFormat }
-      
-        if (msjTotal != '') {
-            toastr.error(msjTotal, "Error de datos.");
-        }       
-
-        return bValdiacion
-    }
-
-    function ValidarFormatoCorreo(correo) {
-
-        var bValida = false
-        var Regex = /^([\w-\.]+)@@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.)|(([\w-]+\.)+))([a-zA-Z]{2,4}|[0-9]{1,3})(\]?)$/;
-
-        bValida = ((Regex.test(correo)) ? true : false);
-
-        return bValida;
+        waitingDialog.show('Espere un momento por favor');
         
-    }
+        var codArticulo = $('#txtArticulo').val();
+            codArticulo = codArticulo.replace(/^\s+|\s+$/g, "")
+      
+        var ControllerUrl = "@Url.Action("listarStr_ArticuloTalla", "Pedido")";
+        var css = 'class="row"'
+        //css = '';
+        var border2 = 'padding: 5px 5px 5px 5px;border:2px'
+        //border2 =''
+        var espacio = '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'
+        var ConstHtmlTienda = '<br/><div id="lugar" style="background:#FFFFFF;' + border2 + '" ><div ' + css + '  style="background:#FFFFFF;" ><div class="col-sm-12"><div><h4><strong>VariableTienda</strong></h4><p><i class="fa fa-map-marker"></i>&nbsp;&nbsp;DireccionTienda</p></div><table><tr><td rowspan="5">VariableImagen</td><td>' + espacio + '</td><td><div style="margin-top:2px;margin-right:2px;"><button class="btn btn-white btn-xs" style="width:100%;">Tallas:</button></div></td>ListvariableTalla</tr><tr><td>' + espacio + '</td><td><div style="margin-top:2px;margin-right:2px;"><button class="btn btn-white btn-xs" style="width:100%;">Cantidad:</button></div></td>ListvariableCantidad</tr><tr></tr><tr></tr><tr></tr></table></div><br/></div></div>';
+        var ConstTalla = '<td><div style="margin-top:2px;margin-right:2px;"><button class="btn btn-white btn-xs" style="width:100%;">variableTalla</button></div></td>'
+        var ConstCantidad = '<td><div style="margin-top:2px;margin-right:2px;"><button class="btn btn-white btn-xs" style="width:100%;">variableCantidad</button></div></td>'
+        var listTalla = '';
+        var listCantidad = '';
+        var divFinal = '';
+        var strUrlImagen = '';
+        var options = { "backdrop": "static", keyboard: true };
+        $.ajax({
+            type: "GET",
+            url: ControllerUrl,
+            contentType: "application/json; charset=utf-8",
+            data: { codArticulo: codArticulo },
+            datatype: "json",
+            cache: true,
+            success: function (data) {
+                
+                var codTienda = ''
+                var consTienda = ''
+               
+                if (data != '' && data != '[]') {
+                    var valors = JSON.parse(data);
+                    var nombreTienda = '';
+                    var urlImagenSusti = '';
+                    var DireccionTienda = '';
+                    var talla = '';
+                    var cantidad = '';
+
+                    var NombreArticulo = '';
+                    var MarcaArticulo = '';
+                    var ColorArticulo = '';
+                    var CategoriArticulo = '';
+               
+                    $.each(valors, function (index, item) {
+                        //codTienda = item.Codigo_Susti;
+                        //NombreArticulo = item.Descripcion;
+                        strUrlImagen = item.Art_Foto
+                        NombreArticulo = item.Art_Descripcion
+                        MarcaArticulo = item.Mar_Descripcion
+                        ColorArticulo = item.Col_Descripcion
+                        CategoriArticulo = item.Cat_Pri_Descripcion + ' > ' + item.Cat_Descripcion
+                      
+                        //if (codTienda != consTienda) {
+                       
+                       
+                        //    if (consTienda != '') {
+                        //        var strhtml = ConstHtmlTienda;
+                        //        var strImagen = ' <img id="imagenCatalogo" class="imgRedonda" src="' + urlImagenSusti + '" width="150" height="120" />'
+                        //        strhtml = strhtml.replace("VariableImagen", strImagen);
+                        //        strhtml = strhtml.replace("VariableTienda", nombreTienda);
+                        //        strhtml = strhtml.replace("DireccionTienda", DireccionTienda);
+                        //        strhtml = strhtml.replace("ListvariableTalla", listTalla);
+                        //        strhtml = strhtml.replace("ListvariableCantidad", listCantidad);
+                        //        divFinal += strhtml;
+                        //        listTalla = '';
+                        //        listCantidad = '';
+                        //    }
+                        //    consTienda = codTienda;
+                        //}
+
+                        //urlImagenSusti = item.Url_Imagen_susti
+                        //nombreTienda = item.Nombre_Susti;
+                        //DireccionTienda = item.Direccion_Susti;
+                        //talla = item.Talla;
+                        //cantidad = (item.Cantidad).toString();
+
+                        //listTalla += ConstTalla;
+                        //listTalla = listTalla.replace("variableTalla", talla);
 
 
-    function ListarProvincia() {
-        var combo;
-        var CodDepartamento = $("#dwDep").val();
-        var onchangeFuncion = 'ListarDistrito'
-        combo = GenerarLista('1', CodDepartamento);
-        llenarCombo('divProvincia', 'dwProv', combo, '-1', 'Seleccione', 'ListarDistrito');
-        llenarComboVacio('divDistrito', 'dwDist',  '-1', 'Seleccione', '');
-    }
+                        //listCantidad += ConstCantidad;
+                        //listCantidad = listCantidad.replace("variableCantidad", cantidad);
 
-    function BorrarEspacio(cadena) {
+                                    
+                    });
+                 
+                    //if (codTienda != '') {
+                    //    var strImagen = ' <img id="imagenCatalogo" class="imgRedonda" src="' + urlImagenSusti + '" width="150" height="120" />'
+                    //    ConstHtmlTienda = ConstHtmlTienda.replace("VariableImagen", strImagen);
+                    //    ConstHtmlTienda = ConstHtmlTienda.replace("VariableTienda", nombreTienda);
+                    //    ConstHtmlTienda = ConstHtmlTienda.replace("DireccionTienda", DireccionTienda);
+                    //    ConstHtmlTienda = ConstHtmlTienda.replace("ListvariableTalla", listTalla);
+                    //    ConstHtmlTienda = ConstHtmlTienda.replace("ListvariableCantidad", listCantidad);
+                    //    divFinal += ConstHtmlTienda;
+                    //    document.getElementById('imagenCatalogo').src = strUrlImagen;
+                    //    document.getElementById("listTienda").innerHTML = divFinal;
+                    //    document.getElementById("DivNombre").innerHTML = '<h3>' + NombreArticulo + '</h3>';
+                    //}
+                        
+                    var strhtml = '<table id="example" class="table table-hover dataTable  table-striped table-responsive">'
 
-        cadena = cadena.replace(/ /g, "")
-        return cadena;
-    }
+                    strhtml += '<tbody>'
+                    strhtml += '<tr>'
+                    strhtml += '<td  style="background:#FFFFFF;width:30%;text-align:center;vertical-align:middle;border: 1px solid;border-color:gainsboro">'
+                    strhtml += '<div id="DivNombre"><h5><b>' + NombreArticulo + '</b></h5></div>'
+                    strhtml += '<img id="imagenCatalogo" class="imgRedonda" src="'+strUrlImagen+'" width="50%" height="50%" />'
+                    strhtml += '<div id="DivNombre"><h5>' + MarcaArticulo + '</h5></div>'
+                    strhtml += '<div id="DivNombre"><h5>' + ColorArticulo + '</h5></div>'
+                    strhtml += '<div id="DivNombre"><h5>' + CategoriArticulo + '</h5></div>'
+                    strhtml += '</td>'
+                    strhtml += '<td>'               
+                    strhtml += '<div id="listTienda" style="overflow-x: hidden; overflow-y:auto; height: 378px;">'                        
+                    strhtml += '</div>'
+                    strhtml += '</td>'
+                    strhtml += '</tr>'
+                    strhtml += '</tbody>'
+                    strhtml += '</table>'
 
-    function ListarDistrito() {
-        var combo;
-        var CodProvincia= $("#dwProv").val();
-        var onchangeFuncion = 'ListarDistrito'
-        combo = GenerarLista('2', CodProvincia);
-        llenarCombo('divDistrito', 'dwDist', combo, '-1', 'Seleccione', '');
-
-    }
-
-    function GenerarLista(Numsp, Params) {
-        var Data
-
-        var url = '@Url.Action("GenerarCombo", "Promotor")';
-        function exito(rpta) {
-            Data = rpta
-        }
-        function error(rpta) {
-            BI.AbrirPopup(20, 15, "Comuniquese con Soporte Tecnico<br>" + rpta.statusText, 'Disculpe!!!', false, true, false)
-        }
-        BI.AjaxJsonSeg("post", url, { Numsp: Numsp, Params: Params }, false, exito, error);
-
-        return Data
-    }
-
-    function BuscarDocumento() {
-
-        var nroDocumento = $('#txtdocumentoIni').val();
-        var url = '@Url.Action("ConsultaReniec", "Promotor")';
-        function exito(rpta) {
-
-            verificarDocumento(rpta)
-        }
-        function error(rpta) {
-            BI.AbrirPopup(20, 15, "Comuniquese con Soporte Tecnico<br>" + rpta.statusText, 'Disculpe!!!', false, true, false)
-        }
-        BI.AjaxJsonSeg("post", url, { nroDocumento: nroDocumento }, false, exito, error);
-
-    }
-
-    function verificarDocumento(data) {
-
-        $.each(data, function (index, item) {
-
-            var bOcultar = false;
-
-            if (parseInt(item.Bas_id) > 0) {
-
-                var nombres = item.Bas_Primer_Nombre + ' ' + item.Bas_Primer_Apellido
-                bOcultar = true
-
-                toastr.error("El Cliente " + nombres + ", ya se encuentra registrado.", "Mensaje Aquarella");
-
-            } else {
-
-                if (item.Bas_Primer_Apellido != "" && item.Bas_Primer_Apellido != null) {
-                    var nombres = item.Bas_Primer_Nombre + ' ' + item.Bas_Primer_Apellido
-                    toastr.success("Cliente " + nombres, "Mensaje Aquarella");
-                    var nroDoc = item.Bas_Documento;
-
-                    $('#txtdocumento').val(nroDoc);
-                    $('#txtPrimernombre').val(item.Bas_Primer_Nombre);
-                    $('#txtSegundonombre').val(item.Bas_segundo_nombre);
-                    $('#txtPrimerapellido').val(item.Bas_Primer_Apellido);
-                    $('#txtSegundoapellido').val(item.Bas_Segundo_Apellido);
-
-                    soloLecturaInput('txtdocumento')
-                    soloLecturaInput('txtPrimernombre')
-                    soloLecturaInput('txtSegundonombre')
-                    soloLecturaInput('txtPrimerapellido')
-                    soloLecturaInput('txtSegundoapellido')
-
-                    var longDocumento = nroDoc.length;
-                    var tipoDoc = '';
-                    var tipoPersona = '';
-
-                    switch (longDocumento) {
-                        case 8://dni
-                            tipoDoc = '1';
-                            tipoPersona = '1';
-                            break;
-                        case 12://carnet de extranjeria
-                            tipoDoc = '3';
-                            tipoPersona = '1';
-                            break;
-                        case 11://RUC
-                            tipoDoc = '2';
-                            tipoPersona = '2';
-                            break;
-                        default:
-                            ''
-                    }
-
-                    //console.log('seteand')
-                    //$('select[name=' + 'dwTipoDoc' + ']').val('2');
-                    //$('select[name=' + nameControl + ']').val(valor);
-                    setearComboSelectpicker('dwTipoDoc', tipoDoc, 1)
-                    setearComboSelectpicker('dwTipoPersona', tipoPersona, 1)
-
-                    gTipoDoc = tipoDoc;
-                    gTipoPer = tipoPersona;
-
-                    mostrarDiv('DivHBasico')
-                    mostrarDiv('DivHTipoPersona')
-                    mostrarDiv('DivHUbicacion')
-                    mostrarDiv('DivHInformacion')
-                    mostrarDiv('DivHGuardar')
-
-                    //console.log('fin seteand')
-
-
-
-                } else {
-
-                    bOcultar = true
-                    toastr.error("Número de documento Incorrecto.", "Mensaje Aquarella");
-                }
-
+                    $('#myModalContent').html(strhtml);
+                    $('#myModal').modal(options);
+                    $('#myModal').modal('show');
+                } 
+                waitingDialog.hide();
+                
+            },
+            error: function () {
+                waitingDialog.hide();
+                alert('Error')
             }
 
-            if (bOcultar) {
-
-                ocultarDiv('DivHBasico')
-                ocultarDiv('DivHTipoPersona')
-                ocultarDiv('DivHUbicacion')
-                ocultarDiv('DivHInformacion')
-                ocultarDiv('DivHGuardar')
-
-            }
         });
 
     }
-
-    function soloLecturaInput(IdInput) {
-
-        document.getElementById(IdInput).readOnly = true;
-
-    }
-
-    function bloquearDiv(idDiv) {
-
-        $('#' + idDiv + ' *').prop('disabled', true);
-
-    }
-
-    function llenarCombo(DivId, IdControl, Data, codDefecto, desDefecto,onchangeFuncion) {
-
-        var str = '<select class="selectpicker" data-live-search="true" onchangeFuncion data-width="100%" id="' + IdControl + '" name="' + IdControl + '">';
-        var ItemNormal = '<option value="codItem">desItem</option>';
-        var colectItemNormal = '';
-
-        if (codDefecto != '') { str += '<option value="' + codDefecto + '" selected="selected">------' + desDefecto + '------</option>';}
-
-        if (onchangeFuncion != '') { onchangeFuncion = 'onchange = "' + onchangeFuncion + '()"' }
-        str = str.replace("onchangeFuncion", onchangeFuncion);
-
-        $.each(Data, function (index, item) {
-
-            colectItemNormal = colectItemNormal + ItemNormal
-            colectItemNormal = colectItemNormal.replace("codItem", item.codigo);
-            colectItemNormal = colectItemNormal.replace("desItem", item.descripcion);
-
-        });
-
-        str += colectItemNormal
-        str += '</select>'
-
-        document.getElementById(DivId).innerHTML = str
-
-        $('.selectpicker').selectpicker({
-            liveSearch: true,
-            showSubtext: true
-        });
-
-    }
-
-    function llenarCombo(DivId, IdControl, Data, codDefecto, desDefecto, onchangeFuncion) {
-
-        var str = '<select class="selectpicker" data-live-search="true" onchangeFuncion data-width="100%" id="' + IdControl + '" name="' + IdControl + '">';
-        var ItemNormal = '<option value="codItem">desItem</option>';
-        var colectItemNormal = '';
-
-        if (codDefecto != '') { str += '<option value="' + codDefecto + '" selected="selected">------' + desDefecto + '------</option>'; }
-
-        if (onchangeFuncion != '') { onchangeFuncion = 'onchange = "' + onchangeFuncion + '()"' }
-        str = str.replace("onchangeFuncion", onchangeFuncion);
-
-        $.each(Data, function (index, item) {
-
-            colectItemNormal = colectItemNormal + ItemNormal
-            colectItemNormal = colectItemNormal.replace("codItem", item.codigo);
-            colectItemNormal = colectItemNormal.replace("desItem", item.descripcion);
-
-        });
-
-        str += colectItemNormal
-        str += '</select>'
-
-        document.getElementById(DivId).innerHTML = str
-
-        $('.selectpicker').selectpicker({
-            liveSearch: true,
-            showSubtext: true
-        });
-
-    }
-
-    function llenarComboVacio(DivId, IdControl, codDefecto, desDefecto, onchangeFuncion) {
-
-        var str = '<select class="selectpicker" data-live-search="true" onchangeFuncion data-width="100%" id="' + IdControl + '" name="' + IdControl + '">';
-        var ItemNormal = '<option value="codItem">desItem</option>';
-        var colectItemNormal = '';
-
-        if (codDefecto != '') { str += '<option value="' + codDefecto + '" selected="selected">------' + desDefecto + '------</option>'; }
-
-        if (onchangeFuncion != '') { onchangeFuncion = 'onchange = "' + onchangeFuncion + '()"' }
-        str = str.replace("onchangeFuncion", onchangeFuncion);
-
-        str += colectItemNormal
-        str += '</select>'
-
-        document.getElementById(DivId).innerHTML = str
-
-        $('.selectpicker').selectpicker({
-            liveSearch: true,
-            showSubtext: true
-        });
-
-    }
-
     
 
     function ocultarDiv(divId) {

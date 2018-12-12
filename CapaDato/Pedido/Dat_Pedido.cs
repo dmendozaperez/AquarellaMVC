@@ -78,6 +78,42 @@ namespace CapaDato.Pedido
             return Maestro;
         }
 
+        public string listarStr_ArticuloTalla(string CodArticulo, decimal BasId)
+        {
+            string strJson = "";
+            try
+            {
+                SqlConnection cn = new SqlConnection(Ent_Conexion.conexion);
+                cn.Open();
+                SqlCommand oComando = new SqlCommand("USP_Leer_Articulo_MVC", cn);
+                oComando.CommandType = CommandType.StoredProcedure;
+
+                SqlParameter oArticulo = oComando.Parameters.Add("@Art_Id", SqlDbType.VarChar);
+                oArticulo.Direction = ParameterDirection.Input;
+                oArticulo.Value = CodArticulo;
+
+
+                SqlParameter oBasId = oComando.Parameters.Add("@bas_Id", SqlDbType.Int);
+                oBasId.Direction = ParameterDirection.Input;
+                oBasId.Value = BasId;
+
+                SqlDataReader oReader = oComando.ExecuteReader(CommandBehavior.SingleResult);
+                DataTable dataTable = new DataTable("row");
+                dataTable.Load(oReader);
+
+                strJson = JsonConvert.SerializeObject(dataTable, Newtonsoft.Json.Formatting.Indented);
+                strJson = strJson.Replace(Environment.NewLine, "");
+      
+                cn.Close();
+            }
+            catch (Exception ex)
+            {
+
+                return strJson;
+            }
+                  
+            return strJson;
+        }
 
 
     }

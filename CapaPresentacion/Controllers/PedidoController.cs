@@ -18,7 +18,6 @@ namespace CapaPresentacion.Controllers
     {
         // GET: Funcion
         private Dat_Pedido datPedido = new Dat_Pedido();
-        private Dat_Persona datPersona = new Dat_Persona();
     
         [Authorize]
         public ActionResult Nuevo()
@@ -58,6 +57,20 @@ namespace CapaPresentacion.Controllers
                 }
             }
 
+        }
+
+        public string listarStr_ArticuloTalla(string codArticulo)
+        {
+            string strJson = "";
+                       
+            Ent_Usuario _usuario = (Ent_Usuario)Session[Ent_Constantes.NameSessionUser];
+            
+            JsonResult jRespuesta = null;
+            strJson = datPedido.listarStr_ArticuloTalla(codArticulo, _usuario.usu_id);
+            var serializer = new JavaScriptSerializer();
+            jRespuesta = Json(serializer.Deserialize<List<Ent_Articulo_pedido>>(strJson), JsonRequestBehavior.AllowGet);           
+
+            return strJson;
         }
 
         public JsonResult GenerarCombo(int Numsp, string Params)
