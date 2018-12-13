@@ -30,6 +30,7 @@ namespace CapaEntidad.Pedido
         public string Ofe_Porc { get; set; }
         public string Tal_Descripcion { get; set; }//campo de talla
         public string Tall_Des { get; set; }//campo de talla
+        public string Tall_Cant { get; set; }//campo de talla -- Cantidad por talla
 
     }    
 }

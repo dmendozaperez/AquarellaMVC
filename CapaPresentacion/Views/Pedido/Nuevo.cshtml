@@ -54,7 +54,7 @@
                 <div class="row" style="margin-top:0px;margin-left:10px;margin-right:10px;margin-bottom:0px;border-radius:5px;padding-top:10px;padding-bottom:10px;">
 
                     <div class="col-sm-3" style="margin-top:2px;margin-bottom:2px;">
-                        <label for="disponible">*Promotor</label>
+                        <label  for="disponible">*Promotor</label>
                     </div>
                     <div id="divTipoDoc" class="col-sm-3" style="margin-top:2px;margin-bottom:2px;">
                         @Html.DropDownList("dwPromo", new SelectList(ViewBag.listPromotor, "codigo", "descripcion", "-1"), new { @class = "selectpicker", @data_live_search = "true", @id = "dwTipoDoc", @placeholder = ".col-xs-1" })
@@ -91,7 +91,7 @@
         <div class="row" style="margin-top:5px;margin-left:0px;margin-right:0px;margin-bottom:5px;background-color:#f4f4f4;border-radius:5px;padding-top:2px;padding-bottom:2px;">
 
             <div class="col-sm-3" style="margin-top:2px;margin-bottom:2px;">
-                <label for="disponible">Articulo</label>
+                <label for="txtArticulo" >Articulo</label>
             </div>
             <div class="col-sm-3" style="margin-top:2px;margin-bottom:2px;">
                 <input id="txtArticulo" type="text" placeholder="Ingrese articulo" style="width :100%;" autofocus class="form-control" />
@@ -123,30 +123,37 @@
     var gTipoDoc = '';
     var gTipoPer = '';
 
-    $(document).ready(function () {       
-              
-           
+    $(document).ready(function () {
+
+        $(".btnSuma").click(function () {
+            var Id = $buttonClicked.attr('data-id');
+            alert(Id)
+        });
 
     });
 
 
     function MostrarArticulo() {
 
-       
+
         waitingDialog.show('Espere un momento por favor');
-        
+
         var codArticulo = $('#txtArticulo').val();
             codArticulo = codArticulo.replace(/^\s+|\s+$/g, "")
-      
+
         var ControllerUrl = "@Url.Action("listarStr_ArticuloTalla", "Pedido")";
         var css = 'class="row"'
         //css = '';
         var border2 = 'padding: 5px 5px 5px 5px;border:2px'
         //border2 =''
         var espacio = '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'
-        var ConstHtmlTienda = '<br/><div id="lugar" style="background:#FFFFFF;' + border2 + '" ><div ' + css + '  style="background:#FFFFFF;" ><div class="col-sm-12"><div><h4><strong>VariableTienda</strong></h4><p><i class="fa fa-map-marker"></i>&nbsp;&nbsp;DireccionTienda</p></div><table><tr><td rowspan="5">VariableImagen</td><td>' + espacio + '</td><td><div style="margin-top:2px;margin-right:2px;"><button class="btn btn-white btn-xs" style="width:100%;">Tallas:</button></div></td>ListvariableTalla</tr><tr><td>' + espacio + '</td><td><div style="margin-top:2px;margin-right:2px;"><button class="btn btn-white btn-xs" style="width:100%;">Cantidad:</button></div></td>ListvariableCantidad</tr><tr></tr><tr></tr><tr></tr></table></div><br/></div></div>';
+        //style="border-radius:50%"   btn-xs
         var ConstTalla = '<td><div style="margin-top:2px;margin-right:2px;"><button class="btn btn-white btn-xs" style="width:100%;">variableTalla</button></div></td>'
-        var ConstCantidad = '<td><div style="margin-top:2px;margin-right:2px;"><button class="btn btn-white btn-xs" style="width:100%;">variableCantidad</button></div></td>'
+        var BotonSuma = '<button title="Sumar Cantidad" class="btnSuma btn btn-success" onclick="sumarCantidad(this)" data-id="IdArticuloTallaS" data-modal="Sstock" data-toggle="modal"><span class="glyphicon glyphicon-plus"></span></button>'
+        var BotonResta = '<button title="Restar Cantidad" class="btnResta btn btn-danger" onclick="restarCantidad(this)" data-id="IdArticuloTallaR" data-modal="Rstock" data-toggle="modal"><span class="glyphicon glyphicon-minus"></span></button>'
+        var InputCantidadTalla = '<input id="inpArtTalla" type="number" placeholder="cantidad" onchange = "validarStock(this)" data-id="inpStock" style="width:100%;" autofocus="" class="form-control">'
+        var ConstHtmlTienda = '<br/><div id="lugar" style="background:#FFFFFF;' + border2 + '" ><div ' + css + '  style="background:#FFFFFF;" ><div class="col-sm-12"><div><h4><strong>VariableTienda</strong></h4><p>&nbsp;DireccionTienda</p></div><table><tr><td><div style="margin-top:2px;">' + BotonResta + '</div></td><td style="width:100px"><div style="margin-top:2px;">' + InputCantidadTalla + '</div></td><td><div style="margin-top:2px;">' + BotonSuma + '</div></td></tr></table></div><br/></div></div>';
+        var ConstCantidad = ''
         var listTalla = '';
         var listCantidad = '';
         var divFinal = '';
@@ -160,92 +167,73 @@
             datatype: "json",
             cache: true,
             success: function (data) {
-                
+
                 var codTienda = ''
                 var consTienda = ''
-               
+
                 if (data != '' && data != '[]') {
                     var valors = JSON.parse(data);
                     var nombreTienda = '';
                     var urlImagenSusti = '';
                     var DireccionTienda = '';
-                    var talla = '';
+                    var CodTalla = '';
                     var cantidad = '';
 
                     var NombreArticulo = '';
                     var MarcaArticulo = '';
                     var ColorArticulo = '';
                     var CategoriArticulo = '';
-               
+                    var PrecioSinIgv = '';
+                    var stock = '';
+
                     $.each(valors, function (index, item) {
-                        //codTienda = item.Codigo_Susti;
+
                         //NombreArticulo = item.Descripcion;
                         strUrlImagen = item.Art_Foto
                         NombreArticulo = item.Art_Descripcion
                         MarcaArticulo = item.Mar_Descripcion
                         ColorArticulo = item.Col_Descripcion
+                        PrecioSinIgv = item.Art_Pre_Sin_Igv
                         CategoriArticulo = item.Cat_Pri_Descripcion + ' > ' + item.Cat_Descripcion
-                      
-                        //if (codTienda != consTienda) {
-                       
-                       
-                        //    if (consTienda != '') {
-                        //        var strhtml = ConstHtmlTienda;
-                        //        var strImagen = ' <img id="imagenCatalogo" class="imgRedonda" src="' + urlImagenSusti + '" width="150" height="120" />'
-                        //        strhtml = strhtml.replace("VariableImagen", strImagen);
-                        //        strhtml = strhtml.replace("VariableTienda", nombreTienda);
-                        //        strhtml = strhtml.replace("DireccionTienda", DireccionTienda);
-                        //        strhtml = strhtml.replace("ListvariableTalla", listTalla);
-                        //        strhtml = strhtml.replace("ListvariableCantidad", listCantidad);
-                        //        divFinal += strhtml;
-                        //        listTalla = '';
-                        //        listCantidad = '';
-                        //    }
-                        //    consTienda = codTienda;
-                        //}
+                        CodTalla = item.Tal_Descripcion
+                        codTienda = item.Tall_Des;
+                        nombreTienda = '<i class="fa fa-check-circle"></i>&nbsp;Talla:&nbsp;&nbsp;' + item.Tall_Des
+                        DireccionTienda = '<i class="fa fa-info-circle"></i>&nbsp;Stock:&nbsp;&nbsp;'+ item.Tall_Cant
+                        stock = item.Tall_Cant;
+                        //nombreTienda += DireccionTienda;
+                        var strhtml = ConstHtmlTienda;
 
-                        //urlImagenSusti = item.Url_Imagen_susti
-                        //nombreTienda = item.Nombre_Susti;
-                        //DireccionTienda = item.Direccion_Susti;
-                        //talla = item.Talla;
-                        //cantidad = (item.Cantidad).toString();
+                        strhtml = strhtml.replace("VariableTienda", nombreTienda);
+                        strhtml = strhtml.replace("DireccionTienda", DireccionTienda); 
+                        strhtml = strhtml.replace("IdArticuloTallaS", CodTalla);
+                        strhtml = strhtml.replace("IdArticuloTallaR", CodTalla); 
+                        strhtml = strhtml.replace("Rstock", stock);
+                        strhtml = strhtml.replace("Sstock", stock);
+                        strhtml = strhtml.replace("inpStock", stock);
+                        strhtml = strhtml.replace("inpArtTalla", "inpt_"+CodTalla);
+                        divFinal += strhtml;
 
-                        //listTalla += ConstTalla;
-                        //listTalla = listTalla.replace("variableTalla", talla);
-
-
-                        //listCantidad += ConstCantidad;
-                        //listCantidad = listCantidad.replace("variableCantidad", cantidad);
-
-                                    
                     });
-                 
-                    //if (codTienda != '') {
-                    //    var strImagen = ' <img id="imagenCatalogo" class="imgRedonda" src="' + urlImagenSusti + '" width="150" height="120" />'
-                    //    ConstHtmlTienda = ConstHtmlTienda.replace("VariableImagen", strImagen);
-                    //    ConstHtmlTienda = ConstHtmlTienda.replace("VariableTienda", nombreTienda);
-                    //    ConstHtmlTienda = ConstHtmlTienda.replace("DireccionTienda", DireccionTienda);
-                    //    ConstHtmlTienda = ConstHtmlTienda.replace("ListvariableTalla", listTalla);
-                    //    ConstHtmlTienda = ConstHtmlTienda.replace("ListvariableCantidad", listCantidad);
-                    //    divFinal += ConstHtmlTienda;
-                    //    document.getElementById('imagenCatalogo').src = strUrlImagen;
-                    //    document.getElementById("listTienda").innerHTML = divFinal;
-                    //    document.getElementById("DivNombre").innerHTML = '<h3>' + NombreArticulo + '</h3>';
-                    //}
-                        
+
+                   
                     var strhtml = '<table id="example" class="table table-hover dataTable  table-striped table-responsive">'
 
                     strhtml += '<tbody>'
                     strhtml += '<tr>'
-                    strhtml += '<td  style="background:#FFFFFF;width:30%;text-align:center;vertical-align:middle;border: 1px solid;border-color:gainsboro">'
-                    strhtml += '<div id="DivNombre"><h5><b>' + NombreArticulo + '</b></h5></div>'
-                    strhtml += '<img id="imagenCatalogo" class="imgRedonda" src="'+strUrlImagen+'" width="50%" height="50%" />'
-                    strhtml += '<div id="DivNombre"><h5>' + MarcaArticulo + '</h5></div>'
-                    strhtml += '<div id="DivNombre"><h5>' + ColorArticulo + '</h5></div>'
-                    strhtml += '<div id="DivNombre"><h5>' + CategoriArticulo + '</h5></div>'
+                    strhtml += '<td  style="background:#FFFFFF;width:30%;vertical-align:middle;border: 1px solid;border-color:gainsboro">'
+                    strhtml += '<div id="DivNombre" style="text-align:center;"><h5><b>' + NombreArticulo + '</b></h5></div><br/>'
+                    strhtml += '<div id="DivImagen" style="text-align:center;">'
+                    strhtml += '<img id="imagenCatalogo" class="imgRedonda" src="' + strUrlImagen + '" width="100%" height="100%" />'
+                    strhtml += '</div><br/>'
+                    strhtml += '<div id="DivPrecio" style="text-align:left"><table style="width:100%" ><tr><td style="width:50%" ><div style="width:100%" ><h5><b>Precio:&nbsp;&nbsp;</b></h5></div></td><td><div style="width:100%;color:#FF0000"><h5><b>S/&nbsp;&nbsp;' + PrecioSinIgv + '</b></h5></div></td></tr></table></div>'
+                    strhtml += '<div id="DivMarca" style="text-align:left"><h5><b>Marca:&nbsp;&nbsp;</b>' + MarcaArticulo + '</h5></div>'
+                    strhtml += '<div id="DivColor" style="text-align:left"><h5><b>Color:&nbsp;&nbsp;</b>' + ColorArticulo + '</h5></div>'
+                    strhtml += '<div id="DivCateg" style="text-align:left"><h5><b>Categorización:</b></h5></div>'
+                    strhtml += '<div id="DivCateg" style="text-align:center"><h5>' + CategoriArticulo + '</h5></div>'
                     strhtml += '</td>'
-                    strhtml += '<td>'               
-                    strhtml += '<div id="listTienda" style="overflow-x: hidden; overflow-y:auto; height: 378px;">'                        
+                    strhtml += '<td>'
+                    strhtml += '<div id="listTalla" style="overflow-x: hidden; overflow-y:auto; height: 378px;">'
+                    strhtml += divFinal
                     strhtml += '</div>'
                     strhtml += '</td>'
                     strhtml += '</tr>'
@@ -255,9 +243,9 @@
                     $('#myModalContent').html(strhtml);
                     $('#myModal').modal(options);
                     $('#myModal').modal('show');
-                } 
+                }
                 waitingDialog.hide();
-                
+
             },
             error: function () {
                 waitingDialog.hide();
@@ -267,7 +255,42 @@
         });
 
     }
+
+    function sumarCantidad(control) {
+        var Cod = control.getAttribute('data-id');
+        var stock = parseInt(control.getAttribute('data-modal'));
+        var cInput = 'inpt_' + Cod;
+        var valor = $('#' + cInput).val();
+        var valorInt = 0;
+        var msjAlert = "";
+        valorInt = ((BorrarEspacio(valor) == '') ? (msjAlert += 'Fecha Nacimiento.<br/>', 1) : parseInt(valor) + 1);
+        valorInt = ((valorInt >= stock) ? (stock) : valorInt);
+
+        $('#' + cInput).val(valorInt);
+    }
+
+    function restarCantidad(control) {
+        var Cod = control.getAttribute('data-id');
+        var cInput = 'inpt_' + Cod;
+        var valor = $('#' + cInput).val();
+        var valorInt = 0;
+        var msjAlert = "";
+        valorInt = ((BorrarEspacio(valor) == '') ? (msjAlert += 'Fecha Nacimiento.<br/>', 0) : parseInt(valor) - 1);
+        valorInt = ((valorInt <= 0) ? (0) : valorInt);
+
+        $('#' + cInput).val(valorInt);
+    }
+
+    function validarStock(control) {
     
+        var cInput = control.getAttribute('Id');
+        var valor = (($('#' + cInput).val() == '') ? (0) : parseInt($('#' + cInput).val()));;
+        var stock = parseInt(control.getAttribute('data-id'));
+        if (valor > stock) { $('#' + cInput).val(stock); toastr.error("Valor mayor que el Stock.", "Error"); }
+        if (valor < 0) { $('#' + cInput).val(0); toastr.error("Valor menor que cero.", "Error"); }
+       
+    }
+
 
     function ocultarDiv(divId) {
 
@@ -289,7 +312,13 @@
         $("#" + divId).show();
     }
 
-    
+    function BorrarEspacio(cadena) {
+
+        cadena = cadena.replace(/ /g, "")
+        return cadena;
+    }
+
+
 
 
 
