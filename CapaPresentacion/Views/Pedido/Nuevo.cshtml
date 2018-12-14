@@ -94,14 +94,42 @@
                 <label for="txtArticulo" >Articulo</label>
             </div>
             <div class="col-sm-3" style="margin-top:2px;margin-bottom:2px;">
-                <input id="txtArticulo" type="text" placeholder="Ingrese articulo" style="width :100%;" autofocus class="form-control" />
-            </div>
-            <div class="col-sm-3" style="margin-top:2px;margin-bottom:2px;">
-                <button type="submit" id="btnBuscar" name="btnConsultar" onclick="MostrarArticulo()" style="width:50%" title="Buscar" class="nuevo btn btn-small btn-primary" data-modal="" data-toggle="modal">Buscar</button>
-
-            </div>
+                @*<table  style="width :100%;" ><tr><td  style="width :100%;" ><input id="txtArticulo" type="text" placeholder="Ingrese articulo" style="width :90%;" autofocus class="form-control" /><button type="submit" id="btnBuscar" name="btnConsultar" onclick="MostrarArticulo()" title="Buscar" class="btn btn-small btn-primary" data-modal="" data-toggle="modal"><i class="fa fa-search"></i></button></td></tr></table>*@
+                <div class="input-group">
+                    <input id="txtArticulo" type="text" placeholder="Ingrese articulo" class="form-control" />
+                    <div class="input-group-btn">
+                        <button class="btn btn-primary" type="submit" id="btnBuscar" name="btnConsultar" onclick="MostrarArticulo()" title="Buscar" >
+                            <span class="glyphicon glyphicon-search"></span>
+                        </button>
+                    </div>
+                </div>
+              
+            </div>           
 
         </div> 
+
+        <div id="DivHBasico" class="modal-content">
+            <div class="modal-header modal-header-danger" style="margin-top:0px;margin-bottom:0px;padding-top:2px;padding-bottom:2px;">
+                <h5 class="modal-title" id="myModalLabel">
+                    <table style="border-bottom:0px;font-size:14px;width:100%;">
+                        <tr>
+                            <td style="font-size:14px;width:90%;text-align:left;">Lista de Compra</td>
+                            <td style="font-size:14px;width:10%;text-align:right;">
+                                <span id="Locu" onclick="ocultarDiv('DivListCompra'); mostrarDivFast('Lver'); ocultarDivFast('Locu')" class="glyphicon glyphicon-minus-sign"></span>
+                                <span id="Lver" style="display:none" onclick="mostrarDiv('DivListCompra'); mostrarDivFast('Locu'); ocultarDivFast('Lver')" class="glyphicon glyphicon-plus-sign"></span>
+                            </td>
+                        </tr>
+                    </table>
+                </h5>
+            </div>
+            <div id="DivListCompra" class="modal-body">
+                <div class="row" style="margin-top:0px;margin-left:10px;margin-right:10px;margin-bottom:0px;border-radius:5px;padding-top:10px;padding-bottom:10px;">
+                    lista
+                </div>            
+
+            </div>
+
+        </div>
     </div>  
 
 
@@ -132,7 +160,7 @@
 
     });
 
-
+    
     function MostrarArticulo() {
 
 
@@ -215,12 +243,30 @@
 
                     });
 
-                   
-                    var strhtml = '<table id="example" class="table table-hover dataTable  table-striped table-responsive">'
-
+                    var strhtml = ''
+                    
+                    strhtml += '<div class="modal-header modal-header-danger" style="margin-top:0px;margin-bottom:0px;padding-top:2px;padding-bottom:2px;">'
+                    strhtml += '<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>'
+                    strhtml += '<h5 class="modal-title" id="myModalLabel">'
+                    strhtml += '<table style="border-bottom:0px;font-size:14px;width:100%;">'
+                    strhtml += '<tr>'
+                    strhtml += '<td style="font-size:14px;width:90%;text-align:left;">Articulo:&nbsp;&nbsp;' + codArticulo + '&nbsp;&nbsp;-&nbsp;&nbsp;Precio:&nbsp;&nbsp;S/&nbsp;&nbsp;' + PrecioSinIgv + '</td>'
+                    strhtml += '<td style="font-size:14px;width:10%;text-align:left;">'
+                    var pOcu = "ocultarDiv('tdImagen');mostrarDivFast('bverP'); ocultarDivFast('bocuP')"
+                    var pVer = "mostrarDiv('tdImagen');ocultarDivFast('bverP'); mostrarDivFast('bocuP')"
+                    strhtml += '<span id="bocuP" onclick ="' + pOcu + '"  class="glyphicon glyphicon-eye-close"></span>'
+                    strhtml += '<span id="bverP" onclick ="' + pVer + '" style="display:none" class="glyphicon glyphicon-picture"></span>'
+                    strhtml += '</td>'
+                    strhtml += '</tr>'
+                    strhtml += '</table>'
+                    strhtml += '</h5>'
+                    strhtml += '</div>'
+                    strhtml += '<div class="modal-body">'
+                    strhtml += '<table id="example" class="table table-hover dataTable  table-striped table-responsive">'
                     strhtml += '<tbody>'
                     strhtml += '<tr>'
-                    strhtml += '<td  style="background:#FFFFFF;width:30%;vertical-align:middle;border: 1px solid;border-color:gainsboro">'
+                    strhtml += '<td Id="tdImagen"style="background:#FFFFFF;width:30%;vertical-align:middle;border: 1px solid;border-color:gainsboro">'
+                    strhtml += '<div Id="DivgImagen">'
                     strhtml += '<div id="DivNombre" style="text-align:center;"><h5><b>' + NombreArticulo + '</b></h5></div><br/>'
                     strhtml += '<div id="DivImagen" style="text-align:center;">'
                     strhtml += '<img id="imagenCatalogo" class="imgRedonda" src="' + strUrlImagen + '" width="100%" height="100%" />'
@@ -230,15 +276,21 @@
                     strhtml += '<div id="DivColor" style="text-align:left"><h5><b>Color:&nbsp;&nbsp;</b>' + ColorArticulo + '</h5></div>'
                     strhtml += '<div id="DivCateg" style="text-align:left"><h5><b>Categorización:</b></h5></div>'
                     strhtml += '<div id="DivCateg" style="text-align:center"><h5>' + CategoriArticulo + '</h5></div>'
+                    strhtml += '</div>'
                     strhtml += '</td>'
                     strhtml += '<td>'
                     strhtml += '<div id="listTalla" style="overflow-x: hidden; overflow-y:auto; height: 378px;">'
-                    strhtml += divFinal
+                    strhtml +=   divFinal
                     strhtml += '</div>'
                     strhtml += '</td>'
                     strhtml += '</tr>'
                     strhtml += '</tbody>'
                     strhtml += '</table>'
+                    strhtml += '</div>'
+                    strhtml += '<div class="modal-footer" style="margin-top:-30px">'
+                    strhtml += '<button type="button" class="btn btn-default" data-dismiss="modal">Cerrar</button>'
+                    strhtml += '<input type="submit" class="btn btn-primary" id="btnSubmit" value="Aceptar" />'
+                    strhtml += '</div>'
 
                     $('#myModalContent').html(strhtml);
                     $('#myModal').modal(options);
