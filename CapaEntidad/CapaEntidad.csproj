@@ -50,6 +50,7 @@
     <Compile Include="Control\Ent_Aplicacion.cs" />
     <Compile Include="Control\Ent_Tienda.cs" />
     <Compile Include="Pedido\Ent_Articulo_Pedido.cs" />
+    <Compile Include="Pedido\Ent_Pedido_Persona.cs" />
     <Compile Include="Pedido\Ent_Pedido_Maestro.cs" />
     <Compile Include="Persona\Persona.cs" />
     <Compile Include="Promotor\Ent_Promotor.cs" />

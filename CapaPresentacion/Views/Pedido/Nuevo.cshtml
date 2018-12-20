@@ -57,13 +57,13 @@
                         <label  for="disponible">*Promotor</label>
                     </div>
                     <div id="divTipoDoc" class="col-sm-3" style="margin-top:2px;margin-bottom:2px;">
-                        @Html.DropDownList("dwPromo", new SelectList(ViewBag.listPromotor, "codigo", "descripcion", "-1"), new { @class = "selectpicker", @data_live_search = "true", @id = "dwTipoDoc", @placeholder = ".col-xs-1" })
+                        @Html.DropDownList("dwPromo", new SelectList(ViewBag.listPromotor, "codigo", "descripcion", "-1"), new { @class = "selectpicker", @data_live_search = "true", @id = "dwPromo", @onchange = "buscarPersonaPedido()", @placeholder = ".col-xs-1" })
                     </div>
                     <div class="col-sm-3" style="margin-top:2px;margin-bottom:2px;">
                         <label for="disponible">*Forma de Pago</label>
                     </div>
                     <div id="divTipoDoc" class="col-sm-3" style="margin-top:2px;margin-bottom:2px;">
-                        @Html.DropDownList("dwFormaPagp", new SelectList(ViewBag.listFormapago, "codigo", "descripcion", "-1"), new { @class = "selectpicker", @data_live_search = "true", @id = "dwTipoDoc", @placeholder = ".col-xs-1" })
+                        @Html.DropDownList("dwFormaPagp", new SelectList(ViewBag.listFormapago, "codigo", "descripcion", "-1"), new { @class = "selectpicker", @data_live_search = "true", @id = "dwFormaPagp", @placeholder = ".col-xs-1" })
                     </div>
                     
                 </div>
@@ -124,7 +124,65 @@
             </div>
             <div id="DivListCompra" class="modal-body">
                 <div class="row" style="margin-top:0px;margin-left:10px;margin-right:10px;margin-bottom:0px;border-radius:5px;padding-top:10px;padding-bottom:10px;">
-                    lista
+                    <div id="divDetalleVenta" style="overflow-x: auto; overflow-y:hidden; width:100%"> @*height: 378px;*@
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>
+                                        <div class="col-sm-1" style="margin-top:2px;margin-bottom:2px;">
+                                            <label for="disponible">Referencia</label>
+                                        </div>
+                                    </th>
+                                    <th>
+                                        <div class="col-sm-1" style="margin-top:2px;margin-bottom:2px;">
+                                            <label for="disponible">Articulo</label>
+                                        </div>
+                                    </th>
+                                    <th>
+                                        <div class="col-sm-1" style="margin-top:2px;margin-bottom:2px;">
+                                            <label for="disponible">Marca</label>
+                                        </div>
+                                    </th>
+                                    <th>
+                                        <div class="col-sm-1" style="margin-top:2px;margin-bottom:2px;">
+                                            <label for="disponible">Color</label>
+                                        </div>
+                                    </th>
+                                    <th>
+                                        <div class="col-sm-1" style="margin-top:2px;margin-bottom:2px;">
+                                            <label for="disponible">Talla</label>
+                                        </div>
+                                    </th>
+                                    <th>
+                                        <div class="col-sm-1" style="margin-top:2px;margin-bottom:2px;">
+                                            <label for="disponible">Cantidad</label>
+                                        </div>
+                                    </th>
+                                    <th>
+                                        <div class="col-sm-1" style="margin-top:2px;margin-bottom:2px;">
+                                            <label for="disponible">precio</label>
+                                        </div>
+                                    </th>
+                                    <th>
+                                        <div class="col-sm-1" style="margin-top:2px;margin-bottom:2px;">
+                                            <label for="disponible">comision</label>
+                                        </div>
+                                    </th>
+                                    <th>
+                                        <div class="col-sm-1" style="margin-top:2px;margin-bottom:2px;">
+                                            <label for="disponible">Descuento</label>
+                                        </div>
+                                    </th>
+                                    <th>
+                                        <div class="col-sm-1" style="margin-top:2px;margin-bottom:2px;">
+                                            <label for="disponible">Total</label>
+                                        </div>
+                                    </th>
+                                </tr>
+                            </thead>
+
+                        </table>
+                    </div> 
                 </div>            
 
             </div>
@@ -150,19 +208,80 @@
 <script>
     var gTipoDoc = '';
     var gTipoPer = '';
+    var listArticulos = [];
+    var gCustomer = {
+        comision: 0.00,
+        idCust: 0,
+        commission_POS_visaUnica: 0.00,
+        percepcion: 0.00,
+        email: "",
+        nombrecompleto: "",
+        premio: "",
+        aplica_percepcion: "0"
+           
+    }
 
-    $(document).ready(function () {
+    $(document).ready(function () {       
 
         $(".btnSuma").click(function () {
             var Id = $buttonClicked.attr('data-id');
             alert(Id)
-        });
+        });      
 
     });
 
+    function buscarPersonaPedido() {
+
+        waitingDialog.show('Espere un momento por favor');
+        var ControllerUrl = "@Url.Action("PersonaPedido", "Pedido")";
+        var promotor = $('#dwPromo').val();
+        //alert(promotor)
+        $.ajax({
+            type: "GET",
+            url: ControllerUrl,
+            contentType: "application/json; charset=utf-8",
+            data: { basId: promotor },
+            datatype: "json",
+            cache: true,
+            success: function (data) {
+                waitingDialog.hide();
+                var codTienda = ''
+                var consTienda = ''
+               
+                if (data != '' && data != '[]') {
+                    
+                    gCustomer.comision = data.comision;
+                    gCustomer.idCust = data.idCust;
+                    gCustomer.commission_POS_visaUnica = data.commission_POS_visaUnica;
+                    gCustomer.percepcion = data.percepcion;
+                    gCustomer.email = data.email;
+                    gCustomer.nombrecompleto = data.nombrecompleto;
+                    gCustomer.premio = data.premio;
+                    gCustomer.aplica_percepcion = data.aplica_percepcion;
+                    alert(gCustomer.aplica_percepcion)
+                    //var valors = JSON.parse(data);
+
+                    //$.each(valors, function (index, item) {
+                    //    alert( item.idCust)
+
+                    //});
+                   
+                }
+               
+
+            },
+            error: function () {
+                waitingDialog.hide();
+                alert('Error')
+            }
+
+        });     
+
+
+    }
+
     
     function MostrarArticulo() {
-
 
         waitingDialog.show('Espere un momento por favor');
 
@@ -179,7 +298,7 @@
         var ConstTalla = '<td><div style="margin-top:2px;margin-right:2px;"><button class="btn btn-white btn-xs" style="width:100%;">variableTalla</button></div></td>'
         var BotonSuma = '<button title="Sumar Cantidad" class="btnSuma btn btn-success" onclick="sumarCantidad(this)" data-id="IdArticuloTallaS" data-modal="Sstock" data-toggle="modal"><span class="glyphicon glyphicon-plus"></span></button>'
         var BotonResta = '<button title="Restar Cantidad" class="btnResta btn btn-danger" onclick="restarCantidad(this)" data-id="IdArticuloTallaR" data-modal="Rstock" data-toggle="modal"><span class="glyphicon glyphicon-minus"></span></button>'
-        var InputCantidadTalla = '<input id="inpArtTalla" type="number" placeholder="cantidad" onchange = "validarStock(this)" data-id="inpStock" style="width:100%;" autofocus="" class="form-control">'
+        var InputCantidadTalla = '<input id="inpArtTalla" type="number" name="Talla"  placeholder="cantidad" onchange = "validarStock(this)" data-id="inpStock" style="width:100%;" autofocus="" class="form-control">'
         var ConstHtmlTienda = '<br/><div id="lugar" style="background:#FFFFFF;' + border2 + '" ><div ' + css + '  style="background:#FFFFFF;" ><div class="col-sm-12"><div><h4><strong>VariableTienda</strong></h4><p>&nbsp;DireccionTienda</p></div><table><tr><td><div style="margin-top:2px;">' + BotonResta + '</div></td><td style="width:100px"><div style="margin-top:2px;">' + InputCantidadTalla + '</div></td><td><div style="margin-top:2px;">' + BotonSuma + '</div></td></tr></table></div><br/></div></div>';
         var ConstCantidad = ''
         var listTalla = '';
@@ -226,25 +345,25 @@
                         CodTalla = item.Tal_Descripcion
                         codTienda = item.Tall_Des;
                         nombreTienda = '<i class="fa fa-check-circle"></i>&nbsp;Talla:&nbsp;&nbsp;' + item.Tall_Des
-                        DireccionTienda = '<i class="fa fa-info-circle"></i>&nbsp;Stock:&nbsp;&nbsp;'+ item.Tall_Cant
+                        DireccionTienda = '<i class="fa fa-info-circle"></i>&nbsp;Stock:&nbsp;&nbsp;' + item.Tall_Cant
                         stock = item.Tall_Cant;
                         //nombreTienda += DireccionTienda;
                         var strhtml = ConstHtmlTienda;
 
                         strhtml = strhtml.replace("VariableTienda", nombreTienda);
-                        strhtml = strhtml.replace("DireccionTienda", DireccionTienda); 
+                        strhtml = strhtml.replace("DireccionTienda", DireccionTienda);
                         strhtml = strhtml.replace("IdArticuloTallaS", CodTalla);
-                        strhtml = strhtml.replace("IdArticuloTallaR", CodTalla); 
+                        strhtml = strhtml.replace("IdArticuloTallaR", CodTalla);
                         strhtml = strhtml.replace("Rstock", stock);
                         strhtml = strhtml.replace("Sstock", stock);
                         strhtml = strhtml.replace("inpStock", stock);
-                        strhtml = strhtml.replace("inpArtTalla", "inpt_"+CodTalla);
+                        strhtml = strhtml.replace("inpArtTalla", "inpt_" + CodTalla);
                         divFinal += strhtml;
 
                     });
 
                     var strhtml = ''
-                    
+
                     strhtml += '<div class="modal-header modal-header-danger" style="margin-top:0px;margin-bottom:0px;padding-top:2px;padding-bottom:2px;">'
                     strhtml += '<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>'
                     strhtml += '<h5 class="modal-title" id="myModalLabel">'
@@ -252,8 +371,8 @@
                     strhtml += '<tr>'
                     strhtml += '<td style="font-size:14px;width:90%;text-align:left;">Articulo:&nbsp;&nbsp;' + codArticulo + '&nbsp;&nbsp;-&nbsp;&nbsp;Precio:&nbsp;&nbsp;S/&nbsp;&nbsp;' + PrecioSinIgv + '</td>'
                     strhtml += '<td style="font-size:14px;width:10%;text-align:left;">'
-                    var pOcu = "ocultarDiv('tdImagen');mostrarDivFast('bverP'); ocultarDivFast('bocuP')"
-                    var pVer = "mostrarDiv('tdImagen');ocultarDivFast('bverP'); mostrarDivFast('bocuP')"
+                    var pOcu = "ocultarDivFast('tdImagen');mostrarDivFast('bverP'); ocultarDivFast('bocuP')"
+                    var pVer = "mostrarDivFast('tdImagen');ocultarDivFast('bverP'); mostrarDivFast('bocuP')"
                     strhtml += '<span id="bocuP" onclick ="' + pOcu + '"  class="glyphicon glyphicon-eye-close"></span>'
                     strhtml += '<span id="bverP" onclick ="' + pVer + '" style="display:none" class="glyphicon glyphicon-picture"></span>'
                     strhtml += '</td>'
@@ -275,12 +394,17 @@
                     strhtml += '<div id="DivMarca" style="text-align:left"><h5><b>Marca:&nbsp;&nbsp;</b>' + MarcaArticulo + '</h5></div>'
                     strhtml += '<div id="DivColor" style="text-align:left"><h5><b>Color:&nbsp;&nbsp;</b>' + ColorArticulo + '</h5></div>'
                     strhtml += '<div id="DivCateg" style="text-align:left"><h5><b>Categorización:</b></h5></div>'
-                    strhtml += '<div id="DivCateg" style="text-align:center"><h5>' + CategoriArticulo + '</h5></div>'
+
+                    strhtml += '<div id="DivHCodArt"  style="display:none;">' + codArticulo + '</div>'
+                    strhtml += '<div id="DivHDesArt"  style="display:none;">' + NombreArticulo + '</div>'
+                    strhtml += '<div id="DivHMarArt"  style="display:none;">' + MarcaArticulo + '</div>'
+            
+                 
                     strhtml += '</div>'
                     strhtml += '</td>'
                     strhtml += '<td>'
                     strhtml += '<div id="listTalla" style="overflow-x: hidden; overflow-y:auto; height: 378px;">'
-                    strhtml +=   divFinal
+                    strhtml += divFinal
                     strhtml += '</div>'
                     strhtml += '</td>'
                     strhtml += '</tr>'
@@ -289,12 +413,14 @@
                     strhtml += '</div>'
                     strhtml += '<div class="modal-footer" style="margin-top:-30px">'
                     strhtml += '<button type="button" class="btn btn-default" data-dismiss="modal">Cerrar</button>'
-                    strhtml += '<input type="submit" class="btn btn-primary" id="btnSubmit" value="Aceptar" />'
+                    strhtml += '<input type="submit" class="btn btn-primary" onclick="agregarLista()"  id="btnSubmit" value="Agregar" />'
                     strhtml += '</div>'
 
                     $('#myModalContent').html(strhtml);
                     $('#myModal').modal(options);
                     $('#myModal').modal('show');
+                } else {
+                    toastr.error("Stock por ingresar.", "Aviso");
                 }
                 waitingDialog.hide();
 
@@ -309,6 +435,7 @@
     }
 
     function sumarCantidad(control) {
+
         var Cod = control.getAttribute('data-id');
         var stock = parseInt(control.getAttribute('data-modal'));
         var cInput = 'inpt_' + Cod;
@@ -320,6 +447,166 @@
 
         $('#' + cInput).val(valorInt);
     }
+
+    function agregarLista() {
+      
+        var codigoArt = document.getElementById('DivHCodArt').innerHTML;
+        var DescriArt = document.getElementById('DivHDesArt').innerHTML;
+        var MarcaArt = document.getElementById('DivHMarArt').innerHTML;
+    
+        var glineArticulo = {
+            codigoArt: codigoArt,
+            DescriArt: DescriArt,
+            MarcaArt: MarcaArt
+        }
+
+        listArticulos.push(glineArticulo);
+        
+
+    /*lo siguiente es para agregar las tallas*/
+
+        //$('input[name="Talla"]').each(function () {
+
+        //    alert($(this).attr("id"))
+        //    var Id = $(this).attr("id").substr(5);
+        //    alert(Id);
+          
+
+        //});
+        dibujarGrilla();
+    }
+
+    function dibujarGrilla() {
+
+        var strtable='';
+        var theader='';
+        var tbody='';
+        theader +='<thead>';
+        theader +='<tr>';
+        theader +='<th>';
+        theader +='<div class="col-sm-1" style="margin-top:2px;margin-bottom:2px;">';
+        theader +='<label for="disponible">Referencia</label>';
+        theader +='</div>';
+        theader +='</th>';
+        theader +='<th>';
+        theader +='<div class="col-sm-1" style="margin-top:2px;margin-bottom:2px;">';
+        theader +='<label for="disponible">Articulo</label>';
+        theader +='</div>';
+        theader +='</th>';
+        theader +='<th>';
+        theader +='<div class="col-sm-1" style="margin-top:2px;margin-bottom:2px;">';
+        theader +='<label for="disponible">Marca</label>';
+        theader +='</div>';
+        theader +='</th>';
+        theader +='<th>';
+        theader +='<div class="col-sm-1" style="margin-top:2px;margin-bottom:2px;">';
+        theader +='<label for="disponible">Color</label>';
+        theader +='</div>';
+        theader +='</th>';
+        theader +='<th>';
+        theader +='<div class="col-sm-1" style="margin-top:2px;margin-bottom:2px;">';
+        theader +='<label for="disponible">Talla</label>';
+        theader +='</div>';
+        theader +='</th>';
+        theader +='<th>';
+        theader +='<div class="col-sm-1" style="margin-top:2px;margin-bottom:2px;">';
+        theader +='<label for="disponible">Cantidad</label>';
+        theader +='</div>';
+        theader +='</th>';
+        theader +='<th>';
+        theader +='<div class="col-sm-1" style="margin-top:2px;margin-bottom:2px;">';
+        theader +=' <label for="disponible">precio</label>';
+        theader +='</div>';
+        theader +='</th>';
+        theader +='<th>';
+        theader +='<div class="col-sm-1" style="margin-top:2px;margin-bottom:2px;">';
+        theader +=' <label for="disponible">comision</label>';
+        theader +='</div>';
+        theader +='</th>';
+        theader +='<th>';
+        theader +='<div class="col-sm-1" style="margin-top:2px;margin-bottom:2px;">';
+        theader +='<label for="disponible">Descuento</label>';
+        theader +='</div>';
+        theader +='</th>';
+        theader +='<th>';
+        theader +='<div class="col-sm-1" style="margin-top:2px;margin-bottom:2px;">';
+        theader +='<label for="disponible">Total</label>';
+        theader +='</div>';
+        theader +='</th>';
+        theader +='</tr>';
+        theader += '</thead>';
+
+        tbody += '<tr>';
+        tbody += '<td>';
+        tbody += '<div class="col-sm-1" style="margin-top:2px;margin-bottom:2px;">';
+        tbody += '<label for="disponible">Referencia</label>';
+        tbody += '</div>';
+        tbody += '</td>';
+        tbody += '<td>';
+        tbody += '<div class="col-sm-1" style="margin-top:2px;margin-bottom:2px;">';
+        tbody += '<label for="disponible">Articulo</label>';
+        tbody += '</div>';
+        tbody += '</td>';
+        tbody += '<td>';
+        tbody += '<div class="col-sm-1" style="margin-top:2px;margin-bottom:2px;">';
+        tbody += '<label for="disponible">Marca</label>';
+        tbody += '</div>';
+        tbody += '</td>';
+        tbody += '<td>';
+        tbody += '<div class="col-sm-1" style="margin-top:2px;margin-bottom:2px;">';
+        tbody += '<label for="disponible">Color</label>';
+        tbody += '</div>';
+        tbody += '</td>';
+        tbody += '<td>';
+        tbody += '<div class="col-sm-1" style="margin-top:2px;margin-bottom:2px;">';
+        tbody += '<label for="disponible">Talla</label>';
+        tbody += '</div>';
+        tbody += '</td>';
+        tbody += '<td>';
+        tbody += '<div class="col-sm-1" style="margin-top:2px;margin-bottom:2px;">';
+        tbody += '<label for="disponible">Cantidad</label>';
+        tbody += '</div>';
+        tbody += '</td>';
+        tbody += '<td>';
+        tbody += '<div class="col-sm-1" style="margin-top:2px;margin-bottom:2px;">';
+        tbody += ' <label for="disponible">precio</label>';
+        tbody += '</div>';
+        tbody += '</td>';
+        tbody += '<td>';
+        tbody += '<div class="col-sm-1" style="margin-top:2px;margin-bottom:2px;">';
+        tbody += ' <label for="disponible">comision</label>';
+        tbody += '</div>';
+        tbody += '</td>';
+        tbody += '<td>';
+        tbody += '<div class="col-sm-1" style="margin-top:2px;margin-bottom:2px;">';
+        tbody += '<label for="disponible">Descuento</label>';
+        tbody += '</div>';
+        tbody += '</td>';
+        tbody += '<td>';
+        tbody += '<div class="col-sm-1" style="margin-top:2px;margin-bottom:2px;">';
+        tbody += '<label for="disponible">Total</label>';
+        tbody += '</div>';
+        tbody += '</td>';
+        tbody += '</tr>';
+        
+        var Body = '';
+
+        for (var i = 0; i < listArticulos.length; i++) {
+            var temrBody = tbody
+            temrBody = temrBody.replace("Referencia", listArticulos[i].codigoArt);
+            temrBody = temrBody.replace("Articulo", listArticulos[i].DescriArt);
+            temrBody = temrBody.replace("Marca", listArticulos[i].MarcaArt);
+            Body += temrBody;
+        }
+
+        strtable = '<table>' + theader + '<tbody>' + Body + '</tbody>' + '</table>';
+                               
+        document.getElementById("divDetalleVenta").innerHTML = strtable;
+                            
+
+
+    }
+
 
     function restarCantidad(control) {
         var Cod = control.getAttribute('data-id');
@@ -365,7 +652,6 @@
     }
 
     function BorrarEspacio(cadena) {
-
         cadena = cadena.replace(/ /g, "")
         return cadena;
     }

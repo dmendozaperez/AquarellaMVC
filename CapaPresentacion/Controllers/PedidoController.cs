@@ -59,8 +59,17 @@ namespace CapaPresentacion.Controllers
 
         }
 
+        public ActionResult PersonaPedido(int basId) {
+            
+            Ent_Pedido_Persona Persona = new Ent_Pedido_Persona();
+            Persona = datPedido.BuscarPersonaPedido(basId);
+
+            return Json(Persona, JsonRequestBehavior.AllowGet);
+        }
+
         public string listarStr_ArticuloTalla(string codArticulo)
         {
+
             string strJson = "";
                        
             Ent_Usuario _usuario = (Ent_Usuario)Session[Ent_Constantes.NameSessionUser];
