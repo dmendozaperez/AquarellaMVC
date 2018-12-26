@@ -125,7 +125,7 @@
             <div id="DivListCompra" class="modal-body">
                 <div class="row" style="margin-top:0px;margin-left:10px;margin-right:10px;margin-bottom:0px;border-radius:5px;padding-top:10px;padding-bottom:10px;">
                     <div id="divDetalleVenta" style="overflow-x: auto; overflow-y:hidden; width:100%"> @*height: 378px;*@
-                        <table>
+                        <table  style="width:100%;">
                             <thead>
                                 <tr>
                                     <th>
@@ -165,7 +165,7 @@
                                     </th>
                                     <th>
                                         <div class="col-sm-1" style="margin-top:2px;margin-bottom:2px;">
-                                            <label for="disponible">comision</label>
+                                            <label for="disponible">Comision</label>
                                         </div>
                                     </th>
                                     <th>
@@ -209,6 +209,8 @@
     var gTipoDoc = '';
     var gTipoPer = '';
     var listArticulos = [];
+    var gArtBusqueda
+    var glistTalla = [];
     var gCustomer = {
         comision: 0.00,
         idCust: 0,
@@ -218,15 +220,17 @@
         nombrecompleto: "",
         premio: "",
         aplica_percepcion: "0"
-           
     }
 
-    $(document).ready(function () {       
+    $(document).ready(function () {
 
         $(".btnSuma").click(function () {
             var Id = $buttonClicked.attr('data-id');
-            alert(Id)
-        });      
+
+        });
+
+        buscarPersonaPedido();
+     
 
     });
 
@@ -247,9 +251,9 @@
                 waitingDialog.hide();
                 var codTienda = ''
                 var consTienda = ''
-               
+
                 if (data != '' && data != '[]') {
-                    
+        
                     gCustomer.comision = data.comision;
                     gCustomer.idCust = data.idCust;
                     gCustomer.commission_POS_visaUnica = data.commission_POS_visaUnica;
@@ -257,17 +261,9 @@
                     gCustomer.email = data.email;
                     gCustomer.nombrecompleto = data.nombrecompleto;
                     gCustomer.premio = data.premio;
-                    gCustomer.aplica_percepcion = data.aplica_percepcion;
-                    alert(gCustomer.aplica_percepcion)
-                    //var valors = JSON.parse(data);
-
-                    //$.each(valors, function (index, item) {
-                    //    alert( item.idCust)
-
-                    //});
-                   
+                    gCustomer.aplica_percepcion = data.aplica_percepcion;                  
+                
                 }
-               
 
             },
             error: function () {
@@ -275,7 +271,7 @@
                 alert('Error')
             }
 
-        });     
+        });
 
 
     }
@@ -287,13 +283,24 @@
         return valor;
     }
 
-    
     function MostrarArticulo() {
+        var codArticulo = $('#txtArticulo').val();
+        codArticulo = codArticulo.replace(/^\s+|\s+$/g, "");
+        if (codArticulo != "") {
+            DibujarMostrarArticulo(codArticulo);
+        } else {
+            toastr.error("Debe ingresar un codigo.", "Aviso");
+        }
+        //VerificarExistencia(codArticulo);
+        //$.when(DibujarMostrarArticulo(codArticulo)).then(VerificarExistencia(codArticulo));
+    }
+
+
+    function DibujarMostrarArticulo(codArticulo) {
 
         waitingDialog.show('Espere un momento por favor');
 
-        var codArticulo = $('#txtArticulo').val();
-            codArticulo = codArticulo.replace(/^\s+|\s+$/g, "")
+        var bExiste = VerificarExistencia(codArticulo);
 
         var ControllerUrl = "@Url.Action("listarStr_ArticuloTalla", "Pedido")";
         var css = 'class="row"'
@@ -305,7 +312,7 @@
         var ConstTalla = '<td><div style="margin-top:2px;margin-right:2px;"><button class="btn btn-white btn-xs" style="width:100%;">variableTalla</button></div></td>'
         var BotonSuma = '<button title="Sumar Cantidad" class="btnSuma btn btn-success" onclick="sumarCantidad(this)" data-id="IdArticuloTallaS" data-modal="Sstock" data-toggle="modal"><span class="glyphicon glyphicon-plus"></span></button>'
         var BotonResta = '<button title="Restar Cantidad" class="btnResta btn btn-danger" onclick="restarCantidad(this)" data-id="IdArticuloTallaR" data-modal="Rstock" data-toggle="modal"><span class="glyphicon glyphicon-minus"></span></button>'
-        var InputCantidadTalla = '<input id="inpArtTalla" value="valor" type="number" name="Talla"  placeholder="cantidad" onchange = "validarStock(this)" data-id="inpStock" style="width:100%;" autofocus="" class="form-control"/>'
+        var InputCantidadTalla = '<input id="inpArtTalla" type="Text"  name="Talla" value="valor" placeholder="cantidad" onchange = "validarStock(this)" data-id="inpStock" style="width:100%;" autofocus="" class="form-control"/>'
         var ConstHtmlTienda = '<br/><div id="lugar" style="background:#FFFFFF;' + border2 + '" ><div ' + css + '  style="background:#FFFFFF;" ><div class="col-sm-12"><div><h4><strong>VariableTienda</strong></h4><p>&nbsp;DireccionTienda</p></div><table><tr><td><div style="margin-top:2px;">' + BotonResta + '</div></td><td style="width:100px"><div style="margin-top:2px;">' + InputCantidadTalla + '</div></td><td><div style="margin-top:2px;">' + BotonSuma + '</div></td></tr></table></div><br/></div></div>';
         var ConstCantidad = ''
         var listTalla = '';
@@ -327,6 +334,7 @@
 
                 if (data != '' && data != '[]') {
                     var valors = JSON.parse(data);
+                        gArtBusqueda = valors;
                     var nombreTienda = '';
                     var urlImagenSusti = '';
                     var DireccionTienda = '';
@@ -364,6 +372,10 @@
                         strhtml = strhtml.replace("Rstock", stock);
                         strhtml = strhtml.replace("Sstock", stock);
                         strhtml = strhtml.replace("inpStock", stock);
+
+                        var strValor = ((bExiste) ? (VerificarArticuloTalla(CodTalla)) : '');
+                        strhtml = strhtml.replace("valor", strValor);
+
                         strhtml = strhtml.replace("inpArtTalla", "inpt_" + CodTalla);
                         divFinal += strhtml;
 
@@ -407,8 +419,9 @@
                     strhtml += '<div id="DivHMarArt"  style="display:none;">' + MarcaArticulo + '</div>'
                     strhtml += '<div id="DivHColArt"  style="display:none;">' + ColorArticulo + '</div>'
                     strhtml += '<div id="DivHPrecioArt"  style="display:none;">' + PrecioSinIgv + '</div>'
-            
-                 
+                    strhtml += '<div id="DivHImagenArt"  style="display:none;">' + strUrlImagen + '</div>'
+
+                    strUrlImagen
                     strhtml += '</div>'
                     strhtml += '</td>'
                     strhtml += '<td>'
@@ -425,13 +438,12 @@
                     strhtml += '<input type="submit" class="btn btn-primary" onclick="agregarLista()"  id="btnSubmit" value="Agregar" />'
                     strhtml += '</div>'
 
-                  
 
                     $('#myModalContent').html(strhtml);
                     $('#myModal').modal(options);
                     $('#myModal').modal('show');
 
-                    VerificarExistencia(codArticulo);
+
 
                 } else {
                     toastr.error("Stock por ingresar.", "Aviso");
@@ -448,6 +460,130 @@
 
     }
 
+    function DibujarDetalleArticulo(codArticulo) {
+
+        waitingDialog.show('Espere un momento por favor');     
+
+      
+        var css = 'class="row"'      
+        var border2 = 'padding: 5px 5px 5px 5px;border:2px'       
+        var espacio = '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'
+      
+        var ConstTalla = '<td><div style="margin-top:2px;margin-right:2px;"><button class="btn btn-white btn-xs" style="width:100%;">variableTalla</button></div></td>'
+        var BotonSuma = '<button title="Sumar Cantidad" class="btnSuma btn btn-success" onclick="sumarCantidad(this)" data-id="IdArticuloTallaS" data-modal="Sstock" data-toggle="modal"><span class="glyphicon glyphicon-plus"></span></button>'
+        var BotonResta = '<button title="Restar Cantidad" class="btnResta btn btn-danger" onclick="restarCantidad(this)" data-id="IdArticuloTallaR" data-modal="Rstock" data-toggle="modal"><span class="glyphicon glyphicon-minus"></span></button>'
+        var InputCantidadTalla = '<input id="inpArtTalla" type="Text"  name="Talla" value="valor" placeholder="cantidad" onchange = "validarStock(this)" data-id="inpStock" style="width:100%;" autofocus="" class="form-control"/>'
+        var ConstHtmlTienda = '<br/><div id="lugar" style="background:#FFFFFF;' + border2 + '" ><div ' + css + '  style="background:#FFFFFF;" ><div class="col-sm-12"><div><h4><strong>VariableTienda</strong></h4><p>&nbsp;DireccionTienda</p></div><table><tr><td><div style="margin-top:2px;">' + BotonResta + '</div></td><td style="width:100px"><div style="margin-top:2px;">' + InputCantidadTalla + '</div></td><td><div style="margin-top:2px;">' + BotonSuma + '</div></td></tr></table></div><br/></div></div>';
+        var ConstCantidad = ''
+        var listTalla = '';
+        var listCantidad = '';
+        var divFinal = '';
+        var strUrlImagen = '';
+        var codTienda = ''
+        var consTienda = ''
+        var nombreTienda = '';
+        var urlImagenSusti = '';
+        var DireccionTienda = '';
+        var CodTalla = '';
+        var cantidad = '';
+
+        var NombreArticulo = '';
+        var MarcaArticulo = '';
+        var ColorArticulo = '';
+        var CategoriArticulo = '';
+        var PrecioSinIgv = '';
+        var stock = '';
+
+                    $.each(valors, function (index, item) {
+
+                        //NombreArticulo = item.Descripcion;
+                        strUrlImagen = item.Art_Foto
+                        NombreArticulo = item.Art_Descripcion
+                        MarcaArticulo = item.Mar_Descripcion
+                        ColorArticulo = item.Col_Descripcion
+                        PrecioSinIgv = item.Art_Pre_Sin_Igv
+                        CategoriArticulo = item.Cat_Pri_Descripcion + ' > ' + item.Cat_Descripcion
+                        CodTalla = item.Tal_Descripcion
+                        codTienda = item.Tall_Des;
+                        nombreTienda = '<i class="fa fa-check-circle"></i>&nbsp;Talla:&nbsp;&nbsp;' + item.Tall_Des
+                        DireccionTienda = '<i class="fa fa-info-circle"></i>&nbsp;Stock:&nbsp;&nbsp;' + item.Tall_Cant
+                        stock = item.Tall_Cant;
+                        //nombreTienda += DireccionTienda;
+                        var strhtml = ConstHtmlTienda;
+
+                        strhtml = strhtml.replace("VariableTienda", nombreTienda);
+                        strhtml = strhtml.replace("DireccionTienda", DireccionTienda);
+                        strhtml = strhtml.replace("IdArticuloTallaS", CodTalla);
+                        strhtml = strhtml.replace("IdArticuloTallaR", CodTalla);
+                        strhtml = strhtml.replace("Rstock", stock);
+                        strhtml = strhtml.replace("Sstock", stock);
+                        strhtml = strhtml.replace("inpStock", stock);
+
+                        var strValor = ((bExiste) ? (VerificarArticuloTalla(CodTalla)) : '');
+                        strhtml = strhtml.replace("valor", strValor);
+
+                        strhtml = strhtml.replace("inpArtTalla", "inpt_" + CodTalla);
+                        divFinal += strhtml;
+
+                    });
+
+                    var strhtml = ''
+
+                    strhtml += '<div class="modal-header modal-header-danger" style="margin-top:0px;margin-bottom:0px;padding-top:2px;padding-bottom:2px;">'
+                    strhtml += '<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>'
+                    strhtml += '<h5 class="modal-title" id="myModalLabel">'
+                    strhtml += '<table style="border-bottom:0px;font-size:14px;width:100%;">'
+                    strhtml += '<tr>'
+                    strhtml += '<td style="font-size:14px;width:90%;text-align:left;">Articulo:&nbsp;&nbsp;' + codArticulo + '&nbsp;&nbsp;-&nbsp;&nbsp;Precio:&nbsp;&nbsp;S/&nbsp;&nbsp;' + PrecioSinIgv + '</td>'
+                    strhtml += '<td style="font-size:14px;width:10%;text-align:left;">'
+                    var pOcu = "ocultarDivFast('tdImagen');mostrarDivFast('bverP'); ocultarDivFast('bocuP')"
+                    var pVer = "mostrarDivFast('tdImagen');ocultarDivFast('bverP'); mostrarDivFast('bocuP')"
+                    strhtml += '<span id="bocuP" onclick ="' + pOcu + '"  class="glyphicon glyphicon-eye-close"></span>'
+                    strhtml += '<span id="bverP" onclick ="' + pVer + '" style="display:none" class="glyphicon glyphicon-picture"></span>'
+                    strhtml += '</td>'
+                    strhtml += '</tr>'
+                    strhtml += '</table>'
+                    strhtml += '</h5>'
+                    strhtml += '</div>'
+                    strhtml += '<div class="modal-body">'
+                    strhtml += '<table id="example" class="table table-hover dataTable  table-striped table-responsive">'
+                    strhtml += '<tbody>'
+                    strhtml += '<tr>'
+                    strhtml += '<td Id="tdImagen"style="background:#FFFFFF;width:30%;vertical-align:middle;border: 1px solid;border-color:gainsboro">'
+                    strhtml += '<div Id="DivgImagen">'
+                    strhtml += '<div id="DivNombre" style="text-align:center;"><h5><b>' + NombreArticulo + '</b></h5></div><br/>'
+                    strhtml += '<div id="DivImagen" style="text-align:center;">'
+                    strhtml += '<img id="imagenCatalogo" class="imgRedonda" src="' + strUrlImagen + '" width="100%" height="100%" />'
+                    strhtml += '</div><br/>'
+                    strhtml += '<div id="DivPrecio" style="text-align:left"><table style="width:100%" ><tr><td style="width:50%" ><div style="width:100%" ><h5><b>Precio:&nbsp;&nbsp;</b></h5></div></td><td><div style="width:100%;color:#FF0000"><h5><b>S/&nbsp;&nbsp;' + PrecioSinIgv + '</b></h5></div></td></tr></table></div>'
+                    strhtml += '<div id="DivMarca" style="text-align:left"><h5><b>Marca:&nbsp;&nbsp;</b>' + MarcaArticulo + '</h5></div>'
+                    strhtml += '<div id="DivColor" style="text-align:left"><h5><b>Color:&nbsp;&nbsp;</b>' + ColorArticulo + '</h5></div>'
+                    strhtml += '<div id="DivCateg" style="text-align:left"><h5><b>Categorización:</b></h5></div>'
+    
+
+                    strhtml += '</div>'
+                    strhtml += '</td>'
+                    strhtml += '<td>'
+                    strhtml += '<div id="listTalla" style="overflow-x: hidden; overflow-y:auto; height: 378px;">'
+                    strhtml += divFinal
+                    strhtml += '</div>'
+                    strhtml += '</td>'
+                    strhtml += '</tr>'
+                    strhtml += '</tbody>'
+                    strhtml += '</table>'
+                    strhtml += '</div>'
+                    strhtml += '<div class="modal-footer" style="margin-top:-30px">'
+                    strhtml += '<button type="button" class="btn btn-default" data-dismiss="modal">Cerrar</button>'                 
+                    strhtml += '</div>'
+
+
+                    $('#myModalContent').html(strhtml);
+                    $('#myModal').modal(options);
+                    $('#myModal').modal('show');
+
+
+    }
+
     function sumarCantidad(control) {
 
         var Cod = control.getAttribute('data-id');
@@ -460,52 +596,83 @@
         valorInt = ((valorInt >= stock) ? (stock) : valorInt);
 
         $('#' + cInput).val(valorInt);
+
+
     }
 
     function agregarLista() {
-      
+
         var codigoArt = document.getElementById('DivHCodArt').innerHTML;
 
         EliminarArticuloList(codigoArt);
 
         var DescriArt = document.getElementById('DivHDesArt').innerHTML;
         var MarcaArt = document.getElementById('DivHMarArt').innerHTML;
-        var ColorArt = document.getElementById('DivHColArt').innerHTML; 
+        var ColorArt = document.getElementById('DivHColArt').innerHTML;
         var PrecioArt = document.getElementById('DivHPrecioArt').innerHTML;
-    
+
         var glineArticulo = {
             codigoArt: codigoArt,
             DescriArt: DescriArt,
             MarcaArt: MarcaArt,
             ColorArt: ColorArt,
             PrecioArt: PrecioArt,
-            listTallas: []
-        }        
-        
-        
+            listTallas: [],
+            Comission: 0.00,
+            Descuento: 0.00,
+            Total: 0.00,
+            strUrlImagen:""
+        }
+
+
+        strUrlImagen = item.Art_Foto
+        NombreArticulo = item.Art_Descripcion
+        MarcaArticulo = item.Mar_Descripcion
+        ColorArticulo = item.Col_Descripcion
+        PrecioSinIgv = item.Art_Pre_Sin_Igv
+        CategoriArticulo = item.Cat_Pri_Descripcion + ' > ' + item.Cat_Descripcion
+        CodTalla = item.Tal_Descripcion
+        codTienda = item.Tall_Des;
+
+
+
         var listTallasCantidad = [];
     /*lo siguiente es para agregar las tallas*/
-
+        var LinecantTotal = 0;
         $('input[name="Talla"]').each(function () {
-            
+
             var valor = $(this).val();
             valor = QuitarEspacios(valor);
             var CantTalla = ((valor == '') ? 0 : parseInt(valor));
 
             if (CantTalla > 0) {
-
+                LinecantTotal += CantTalla;
                 var codTalla = $(this).attr("id").substr(5);
                 var oTalla = { codTalla: codTalla, CantTalla: CantTalla }
                 listTallasCantidad.push(oTalla);
             }
-        });       
+        });
 
-        glineArticulo.listTallas = listTallasCantidad;
-        listArticulos.push(glineArticulo);        
+        if (LinecantTotal > 0) {
+            var porcComision = gCustomer.comision / 100;
 
-        toastr.success("Se agrego el Articulo a la venta.", 'Mensaje');
+            //Comission = Math.round10((((PrecioArt * LinecantTotal)) * porcComision) * 1, -2);
+            var Comission = (((PrecioArt * LinecantTotal)) * porcComision) * 1;
+            var desc = glineArticulo.Descuento
+            var comiss = Math.round(Comission * 100) / 100;
+            var Total = Math.round(((PrecioArt * LinecantTotal) - comiss - desc) * 100) / 100;
+            console.log(PrecioArt)
+            console.log(LinecantTotal)
+            console.log(porcComision)
+            glineArticulo.Comission = comiss;
+            glineArticulo.listTallas = listTallasCantidad;
+            glineArticulo.Total = Total;
+            listArticulos.push(glineArticulo);
 
-        dibujarGrilla();
+            toastr.success("Se agrego el Articulo a la venta.", 'Mensaje');
+
+            dibujarGrilla();
+        }
     }
 
     function EliminarArticuloList(codigoArticulo) {
@@ -513,29 +680,65 @@
         for (var i = 0; i < listArticulos.length; i++) {
 
             if (codigoArticulo == listArticulos[i].codigoArt) {
-                listArticulos.splice(i, 1);                
+                listArticulos.splice(i, 1);
             }
         }
     }
 
     function VerificarExistencia(codigoArticulo) {
 
+        var bexiste = false;
+
         for (var i = 0; i < listArticulos.length; i++) {
 
-            if (codigoArticulo == listArticulos[i].codigoArt) {              
+            if (codigoArticulo == listArticulos[i].codigoArt) {
+                bexiste = true;
+                glistTalla = listArticulos[i].listTallas;
+
+            }
+        }
+
+        return bexiste;
+    }
+
+    function VerificarExistenciabk(codigoArticulo) {
+
+
+        for (var i = 0; i < listArticulos.length; i++) {
+
+            if (codigoArticulo == listArticulos[i].codigoArt) {
 
                 var listTallasCantidad2 = listArticulos[i].listTallas;
-             
+
                 for (var j = 0; j < listTallasCantidad2.length; j++) {
 
                     var CodTalla = listTallasCantidad2[j].codTalla;
                     var Cantidad = listTallasCantidad2[j].CantTalla;
-                    alert('inpt_' + CodTalla)
-                    $('inpt_' + CodTalla).val(Cantidad);
-                   
+                    var numero = 0;
+                    numero=3
+                    //alert('inpt_' + CodTalla)
+                    //$('inpt_' + CodTalla).val(Cantidad);
+                    //$('#' + cInput).val(valorInt);
+                    $('#inpt_06').val(numero)
+                    alert($('#inpt_06').val())
+
                 }
             }
         }
+
+    }
+
+    function VerificarArticuloTalla(codTalla) {
+
+        var valor = '';
+
+        for (var j = 0; j < glistTalla.length; j++) {
+
+            var CodTalla = glistTalla[j].codTalla;
+            if (codTalla == CodTalla) { valor = glistTalla[j].CantTalla; };
+        }
+
+        return valor;
     }
 
     function dibujarGrilla() {
@@ -594,7 +797,17 @@
         theader +='<div class="col-sm-1" style="margin-top:2px;margin-bottom:2px;">';
         theader +='<label for="disponible">Total</label>';
         theader +='</div>';
-        theader +='</th>';
+        theader += '</th>';
+        theader += '<th>';
+        theader += '<div class="col-sm-1" style="margin-top:2px;margin-bottom:2px;">';
+        theader += '<label for="disponible"></label>';
+        theader += '</div>';
+        theader += '</th>';
+        theader += '<th>';
+        theader += '<div class="col-sm-1" style="margin-top:2px;margin-bottom:2px;">';
+        theader += '<label for="disponible"></label>';
+        theader += '</div>';
+        theader += '</th>';
         theader +='</tr>';
         theader += '</thead>';
 
@@ -647,11 +860,21 @@
         tbody += '</td>';
         tbody += '<td>';
         tbody += '<div class="col-sm-1" style="width:100%;margin-top:2px;margin-bottom:2px;">';
-        tbody += 'Total';
+        tbody += 'TotalM';
+        tbody += '</div>';
+        tbody += '</td>';
+        tbody += '<td>';
+        tbody += '<div class="col-sm-1" style="width:100%;margin-top:2px;margin-bottom:2px;">';
+        tbody += ' <button title="Ver detalle" style="border-radius:50%" onclick="verDetalle(this)" class="btnEditar btn-xs btn-primary" data-id="valorBoton" data-modal="" data-toggle="modal"><span class="glyphicon glyphicon-info-sign blue"></span></button>';
+        tbody += '</div>';
+        tbody += '</td>';
+        tbody += '<td>';
+        tbody += '<div class="col-sm-1" style="width:100%;margin-top:2px;margin-bottom:2px;">';
+        tbody += ' <button title="Eliminar detalle" style="border-radius:50%" class="btnEliminar btn-xs btn-danger" data-id="" data-modal="" data-toggle="modal"><span class="glyphicon glyphicon-remove" "></span></button>';
         tbody += '</div>';
         tbody += '</td>';
         tbody += '</tr>';
-        
+
         var Body = '';
 
         var ConstTalla = '<td><div style="margin-top:2px;margin-right:2px;"><button class="btn btn-primary btn-xs"  style="width:100%;" title="Talla"  data-id="codTienda" data-tda="desTiendaS" data-modal="codTalla" data-art="codArticulo"  >variableTalla</button></div></td>'
@@ -662,24 +885,29 @@
         for (var i = 0; i < listArticulos.length; i++) {
             var temrBody = tbody
             temrBody = temrBody.replace("Referencia", listArticulos[i].codigoArt);
-            temrBody = temrBody.replace("Articulo", listArticulos[i].DescriArt);
+            temrBody = temrBody.replace("Articulo", listArticulos[i].DescriArt); 
+            temrBody = temrBody.replace("valorBoton", listArticulos[i].codigoArt);
             temrBody = temrBody.replace("Marca", listArticulos[i].MarcaArt);
             temrBody = temrBody.replace("Color", listArticulos[i].ColorArt);
             temrBody = temrBody.replace("Precio", listArticulos[i].PrecioArt);
+            temrBody = temrBody.replace("Comision", listArticulos[i].Comission);
+            temrBody = temrBody.replace("Descuento", listArticulos[i].Descuento);
+
+            temrBody = temrBody.replace("TotalM", listArticulos[i].Total);
 
             var listTallasCantidad2 = listArticulos[i].listTallas;
             listTalla = '';
             listCantidad = '';
             var total = 0;
             for (var j = 0; j < listTallasCantidad2.length; j++) {
-                
+
                 var talla = listTallasCantidad2[j].codTalla;
                 var cantidad = listTallasCantidad2[j].CantTalla;
                 total += parseInt(cantidad);
 
                 listTalla += ConstTalla;
                 listCantidad += ConstCantidad;
-                
+
                 listTalla = listTalla.replace("variableTalla", talla);
                 listCantidad = listCantidad.replace("variableCantidad", cantidad);
 
@@ -688,7 +916,7 @@
             temrBody = temrBody.replace("VTotal", total);
             temrBody = temrBody.replace("ListvariableTalla", listTalla);
             temrBody = temrBody.replace("ListvariableCantidad", listCantidad);
-            
+
             Body += temrBody;
         }
 
@@ -703,11 +931,14 @@
         //}
 
         strtable = '<table style="width:100%;">' + theader + '<tbody>' + Body + '</tbody>' + '</table>';
-                               
+
         document.getElementById("divDetalleVenta").innerHTML = strtable;
-                            
+    }
 
-
+    function verDetalle(control){
+        var codArticulo = $(control).attr('data-id');
+        DibujarMostrarArticulo(codArticulo);
+      
     }
 
 
@@ -724,13 +955,13 @@
     }
 
     function validarStock(control) {
-    
+
         var cInput = control.getAttribute('Id');
         var valor = (($('#' + cInput).val() == '') ? (0) : parseInt($('#' + cInput).val()));;
         var stock = parseInt(control.getAttribute('data-id'));
         if (valor > stock) { $('#' + cInput).val(stock); toastr.error("Valor mayor que el Stock.", "Error"); }
         if (valor < 0) { $('#' + cInput).val(0); toastr.error("Valor menor que cero.", "Error"); }
-       
+
     }
 
 
