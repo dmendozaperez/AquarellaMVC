@@ -20,6 +20,12 @@
         width: 100%;
         height: 100%;
     }
+     #listatallas {
+        border-radius: 10px 10px 10px 10px;
+        -moz-border-radius: 10px 10px 10px 10px;
+        -webkit-border-radius: 10px 10px 10px 10px;
+        border: 2px;
+    }
 
     #lugar {
         border-radius: 10px 10px 10px 10px;
@@ -32,7 +38,8 @@
 
 <link href="~/ContentSelect/bootstrap-select.css" rel="stylesheet" />
 <div class="box box-body box-default" style="margin-top:0px;margin-bottom:0px;padding-top:5px;padding-bottom:5px;">
- 
+ @using (Ajax.BeginForm("listarStr_ArticuloTalla", new AjaxOptions { OnBegin = "MostrarArticulo();" }))
+ {
     <div class="row" style="margin-top:5px;margin-left:5px;margin-right:5px;margin-bottom:0px;border-radius:5px;padding-top:0px;padding-bottom:0px;">
 
         <div id="DivHBasico"  class="modal-content">
@@ -96,9 +103,9 @@
             <div class="col-sm-3" style="margin-top:2px;margin-bottom:2px;">
                 @*<table  style="width :100%;" ><tr><td  style="width :100%;" ><input id="txtArticulo" type="text" placeholder="Ingrese articulo" style="width :90%;" autofocus class="form-control" /><button type="submit" id="btnBuscar" name="btnConsultar" onclick="MostrarArticulo()" title="Buscar" class="btn btn-small btn-primary" data-modal="" data-toggle="modal"><i class="fa fa-search"></i></button></td></tr></table>*@
                 <div class="input-group">
-                    <input id="txtArticulo" type="text" placeholder="Ingrese articulo" class="form-control" />
+                    <input id="txtArticulo" type="text" focus="true" placeholder="Ingrese articulo" class="form-control" />
                     <div class="input-group-btn">
-                        <button class="btn btn-primary" type="submit" id="btnBuscar" name="btnConsultar" onclick="MostrarArticulo()" title="Buscar" >
+                        <button class="btn btn-primary" type="submit" id="btnBuscar" name="btnConsultar"  title="Buscar" >
                             <span class="glyphicon glyphicon-search"></span>
                         </button>
                     </div>
@@ -160,7 +167,7 @@
                                     </th>
                                     <th>
                                         <div class="col-sm-1" style="margin-top:2px;margin-bottom:2px;">
-                                            <label for="disponible">precio</label>
+                                            <label for="disponible">Precio</label>
                                         </div>
                                     </th>
                                     <th>
@@ -189,6 +196,7 @@
 
         </div>
     </div>  
+ }
 
 
 
@@ -211,6 +219,7 @@
     var listArticulos = [];
     var gArtBusqueda
     var glistTalla = [];
+    var gStyleMovile=''
     var gCustomer = {
         comision: 0.00,
         idCust: 0,
@@ -223,14 +232,13 @@
     }
 
     $(document).ready(function () {
-
-        $(".btnSuma").click(function () {
-            var Id = $buttonClicked.attr('data-id');
-
-        });
+        
+        if (/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)) {
+            gStyleMovile = 'style="display:none"'
+        }
 
         buscarPersonaPedido();
-     
+        document.getElementById("txtArticulo").focus();
 
     });
 
@@ -272,8 +280,7 @@
             }
 
         });
-
-
+        waitingDialog.hide();
     }
 
     function QuitarEspacios(valor) {
@@ -284,6 +291,7 @@
     }
 
     function MostrarArticulo() {
+  
         var codArticulo = $('#txtArticulo').val();
         codArticulo = codArticulo.replace(/^\s+|\s+$/g, "");
         if (codArticulo != "") {
@@ -291,8 +299,15 @@
         } else {
             toastr.error("Debe ingresar un codigo.", "Aviso");
         }
-        //VerificarExistencia(codArticulo);
-        //$.when(DibujarMostrarArticulo(codArticulo)).then(VerificarExistencia(codArticulo));
+
+        //return true
+        
+    }
+
+    function EditarDetalle(control) {
+        var codArticulo = $(control).attr('data-id');
+        DibujarMostrarArticulo(codArticulo);
+
     }
 
 
@@ -304,12 +319,9 @@
 
         var ControllerUrl = "@Url.Action("listarStr_ArticuloTalla", "Pedido")";
         var css = 'class="row"'
-        //css = '';
         var border2 = 'padding: 5px 5px 5px 5px;border:2px'
-        //border2 =''
         var espacio = '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'
-        //style="border-radius:50%"   btn-xs
-        var ConstTalla = '<td><div style="margin-top:2px;margin-right:2px;"><button class="btn btn-white btn-xs" style="width:100%;">variableTalla</button></div></td>'
+        var ConstTalla =  '<td><div style="margin-top:2px;margin-right:2px;"><button class="btn btn-white btn-xs" style="width:100%;">variableTalla</button></div></td>'
         var BotonSuma = '<button title="Sumar Cantidad" class="btnSuma btn btn-success" onclick="sumarCantidad(this)" data-id="IdArticuloTallaS" data-modal="Sstock" data-toggle="modal"><span class="glyphicon glyphicon-plus"></span></button>'
         var BotonResta = '<button title="Restar Cantidad" class="btnResta btn btn-danger" onclick="restarCantidad(this)" data-id="IdArticuloTallaR" data-modal="Rstock" data-toggle="modal"><span class="glyphicon glyphicon-minus"></span></button>'
         var InputCantidadTalla = '<input id="inpArtTalla" type="Text"  name="Talla" value="valor" placeholder="cantidad" onchange = "validarStock(this)" data-id="inpStock" style="width:100%;" autofocus="" class="form-control"/>'
@@ -320,6 +332,7 @@
         var divFinal = '';
         var strUrlImagen = '';
         var options = { "backdrop": "static", keyboard: true };
+
         $.ajax({
             type: "GET",
             url: ControllerUrl,
@@ -350,7 +363,6 @@
 
                     $.each(valors, function (index, item) {
 
-                        //NombreArticulo = item.Descripcion;
                         strUrlImagen = item.Art_Foto
                         NombreArticulo = item.Art_Descripcion
                         MarcaArticulo = item.Mar_Descripcion
@@ -362,7 +374,7 @@
                         nombreTienda = '<i class="fa fa-check-circle"></i>&nbsp;Talla:&nbsp;&nbsp;' + item.Tall_Des
                         DireccionTienda = '<i class="fa fa-info-circle"></i>&nbsp;Stock:&nbsp;&nbsp;' + item.Tall_Cant
                         stock = item.Tall_Cant;
-                        //nombreTienda += DireccionTienda;
+
                         var strhtml = ConstHtmlTienda;
 
                         strhtml = strhtml.replace("VariableTienda", nombreTienda);
@@ -374,27 +386,27 @@
                         strhtml = strhtml.replace("inpStock", stock);
 
                         var strValor = ((bExiste) ? (VerificarArticuloTalla(CodTalla)) : '');
-                        strhtml = strhtml.replace("valor", strValor);
 
+                        strhtml = strhtml.replace("valor", strValor);
                         strhtml = strhtml.replace("inpArtTalla", "inpt_" + CodTalla);
                         divFinal += strhtml;
 
                     });
 
                     var strhtml = ''
+                    var pOcu = "ocultarDivFast('tdImagen');mostrarDivFast('bverP'); ocultarDivFast('bocuP')"
+                    var pVer = "mostrarDivFast('tdImagen');ocultarDivFast('bverP'); mostrarDivFast('bocuP')"
 
                     strhtml += '<div class="modal-header modal-header-danger" style="margin-top:0px;margin-bottom:0px;padding-top:2px;padding-bottom:2px;">'
                     strhtml += '<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>'
                     strhtml += '<h5 class="modal-title" id="myModalLabel">'
                     strhtml += '<table style="border-bottom:0px;font-size:14px;width:100%;">'
                     strhtml += '<tr>'
-                    strhtml += '<td style="font-size:14px;width:90%;text-align:left;">Articulo:&nbsp;&nbsp;' + codArticulo + '&nbsp;&nbsp;-&nbsp;&nbsp;Precio:&nbsp;&nbsp;S/&nbsp;&nbsp;' + PrecioSinIgv + '</td>'
-                    strhtml += '<td style="font-size:14px;width:10%;text-align:left;">'
-                    var pOcu = "ocultarDivFast('tdImagen');mostrarDivFast('bverP'); ocultarDivFast('bocuP')"
-                    var pVer = "mostrarDivFast('tdImagen');ocultarDivFast('bverP'); mostrarDivFast('bocuP')"
+                    strhtml += '<td style="font-size:14px;width:5%;text-align:left;">'
                     strhtml += '<span id="bocuP" onclick ="' + pOcu + '"  class="glyphicon glyphicon-eye-close"></span>'
                     strhtml += '<span id="bverP" onclick ="' + pVer + '" style="display:none" class="glyphicon glyphicon-picture"></span>'
                     strhtml += '</td>'
+                    strhtml += '<td style="font-size:14px;width:90%;text-align:left;">Articulo:&nbsp;&nbsp;' + codArticulo + '&nbsp;&nbsp;-&nbsp;&nbsp;Precio:&nbsp;&nbsp;S/&nbsp;&nbsp;' + PrecioSinIgv + '</td>'
                     strhtml += '</tr>'
                     strhtml += '</table>'
                     strhtml += '</h5>'
@@ -421,7 +433,6 @@
                     strhtml += '<div id="DivHPrecioArt"  style="display:none;">' + PrecioSinIgv + '</div>'
                     strhtml += '<div id="DivHImagenArt"  style="display:none;">' + strUrlImagen + '</div>'
 
-                    strUrlImagen
                     strhtml += '</div>'
                     strhtml += '</td>'
                     strhtml += '<td>'
@@ -442,6 +453,7 @@
                     $('#myModalContent').html(strhtml);
                     $('#myModal').modal(options);
                     $('#myModal').modal('show');
+                    waitingDialog.hide();
 
 
 
@@ -458,131 +470,8 @@
 
         });
 
-    }
-
-    function DibujarDetalleArticulo(codArticulo) {
-
-        waitingDialog.show('Espere un momento por favor');     
-
-      
-        var css = 'class="row"'      
-        var border2 = 'padding: 5px 5px 5px 5px;border:2px'       
-        var espacio = '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'
-      
-        var ConstTalla = '<td><div style="margin-top:2px;margin-right:2px;"><button class="btn btn-white btn-xs" style="width:100%;">variableTalla</button></div></td>'
-        var BotonSuma = '<button title="Sumar Cantidad" class="btnSuma btn btn-success" onclick="sumarCantidad(this)" data-id="IdArticuloTallaS" data-modal="Sstock" data-toggle="modal"><span class="glyphicon glyphicon-plus"></span></button>'
-        var BotonResta = '<button title="Restar Cantidad" class="btnResta btn btn-danger" onclick="restarCantidad(this)" data-id="IdArticuloTallaR" data-modal="Rstock" data-toggle="modal"><span class="glyphicon glyphicon-minus"></span></button>'
-        var InputCantidadTalla = '<input id="inpArtTalla" type="Text"  name="Talla" value="valor" placeholder="cantidad" onchange = "validarStock(this)" data-id="inpStock" style="width:100%;" autofocus="" class="form-control"/>'
-        var ConstHtmlTienda = '<br/><div id="lugar" style="background:#FFFFFF;' + border2 + '" ><div ' + css + '  style="background:#FFFFFF;" ><div class="col-sm-12"><div><h4><strong>VariableTienda</strong></h4><p>&nbsp;DireccionTienda</p></div><table><tr><td><div style="margin-top:2px;">' + BotonResta + '</div></td><td style="width:100px"><div style="margin-top:2px;">' + InputCantidadTalla + '</div></td><td><div style="margin-top:2px;">' + BotonSuma + '</div></td></tr></table></div><br/></div></div>';
-        var ConstCantidad = ''
-        var listTalla = '';
-        var listCantidad = '';
-        var divFinal = '';
-        var strUrlImagen = '';
-        var codTienda = ''
-        var consTienda = ''
-        var nombreTienda = '';
-        var urlImagenSusti = '';
-        var DireccionTienda = '';
-        var CodTalla = '';
-        var cantidad = '';
-
-        var NombreArticulo = '';
-        var MarcaArticulo = '';
-        var ColorArticulo = '';
-        var CategoriArticulo = '';
-        var PrecioSinIgv = '';
-        var stock = '';
-
-                    $.each(valors, function (index, item) {
-
-                        //NombreArticulo = item.Descripcion;
-                        strUrlImagen = item.Art_Foto
-                        NombreArticulo = item.Art_Descripcion
-                        MarcaArticulo = item.Mar_Descripcion
-                        ColorArticulo = item.Col_Descripcion
-                        PrecioSinIgv = item.Art_Pre_Sin_Igv
-                        CategoriArticulo = item.Cat_Pri_Descripcion + ' > ' + item.Cat_Descripcion
-                        CodTalla = item.Tal_Descripcion
-                        codTienda = item.Tall_Des;
-                        nombreTienda = '<i class="fa fa-check-circle"></i>&nbsp;Talla:&nbsp;&nbsp;' + item.Tall_Des
-                        DireccionTienda = '<i class="fa fa-info-circle"></i>&nbsp;Stock:&nbsp;&nbsp;' + item.Tall_Cant
-                        stock = item.Tall_Cant;
-                        //nombreTienda += DireccionTienda;
-                        var strhtml = ConstHtmlTienda;
-
-                        strhtml = strhtml.replace("VariableTienda", nombreTienda);
-                        strhtml = strhtml.replace("DireccionTienda", DireccionTienda);
-                        strhtml = strhtml.replace("IdArticuloTallaS", CodTalla);
-                        strhtml = strhtml.replace("IdArticuloTallaR", CodTalla);
-                        strhtml = strhtml.replace("Rstock", stock);
-                        strhtml = strhtml.replace("Sstock", stock);
-                        strhtml = strhtml.replace("inpStock", stock);
-
-                        var strValor = ((bExiste) ? (VerificarArticuloTalla(CodTalla)) : '');
-                        strhtml = strhtml.replace("valor", strValor);
-
-                        strhtml = strhtml.replace("inpArtTalla", "inpt_" + CodTalla);
-                        divFinal += strhtml;
-
-                    });
-
-                    var strhtml = ''
-
-                    strhtml += '<div class="modal-header modal-header-danger" style="margin-top:0px;margin-bottom:0px;padding-top:2px;padding-bottom:2px;">'
-                    strhtml += '<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>'
-                    strhtml += '<h5 class="modal-title" id="myModalLabel">'
-                    strhtml += '<table style="border-bottom:0px;font-size:14px;width:100%;">'
-                    strhtml += '<tr>'
-                    strhtml += '<td style="font-size:14px;width:90%;text-align:left;">Articulo:&nbsp;&nbsp;' + codArticulo + '&nbsp;&nbsp;-&nbsp;&nbsp;Precio:&nbsp;&nbsp;S/&nbsp;&nbsp;' + PrecioSinIgv + '</td>'
-                    strhtml += '<td style="font-size:14px;width:10%;text-align:left;">'
-                    var pOcu = "ocultarDivFast('tdImagen');mostrarDivFast('bverP'); ocultarDivFast('bocuP')"
-                    var pVer = "mostrarDivFast('tdImagen');ocultarDivFast('bverP'); mostrarDivFast('bocuP')"
-                    strhtml += '<span id="bocuP" onclick ="' + pOcu + '"  class="glyphicon glyphicon-eye-close"></span>'
-                    strhtml += '<span id="bverP" onclick ="' + pVer + '" style="display:none" class="glyphicon glyphicon-picture"></span>'
-                    strhtml += '</td>'
-                    strhtml += '</tr>'
-                    strhtml += '</table>'
-                    strhtml += '</h5>'
-                    strhtml += '</div>'
-                    strhtml += '<div class="modal-body">'
-                    strhtml += '<table id="example" class="table table-hover dataTable  table-striped table-responsive">'
-                    strhtml += '<tbody>'
-                    strhtml += '<tr>'
-                    strhtml += '<td Id="tdImagen"style="background:#FFFFFF;width:30%;vertical-align:middle;border: 1px solid;border-color:gainsboro">'
-                    strhtml += '<div Id="DivgImagen">'
-                    strhtml += '<div id="DivNombre" style="text-align:center;"><h5><b>' + NombreArticulo + '</b></h5></div><br/>'
-                    strhtml += '<div id="DivImagen" style="text-align:center;">'
-                    strhtml += '<img id="imagenCatalogo" class="imgRedonda" src="' + strUrlImagen + '" width="100%" height="100%" />'
-                    strhtml += '</div><br/>'
-                    strhtml += '<div id="DivPrecio" style="text-align:left"><table style="width:100%" ><tr><td style="width:50%" ><div style="width:100%" ><h5><b>Precio:&nbsp;&nbsp;</b></h5></div></td><td><div style="width:100%;color:#FF0000"><h5><b>S/&nbsp;&nbsp;' + PrecioSinIgv + '</b></h5></div></td></tr></table></div>'
-                    strhtml += '<div id="DivMarca" style="text-align:left"><h5><b>Marca:&nbsp;&nbsp;</b>' + MarcaArticulo + '</h5></div>'
-                    strhtml += '<div id="DivColor" style="text-align:left"><h5><b>Color:&nbsp;&nbsp;</b>' + ColorArticulo + '</h5></div>'
-                    strhtml += '<div id="DivCateg" style="text-align:left"><h5><b>Categorización:</b></h5></div>'
-    
-
-                    strhtml += '</div>'
-                    strhtml += '</td>'
-                    strhtml += '<td>'
-                    strhtml += '<div id="listTalla" style="overflow-x: hidden; overflow-y:auto; height: 378px;">'
-                    strhtml += divFinal
-                    strhtml += '</div>'
-                    strhtml += '</td>'
-                    strhtml += '</tr>'
-                    strhtml += '</tbody>'
-                    strhtml += '</table>'
-                    strhtml += '</div>'
-                    strhtml += '<div class="modal-footer" style="margin-top:-30px">'
-                    strhtml += '<button type="button" class="btn btn-default" data-dismiss="modal">Cerrar</button>'                 
-                    strhtml += '</div>'
-
-
-                    $('#myModalContent').html(strhtml);
-                    $('#myModal').modal(options);
-                    $('#myModal').modal('show');
-
-
-    }
+        waitingDialog.hide();
+    }   
 
     function sumarCantidad(control) {
 
@@ -601,15 +490,16 @@
     }
 
     function agregarLista() {
-
+                
         var codigoArt = document.getElementById('DivHCodArt').innerHTML;
-
-        EliminarArticuloList(codigoArt);
-
+            EliminarArticuloList(codigoArt);//elimnamos el codigo de la lista para agregarlo nuevamente 
         var DescriArt = document.getElementById('DivHDesArt').innerHTML;
         var MarcaArt = document.getElementById('DivHMarArt').innerHTML;
         var ColorArt = document.getElementById('DivHColArt').innerHTML;
         var PrecioArt = document.getElementById('DivHPrecioArt').innerHTML;
+        var strUrlImagen = '';
+        var LinecantTotal = 0;
+        var listTallasCantidad = []; //lista de las tallas escogidas
 
         var glineArticulo = {
             codigoArt: codigoArt,
@@ -621,52 +511,48 @@
             Comission: 0.00,
             Descuento: 0.00,
             Total: 0.00,
-            strUrlImagen:""
-        }
+            CantidadTotal: 0,
+            strUrlImagen: ""
+        }            
 
-
-        strUrlImagen = item.Art_Foto
-        NombreArticulo = item.Art_Descripcion
-        MarcaArticulo = item.Mar_Descripcion
-        ColorArticulo = item.Col_Descripcion
-        PrecioSinIgv = item.Art_Pre_Sin_Igv
-        CategoriArticulo = item.Cat_Pri_Descripcion + ' > ' + item.Cat_Descripcion
-        CodTalla = item.Tal_Descripcion
-        codTienda = item.Tall_Des;
-
-
-
-        var listTallasCantidad = [];
-    /*lo siguiente es para agregar las tallas*/
-        var LinecantTotal = 0;
+        $.each(gArtBusqueda, function (index, item) {
+            strUrlImagen = item.Art_Foto;
+        });        
+   
         $('input[name="Talla"]').each(function () {
 
-            var valor = $(this).val();
-            valor = QuitarEspacios(valor);
+            var valor = QuitarEspacios($(this).val());
             var CantTalla = ((valor == '') ? 0 : parseInt(valor));
 
             if (CantTalla > 0) {
+
                 LinecantTotal += CantTalla;
                 var codTalla = $(this).attr("id").substr(5);
                 var oTalla = { codTalla: codTalla, CantTalla: CantTalla }
                 listTallasCantidad.push(oTalla);
+
             }
         });
 
         if (LinecantTotal > 0) {
-            var porcComision = gCustomer.comision / 100;
 
+            var porcComision = gCustomer.comision / 100;
             //Comission = Math.round10((((PrecioArt * LinecantTotal)) * porcComision) * 1, -2);
             var Comission = (((PrecioArt * LinecantTotal)) * porcComision) * 1;
             var desc = glineArticulo.Descuento
             var comiss = Math.round(Comission * 100) / 100;
             var Total = Math.round(((PrecioArt * LinecantTotal) - comiss - desc) * 100) / 100;
-            console.log(PrecioArt)
-            console.log(LinecantTotal)
-            console.log(porcComision)
+
+            //console.log(PrecioArt)
+            //console.log(LinecantTotal)
+            //console.log(porcComision)            
+
             glineArticulo.Comission = comiss;
             glineArticulo.listTallas = listTallasCantidad;
             glineArticulo.Total = Total;
+            glineArticulo.Comission = comiss;
+            glineArticulo.CantidadTotal = LinecantTotal;
+            glineArticulo.strUrlImagen = strUrlImagen;
             listArticulos.push(glineArticulo);
 
             toastr.success("Se agrego el Articulo a la venta.", 'Mensaje');
@@ -747,23 +633,28 @@
         var theader='';
         var tbody='';
         theader +='<thead>';
-        theader +='<tr>';
+        theader += '<tr>';
+        theader += '<th>';
+        theader += '<div class="col-sm-1" style="margin-top:2px;margin-bottom:2px;">';
+        theader += '<label for="disponible"></label>';
+        theader += '</div>';
+        theader += '</th>';
         theader +='<th>';
         theader +='<div class="col-sm-1" style="margin-top:2px;margin-bottom:2px;">';
         theader +='<label for="disponible">Referencia</label>';
         theader +='</div>';
         theader +='</th>';
-        theader +='<th>';
+        theader +='<th '+gStyleMovile+'>';
         theader +='<div class="col-sm-1" style="margin-top:2px;margin-bottom:2px;">';
         theader +='<label for="disponible">Articulo</label>';
         theader +='</div>';
         theader +='</th>';
-        theader +='<th>';
+        theader += '<th ' + gStyleMovile + '>';
         theader +='<div class="col-sm-1" style="margin-top:2px;margin-bottom:2px;">';
         theader +='<label for="disponible">Marca</label>';
         theader +='</div>';
         theader +='</th>';
-        theader +='<th>';
+        theader += '<th ' + gStyleMovile + '>';
         theader +='<div class="col-sm-1" style="margin-top:2px;margin-bottom:2px;">';
         theader +='<label for="disponible">Color</label>';
         theader +='</div>';
@@ -773,22 +664,17 @@
         theader += '<label for="disponible">Talla/Cantidad</label>';
         theader +='</div>';
         theader +='</th>';
-        //theader +='<th>';
-        //theader +='<div class="col-sm-1" style="margin-top:2px;margin-bottom:2px;">';
-        //theader +='<label for="disponible">Cantidad</label>';
-        //theader +='</div>';
-        //theader +='</th>';
-        theader +='<th>';
+        theader += '<th ' + gStyleMovile + '>';
         theader +='<div class="col-sm-1" style="margin-top:2px;margin-bottom:2px;">';
         theader +=' <label for="disponible">Precio</label>';
         theader +='</div>';
         theader +='</th>';
-        theader +='<th>';
+        theader += '<th ' + gStyleMovile + '>';
         theader +='<div class="col-sm-1" style="margin-top:2px;margin-bottom:2px;">';
         theader +=' <label for="disponible">Comision</label>';
         theader +='</div>';
         theader +='</th>';
-        theader +='<th>';
+        theader += '<th ' + gStyleMovile + '>';
         theader +='<div class="col-sm-1" style="margin-top:2px;margin-bottom:2px;">';
         theader +='<label for="disponible">Descuento</label>';
         theader +='</div>';
@@ -810,50 +696,48 @@
         theader += '</th>';
         theader +='</tr>';
         theader += '</thead>';
-
-        tbody += '<tr>';
+        
+        tbody += '<td>';
+        tbody += '<div class="col-sm-1" style="width:100%;margin-top:2px;margin-bottom:2px;">';
+        tbody += ' <button title="Ver detalle" style="border-radius:50%" onclick="EditarDetalle(this)" class="btnEditar btn-xs btn-success" data-id="valorEdit" data-modal="" data-toggle="modal"><span class="glyphicon glyphicon-edit"></span></button>';
+        tbody += '</div>';
+        tbody += '</td>';      
         tbody += '<td>';
         tbody += '<div class="col-sm-1" style="width:100%;margin-top:2px;margin-bottom:2px;">';
         tbody += 'Referencia';
         tbody += '</div>';
         tbody += '</td>';
-        tbody += '<td>';
+        tbody += '<td ' + gStyleMovile + '>';
         tbody += '<div class="col-sm-1" style="width:100%;margin-top:2px;margin-bottom:2px;">';
         tbody += 'Articulo';
         tbody += '</div>';
         tbody += '</td>';
-        tbody += '<td>';
+        tbody += '<td ' + gStyleMovile + '>';
         tbody += '<div class="col-sm-1" style="width:100%;margin-top:2px;margin-bottom:2px;">';
         tbody += 'Marca';
         tbody += '</div>';
         tbody += '</td>';
-        tbody += '<td>';
+        tbody += '<td ' + gStyleMovile + '>';
         tbody += '<div class="col-sm-1" style="width:100%;margin-top:2px;margin-bottom:2px;">';
         tbody += 'Color';
         tbody += '</div>';
         tbody += '</td>';
         tbody += '<td>';
         tbody += '<div class="col-sm-1" style="width:100%;margin-top:2px;margin-bottom:2px;text-align:center;">';
-        //tbody += 'Talla';
-        //tbody += '</div>';
-        //tbody += '</td>';
-        //tbody += '<td>';
-        //tbody += '<div class="col-sm-1" style="width:100%;margin-top:2px;margin-bottom:2px;">';
-        //tbody += 'Cantidad';
         tbody += '<table><tr><td><div style="margin-top:2px;margin-right:2px;"><button class="btn btn-white btn-xs"  title="Tallas"  style="width:100%;">T:</button></div></td><td><div style="margin-top:2px;margin-right:2px;"><button class="btn btn-success btn-xs" style="width:100%;">Total</button></div></td>ListvariableTalla</tr><tr><td><div style="margin-top:2px;margin-right:2px;"><button  title="Cantidad"  class="btn btn-white btn-xs" style="width:100%;">C:</button></div></td></td><td><div style="margin-top:2px;margin-right:2px;"><button class="btn btn-success btn-xs" style="width:100%;">VTotal</button></div></td>ListvariableCantidad</tr></table>'
         tbody += '</div>';
         tbody += '</td>';
-        tbody += '<td>';
+        tbody += '<td ' + gStyleMovile + '>';
         tbody += '<div class="col-sm-1" style="width:100%;margin-top:2px;margin-bottom:2px;">';
         tbody += 'Precio';
         tbody += '</div>';
-        tbody += '</td>';
+        tbody += '</td ' + gStyleMovile + '>';
         tbody += '<td>';
         tbody += '<div class="col-sm-1" style="width:100%;margin-top:2px;margin-bottom:2px;">';
         tbody += 'Comision';
         tbody += '</div>';
         tbody += '</td>';
-        tbody += '<td>';
+        tbody += '<td ' + gStyleMovile + '>';
         tbody += '<div class="col-sm-1" style="width:100%;margin-top:2px;margin-bottom:2px;">';
         tbody += 'Descuento';
         tbody += '</div>';
@@ -870,7 +754,7 @@
         tbody += '</td>';
         tbody += '<td>';
         tbody += '<div class="col-sm-1" style="width:100%;margin-top:2px;margin-bottom:2px;">';
-        tbody += ' <button title="Eliminar detalle" style="border-radius:50%" class="btnEliminar btn-xs btn-danger" data-id="" data-modal="" data-toggle="modal"><span class="glyphicon glyphicon-remove" "></span></button>';
+        tbody += ' <button title="Eliminar detalle" style="border-radius:50%" onclick="PopupEliminar(this)" class="btnEliminar btn-xs btn-danger" data-id="valorDelete" data-modal="" data-toggle="modal"><span class="glyphicon glyphicon-remove" "></span></button>';
         tbody += '</div>';
         tbody += '</td>';
         tbody += '</tr>';
@@ -886,7 +770,9 @@
             var temrBody = tbody
             temrBody = temrBody.replace("Referencia", listArticulos[i].codigoArt);
             temrBody = temrBody.replace("Articulo", listArticulos[i].DescriArt); 
-            temrBody = temrBody.replace("valorBoton", listArticulos[i].codigoArt);
+            temrBody = temrBody.replace("valorBoton", listArticulos[i].codigoArt); 
+            temrBody = temrBody.replace("valorEdit", listArticulos[i].codigoArt); 
+            temrBody = temrBody.replace("valorDelete", listArticulos[i].codigoArt);
             temrBody = temrBody.replace("Marca", listArticulos[i].MarcaArt);
             temrBody = temrBody.replace("Color", listArticulos[i].ColorArt);
             temrBody = temrBody.replace("Precio", listArticulos[i].PrecioArt);
@@ -937,10 +823,204 @@
 
     function verDetalle(control){
         var codArticulo = $(control).attr('data-id');
-        DibujarMostrarArticulo(codArticulo);
+        DibujarDetalleArticulo(codArticulo);
       
     }
 
+    function PopupEliminar(control) {
+        var codArticulo = $(control).attr('data-id');
+        
+        var strhtml = ''       
+
+        strhtml += '<div class="modal-header modal-header-danger" style="margin-top:0px;margin-bottom:0px;padding-top:2px;padding-bottom:2px;">'
+        strhtml += '<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>'
+        strhtml += '<h5 class="modal-title" id="myModalLabel">'
+        strhtml += '<table style="border-bottom:0px;font-size:14px;width:50%;">'
+        strhtml += '<tr>'
+        strhtml += '<td style="font-size:14px;width:100%;text-align:left;">Articulo:&nbsp;&nbsp;' + codArticulo + '</td>'
+        strhtml += '</tr>'
+        strhtml += '</table>'
+        strhtml += '</h5>'
+        strhtml += '</div>'
+        strhtml += '<div class="modal-body">'
+        strhtml += 'Desea eliminar al articulo: ' + codArticulo + '?'
+        strhtml += '</div>'
+        strhtml += '<div class="modal-footer" style="margin-top:-30px">'
+        strhtml += '<button type="button" class="btn btn-default" data-dismiss="modal">Cerrar</button>'
+        strhtml += '<button type="button" class="btn btn-danger"  onclick="EliminarDetalle(this)"  data-id="' + codArticulo + '"  data-dismiss="modal">Eliminar</button>'
+        //strhtml += ' <button type="button"  title="Eliminar class="btn btn-danger" data-dismiss="modal" detalle" onclick="EliminarDetalle(this)"  data-id="' + codArticulo + '" data-modal="" data-toggle="modal">Elimninar</button>';
+        //strhtml += '<input type="submit" class="btn btn-primary" onclick="agregarLista()"  id="btnSubmit" value="Agregar" />'
+        strhtml += '</div>'
+        var options = { "backdrop": "static", keyboard: true };
+
+        $('#myModalContent').html(strhtml);
+        $('#myModal').modal(options);
+        $('#myModal').modal('show');
+
+    }
+
+    function EliminarDetalle(control) {
+        var codArticulo = $(control).attr('data-id');
+        EliminarArticuloList(codArticulo);
+        dibujarGrilla();
+        toastr.success("El articulo se elimino del pedido.", 'Mensaje');
+    }
+    
+
+    function DibujarDetalleArticulo(codArticulo) {
+
+    
+        var border2 = 'padding: 5px 5px 5px 5px;border:2px';
+        var espacio = '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;';
+        var css = 'class="row"';
+        var ConstTalla = '<td><div style="margin-top:2px;margin-right:2px;"><button class="btn btn-white btn-xs" style="width:100%;">variableTalla</button></div></td>'
+        var BotonSuma = '<button title="Sumar Cantidad" class="btnSuma btn btn-success" onclick="sumarCantidad(this)" data-id="IdArticuloTallaS" data-modal="Sstock" data-toggle="modal"><span class="glyphicon glyphicon-plus"></span></button>'
+        var BotonResta = '<button title="Restar Cantidad" class="btnResta btn btn-danger" onclick="restarCantidad(this)" data-id="IdArticuloTallaR" data-modal="Rstock" data-toggle="modal"><span class="glyphicon glyphicon-minus"></span></button>'
+        var InputCantidadTalla = '<input id="inpArtTalla" type="Text"  name="Talla" value="valor" placeholder="cantidad" onchange = "validarStock(this)" data-id="inpStock" style="width:100%;" autofocus="" class="form-control"/>'
+        var ConstHtmlDetalleTallas = '<br/><div id="listatallas" style="background:#FFFFFF;' + border2 + '" ><div ' + css + '  style="background:#FFFFFF;" ><div class="col-sm-12"><i class="fa fa-info-circle"></i>&nbsp;<b>Tallas y Cantidades</b><br/></div><div class="col-sm-12">ListaTallas</div><br/></div></div>';
+        var ConstHtmlDetalle = '<br/><div id="lugar" style="background:#FFFFFF;' + border2 + '" ><div ' + css + '  style="background:#FFFFFF;" ><div class="col-sm-12"><table style="width:100%">Cantidad&nbsp;Precio&nbsp;Comision&nbsp;Descuento&nbsp;Total</table></div><br/></div></div>';
+
+        var strTablaTallas = '<table><tr><td><div style="margin-top:2px;margin-right:2px;"><button class="btn btn-white btn-xs"  title="Tallas"  style="width:100%;">Tallas:</button></div></td><td><div style="margin-top:2px;margin-right:2px;"><button class="btn btn-success btn-xs" style="width:100%;">Total</button></div></td>ListvariableTalla</tr><tr><td><div style="margin-top:2px;margin-right:2px;"><button  title="Cantidad"  class="btn btn-white btn-xs" style="width:100%;">Cantidad:</button></div></td></td><td><div style="margin-top:2px;margin-right:2px;"><button class="btn btn-success btn-xs" style="width:100%;">VTotal</button></div></td>ListvariableCantidad</tr></table>'
+        var ConstTalla = '<td><div style="margin-top:2px;margin-right:2px;"><button class="btn btn-primary btn-xs"  style="width:100%;" title="Talla"  data-id="codTienda" data-tda="desTiendaS" data-modal="codTalla" data-art="codArticulo"  >variableTalla</button></div></td>'
+        var ConstCantidad = '<td><div style="margin-top:2px;margin-right:2px;"><button class="btn btn-info btn-xs" style="width:100%;text-align:center;">variableCantidad</button></div></td>'
+
+        var listTalla = '';
+        var listCantidad = '';
+        var divFinal = '';
+        var strUrlImagen = '';
+        var codTienda = ''
+        var consTienda = ''
+        var Precio = 0.00;
+        var Comision = 0.00;
+        var Descuento = 0.00;
+        var Total = 0.00;
+        var urlImagenSusti = '';
+        var DireccionTienda = '';
+        var CodTalla = '';
+        var cantidad = '';
+
+        var NombreArticulo = '';
+        var MarcaArticulo = '';
+        var ColorArticulo = '';
+        var CategoriArticulo = '';
+        var PrecioSinIgv = '';
+        var stock = '';
+
+
+        $.each(listArticulos, function (index, item) {
+
+            if (codArticulo == item.codigoArt) {
+                
+                strUrlImagen = item.strUrlImagen
+                NombreArticulo = item.DescriArt
+                MarcaArticulo = item.MarcaArt
+                ColorArticulo = item.ColorArt
+                PrecioSinIgv = item.PrecioArt
+                CategoriArticulo = item.Cat_Pri_Descripcion + ' > ' + item.Cat_Descripcion
+                            
+                var strhtml = ConstHtmlDetalle;
+                var strhtmlTallas = ConstHtmlDetalleTallas
+                var strIni = '<tr><td><p>&nbsp;<i class="fa fa-check-circle"></i>&nbsp;<b>';
+                var strIniTotal = '<tr><td><p>&nbsp;<i class="fa fa-info-circle"></i>&nbsp;<b>';
+                var strMedio = '</b></p></td><td valign="top" style="padding:0; margin:0;text-align:right">&nbsp;&nbsp;'
+                var strFin = '</td></tr>';
+
+                var strCantidad = strIni + 'Cantidad:' + strMedio + item.CantidadTotal + strFin;
+                var strPrecio = strIni + 'Precio:' + strMedio + item.PrecioArt + strFin;
+                var strComision = strIni + 'Comision:' + strMedio + item.Comission + strFin;
+                var strDescuento = strIni + 'Descuento:' + strMedio + item.Descuento + strFin;
+                var strTotal = strIniTotal + 'TOTAL:' + strMedio +'<b>'+ item.Total + strFin;
+
+                strhtml = strhtml.replace("Cantidad", strCantidad);
+                strhtml = strhtml.replace("Precio", strPrecio);
+                strhtml = strhtml.replace("Comision", strComision);
+                strhtml = strhtml.replace("Descuento", strDescuento);
+                strhtml = strhtml.replace("Total", strTotal);
+                
+                var listTallasCantidad2 = item.listTallas;
+                var total = 0;
+
+                for (var j = 0; j < listTallasCantidad2.length; j++) {
+
+                    var talla = listTallasCantidad2[j].codTalla;
+                    var cantidad = listTallasCantidad2[j].CantTalla;
+                    total += parseInt(cantidad);
+
+                    listTalla += ConstTalla;
+                    listCantidad += ConstCantidad;
+
+                    listTalla = listTalla.replace("variableTalla", talla);
+                    listCantidad = listCantidad.replace("variableCantidad", cantidad);
+
+                }
+
+                strTablaTallas = strTablaTallas.replace("VTotal", total);
+                strTablaTallas = strTablaTallas.replace("ListvariableTalla", listTalla);
+                strTablaTallas = strTablaTallas.replace("ListvariableCantidad", listCantidad);
+                strhtmlTallas = strhtmlTallas.replace("ListaTallas", strTablaTallas);
+
+                divFinal += strhtmlTallas
+                divFinal += strhtml;
+            }
+
+        });
+      
+
+        var strhtml = ''
+        var pOcu = "ocultarDivFast('tdImagen');mostrarDivFast('bverP'); ocultarDivFast('bocuP')"
+        var pVer = "mostrarDivFast('tdImagen');ocultarDivFast('bverP'); mostrarDivFast('bocuP')"
+
+        strhtml += '<div class="modal-header modal-header-danger" style="margin-top:0px;margin-bottom:0px;padding-top:2px;padding-bottom:2px;">'
+        strhtml += '<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>'
+        strhtml += '<h5 class="modal-title" id="myModalLabel">'
+        strhtml += '<table style="border-bottom:0px;font-size:14px;width:100%;">'
+        strhtml += '<tr>'
+        strhtml += '<td style="font-size:14px;width:5%;text-align:left;">'
+        strhtml += '<span id="bocuP" onclick ="' + pOcu + '"  class="glyphicon glyphicon-eye-close"></span>'
+        strhtml += '<span id="bverP" onclick ="' + pVer + '" style="display:none" class="glyphicon glyphicon-picture"></span>'
+        strhtml += '</td>'
+        strhtml += '<td style="font-size:14px;width:90%;text-align:left;">Articulo:&nbsp;&nbsp;' + codArticulo + '&nbsp;&nbsp;-&nbsp;&nbsp;Precio:&nbsp;&nbsp;S/&nbsp;&nbsp;' + PrecioSinIgv + '</td>'
+        strhtml += '</tr>'
+        strhtml += '</table>'
+        strhtml += '</h5>'
+        strhtml += '</div>'
+        strhtml += '<div class="modal-body">'
+        strhtml += '<table id="example" class="table table-hover dataTable  table-striped table-responsive">'
+        strhtml += '<tbody>'
+        strhtml += '<tr>'
+        strhtml += '<td Id="tdImagen"style="background:#FFFFFF;width:30%;vertical-align:middle;border: 1px solid;border-color:gainsboro">'
+        strhtml += '<div Id="DivgImagen">'
+        strhtml += '<div id="DivNombre" style="text-align:center;"><h5><b>' + NombreArticulo + '</b></h5></div><br/>'
+        strhtml += '<div id="DivImagen" style="text-align:center;">'
+        strhtml += '<img id="imagenCatalogo" class="imgRedonda" src="' + strUrlImagen + '" width="100%" height="100%" />'
+        strhtml += '</div><br/>'
+        strhtml += '<div id="DivPrecio" style="text-align:left"><table style="width:100%" ><tr><td style="width:50%" ><div style="width:100%" ><h5><b>Precio:&nbsp;&nbsp;</b></h5></div></td><td><div style="width:100%;color:#FF0000"><h5><b>S/&nbsp;&nbsp;' + PrecioSinIgv + '</b></h5></div></td></tr></table></div>'
+        strhtml += '<div id="DivMarca" style="text-align:left"><h5><b>Marca:&nbsp;&nbsp;</b>' + MarcaArticulo + '</h5></div>'
+        strhtml += '<div id="DivColor" style="text-align:left"><h5><b>Color:&nbsp;&nbsp;</b>' + ColorArticulo + '</h5></div>'
+        strhtml += '<div id="DivCateg" style="text-align:left"><h5><b>Categorización:</b></h5></div>'
+
+        strhtml += '</div>'
+        strhtml += '</td>'
+        strhtml += '<td>'
+        strhtml += '<div id="listTalla" style="overflow-x: hidden; overflow-y:auto; height: 378px;">'
+        strhtml += divFinal
+        strhtml += '</div>'
+        strhtml += '</td>'
+        strhtml += '</tr>'
+        strhtml += '</tbody>'
+        strhtml += '</table>'
+        strhtml += '</div>'
+        strhtml += '<div class="modal-footer" style="margin-top:-30px">'
+        strhtml += '<button type="button" class="btn btn-default" data-dismiss="modal">Cerrar</button>'
+        strhtml += '</div>'
+        var options = { "backdrop": "static", keyboard: true };
+
+        $('#myModalContent').html(strhtml);
+        $('#myModal').modal(options);
+        $('#myModal').modal('show');
+
+
+    }
 
     function restarCantidad(control) {
 
