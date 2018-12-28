@@ -77,26 +77,26 @@
             <!-- Content Header (Page header) -->
 
             <section class="content-header" style="margin-top:-20px;">
-                <h3>
-                    @ViewBag.Title
+                <h4>
+                    <b>@ViewBag.Title</b>
                     <small></small>
-                </h3>
+                </h4>
                 @*Html.Partial("_AdminLteBreadcrumb")*@
             </section>
             <!-- Main content -->
-            <section class="content" style=" margin-top:-20px;">
+            <section class="content" style="margin-top:-20px;">
 
                 @RenderBody()
             </section>
 
             <!-- /.content -->
         </div><!-- /.content-wrapper -->
-        <footer class="main-footer no-print">
+        @*<footer class="main-footer no-print">
             <div class="pull-right hidden-xs">
                 <b>Version</b> 1.0
             </div>
             <strong>Copyright &copy; @DateTime.Now.Year  </strong> - @Ent_Global.titulo_footer
-        </footer>
+        </footer>*@
     </div><!-- ./wrapper -->
     @* Bundles assume jquery 2.1.3 and Bootstrap 3 *@
 

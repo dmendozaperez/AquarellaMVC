@@ -11,8 +11,8 @@
     }
 
     .imgRedonda {
-        width: 150px;
-        height: 120px;
+        width: 100px;
+        height: 80px;
         border-radius: 15px;
     }
 
@@ -129,7 +129,7 @@
                     </table>
                 </h5>
             </div>
-            <div id="DivListCompra" class="modal-body">
+            <div id="DivListCompra" class="modal-body" style="padding:0">
                 <div class="row" style="margin-top:0px;margin-left:10px;margin-right:10px;margin-bottom:0px;border-radius:5px;padding-top:10px;padding-bottom:10px;">
                     <div id="divDetalleVenta" style="overflow-x: auto; overflow-y:hidden; width:100%"> @*height: 378px;*@
                         <table  style="width:100%;">
@@ -219,7 +219,8 @@
     var listArticulos = [];
     var gArtBusqueda
     var glistTalla = [];
-    var gStyleMovile=''
+    var gStyleMovile = ''
+    var gbMovile = false;
     var gCustomer = {
         comision: 0.00,
         idCust: 0,
@@ -234,11 +235,13 @@
     $(document).ready(function () {
         
         if (/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)) {
-            gStyleMovile = 'style="display:none"'
+            gStyleMovile = 'style="display:none"';
+            gbMovile = true;
         }
 
         buscarPersonaPedido();
         document.getElementById("txtArticulo").focus();
+        DibujarGrilla();
 
     });
 
@@ -485,8 +488,20 @@
         valorInt = ((valorInt >= stock) ? (stock) : valorInt);
 
         $('#' + cInput).val(valorInt);
+    }
 
+    function sumarCantidadMovil(control) {
 
+        var Cod = control.getAttribute('data-id');
+        var stock = parseInt(control.getAttribute('data-modal'));
+        var cInput = 'inpt_' + Cod;
+        var valor = $('#' + cInput).val();
+        var valorInt = 0;
+        var msjAlert = "";
+        valorInt = ((BorrarEspacio(valor) == '') ? (msjAlert += 'Fecha Nacimiento.<br/>', 1) : parseInt(valor) + 1);
+        valorInt = ((valorInt >= stock) ? (stock) : valorInt);
+
+        $('#' + cInput).val(valorInt);
     }
 
     function agregarLista() {
@@ -557,7 +572,7 @@
 
             toastr.success("Se agrego el Articulo a la venta.", 'Mensaje');
 
-            dibujarGrilla();
+            DibujarGrilla();
         }
     }
 
@@ -627,7 +642,19 @@
         return valor;
     }
 
-    function dibujarGrilla() {
+    function DibujarGrilla() {
+  
+        if (gbMovile) {
+
+            GrillaMovil();
+
+        } else {
+
+            GrillaComputador();
+        }
+    }
+
+    function GrillaComputador() {
 
         var strtable='';
         var theader='';
@@ -731,8 +758,8 @@
         tbody += '<div class="col-sm-1" style="width:100%;margin-top:2px;margin-bottom:2px;">';
         tbody += 'Precio';
         tbody += '</div>';
-        tbody += '</td ' + gStyleMovile + '>';
-        tbody += '<td>';
+        tbody += '</td>';
+        tbody += '<td ' + gStyleMovile + '>';
         tbody += '<div class="col-sm-1" style="width:100%;margin-top:2px;margin-bottom:2px;">';
         tbody += 'Comision';
         tbody += '</div>';
@@ -821,9 +848,152 @@
         document.getElementById("divDetalleVenta").innerHTML = strtable;
     }
 
+
+    function GrillaMovil() {
+
+        var border2 = 'border:2px';
+        var espacio = '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;';
+        var strImg = '<td Id="tdImagen"style="background:#FFFFFF;width:20%;vertical-align:middle;">'
+        strImg += '<div Id="DivgImagen">'
+        strImg += '<div id="DivImagen" style="text-align:center;">'
+        strImg += '<img id="imagenCatalogo" class="imgRedonda" src="DireccionImagen" width="100%" height="100%" />'
+        strImg += '</div>'
+        strImg += '</div>'
+        strImg += '</td>'
+        var css = 'class="row"';
+        var ConstTalla = '<td><div style="margin-top:2px;margin-right:2px;"><button class="btn btn-white btn-xs" style="width:100%;">variableTalla</button></div></td>'
+        var BotonSuma = '<button title="Sumar Cantidad" class="btnSuma btn btn-white btn-xs" onclick="sumarCantidadMovil(this)" data-id="IdArticuloTallaS"  data-art="IdArticuloCodS" data-modal="Sstock" data-toggle="modal"><span class="glyphicon glyphicon-plus"></span></button>'
+        var BotonResta = '<button title="Restar Cantidad" class="btnResta btn btn-white btn-xs" onclick="restarCantidadMovil(this)" data-id="IdArticuloTallaR" data-art="IdArticuloCodR" data-modal="Rstock" data-toggle="modal"><span class="glyphicon glyphicon-minus"></span></button>'
+        var InputCantidadTalla = '<input id="inpArtTalla" type="Text"  name="Talla" value="valorInp" placeholder="cantidad" onchange = "validarStock(this)" data-id="inpStock" style="width:100%;" autofocus="" class="form-control"/>'
+        var ConstHtmlDetalleTallas = '<br/><div id="listatallas" style="background:#FFFFFF;' + border2 + '" ><div ' + css + '  style="background:#FFFFFF;" ><div class="col-sm-12"><i class="fa fa-info-circle"></i>&nbsp;<b>Tallas y Cantidades</b><br/></div><div class="col-sm-12">ListaTallas</div><br/></div></div>';
+        var ConstHtmlDetalle = '<div id="lugar" style="background:#FFFFFF;' + border2 + '" ><div ' + css + '  style="background:#FFFFFF;" ><div class="col-sm-12"><table style="width:100%;border: 1px solid;border-color:gainsboro"><tr><td>' + strImg + '</td><td><table style="width:100%">Nombre&nbsp;Codigo&nbsp;Marca&nbsp;Color&nbsp;Talla&nbsp;Precio&nbsp;CDantidad&nbsp;Cantidad</table></td></tr></table></div></div></div>';
+
+        var strTablaTallas = '<table><tr><td><div style="margin-top:2px;margin-right:2px;"><button class="btn btn-white btn-xs"  title="Tallas"  style="width:100%;">Tallas:</button></div></td><td><div style="margin-top:2px;margin-right:2px;"><button class="btn btn-success btn-xs" style="width:100%;">Total</button></div></td>ListvariableTalla</tr><tr><td><div style="margin-top:2px;margin-right:2px;"><button  title="Cantidad"  class="btn btn-white btn-xs" style="width:100%;">Cantidad:</button></div></td></td><td><div style="margin-top:2px;margin-right:2px;"><button class="btn btn-success btn-xs" style="width:100%;">VTotal</button></div></td>ListvariableCantidad</tr></table>'
+        var ConstTalla = '<td><div style="margin-top:2px;margin-right:2px;"><button class="btn btn-primary btn-xs"  style="width:100%;" title="Talla"  data-id="codTienda" data-tda="desTiendaS" data-modal="codTalla" data-art="codArticulo"  >variableTalla</button></div></td>'
+        var ConstCantidad = '<td><div style="margin-top:2px;margin-right:2px;"><button class="btn btn-info btn-xs" style="width:100%;text-align:center;">variableCantidad</button></div></td>'
+
+        var listTalla = '';
+        var listCantidad = '';
+        var divFinal = '';
+        var strUrlImagen = '';
+        var codTienda = ''
+        var consTienda = ''
+        var Precio = 0.00;
+        var Comision = 0.00;
+        var Descuento = 0.00;
+        var Total = 0.00;
+        var urlImagenSusti = '';
+        var DireccionTienda = '';
+       
+        var cantidad = '';
+
+        var NombreArticulo = '';
+        var CodigoArt = '';
+        var MarcaArticulo = '';
+        var ColorArticulo = '';
+        var CategoriArticulo = '';
+        var PrecioSinIgv = '';
+        var stock = '';
+
+        var cant = 0;
+        $.each(listArticulos, function (index, item) {         
+
+            cant +=1
+            CodigoArt = item.codigoArt;
+            strUrlImagen = item.strUrlImagen
+            NombreArticulo = item.DescriArt
+            MarcaArticulo = item.MarcaArt
+            ColorArticulo = item.ColorArt
+            PrecioSinIgv = item.PrecioArt
+            CategoriArticulo = item.Cat_Pri_Descripcion + ' > ' + item.Cat_Descripcion
+
+            var strhtml = ConstHtmlDetalle;
+            var strhtmlTallas = ConstHtmlDetalleTallas
+            //style = "font-size:14px;width:90%;text-align:left;"
+            var strIni = '<tr><td style="text-align:left;">&nbsp;<i class="fa fa-check-circle"></i>&nbsp;<b>';
+            var strIniCn = '<tr><td style="text-align:left;" colspan="2">&nbsp;<i class="fa fa-check-circle"></i>&nbsp;<b>';
+            var strIniS = '<tr><td style="text-align:left;"><b>';
+            var strIniNombre = '<tr><td style="text-align:center;" colspan="2" >&nbsp;&nbsp;<b>';
+            var strMedio = '</b></td><td valign="top" style="padding:0; margin:0;text-align:left;">&nbsp;&nbsp;'
+            var strMedioCant = '</b></td><td valign="top" style="padding:0; margin:0;text-align:center;">'
+            var strMedioPrecio = '</b></td><td valign="top" style="padding:0; margin:0;text-align:left;color:#FF0000;">&nbsp;&nbsp;'
+            var strFin = '</td></tr>';
+            
+            var strNombre = strIniNombre + '' +  '<b>' + NombreArticulo + strFin; 
+            var strCodigo = strIniNombre + '' +  '<b>' + CodigoArt + strFin;
+            var strMarca = strIni + 'Marca:' + strMedio + MarcaArticulo + strFin;
+            var strColor = strIni + 'Color:' + strMedio  + ColorArticulo + strFin;
+            var strPrecio = strIni + 'Precio:' + strMedioPrecio + item.PrecioArt + strFin;
+               
+                     
+               
+            strhtml = strhtml.replace("Nombre", strNombre);
+            strhtml = strhtml.replace("Codigo", strCodigo);
+            
+            strhtml = strhtml.replace("Marca", strMarca);
+            strhtml = strhtml.replace("Color", strColor);
+            strhtml = strhtml.replace("Precio", strPrecio);
+            //strhtml = strhtml.replace("Talla", strTalla);
+            //strhtml = strhtml.replace("Cantidad", strCantidad); 
+            strhtml = strhtml.replace("DireccionImagen", strUrlImagen);
+
+            var listTallasCantidad2 = item.listTallas;
+            var total = 0;
+
+               
+
+            for (var j = 0; j < listTallasCantidad2.length; j++) {
+                                      
+                var strhtmlTotal = strhtml;
+                var CodTalla = listTallasCantidad2[j].codTalla;
+
+                var strTalla = strIni + 'Talla:' + strMedio + CodTalla +strFin;
+                strhtmlTotal = strhtmlTotal.replace("Talla", strTalla);
+
+                var strCantidad = strIniS + '' + strMedioCant + '<table><tr><td>' + BotonResta + '</td><td width="50px"><div id="' + CodigoArt + '_' + CodTalla + '" >' + listTallasCantidad2[j].CantTalla + '</div><div style="display:none">' + InputCantidadTalla + '</div></td><td>' + BotonSuma + '</td></tr></table>' + strFin;
+                strhtmlTotal = strhtmlTotal.replace("Cantidad", strCantidad);
+
+                strhtmlTotal = strhtmlTotal.replace("inpArtTalla", "inpt_" + CodigoArt + '_' + CodTalla);
+                strhtmlTotal = strhtmlTotal.replace("valorInp", listTallasCantidad2[j].CantTalla);
+
+                strhtmlTotal = strhtmlTotal.replace("IdArticuloTallaS", CodTalla);
+                strhtmlTotal = strhtmlTotal.replace("IdArticuloTallaR", CodTalla);
+
+                var strDCantidad = strIniCn + 'Cantidad:' + '<b>' + strFin;
+                strhtmlTotal = strhtmlTotal.replace("CDantidad", strDCantidad);
+                   
+                divFinal += strhtmlTotal;
+            }
+
+        })
+
+        var strhtmlF = ''
+        //strhtmlF += '<div class="modal-header modal-header-danger" style="margin-top:0px;margin-bottom:0px;padding-top:2px;padding-bottom:2px;">'
+        //strhtmlF += 'Lista de Pedidos'
+        //strhtmlF += '</div>'
+        //strhtmlF += '<div class="modal-body">'
+        //strhtmlF += '<table id="example" class="table table-hover dataTable  table-striped table-responsive">'
+        //strhtmlF += '<tbody>'
+        //strhtmlF += '<tr>'
+        //strhtmlF += '<td>'
+        strhtmlF += '<div id="listTalla" style="overflow-x: hidden; overflow-y:auto; height: 378px;">'
+        strhtmlF += divFinal
+        strhtmlF += '</div>'
+        //strhtmlF += '</td>'
+        //strhtmlF += '</tr>'
+        //strhtmlF += '</tbody>'
+        //strhtmlF += '</table>'
+        //strhtmlF += '</div>'
+
+        if (cant>0)
+            document.getElementById("DivListCompra").innerHTML = strhtmlF;
+
+    }
+
     function verDetalle(control){
         var codArticulo = $(control).attr('data-id');
-        DibujarDetalleArticulo(codArticulo);
+        //DibujarDetalleArticulo(codArticulo);
+        DibujarDetalleMovil(codArticulo);
       
     }
 
@@ -862,8 +1032,138 @@
     function EliminarDetalle(control) {
         var codArticulo = $(control).attr('data-id');
         EliminarArticuloList(codArticulo);
-        dibujarGrilla();
+        DibujarGrilla();
         toastr.success("El articulo se elimino del pedido.", 'Mensaje');
+    }
+
+    function DibujarDetalleMovil(codArticulo) {
+
+
+        var border2 = 'border:2px';
+        var espacio = '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;';
+        var strImg = '<td Id="tdImagen"style="background:#FFFFFF;width:30%;vertical-align:middle;">'
+        strImg += '<div Id="DivgImagen">'
+        strImg += '<div id="DivImagen" style="text-align:center;">'
+        strImg += '<img id="imagenCatalogo" class="imgRedonda" src="DireccionImagen" width="100%" height="100%" />'
+        strImg += '</div>'
+        strImg += '</div>'
+        strImg += '</td>'
+        var css = 'class="row"';
+        var ConstTalla = '<td><div style="margin-top:2px;margin-right:2px;"><button class="btn btn-white btn-xs" style="width:100%;">variableTalla</button></div></td>'
+        var BotonSuma = '<button title="Sumar Cantidad" class="btnSuma btn btn-success" onclick="sumarCantidad(this)" data-id="IdArticuloTallaS" data-modal="Sstock" data-toggle="modal"><span class="glyphicon glyphicon-plus"></span></button>'
+        var BotonResta = '<button title="Restar Cantidad" class="btnResta btn btn-danger" onclick="restarCantidad(this)" data-id="IdArticuloTallaR" data-modal="Rstock" data-toggle="modal"><span class="glyphicon glyphicon-minus"></span></button>'
+        var InputCantidadTalla = '<input id="inpArtTalla" type="Text"  name="Talla" value="valor" placeholder="cantidad" onchange = "validarStock(this)" data-id="inpStock" style="width:100%;" autofocus="" class="form-control"/>'
+        var ConstHtmlDetalleTallas = '<br/><div id="listatallas" style="background:#FFFFFF;' + border2 + '" ><div ' + css + '  style="background:#FFFFFF;" ><div class="col-sm-12"><i class="fa fa-info-circle"></i>&nbsp;<b>Tallas y Cantidades</b><br/></div><div class="col-sm-12">ListaTallas</div><br/></div></div>';
+        var ConstHtmlDetalle = '<div id="lugar" style="background:#FFFFFF;' + border2 + '" ><div ' + css + '  style="background:#FFFFFF;" ><div class="col-sm-12"><table style="width:100%;border: 1px solid;border-color:gainsboro"><tr><td>' + strImg + '</td><td><table style="width:100%">Nombre&nbsp;Codigo&nbsp;Marca&nbsp;Color&nbsp;Talla&nbsp;Precio&nbsp;Cantidad</table></td></tr></table></div></div></div>';
+
+        var strTablaTallas = '<table><tr><td><div style="margin-top:2px;margin-right:2px;"><button class="btn btn-white btn-xs"  title="Tallas"  style="width:100%;">Tallas:</button></div></td><td><div style="margin-top:2px;margin-right:2px;"><button class="btn btn-success btn-xs" style="width:100%;">Total</button></div></td>ListvariableTalla</tr><tr><td><div style="margin-top:2px;margin-right:2px;"><button  title="Cantidad"  class="btn btn-white btn-xs" style="width:100%;">Cantidad:</button></div></td></td><td><div style="margin-top:2px;margin-right:2px;"><button class="btn btn-success btn-xs" style="width:100%;">VTotal</button></div></td>ListvariableCantidad</tr></table>'
+        var ConstTalla = '<td><div style="margin-top:2px;margin-right:2px;"><button class="btn btn-primary btn-xs"  style="width:100%;" title="Talla"  data-id="codTienda" data-tda="desTiendaS" data-modal="codTalla" data-art="codArticulo"  >variableTalla</button></div></td>'
+        var ConstCantidad = '<td><div style="margin-top:2px;margin-right:2px;"><button class="btn btn-info btn-xs" style="width:100%;text-align:center;">variableCantidad</button></div></td>'
+
+        var listTalla = '';
+        var listCantidad = '';
+        var divFinal = '';
+        var strUrlImagen = '';
+        var codTienda = ''
+        var consTienda = ''
+        var Precio = 0.00;
+        var Comision = 0.00;
+        var Descuento = 0.00;
+        var Total = 0.00;
+        var urlImagenSusti = '';
+        var DireccionTienda = '';
+        var CodTalla = '';
+        var cantidad = '';
+
+        var NombreArticulo = '';
+        var CodigoArt = '';
+        var MarcaArticulo = '';
+        var ColorArticulo = '';
+        var CategoriArticulo = '';
+        var PrecioSinIgv = '';
+        var stock = '';
+
+
+        $.each(listArticulos, function (index, item) {
+
+         
+
+                CodigoArt = item.codigoArt;
+                strUrlImagen = item.strUrlImagen
+                NombreArticulo = item.DescriArt
+                MarcaArticulo = item.MarcaArt
+                ColorArticulo = item.ColorArt
+                PrecioSinIgv = item.PrecioArt
+                CategoriArticulo = item.Cat_Pri_Descripcion + ' > ' + item.Cat_Descripcion
+
+                var strhtml = ConstHtmlDetalle;
+                var strhtmlTallas = ConstHtmlDetalleTallas
+                //style = "font-size:14px;width:90%;text-align:left;"
+                var strIni = '<tr><td style="text-align:left;">&nbsp;<i class="fa fa-check-circle"></i>&nbsp;<b>';
+                var strIniNombre = '<tr><td style="text-align:center;" colspan="2" >&nbsp;&nbsp;<b>';
+                var strMedio = '</b></td><td valign="top" style="padding:0; margin:0;text-align:left;">&nbsp;&nbsp;'
+                var strMedioPrecio = '</b></td><td valign="top" style="padding:0; margin:0;text-align:left;color:#FF0000;">&nbsp;&nbsp;'
+                var strFin = '</td></tr>';
+            
+                var strNombre = strIniNombre + '' +  '<b>' + NombreArticulo + strFin; 
+                var strCodigo = strIniNombre + '' +  '<b>' + CodigoArt + strFin;
+                var strMarca = strIni + 'Marca:' + strMedio + MarcaArticulo + strFin;
+                var strColor = strIni + 'Color:' + strMedio  + ColorArticulo + strFin;
+                var strPrecio = strIni + 'Precio:' + strMedioPrecio + item.PrecioArt + strFin;
+               
+                     
+               
+                strhtml = strhtml.replace("Nombre", strNombre);
+                strhtml = strhtml.replace("Codigo", strCodigo);
+                strhtml = strhtml.replace("Marca", strMarca);
+                strhtml = strhtml.replace("Color", strColor);
+                strhtml = strhtml.replace("Precio", strPrecio);
+                //strhtml = strhtml.replace("Talla", strTalla);
+                //strhtml = strhtml.replace("Cantidad", strCantidad); 
+                strhtml = strhtml.replace("DireccionImagen", strUrlImagen);
+
+                var listTallasCantidad2 = item.listTallas;
+                var total = 0;
+
+               
+
+                for (var j = 0; j < listTallasCantidad2.length; j++) {
+                                      
+                    var strhtmlTotal = strhtml;
+
+                    var strTalla = strIni + 'Talla:' + strMedio + listTallasCantidad2[j].codTalla; +strFin;
+                    strhtmlTotal = strhtmlTotal.replace("Talla", strTalla);
+
+                    var strCantidad = strIni + 'Cantidad:' + strMedio + listTallasCantidad2[j].CantTalla + strFin;
+                    strhtmlTotal = strhtmlTotal.replace("Cantidad", strCantidad);                              
+                   
+                    divFinal += strhtmlTotal;
+                }
+
+            
+
+        });
+
+
+        var strhtml = ''
+        strhtml += '<div class="modal-header modal-header-danger" style="margin-top:0px;margin-bottom:0px;padding-top:2px;padding-bottom:2px;">'
+        strhtml += 'Lista de Pedidos'
+        strhtml += '</div>'
+        strhtml += '<div class="modal-body">'
+        strhtml += '<table id="example" class="table table-hover dataTable  table-striped table-responsive">'
+        strhtml += '<tbody>'
+        strhtml += '<tr>'
+        strhtml += '<td>'
+        strhtml += '<div id="listTalla" style="overflow-x: hidden; overflow-y:auto; height: 378px;">'
+        strhtml += divFinal
+        strhtml += '</div>'
+        strhtml += '</td>'
+        strhtml += '</tr>'
+        strhtml += '</tbody>'
+        strhtml += '</table>'
+        strhtml += '</div>' 
+       
+
     }
     
 

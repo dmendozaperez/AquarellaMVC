@@ -1246,6 +1246,13 @@
       <Generator>WCF Proxy Generator</Generator>
       <LastGenOutput>Reference.cs</LastGenOutput>
     </None>
+    <Content Include="Views\Shared\Error.cshtml" />
+    <Content Include="Views\Shared\_AdminLteBreadcrumb.cshtml" />
+    <Content Include="Views\Shared\_AdminLteLayout.cshtml" />
+    <Content Include="Views\Shared\_AdminLteLeftMenu.cshtml" />
+    <Content Include="Views\Shared\_AdminLteTopMenu.cshtml" />
+    <Content Include="Views\Shared\_GlobalJsPartial.cshtml" />
+    <Content Include="Views\Shared\_Layout.cshtml" />
     <Content Include="Web.config">
       <SubType>Designer</SubType>
     </Content>
@@ -1259,15 +1266,9 @@
       <SubType>Designer</SubType>
     </Content>
     <Content Include="Views\_ViewStart.cshtml" />
-    <Content Include="Views\Shared\Error.cshtml" />
-    <Content Include="Views\Shared\_Layout.cshtml" />
     <Content Include="Views\Home\About.cshtml" />
     <Content Include="Views\Home\Contact.cshtml" />
     <Content Include="Views\Home\Index.cshtml" />
-    <Content Include="Views\Shared\_AdminLteTopMenu.cshtml" />
-    <Content Include="Views\Shared\_AdminLteLeftMenu.cshtml" />
-    <Content Include="Views\Shared\_AdminLteLayout.cshtml" />
-    <Content Include="Views\Shared\_AdminLteBreadcrumb.cshtml" />
     <Content Include="Views\AdminLte\Index.cshtml" />
     <Content Include="Views\AdminLte\Colors.cshtml" />
     <Content Include="Views\Control\Login_bk.cshtml" />
@@ -1307,7 +1308,6 @@
     <Content Include="Views\ArticuloStock\Index_Acceso.cshtml" />
     <Content Include="Views\Reporte\ReportePlanilla.cshtml" />
     <Content Include="Views\Reporte\ReportePlanillaView.cshtml" />
-    <Content Include="Views\Shared\_GlobalJsPartial.cshtml" />
     <Content Include="Views\Reporte\ReportePlanillaTda.cshtml" />
     <Content Include="Views\Reporte\ReportePlanillaTdaView.cshtml" />
     <Content Include="Views\LoginIntermedio\Index.cshtml" />
