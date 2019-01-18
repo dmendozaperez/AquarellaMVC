@@ -438,8 +438,6 @@
                     prmt_Destino: prt_destino,
                     prmt_Defecto:1
                 }
-
-
                     $.ajax
                   ({
                       url: '../Promotor/GuardarPromotor',
@@ -447,16 +445,61 @@
                       type: "POST",
                       data: objPromotor,
                       success: function (data, textStatus, XMLHttpRequest) {
-                          waitingDialog.hide();
-                          toastr.success("Se genero los vales.", msg_titulo);
+                          waitingDialog.hide();                    
+
+                          if (data.Data) {
+                              limpiarCampos();
+                              toastr.success("Se registro el promotor con exito.", "Mensaje");
+                          } else {
+                              toastr.error("Error al registrar al promotor.", "Error");
+                          }
 
                       },
                       error: function (xhr) {
                           waitingDialog.hide();
-                          toastr.error(xhr, msg_titulo);
+                          toastr.error(xhr, 'Error');
                       }
                   })
         }
+    }
+
+    function limpiarCampos() {
+
+        $('#txtdocumentoIni').val('');
+        $("#txtdocumento").val('');
+        $("#txtPrimernombre").val('');
+        $("#txtSegundonombre").val('');
+        $("#txtPrimerapellido").val('');
+        $("#txtSegundoapellido").val('');
+        $("#fecini").val('');
+        $("#txtCorreo").val('');
+        $("#txtTelefono").val('');
+        $("#txtFax").val('');
+        $("#txtCelular").val('');
+        $("#txtDireccion").val('');
+        $("#txtAgencia").val('');
+        $("#txtDestino").val('');
+        $("#txtagenciaRuc").val('');
+
+        ocultarDiv('DivHBasico');
+        ocultarDiv('DivHTipoPersona');
+        ocultarDiv('DivHUbicacion');
+        ocultarDiv('DivHInformacion');
+        ocultarDiv('DivHGuardar');
+
+        mostrarDiv('DivBasico');
+        mostrarDivFast('bocu');
+        ocultarDivFast('bver')
+        mostrarDiv('DivTipoPersona');
+        mostrarDivFast('tpocu');
+        ocultarDivFast('tpver')
+        mostrarDiv('DivUbicacion');
+        mostrarDivFast('ubocu');
+        ocultarDivFast('ubver')
+        mostrarDiv('DivInformacion');
+        mostrarDivFast('infocu');
+        ocultarDivFast('infver')
+
     }
 
     function validarPromotor() {
@@ -483,7 +526,7 @@
        
         if (bValdiacion) {
       
-            bValdiacion = ((ValidarFormatoCorreo(prt_correo)) ? (msjAlertFormat += 'Correo incorrecto.<br/>', false) : bValdiacion);
+            bValdiacion = ((!(ValidarFormatoCorreo(prt_correo))) ? (msjAlertFormat += 'Correo incorrecto.<br/>', false) : bValdiacion);
             bValdiacion = ((obtenerEdad(prt_fecNac) < 18) ? (msjAlertFormat += 'Edad minima es de 18 años.<br/>', false) : bValdiacion);
         }
 
@@ -503,13 +546,14 @@
 
         var bValida = false
         var Regex = /^([\w-\.]+)@@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.)|(([\w-]+\.)+))([a-zA-Z]{2,4}|[0-9]{1,3})(\]?)$/;
+        alert(correo)
+        alert(Regex.test(correo))
 
         bValida = ((Regex.test(correo)) ? true : false);
-
+        alert(bValida)
         return bValida;
         
     }
-
 
     function ListarProvincia() {
         var combo;

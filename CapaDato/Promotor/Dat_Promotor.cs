@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
+using System.Linq;
 
 
 namespace CapaDato.Promotor
@@ -61,6 +62,58 @@ namespace CapaDato.Promotor
                 valida = false;
             }
             return valida;
+        }
+
+        public List<Ent_Promotor> get_lista(string idLider)
+        {
+            string sqlquery = "USP_LEER_PROMOTOR_LIDER_MVC";
+            List<Ent_Promotor> listar = null;
+            try
+            {
+                using (SqlConnection cn = new SqlConnection(Ent_Conexion.conexion))
+                {
+                    try
+                    {
+                        if (cn.State == 0) cn.Open();
+                        using (SqlCommand cmd = new SqlCommand(sqlquery, cn))
+                        {
+                            cmd.CommandTimeout = 0;
+                            cmd.CommandType = CommandType.StoredProcedure;
+                            cmd.Parameters.AddWithValue("@LIDER", idLider);
+                  
+                            using (SqlDataAdapter da = new SqlDataAdapter(cmd))
+                            {
+                                DataTable dt = new DataTable();
+                                da.Fill(dt);
+                                listar = new List<Ent_Promotor>();
+                                listar = (from DataRow dr in dt.Rows
+                                          select new Ent_Promotor()
+                                          {
+                                             prmt_NroDoc = dr["Bas_Documento"].ToString(),
+                                              prmt_Nombre1 = dr["Bas_Primer_Nombre"].ToString(),
+                                              prmt_Nombre2 = dr["Bas_Segundo_Nombre"].ToString(),
+                                              prmt_ApePater = dr["Bas_Primer_Apellido"].ToString(),
+                                              prmt_ApeMater = dr["Bas_Segundo_Apellido"].ToString(),
+                                              prmt_Correo = dr["Bas_Correo"].ToString(),
+                                         
+                                          }).ToList();
+                            }
+
+                        }
+                    }
+                    catch (Exception)
+                    {
+                        listar = null;
+                    }
+                    if (cn != null)
+                        if (cn.State == ConnectionState.Open) cn.Close();
+                }
+            }
+            catch (Exception)
+            {
+                listar = null;
+            }
+            return listar;
         }
     }
 }

@@ -19,6 +19,7 @@ using System.Web.Script.Serialization;
 using System.Security.Cryptography;
 using System.Text;
 using System.IO;
+using CapaEntidad.General;
 
 namespace CapaPresentacion.Controllers
 {
@@ -27,7 +28,8 @@ namespace CapaPresentacion.Controllers
         // GET: Funcion
         private Dat_Util datUtil = new Dat_Util();
         private Dat_Persona datPersona = new Dat_Persona();
-    
+        private string _session_listPromotor_private = "_session_listPromotor_private";
+
         [Authorize]
         public ActionResult Nuevo()
         {
@@ -78,6 +80,105 @@ namespace CapaPresentacion.Controllers
                 }
             }
 
+        }
+
+        public ActionResult ListaPromotor()
+        {
+            Ent_Usuario _usuario = (Ent_Usuario)Session[Ent_Constantes.NameSessionUser];
+            string actionName = this.ControllerContext.RouteData.GetRequiredString("action");
+            string controllerName = this.ControllerContext.RouteData.GetRequiredString("controller");
+            string return_view = actionName + "|" + controllerName;
+
+            if (_usuario == null)
+            {
+                return RedirectToAction("Login", "Control", new { returnUrl = return_view });
+            }
+
+            Ent_Promotor_Maestros maestros = datUtil.ListarEnt_Maestros_Promotor(_usuario.usu_id);
+            ViewBag.listLider = maestros.combo_ListLider;
+
+            return View();
+        }
+
+        public PartialViewResult ListaMovilPromotor(string idLider)
+        {
+            List<Ent_Promotor> lista_prom = lista(idLider);
+                   
+            return PartialView(lista_prom);
+        }
+
+        public PartialViewResult ListaPcPromotor(string idLider)
+        {
+            List<Ent_Promotor> lista_prom = lista(idLider);
+
+            return PartialView(lista_prom);
+        }
+
+        public List<Ent_Promotor> lista(string idLider)
+        {
+            Dat_Promotor datprot = new Dat_Promotor();
+
+            List<Ent_Promotor> listPromotor = datprot.get_lista(idLider);
+            Session[_session_listPromotor_private] = listPromotor;
+            return listPromotor;
+        }
+
+        public ActionResult getListPromotor(Ent_jQueryDataTableParams param)
+        {
+            /*verificar si esta null*/
+            if (Session[_session_listPromotor_private] == null)
+            {
+                List<Ent_Promotor> listdoc = new List<Ent_Promotor>();
+                Session[_session_listPromotor_private] = listdoc;
+            }
+
+            //Traer registros
+            IQueryable<Ent_Promotor> membercol = ((List<Ent_Promotor>)(Session[_session_listPromotor_private])).AsQueryable();  //lista().AsQueryable();
+
+            //Manejador de filtros
+            int totalCount = membercol.Count();
+            IEnumerable<Ent_Promotor> filteredMembers = membercol;
+
+            if (!string.IsNullOrEmpty(param.sSearch))
+            {
+                filteredMembers = membercol
+                    .Where(m => m.prmt_NroDoc.ToUpper().Contains(param.sSearch.ToUpper()) ||
+                     m.prmt_ApePater.ToUpper().Contains(param.sSearch.ToUpper()));
+            }
+            //Manejador de orden
+            var sortIdx = Convert.ToInt32(Request["iSortCol_0"]);
+            Func<Ent_Promotor, string> orderingFunction =
+            (
+            m => sortIdx == 0 ? m.prmt_NroDoc :
+             m.prmt_ApePater
+            );
+            var sortDirection = Request["sSortDir_0"];
+            //if (sortDirection == "asc")
+            //    filteredMembers = filteredMembers.OrderBy(orderingFunction);
+            //else
+            //    filteredMembers = filteredMembers.OrderByDescending(orderingFunction);
+            var displayMembers = filteredMembers
+                .Skip(param.iDisplayStart)
+                .Take(param.iDisplayLength);
+            var result = from a in displayMembers
+                         select new
+                         {
+                             a.prmt_NroDoc,
+                             a.prmt_Nombre1,
+                             a.prmt_Nombre2,
+                             a.prmt_ApePater,
+                             a.prmt_ApeMater,
+                             a.prmt_Correo,
+                            
+                         };
+            //Se devuelven los resultados por json
+            return Json(new
+            {
+                sEcho = param.sEcho,
+                iTotalRecords = totalCount,
+                iTotalDisplayRecords = filteredMembers.Count(),
+                aaData = result
+            }, JsonRequestBehavior.AllowGet);
         }
 
         public JsonResult GenerarCombo(int Numsp, string Params)

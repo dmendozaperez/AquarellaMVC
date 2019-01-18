@@ -1319,6 +1319,8 @@
     <Content Include="Views\Promotor\Nuevo.cshtml" />
     <None Include="Service References\ws_clientedniruc\Cons_Cliente.wsdl" />
     <Content Include="Views\Pedido\Nuevo.cshtml" />
+    <Content Include="Views\Promotor\ListaPromotor.cshtml" />
+    <Content Include="Views\Promotor\ListaPcPromotor.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
