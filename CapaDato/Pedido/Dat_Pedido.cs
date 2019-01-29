@@ -164,8 +164,7 @@ namespace CapaDato.Pedido
             //return oLista;
             return strJson;
         }
-
-
+        
         public string listarStr_ArticuloTalla(string CodArticulo, decimal BasId)
         {
             string strJson = "";
@@ -201,6 +200,168 @@ namespace CapaDato.Pedido
             }
                   
             return strJson;
+        }
+
+        public string[] Gua_Mod_Liquidacion(decimal _usu, decimal _idCust, string _reference, decimal _discCommPctg,
+                                               decimal _discCommValue, string _shipTo, string _specialInstr, List<Ent_Order_Dtl> _itemsDetail,
+                                               decimal _varpercepcion, Int32 _estado, string _ped_id = "", string _liq = "", Int32 _liq_dir = 0,
+                                               Int32 _PagPos = 0, string _PagoPostarjeta = "", string _PagoNumConsignacion = "", decimal _PagoTotal = 0,
+                                               DataTable dtpago = null, Boolean _pago_credito = false, Decimal _porc_percepcion = 0, List<Order_Dtl_Temp>
+                                                order_dtl_temp = null, string strTipoPago = "N")
+        {
+            string[] resultDoc = new string[2];
+            string sqlquery = "USP_Insertar_Modifica_Liquidacion";
+            SqlConnection cn = null;
+            SqlCommand cmd = null;
+            SqlDataAdapter da = new SqlDataAdapter();
+            DataSet ds = new DataSet();
+            try
+            {
+                DataTable dt = new DataTable();
+                dt.Columns.Add("Ped_Det_Id", typeof(string));
+                dt.Columns.Add("Ped_Det_Items", typeof(Int32));
+                dt.Columns.Add("Ped_Det_ArtId", typeof(string));
+                dt.Columns.Add("Ped_Det_TalId", typeof(string));
+                dt.Columns.Add("Ped_Det_Cantidad", typeof(Int32));
+                dt.Columns.Add("Ped_Det_Costo", typeof(decimal));
+                dt.Columns.Add("Ped_Det_Precio", typeof(decimal));
+                dt.Columns.Add("Ped_Det_ComisionP", typeof(decimal));
+                dt.Columns.Add("Ped_Det_ComisionM", typeof(decimal));
+
+                dt.Columns.Add("Ped_Det_OfertaP", typeof(decimal));
+                dt.Columns.Add("Ped_Det_OfertaM", typeof(decimal));
+                dt.Columns.Add("Ped_Det_OfeID", typeof(decimal));
+                dt.Columns.Add("Ped_Det_PremID", typeof(Int32));
+
+                int i = 1;
+                // Recorrer todas las lineas adicionAQUARELLAs al detalle
+
+                if (_itemsDetail != null)
+                {
+                    foreach (Ent_Order_Dtl item in _itemsDetail)
+                    {
+                        dt.Rows.Add(_ped_id, i, item._code, item._size, item._qty, 0, item._price, item._commissionPctg, Math.Round(item._commission, 2, MidpointRounding.AwayFromZero), item._ofe_porc, item._dscto, item._ofe_id, Convert.ToInt32(item._premId));
+                        i++;
+                    }
+                }
+
+                /*pedido original*/
+                DataTable dtordertmp = new DataTable();
+                dtordertmp.Columns.Add("items", typeof(Int32));
+                dtordertmp.Columns.Add("articulo", typeof(string));
+                dtordertmp.Columns.Add("talla", typeof(string));
+                dtordertmp.Columns.Add("cantidad", typeof(Int32));
+
+
+
+
+                if (order_dtl_temp != null)
+                {
+                    foreach (Order_Dtl_Temp item in order_dtl_temp)
+                    {
+                        dtordertmp.Rows.Add(item.items, item.articulo, item.talla, item.cantidad);
+                    }
+                }
+
+
+                //grabar pedido
+                cn = new SqlConnection(Ent_Conexion.conexion);
+                if (cn.State == 0) cn.Open();
+                cmd = new SqlCommand(sqlquery, cn);
+                cmd.CommandTimeout = 0;
+                cmd.CommandType = CommandType.StoredProcedure;
+
+                cmd.Parameters.AddWithValue("@strTipoPago", strTipoPago);
+
+                cmd.Parameters.AddWithValue("@Estado", _estado);
+                cmd.Parameters.AddWithValue("@Ped_Id", _ped_id);
+                //cmd.Parameters.AddWithValue("@LiqId", _liq);
+                cmd.Parameters.Add("@LiqId", SqlDbType.VarChar, 12);
+                cmd.Parameters["@LiqId"].Value = _liq;
+                cmd.Parameters["@LiqId"].Direction = ParameterDirection.InputOutput;
+                cmd.Parameters.AddWithValue("@Liq_BasId", _idCust);
+                cmd.Parameters.AddWithValue("@Liq_ComisionP", _discCommPctg);
+                cmd.Parameters.AddWithValue("@Liq_PercepcionM", _varpercepcion);
+                cmd.Parameters.AddWithValue("@Liq_Usu", _usu);
+                cmd.Parameters.AddWithValue("@Detalle_Pedido", dt);
+                cmd.Parameters.AddWithValue("@Liquidacion_Directa", _liq_dir);
+
+                /*PEDIDO ORIGINAL*/
+                cmd.Parameters.AddWithValue("@pedido_original", dtordertmp);
+
+                //opcional pago por pos liquidacion directa
+                cmd.Parameters.AddWithValue("@Pago_Pos", _PagPos);
+                cmd.Parameters.AddWithValue("@Pago_PosTarjeta", _PagoPostarjeta);
+                cmd.Parameters.AddWithValue("@Pago_numconsigacion", _PagoNumConsignacion);
+                cmd.Parameters.AddWithValue("@Pago_Total", _PagoTotal);
+
+
+                //pago directo de la liquidacion
+                cmd.Parameters.AddWithValue("@DetallePago", dtpago);
+                cmd.Parameters.AddWithValue("@Pago_Credito", _pago_credito);
+
+                //porcentaje percepcion
+                cmd.Parameters.AddWithValue("@Ped_Por_Perc", _porc_percepcion);
+                //da = new SqlDataAdapter(cmd);
+                //da.Fill(ds);
+
+                cmd.ExecuteNonQuery();
+                resultDoc[0] = cmd.Parameters["@LiqId"].Value.ToString();
+            }
+            catch (Exception ex)
+            {
+                if (cn != null)
+                    if (cn.State == ConnectionState.Open) cn.Close();
+                resultDoc[0] = "-1";
+                resultDoc[1] = ex.Message;
+            }
+            if (cn != null)
+                if (cn.State == ConnectionState.Open) cn.Close();
+            return resultDoc;
+        }
+
+        public List<Ent_Pedido> ListarPedidos(decimal IdPromotor)
+        {
+            string sqlquery = "USP_Leer_Pedido_Usuario";
+            SqlConnection cn = null;
+            SqlCommand cmd = null;
+            SqlDataAdapter da = null;
+            DataSet ds = null;
+            List<Ent_Pedido> ListPedido = null;
+            Ent_Pedido entPedido = null;
+
+            try
+            {
+
+                cn = new SqlConnection(Ent_Conexion.conexion);
+                cmd = new SqlCommand(sqlquery, cn);
+                cmd.CommandTimeout = 0;
+                cmd.CommandType = CommandType.StoredProcedure;
+                cmd.Parameters.AddWithValue("@bas_id", IdPromotor);
+                da = new SqlDataAdapter(cmd);
+                ds = new DataSet();
+                da.Fill(ds);
+                ListPedido = new List<Ent_Pedido>();
+                ListPedido = (from DataRow dr in ds.Tables[1].Rows
+                               select new Ent_Pedido()
+                               {
+                                   liq_PedId = dr["Liq_PedId"].ToString(),
+                                   liq_Fecha = dr["Fecha"].ToString(),
+                                   Pares = Convert.ToDecimal(dr["Liq_Det_Cantidad"]),
+                                   Estado = dr["Est_Descripcion"].ToString(),
+                                   TotalPagar = Convert.ToDecimal(dr["Tpagar"]),
+                                   //commission_POS_visaUnica = Convert.ToDecimal(dr["Con_Fig_PorcDescPos"]),
+                                   //percepcion = Convert.ToDecimal(dr["Con_Fig_Percepcion"]),
+                                   //email = dr["bas_correo"].ToString(),
+                                   //nombrecompleto = dr["nombrecompleto"].ToString(),
+
+                                   //aplica_percepcion = Convert.ToBoolean(dr["aplica_percepcion"].ToString()),
+
+                               }).ToList();
+
+                return ListPedido;
+            }
+            catch (Exception e) { throw new Exception(e.Message, e.InnerException); }
         }
 
 

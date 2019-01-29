@@ -446,7 +446,7 @@
                       data: objPromotor,
                       success: function (data, textStatus, XMLHttpRequest) {
                           waitingDialog.hide();                    
-
+                         
                           if (data.Data) {
                               limpiarCampos();
                               toastr.success("Se registro el promotor con exito.", "Mensaje");
@@ -546,11 +546,9 @@
 
         var bValida = false
         var Regex = /^([\w-\.]+)@@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.)|(([\w-]+\.)+))([a-zA-Z]{2,4}|[0-9]{1,3})(\]?)$/;
-        alert(correo)
-        alert(Regex.test(correo))
-
+     
         bValida = ((Regex.test(correo)) ? true : false);
-        alert(bValida)
+      
         return bValida;
         
     }

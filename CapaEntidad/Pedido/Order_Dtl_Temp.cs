@@ -9,28 +9,25 @@ namespace CapaEntidad.Pedido
 {
     public class Order_Dtl_Temp
     {
+        /// numero de item de la fila
+        /// </summary>
+        public Int32 items { get; set; }
+        /// <summary>
+        /// codigo de articulo
+        /// </summary>
+        public string articulo { get; set; }
+        /// <summary>
+        /// talla del articulo
+        /// </summary>
+        public string talla { get; set; }
+        /// <summary>
+        /// cantidad del producto
+        /// </summary>
+        public Decimal cantidad { get; set; }
 
-        public string Art_id { get; set; }
-        public string Art_Descripcion { get; set; }
-        public string Mar_Descripcion { get; set; }
-        public string Col_Descripcion { get; set; }
-        public string Cat_Pri_Descripcion { get; set; }
-        public string Cat_Descripcion { get; set; }
-        public string Sca_Descripcion { get; set; }
-        public string Art_Comision { get; set; }
-        public string Art_Foto { get; set; }
-        public string Con_Fig_Percepcion { get; set; }
-        public string Afec_Percepcion { get; set; }
-        public string Art_Pre_Sin_Igv { get; set; }
-        public string Art_Pre_Con_Igv { get; set; }
-        public string Art_Costo { get; set; }
-        public string Art_Mar_Id { get; set; }
-        public string Ofe_Id { get; set; }
-        public string Ofe_MaxPares { get; set; }
-        public string Ofe_Porc { get; set; }
-        public string Tal_Descripcion { get; set; }//campo de talla
-        public string Tall_Des { get; set; }//campo de talla
-        public string Tall_Cant { get; set; }//campo de talla -- Cantidad por talla
+        public string premio { get; set; }
+
+        public string premId { get; set; }
 
     }    
 }

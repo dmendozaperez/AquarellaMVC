@@ -1,0 +1,123 @@
+﻿<link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/buttons/1.5.1/css/buttons.dataTables.min.css" />
+
+<style type="text/css">
+    .dt-buttons {
+        display: none;
+    }
+</style>
+
+
+
+<table id="example" class="table table-hover dataTable  table-striped table-responsive">
+    <thead>
+        <tr style="background-color:#3d566e; color:#ecf0f1">
+            <th>Pedido</th>
+            <th>Fecha</th>
+            <th>Pares</th>
+            <th>Estados</th>
+            <th>TotalPagar</th>          
+        </tr>
+    </thead>
+    <tbody data-bind="foreach:"></tbody>
+    <tfoot>
+        <tr>
+            <th>Pedido</th>
+            <th>Fecha</th>
+            <th>Pares</th>
+            <th>Estados</th>
+            <th>TotalPagar</th>
+       
+        </tr>
+    </tfoot>
+</table>
+<script src='https://cdn.datatables.net/buttons/1.5.1/js/dataTables.buttons.min.js'></script>
+<script src='//cdnjs.cloudflare.com/ajax/libs/jszip/3.1.3/jszip.min.js'></script>
+<script src='//cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.32/pdfmake.min.js'></script>
+<script src='//cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.32/vfs_fonts.js'></script>
+<script src='//cdn.datatables.net/buttons/1.5.1/js/buttons.html5.min.js'></script>
+
+
+<script>
+        $(document).ready(function () {
+            $('.table').dataTable({
+                "language": {
+                    "url": "../Scripts/DataTables/Spanish.json"
+                },
+                "bServerSide": true,
+                "bAutoWidth": false,
+                "sAjaxSource": '@Url.Action("getAnalisisMov", "Pedido")',
+                "bdestroy": true,
+                "bFilter": false,
+                "start": 0,
+                //"bPaginate": false,
+                "orderable": false,
+                //"order": [0, "asc"],
+                "bDeferRender": true,
+                "aoColumns": [
+
+                       { "sName": "fecha", "mData": "fecha", "sClass": "right", "type": "date-dd-mmm-yyyy" },
+                       { "sName": "tipo_doc", "mData": "tipo_doc" },
+                       { "sName": "num_doc", "mData": "num_doc" },
+                       { "sName": "origen", "mData": "origen" },
+                       { "sName": "destino", "mData": "destino" },
+                       { "sName": "inicial", "mData": "inicial" },
+                       { "sName": "ingreso", "mData": "ingreso" },
+                       { "sName": "salida", "mData": "salida" },
+                       { "sName": "saldo", "mData": "saldo" },
+
+                ],
+                dom: 'Bfrtip',
+                buttons: [
+               {
+                   extend: 'excelHtml5',
+                   title: 'Bataclub_xls'
+               },
+               {
+                   extend: 'csvHtml5',
+                   title: 'BataClub_csv'
+               },
+               {
+                   extend: 'pdfHtml5',
+                   title: 'BataClub_pdf'
+               },
+               'copyHtml5',
+                ]
+            });
+
+            $('#lblinicial').text(@ViewBag.inicial);
+            $('#lblsaldo').text(@ViewBag.saldo);
+
+            @*$('#txtDisponible').val('0.00');
+        $('#txtconsumido').val('0.00');
+
+
+        $('#txtDisponible').val(@ViewBag.TotalDisponible);
+        $('#txtconsumido').val(@ViewBag.TotalConsumido);*@
+
+
+        });
+
+    function MostrarListado() {
+
+        var TeamDetailPostBackURL = "@Url.Action("Pedido", "Pedido")";
+
+        var options = { "backdrop": "static", keyboard: true };
+        $.ajax({
+            type: "GET",
+            url: TeamDetailPostBackURL,
+            contentType: "application/json; charset=utf-8",
+            data: {},
+            datatype: "json",
+            cache: true,
+            success: function (data) {
+                document.getElementById("lista").innerHTML = data;
+
+            },
+            error: function () {
+
+            }
+        });
+
+    }
+
+</script>
