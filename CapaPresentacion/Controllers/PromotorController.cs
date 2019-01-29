@@ -107,9 +107,10 @@ namespace CapaPresentacion.Controllers
             return PartialView(lista_prom);
         }
 
-        public PartialViewResult ListaPcPromotor(string idLider)
+        public PartialViewResult ListaPcPromotor(string dwlider)
         {
-            List<Ent_Promotor> lista_prom = lista(idLider);
+      
+            List<Ent_Promotor> lista_prom = lista(dwlider);
 
             return PartialView(lista_prom);
         }

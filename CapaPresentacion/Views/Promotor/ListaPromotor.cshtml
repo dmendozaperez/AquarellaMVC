@@ -1,142 +1,110 @@
 ﻿@using CapaEntidad.Promotor
 @model IEnumerable<Ent_Promotor>
 @{
-    ViewBag.Title = "Lista Promotor";
+    ViewBag.Title = "Lista de Promotores";
     AjaxOptions options = new AjaxOptions
     {
         HttpMethod = "GET",
         InsertionMode = InsertionMode.Replace,
         UpdateTargetId = "lista",
+        OnComplete = "waitingDialog.hide();",
+        OnBegin = "waitingDialog.show('Espere un momento por favor');",
+        OnFailure = "waitingDialog.hide();"
     };
 }
-
-@*@Scripts.Render("~/bundles/bootstrap")*@
 <style>
-    #dwcliente {
-        width: 200px;
+    #tienda {
+        width: 300px;
     }
 
-    .imgRedonda {
-        width: 100px;
-        height: 80px;
-        border-radius: 15px;
-    }
-
-    #divImagen {
-        width: 100%;
-        height: 100%;
-    }
-
-    #listatallas {
-        border-radius: 10px 10px 10px 10px;
-        -moz-border-radius: 10px 10px 10px 10px;
-        -webkit-border-radius: 10px 10px 10px 10px;
-        border: 2px;
-    }
-
-    #lugar {
-        border-radius: 10px 10px 10px 10px;
-        -moz-border-radius: 10px 10px 10px 10px;
-        -webkit-border-radius: 10px 10px 10px 10px;
-        border: 2px;
-    }
 </style>
-<link href="~/Content/plugins/iCheck/custom.css" rel="stylesheet" />
-
 <link href="~/ContentSelect/bootstrap-select.css" rel="stylesheet" />
-<p class="text-danger">Lista de Promotores</p>
-<div class="box box-body box-default"> 
-    <div class="row" style="margin-top:5px;margin-left:5px;margin-right:5px;margin-bottom:0px;border-radius:5px;padding-top:0px;padding-bottom:0px;">
-        <div id="DivHUbicacion" class="modal-content">
-            <div class="modal-header modal-header-danger" style="margin-top:0px;margin-bottom:0px;padding-top:2px;padding-bottom:2px;">
-                <h5 class="modal-title" id="myModalLabel">
-                    <table style="border-bottom:0px;font-size:14px;width:100%;">
-                        <tr>
-                            <td style="font-size:14px;width:90%;text-align:left;">Lider</td>
-                            <td style="font-size:14px;width:10%;text-align:right;">
-                                <span id="bocu" onclick="ocultarDiv('DivBasico'); mostrarDivFast('bver'); ocultarDivFast('bocu')" class="glyphicon glyphicon-minus-sign"></span>
-                                <span id="bver" style="display:none" onclick="mostrarDiv('DivBasico'); mostrarDivFast('bocu'); ocultarDivFast('bver')" class="glyphicon glyphicon-plus-sign"></span>
-                            </td>
-                        </tr>
-                    </table>
-                </h5>
-            </div>
-            <div id="DivUbicacion" class="modal-body">
 
+<div class="box box-body box-default">
+    @using (Ajax.BeginForm("ListaPcPromotor", options))
+    {
+        <div class="row">
 
-                <div class="row" style="margin-top:0px;margin-left:10px;margin-right:10px;margin-bottom:0px;border-radius:5px;padding-top:10px;padding-bottom:10px;">
+            <form id="form1">
+
+                <div class="row" style="margin-top:10px;margin-left:10px;margin-right:10px;margin-bottom:10px;background-color:#f4f4f4;border-radius:5px;padding-top:10px;padding-bottom:10px;">
 
                     <div class="col-sm-3" style="margin-top:2px;margin-bottom:2px;">
                         <label for="disponible">*Lider</label>
                     </div>
                     <div class="col-sm-3" style="margin-top:2px;margin-bottom:2px;">
-                        @Html.DropDownList("dwLider", new SelectList(ViewBag.listLider, "codigo", "descripcion", "-1"), new { @class = "selectpicker", @data_live_search = "true", @id = "dwLider", @onchange = "MostrarPcListado()", @placeholder = ".col-xs-1" })
+                        @Html.DropDownList("dwlider", new SelectList(ViewBag.listLider, "codigo", "descripcion", "-1"), new { @class = "selectpicker", @data_live_search = "true", @id = "dwlider", @onchange = "MostrarListado()", @name = "dwlider", @enable = "false" })
                     </div>
                     <div class="col-sm-3" style="margin-top:2px;margin-bottom:2px;">
+                        <button type="submit" title="Consultar" class="btn btn-primary">
+                            <span class="glyphicon glyphicon-search"></span>
+                        </button>
 
                     </div>
-                    <div class="col-sm-3" style="margin-top:2px;margin-bottom:2px;">
 
-                    </div>
+                </div> 
 
-                </div>
-            </div>
+            </form>
 
         </div>
-    </div>
-    
+  
+    }
+
     <div class="box-body" id="lista">
         @{Html.RenderPartial("ListaPcPromotor", Model);}
     </div>
-
     <br />
 
 
 </div>
 <script src="~/Scripts/bootstrap.min.js"></script>
 <script src="~/ScriptsSelect/bootstrap-select.js"></script>
-<script src="~/Scripts/BI.js"></script>
-@*<script src="~/Scripts/Plugins/iCheck/icheck.min.js"></script>*@
+<script type="text/javascript">
+    function InvalidMsg(textbox, str) {
+
+        
+    }
+    function InvalidMsgArticulo(textbox, str) {
+
+        if (textbox.value.length < 8) {
+            textbox.setCustomValidity(str);
+        }
+        else {
+            textbox.setCustomValidity('');
+        }
+        return true;
+    }
+</script>
+<script>
+
+
+</script>
 
 <script>
-    var gbMovile = false;
-
-
     $(document).ready(function () {
+        //, disabled = "disabled"
+        //MostrarListado()
+        var codTienda = '@ViewBag.codTienda'
 
-        if (/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)) {
+        if (codTienda != '') {
 
-            gbMovile = true;
-
+            $("#dwlider").val(codTienda);
+            document.getElementById("dwlider").disabled = true;
         }
 
-        DibujarGrilla();
 
     });
 
-    function DibujarGrilla() {
+    function MostrarListado() {
 
-        if (gbMovile) {
-
-            alert('movil')
-            //GrillaMovil();
-
-        } else {
-            MostrarPcListado();
-        }
-    }
-
-    function MostrarPcListado() {
-         
-        var idlider = $("#dwLider").val();
         var TeamDetailPostBackURL = "@Url.Action("ListaPcPromotor", "Promotor")";
-
+        var lider =  $("#dwlider").val();
         var options = { "backdrop": "static", keyboard: true };
         $.ajax({
             type: "GET",
             url: TeamDetailPostBackURL,
             contentType: "application/json; charset=utf-8",
-            data: { idLider: idlider },
+            data: { dwlider: lider },
             datatype: "json",
             cache: true,
             success: function (data) {
@@ -150,8 +118,19 @@
 
     }
 
-
-
-
+</script>
+<script>
+    $(function () {
+        $("#datepickerini").datepicker({
+            autoclose: true,
+            todayHighlight: true
+        }).datepicker("setDate", "0");;
+    });
+    $(function () {
+        $("#datepickerfin").datepicker({
+            autoclose: true,
+            todayHighlight: true
+        }).datepicker("setDate", "0");;
+    });
 
 </script>

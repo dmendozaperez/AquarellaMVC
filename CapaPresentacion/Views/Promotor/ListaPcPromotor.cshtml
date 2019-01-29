@@ -9,12 +9,12 @@
 <table id="example" class="table table-hover dataTable  table-striped table-responsive">
     <thead>
         <tr style="background-color:#3d566e; color:#ecf0f1">
-            <th>Documento</th>
-            <th>Primer Nombre</th>
-            <th>Segundo Nombre</th>
-            <th>Primer Apellido</th>
-            <th>Segundo Apellido</th>
-            <th>Correo</th>
+            <th  style="background-color:#d9534f">Documento</th>
+            <th  style="background-color:#d9534f">Primer Nombre</th>
+            <th  style="background-color:#d9534f">Segundo Nombre</th>
+            <th  style="background-color:#d9534f">Primer Apellido</th>
+            <th  style="background-color:#d9534f">Segundo Apellido</th>
+            <th  style="background-color:#d9534f">Correo</th>
          
         </tr>
     </thead>
@@ -47,7 +47,7 @@
                 "bAutoWidth": false,
                 "sAjaxSource": '@Url.Action("getListPromotor", "Promotor")',
                 "bdestroy": true,
-                "bFilter": false,
+                //"bFilter": true,
                 "start": 0,
                 //"bPaginate": false,
                 "orderable": false,
