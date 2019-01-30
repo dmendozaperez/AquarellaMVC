@@ -7,9 +7,9 @@ using CapaEntidad.Util;
 
 namespace CapaEntidad.Pedido
 {
-    public class Ent_Pedido
+    public class Ent_Liquidacion
     {
-        public string liq_PedId  { get; set; }
+        public string liq_Id { get; set; }
         public string liq_Fecha { get; set; }
         public decimal Pares { get; set; } 
         public string Estado { get; set; }

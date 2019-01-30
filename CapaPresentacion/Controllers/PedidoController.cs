@@ -194,15 +194,15 @@ namespace CapaPresentacion.Controllers
         public PartialViewResult ListaPcPedidos(string dwPromotor)
         {
 
-            List<Ent_Pedido> lista_pedid = lista(Convert.ToDecimal(dwPromotor));
+            List<Ent_Liquidacion> lista_pedid = lista(Convert.ToDecimal(dwPromotor));
 
             return PartialView(lista_pedid);
         }
 
-        public List<Ent_Pedido> lista(decimal IdPromotor)
+        public List<Ent_Liquidacion> lista(decimal IdPromotor)
         {       
 
-            List<Ent_Pedido> listPedido = datPedido.ListarPedidos(IdPromotor);
+            List<Ent_Liquidacion> listPedido = datPedido.ListarPedidos(IdPromotor);
             Session[_session_listPedido_private] = listPedido;
             return listPedido;
         }
@@ -213,29 +213,29 @@ namespace CapaPresentacion.Controllers
             /*verificar si esta null*/
             if (Session[_session_listPedido_private] == null)
             {
-                List<Ent_Pedido> listPed = new List<Ent_Pedido>();
+                List<Ent_Liquidacion> listPed = new List<Ent_Liquidacion>();
                 Session[_session_listPedido_private] = listPed;
             }
 
             //Traer registros
-            IQueryable<Ent_Pedido> membercol = ((List<Ent_Pedido>)(Session[_session_listPedido_private])).AsQueryable();  //lista().AsQueryable();
+            IQueryable<Ent_Liquidacion> membercol = ((List<Ent_Liquidacion>)(Session[_session_listPedido_private])).AsQueryable();  //lista().AsQueryable();
 
             //Manejador de filtros
             int totalCount = membercol.Count();
-            IEnumerable<Ent_Pedido> filteredMembers = membercol;
+            IEnumerable<Ent_Liquidacion> filteredMembers = membercol;
 
             if (!string.IsNullOrEmpty(param.sSearch))
             {
                 filteredMembers = membercol
-                    .Where(m => m.liq_PedId.ToUpper().Contains(param.sSearch.ToUpper()) ||
-                     m.liq_PedId.ToUpper().Contains(param.sSearch.ToUpper()));
+                    .Where(m => m.liq_Id.ToUpper().Contains(param.sSearch.ToUpper()) ||
+                     m.liq_Id.ToUpper().Contains(param.sSearch.ToUpper()));
             }
             //Manejador de orden
             var sortIdx = Convert.ToInt32(Request["iSortCol_0"]);
-            Func<Ent_Pedido, string> orderingFunction =
+            Func<Ent_Liquidacion, string> orderingFunction =
             (
-            m => sortIdx == 0 ? m.liq_PedId :
-             m.liq_PedId
+            m => sortIdx == 0 ? m.liq_Id :
+             m.liq_Id
             );
             var sortDirection = Request["sSortDir_0"];
             //if (sortDirection == "asc")
@@ -248,7 +248,7 @@ namespace CapaPresentacion.Controllers
             var result = from a in displayMembers
                          select new
                          {
-                             a.liq_PedId,
+                             a.liq_Id,
                              a.liq_Fecha,
                              a.Pares,
                              a.Estado,

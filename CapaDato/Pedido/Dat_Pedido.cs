@@ -320,15 +320,15 @@ namespace CapaDato.Pedido
             return resultDoc;
         }
 
-        public List<Ent_Pedido> ListarPedidos(decimal IdPromotor)
+        public List<Ent_Liquidacion> ListarPedidos(decimal IdPromotor)
         {
             string sqlquery = "USP_Leer_Pedido_Usuario";
             SqlConnection cn = null;
             SqlCommand cmd = null;
             SqlDataAdapter da = null;
             DataSet ds = null;
-            List<Ent_Pedido> ListPedido = null;
-            Ent_Pedido entPedido = null;
+            List<Ent_Liquidacion> ListPedido = null;
+            Ent_Liquidacion entPedido = null;
 
             try
             {
@@ -341,11 +341,11 @@ namespace CapaDato.Pedido
                 da = new SqlDataAdapter(cmd);
                 ds = new DataSet();
                 da.Fill(ds);
-                ListPedido = new List<Ent_Pedido>();
+                ListPedido = new List<Ent_Liquidacion>();
                 ListPedido = (from DataRow dr in ds.Tables[1].Rows
-                               select new Ent_Pedido()
+                               select new Ent_Liquidacion()
                                {
-                                   liq_PedId = dr["Liq_PedId"].ToString(),
+                                   liq_Id = dr["Liq_Id"].ToString(),
                                    liq_Fecha = dr["Fecha"].ToString(),
                                    Pares = Convert.ToDecimal(dr["Liq_Det_Cantidad"]),
                                    Estado = dr["Est_Descripcion"].ToString(),

@@ -12,7 +12,8 @@
 <link href="~/ContentSelect/bootstrap-select.css" rel="stylesheet" />
 <div class="box box-body box-default">
  
-
+@using (Ajax.BeginForm("Nuevo", new AjaxOptions { OnBegin = "EsperandoBusqueda();" }))
+{
     <div class="row" style="margin-top:10px;margin-left:10px;margin-right:10px;margin-bottom:10px;background-color:#f4f4f4;border-radius:5px;padding-top:10px;padding-bottom:10px;">
 
         <div class="col-sm-3" style="margin-top:2px;margin-bottom:2px;">
@@ -22,12 +23,17 @@
             <input id="txtdocumentoIni" type="text" placeholder="Ingrese documento" style="width :100%;" autofocus class="form-control" />
         </div>
         <div class="col-sm-3" style="margin-top:2px;margin-bottom:2px;">
-            <button type="submit" id="btnConsultar" name="btnConsultar" onclick="BuscarDocumento()" style="width:50%" title="Consultar" class="nuevo btn btn-small btn-primary" data-modal="" data-toggle="modal">Consultar</button>
+            <button class="btn btn-primary" type="submit" id="btnBuscar" name="btnConsultar" title="Consultar">
+                <span class="glyphicon glyphicon-search"></span> Consultar
+            </button>
 
+           
         </div>
+
+       
    
     </div> 
-
+}
     <div class="row" style="margin-top:10px;margin-left:10px;margin-right:10px;margin-bottom:10px;border-radius:5px;padding-top:10px;padding-bottom:10px;">
             
          <div id="DivHBasico" style="display:none"  class="modal-content">
@@ -336,7 +342,7 @@
             <div class="col-sm-4" style="margin-top:2px;margin-bottom:2px;">
             </div>
             <div  class="col-sm-4" style="margin-top:2px;margin-bottom:2px;">
-                <button type="button" id="btnRegistrar" name="btnRegistrar" onclick="GuardarPromotor()" style="width:100%" title="Consultar" class="nuevo btn btn-small btn-danger" data-modal="" data-toggle="modal">Registrar Promotor</button>
+                <button type="button" id="btnRegistrar" name="btnRegistrar" onclick="EsperaGuardarPromotor()" style="width:100%" title="Consultar" class="nuevo btn btn-small btn-primary" data-modal="" data-toggle="modal">Registrar Promotor</button>
             </div>
             <div class="col-sm-4" style="margin-top:2px;margin-bottom:2px;">
             </div>
@@ -377,89 +383,97 @@
         }).datepicker("setDate", "0");;
     });
 
+    function EsperaGuardarPromotor(){
+        waitingDialog.show('Guardando Promotor..');
+        setTimeout("GuardarPromotor();", 1000);
+    }
+
     function GuardarPromotor() {
 
         if (validarPromotor()) {
 
-                var prt_tipoDoc = gTipoDoc;
-                var prt_numDoc = $("#txtdocumento").val();
-                var prt_Nomb1 = $("#txtPrimernombre").val();
-                var prt_Nomb2 = $("#txtSegundonombre").val();
-                var prt_apePat = $("#txtPrimerapellido").val();
-                var prt_apeMat = $("#txtSegundoapellido").val();
-                var prt_fecNac = $("#fecini").val();
-                var prt_tSexo = "";
+            var prt_tipoDoc = gTipoDoc;
+            var prt_numDoc = $("#txtdocumento").val();
+            var prt_Nomb1 = $("#txtPrimernombre").val();
+            var prt_Nomb2 = $("#txtSegundonombre").val();
+            var prt_apePat = $("#txtPrimerapellido").val();
+            var prt_apeMat = $("#txtSegundoapellido").val();
+            var prt_fecNac = $("#fecini").val();
+            var prt_tSexo = "";
 
-                if ($('#chkFem').is(':checked'))
-                    prt_tSexo = "F";
+            if ($('#chkFem').is(':checked'))
+                prt_tSexo = "F";
 
-                if ($('#chkMas').is(':checked'))
-                    prt_tSexo = "M";
+            if ($('#chkMas').is(':checked'))
+                prt_tSexo = "M";
 
-                var prt_tPers = gTipoPer;
-                var prt_correo   = $("#txtCorreo").val();
-                var prt_telefono = $("#txtTelefono").val();
-                var prt_fax      = $("#txtFax").val();
-                var prt_celular  = $("#txtCelular").val();
+            var prt_tPers = gTipoPer;
+            var prt_correo = $("#txtCorreo").val();
+            var prt_telefono = $("#txtTelefono").val();
+            var prt_fax = $("#txtFax").val();
+            var prt_celular = $("#txtCelular").val();
 
-                var prt_depa     = $("#dwDep").val();
-                var prt_prov     = $("#dwProv").val();
-                var prt_dist     = $("#dwDist").val();
-                var prt_direc    = $("#txtDireccion").val();
-                var prt_AreaId    = $("#dwLider").val();
+            var prt_depa = $("#dwDep").val();
+            var prt_prov = $("#dwProv").val();
+            var prt_dist = $("#dwDist").val();
+            var prt_direc = $("#txtDireccion").val();
+            var prt_AreaId = $("#dwLider").val();
 
-                var prt_agencia = $("#txtAgencia").val();
-                var prt_destino = $("#txtDestino").val();
-                var prt_agenRuc = $("#txtagenciaRuc").val();
+            var prt_agencia = $("#txtAgencia").val();
+            var prt_destino = $("#txtDestino").val();
+            var prt_agenRuc = $("#txtagenciaRuc").val();
 
-                var objPromotor = {
-                    prmt_TipoDoc: prt_tipoDoc,
-                    prmt_NroDoc: prt_numDoc,
-                    prmt_Nombre1: prt_Nomb1,
-                    prmt_Nombre2: prt_Nomb2,
-                    prmt_ApePater: prt_apePat,
-                    prmt_ApeMater: prt_apeMat,
-                    prmt_FecNac: prt_fecNac,
-                    prmt_Sexo: prt_tSexo,
-                    prmt_TipoPer: prt_tPers,
-                    prmt_Correo: prt_correo,
-                    prmt_Telefono: prt_telefono,
-                    prmt_Fax: prt_fax,
-                    prmt_Celular: prt_celular,
-                    prmt_Depa: prt_depa,
-                    prmt_Prov: prt_prov,
-                    prmt_Dist: prt_dist,
-                    prmt_Direc: prt_direc,
-                    prmt_AreaId: prt_AreaId,
-                    prmt_Lider: 0,
-                    prmt_PromoDefecto:1,
-                    prmt_Agencia: prt_agencia,
-                    prmt_AgenciaRuc: prt_agenRuc,
-                    prmt_Destino: prt_destino,
-                    prmt_Defecto:1
-                }
-                    $.ajax
-                  ({
-                      url: '../Promotor/GuardarPromotor',
-                      dataType: "json",
-                      type: "POST",
-                      data: objPromotor,
-                      success: function (data, textStatus, XMLHttpRequest) {
-                          waitingDialog.hide();                    
-                         
-                          if (data.Data) {
-                              limpiarCampos();
-                              toastr.success("Se registro el promotor con exito.", "Mensaje");
-                          } else {
-                              toastr.error("Error al registrar al promotor.", "Error");
-                          }
+            var objPromotor = {
+                prmt_TipoDoc: prt_tipoDoc,
+                prmt_NroDoc: prt_numDoc,
+                prmt_Nombre1: prt_Nomb1,
+                prmt_Nombre2: prt_Nomb2,
+                prmt_ApePater: prt_apePat,
+                prmt_ApeMater: prt_apeMat,
+                prmt_FecNac: prt_fecNac,
+                prmt_Sexo: prt_tSexo,
+                prmt_TipoPer: prt_tPers,
+                prmt_Correo: prt_correo,
+                prmt_Telefono: prt_telefono,
+                prmt_Fax: prt_fax,
+                prmt_Celular: prt_celular,
+                prmt_Depa: prt_depa,
+                prmt_Prov: prt_prov,
+                prmt_Dist: prt_dist,
+                prmt_Direc: prt_direc,
+                prmt_AreaId: prt_AreaId,
+                prmt_Lider: 0,
+                prmt_PromoDefecto: 1,
+                prmt_Agencia: prt_agencia,
+                prmt_AgenciaRuc: prt_agenRuc,
+                prmt_Destino: prt_destino,
+                prmt_Defecto: 1
+            }
+            $.ajax
+          ({
+              url: '../Promotor/GuardarPromotor',
+              dataType: "json",
+              type: "POST",
+              async: false,
+              data: objPromotor,
+              success: function (data, textStatus, XMLHttpRequest) {
+                  waitingDialog.hide();
 
-                      },
-                      error: function (xhr) {
-                          waitingDialog.hide();
-                          toastr.error(xhr, 'Error');
-                      }
-                  })
+                  if (data.Data) {
+                      limpiarCampos();
+                      toastr.success("Se registro el promotor con exito.", "Mensaje");
+                  } else {
+                      toastr.error("Error al registrar al promotor.", "Error");
+                  }
+
+              },
+              error: function (xhr) {
+                  waitingDialog.hide();
+                  toastr.error(xhr, 'Error');
+              }
+          })
+        } else {
+            waitingDialog.hide();           
         }
     }
 
@@ -592,8 +606,14 @@
         return Data
     }
 
-    function BuscarDocumento() {
+    function EsperandoBusqueda() {
 
+        waitingDialog.show('Espere un momento por favor');
+        BuscarDocumento();
+    }
+
+    function BuscarDocumento() {
+      
         var nroDocumento = $('#txtdocumentoIni').val();
         var url = '@Url.Action("ConsultaReniec", "Promotor")';
         function exito(rpta) {
@@ -601,6 +621,7 @@
             verificarDocumento(rpta)
         }
         function error(rpta) {
+            waitingDialog.hide();
             BI.AbrirPopup(20, 15, "Comuniquese con Soporte Tecnico<br>" + rpta.statusText, 'Disculpe!!!', false, true, false)
         }
         BI.AjaxJsonSeg("post", url, { nroDocumento: nroDocumento }, false, exito, error);
@@ -696,6 +717,8 @@
                 ocultarDiv('DivHGuardar')
 
             }
+
+            waitingDialog.hide();
         });
 
     }
