@@ -7,6 +7,9 @@
         HttpMethod = "GET",
         InsertionMode = InsertionMode.Replace,
         UpdateTargetId = "lista",
+        OnComplete = "waitingDialog.hide();",
+        OnBegin = "waitingDialog.show('Espere un momento por favor');",
+        OnFailure = "waitingDialog.hide();"
     };
 }
 
@@ -45,67 +48,40 @@
 
 <link href="~/ContentSelect/bootstrap-select.css" rel="stylesheet" />
 <div class="box box-body box-default"> 
+    @using (Ajax.BeginForm("ListaPcPedidos", options))
+    {
+        <div class="row">
 
-@using (Ajax.BeginForm("ListaPcPromotor", options))
-{
-    <div class="row" style="margin-top:5px;margin-left:5px;margin-right:5px;margin-bottom:0px;border-radius:5px;padding-top:0px;padding-bottom:0px;">
-        <div id="DivHUbicacion" class="modal-content">
-            <div class="modal-header modal-header-danger" style="margin-top:0px;margin-bottom:0px;padding-top:2px;padding-bottom:2px;">
-                <h5 class="modal-title" id="myModalLabel">
-                    <table style="border-bottom:0px;font-size:14px;width:100%;">
-                        <tr>
-                            <td style="font-size:14px;width:90%;text-align:left;">Promotor</td>
-                            <td style="font-size:14px;width:10%;text-align:right;">
-                                <span id="bocu" onclick="ocultarDiv('DivBasico'); mostrarDivFast('bver'); ocultarDivFast('bocu')" class="glyphicon glyphicon-minus-sign"></span>
-                                <span id="bver" style="display:none" onclick="mostrarDiv('DivBasico'); mostrarDivFast('bocu'); ocultarDivFast('bver')" class="glyphicon glyphicon-plus-sign"></span>
-                            </td>
-                        </tr>
-                    </table>
-                </h5>
-            </div>
-            <div id="DivUbicacion" class="modal-body">
+            <form id="form1">
 
-                 <div class="row" style="margin-top:0px;margin-left:10px;margin-right:10px;margin-bottom:0px;border-radius:5px;padding-top:10px;padding-bottom:10px;">
+                <div class="row" style="margin-top:10px;margin-left:10px;margin-right:10px;margin-bottom:10px;background-color:#f4f4f4;border-radius:5px;padding-top:10px;padding-bottom:10px;">
 
                     <div class="col-sm-3" style="margin-top:2px;margin-bottom:2px;">
-                        <label  for="disponible">*Promotor</label>
-                    </div>
-                    <div id="divTipoDoc" class="col-sm-3" style="margin-top:2px;margin-bottom:2px;">
-                        @Html.DropDownList("dwPromo", new SelectList(ViewBag.listPromotor, "codigo", "descripcion", "-1"), new { @class = "selectpicker", @data_live_search = "true", @id = "dwPromo", @onchange = "buscarPersonaPedido()", @placeholder = ".col-xs-1" })
+                        <label for="disponible">*Promotor</label>
                     </div>
                     <div class="col-sm-3" style="margin-top:2px;margin-bottom:2px;">
+                        @Html.DropDownList("dwPromotor", new SelectList(ViewBag.listPromotor, "codigo", "descripcion", "-1"), new { @class = "selectpicker", @data_live_search = "true", @id = "dwPromotor", @name = "dwPromotor", @placeholder = ".col-xs-1" })
                     </div>
-                    <div id="divTipoDoc" class="col-sm-3" style="margin-top:2px;margin-bottom:2px;">
-                        
+                    <div class="col-sm-3" style="margin-top:2px;margin-bottom:2px;">
+                        <button type="submit" title="Consultar" class="btn btn-primary">
+                            <span class="glyphicon glyphicon-search"></span>
+                        </button>
+
                     </div>
-                    
+
                 </div>
 
-
-                @*<div class="row" style="margin-top:0px;margin-left:10px;margin-right:10px;margin-bottom:0px;border-radius:5px;padding-top:10px;padding-bottom:10px;">
-
-                    <div class="col-sm-3" style="margin-top:2px;margin-bottom:2px;">
-                        <label for="disponible">*PROMOTOR</label>
-                    </div>
-                    <div class="col-sm-3" style="margin-top:2px;margin-bottom:2px;">
-                       
-                    </div>
-                    <div class="col-sm-3" style="margin-top:2px;margin-bottom:2px;">
-
-                    </div>
-                    <div class="col-sm-3" style="margin-top:2px;margin-bottom:2px;">
-
-                    </div>
-
-                </div>*@
-            </div>
+            </form>
 
         </div>
+
+    }
+
+    <div class="box-body" id="lista">
+        @{Html.RenderPartial("ListaPcPedidos", Model);}
     </div>
-
-}
-
     <br />
+    
 
 
 </div>
@@ -120,13 +96,13 @@
 
     $(document).ready(function () {
 
-        if (/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)) {
+        //if (/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)) {
 
-            gbMovile = true;
+        //    gbMovile = true;
 
-        }
+        //}
 
-        DibujarGrilla();
+        //DibujarGrilla();
 
     });
 
@@ -145,7 +121,7 @@
     function MostrarPcListado() {
          
         var idlider = $("#dwLider").val();
-        var TeamDetailPostBackURL = "@Url.Action("ListaPcPromotor", "Promotor")";
+        var TeamDetailPostBackURL = "@Url.Action("ListaPcPedidos", "Promotor")";
 
         var options = { "backdrop": "static", keyboard: true };
         $.ajax({

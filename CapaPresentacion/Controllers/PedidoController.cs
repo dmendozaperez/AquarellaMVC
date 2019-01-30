@@ -152,6 +152,20 @@ namespace CapaPresentacion.Controllers
 
             var oJRespuesta = new JsonResponse();
 
+            if ((noOrder[0]).ToString() != "-1")
+            {
+                oJRespuesta.Message = (noOrder[0]).ToString();
+                oJRespuesta.Data = true;
+                oJRespuesta.Success = true;
+            }
+            else {
+
+                oJRespuesta.Message = (noOrder[1]).ToString();
+                oJRespuesta.Data = false;
+                oJRespuesta.Success = false;
+            }
+
+
 
             return Json(oJRespuesta, JsonRequestBehavior.AllowGet);
         }
@@ -177,6 +191,13 @@ namespace CapaPresentacion.Controllers
             return View();
         }
 
+        public PartialViewResult ListaPcPedidos(string dwPromotor)
+        {
+
+            List<Ent_Pedido> lista_pedid = lista(Convert.ToDecimal(dwPromotor));
+
+            return PartialView(lista_pedid);
+        }
 
         public List<Ent_Pedido> lista(decimal IdPromotor)
         {       
@@ -231,11 +252,7 @@ namespace CapaPresentacion.Controllers
                              a.liq_Fecha,
                              a.Pares,
                              a.Estado,
-                             a.Ganancia,
-                             a.Subtotal,
-                             a.N_C,
-                             a.Total,
-                             a.Percepcion,
+                            
                              a.TotalPagar,
                          };
             //Se devuelven los resultados por json
