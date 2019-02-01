@@ -18,6 +18,7 @@ namespace CapaEntidad.Pedido
         public string nombrecompleto { get; set; }
         public string premio { get; set; }
         public Boolean aplica_percepcion { get; set; }
+        public decimal cant_nota { get; set; }
 
     }    
 }

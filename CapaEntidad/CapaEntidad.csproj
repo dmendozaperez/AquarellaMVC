@@ -49,6 +49,7 @@
     <Compile Include="ArticuloSustituto\Articulo_Sustituto_Tienda.cs" />
     <Compile Include="Control\Ent_Aplicacion.cs" />
     <Compile Include="Control\Ent_Tienda.cs" />
+    <Compile Include="Pedido\Ent_Pago_NCredito.cs" />
     <Compile Include="Pedido\Ent_Pedido.cs" />
     <Compile Include="Pedido\Order_Dtl_Temp.cs" />
     <Compile Include="Pedido\Ent_Order_Dtl.cs" />

@@ -38,8 +38,7 @@
 
 <link href="~/ContentSelect/bootstrap-select.css" rel="stylesheet" />
 <div class="box box-body box-default" style="margin-top:0px;margin-bottom:0px;padding-top:5px;padding-bottom:5px;">
- @using (Ajax.BeginForm("listarStr_ArticuloTalla", new AjaxOptions { OnBegin = "MostrarArticulo();" }))
- {
+
     <div class="row" style="margin-top:5px;margin-left:5px;margin-right:5px;margin-bottom:0px;border-radius:5px;padding-top:0px;padding-bottom:0px;">
 
         <div id="DivHBasico"  class="modal-content">
@@ -94,7 +93,8 @@
             </div>
             
         </div>
-
+@using (Ajax.BeginForm("listarStr_ArticuloTalla", new AjaxOptions { OnBegin = "MostrarArticulo();" }))
+{
         <div class="row" style="margin-top:5px;margin-left:0px;margin-right:0px;margin-bottom:5px;background-color:#f4f4f4;border-radius:5px;padding-top:2px;padding-bottom:2px;">
 
             <div class="col-sm-3" style="margin-top:2px;margin-bottom:2px;">
@@ -113,8 +113,8 @@
               
             </div>           
 
-        </div> 
-
+        </div>
+}
         <div id="DivHBasico" class="modal-content">
             <div class="modal-header modal-header-danger" style="margin-top:0px;margin-bottom:0px;padding-top:2px;padding-bottom:2px;">
                 <h5 class="modal-title" id="myModalLabel">
@@ -240,6 +240,14 @@
                                                 </tr>
                                                 <tr>
                                                     <td style="text-align:left;">
+                                                        <div id="notaBusca">
+                                                            &nbsp;<i class="fa fa-info-circle"></i>&nbsp;<b>Nota de Credito:</b>
+                                                        </div> 
+                                                    </td>
+                                                    <td valign="top" style="padding:0; margin:0;text-align:left;"><div id="totalNota">S/. 0</div></td>
+                                                </tr>
+                                                <tr>
+                                                    <td style="text-align:left;">
                                                         &nbsp;<i class="fa fa-info-circle"></i>&nbsp;<b>Total:</b>
                                                     </td>
                                                     <td valign="top" style="padding:0; margin:0;text-align:left;"><div id="totalList">S/. 0.00</div></td>
@@ -270,14 +278,14 @@
         </div>
 
        <div id="divBoton" style="width:100%;margin-top:5px;text-align:right">
-           <button class="btn btn-primary" type="button" onclick="liquidarPedido()" id="btnliquidar" name="btnliquidar" title="Liquidar">
+           <button class="btn btn-primary" type="button" onclick="PopupLiquidarPedido()" id="btnliquidar" name="btnliquidar" title="Liquidar">
                <span class="glyphicon glyphicon-floppy-saved"></span>&nbsp;Liquidar Pedido
            </button>
 
        </div>
 
     </div>  
- }
+
 
 
 
@@ -305,6 +313,7 @@
     var gStyleMovile = ''
     var gbMovile = false;
     var gMontoPercepcion = 0.00;
+    var gLiqId="";
  
     var gCustomer = {
         comision: 0.00,
@@ -315,7 +324,8 @@
         email: "",
         nombrecompleto: "",
         premio: "",
-        aplica_percepcion: "0"
+        aplica_percepcion: "0",
+        cant_nota:0
     }
 
     var gPedido = {
@@ -343,7 +353,10 @@
 
         waitingDialog.show('Espere un momento por favor');
         var ControllerUrl = "@Url.Action("PersonaPedido", "Pedido")";
+       
+        var strBoton = '<button class="btn btn-primary" style="margin-top:0px;margin-bottom:0px;padding-top:0px;padding-bottom:0px;padding-right:0px;padding-left:0px;" onclick="ListarNotaCredito()" id="btnliquidar" name="btnliquidar" title="Liquidar"><span class="glyphicon glyphicon-floppy-search"></span>&nbsp;Nota de Credito</button>'
         var promotor = $('#dwPromo').val();
+        document.getElementById("notaBusca").innerHTML = '&nbsp;<i class="fa fa-info-circle"></i>&nbsp;<b>Nota de Credito:</b>'
         //alert(promotor)
         $.ajax({
             type: "GET",
@@ -358,7 +371,8 @@
                 var consTienda = ''
 
                 if (data != '' && data != '[]') {
-        
+                     
+
                     gCustomer.comision = data.comision;
                     gCustomer.idCust = data.idCust;
                     gCustomer.commission_POS_visaUnica = data.commission_POS_visaUnica;
@@ -367,7 +381,13 @@
                     gCustomer.email = data.email;
                     gCustomer.nombrecompleto = data.nombrecompleto;
                     gCustomer.premio = data.premio;
-                    gCustomer.aplica_percepcion = data.aplica_percepcion;                  
+                    gCustomer.aplica_percepcion = data.aplica_percepcion;
+                    gCustomer.cant_nota = parseInt(data.cant_nota);
+
+                    if (parseInt(data.cant_nota) > 0) {
+
+                        document.getElementById("notaBusca").innerHTML = '&nbsp;<i class="fa fa-info-circle"></i>&nbsp;<b>' + strBoton + '&nbsp;:</b>';
+                    }
                 
                 }
 
@@ -403,11 +423,13 @@
         
     }
 
+   
+
     function EditarDetalle(control) {
         var codArticulo = $(control).attr('data-id');
         DibujarMostrarArticulo(codArticulo);
 
-    }
+    } 
 
 
     function DibujarMostrarArticulo(codArticulo) {
@@ -547,7 +569,7 @@
                     strhtml += '</div>'
                     strhtml += '<div class="modal-footer" style="margin-top:-30px">'
                     strhtml += '<button type="button" class="btn btn-default" data-dismiss="modal">Cerrar</button>'
-                    strhtml += '<input type="button" class="btn btn-primary" data-dismiss="modal" onclick="agregarLista()"  id="btnSubmit" value="Agregar" />'
+                    strhtml += '<input type="button" class="btn btn-primary" onclick="agregarLista()"   value="Agregar" />'
                     strhtml += '</div>'
 
 
@@ -589,82 +611,122 @@
     } 
 
     function agregarLista() {
-                
-        var codigoArt = document.getElementById('DivHCodArt').innerHTML;
+         
+        if (validarAgregarLista()) {
+            var codigoArt = document.getElementById('DivHCodArt').innerHTML;
             EliminarArticuloList(codigoArt);//elimnamos el codigo de la lista para agregarlo nuevamente 
-        var DescriArt = document.getElementById('DivHDesArt').innerHTML;
-        var MarcaArt = document.getElementById('DivHMarArt').innerHTML;
-        var ColorArt = document.getElementById('DivHColArt').innerHTML;
-        var PrecioArt = document.getElementById('DivHPrecioArt').innerHTML;
-        var AfecPercep = document.getElementById('DivHAfecPerc').innerHTML;
-        var strUrlImagen = '';
-        var LinecantTotal = 0;
-        var listTallasCantidad = []; //lista de las tallas escogidas
-        var porcComision = gCustomer.comision / 100;
+            var DescriArt = document.getElementById('DivHDesArt').innerHTML;
+            var MarcaArt = document.getElementById('DivHMarArt').innerHTML;
+            var ColorArt = document.getElementById('DivHColArt').innerHTML;
+            var PrecioArt = document.getElementById('DivHPrecioArt').innerHTML;
+            var AfecPercep = document.getElementById('DivHAfecPerc').innerHTML;
+            var strUrlImagen = '';
+            var LinecantTotal = 0;
+            var listTallasCantidad = []; //lista de las tallas escogidas
+            var porcComision = gCustomer.comision / 100;
+            
+            var glineArticulo = {
+                codigoArt: codigoArt,
+                DescriArt: DescriArt,
+                MarcaArt: MarcaArt,
+                ColorArt: ColorArt,
+                PrecioArt: PrecioArt,
+                AfecPercep: AfecPercep,
+                listTallas: [],
+                Comission: 0.00,
+                Descuento: 0.00,
+                Total: 0.00,
+                CantidadTotal: 0,
+                strUrlImagen: ""
+            }
 
-        var glineArticulo = {
-            codigoArt: codigoArt,
-            DescriArt: DescriArt,
-            MarcaArt: MarcaArt,
-            ColorArt: ColorArt,
-            PrecioArt: PrecioArt,
-            AfecPercep: AfecPercep,
-            listTallas: [],
-            Comission: 0.00,
-            Descuento: 0.00,
-            Total: 0.00,
-            CantidadTotal: 0,
-            strUrlImagen: ""
-        }            
+            $.each(gArtBusqueda, function (index, item) {
+                strUrlImagen = item.Art_Foto;
+            });
 
-        $.each(gArtBusqueda, function (index, item) {
-            strUrlImagen = item.Art_Foto;
-        });        
-   
+            $('input[name="Talla"]').each(function () {
+
+                var valor = QuitarEspacios($(this).val());
+                var CantTalla = ((valor == '') ? 0 : parseInt(valor));
+
+                if (CantTalla > 0) {
+
+                    LinecantTotal += CantTalla;
+                    var codTalla = $(this).attr("id").substr(5);
+                    var cantStock = parseInt($(this).attr("data-id"));
+                    var ComissionT = (((PrecioArt)) * porcComision)*(parseInt(AfecPercep)) * 1;
+                    var comisionTalla = Math.round(ComissionT * 100) / 100;
+                        comisionTalla = Math.round(comisionTalla * CantTalla * 100) / 100;
+
+                   var CostoTotal = Math.round((PrecioArt * CantTalla) * 100) / 100;
+                   //console.log(CostoTotal);
+                   //console.log(comisionTalla);
+
+                   var TotalTalla = Math.round((CostoTotal - comisionTalla) * 100) / 100;
+                   //console.log('total');
+                   //console.log(TotalTalla);
+
+                   var oTalla = { codTalla: codTalla, CantTalla: CantTalla, stockTalla: cantStock, comisionTalla: comisionTalla, totalTalla: TotalTalla }
+
+                   listTallasCantidad.push(oTalla);
+
+                }
+            });
+
+            if (LinecantTotal > 0) {
+
+                //var porcComision = gCustomer.comision / 100;
+                //Comission = Math.round10((((PrecioArt * LinecantTotal)) * porcComision) * 1, -2);
+                var Comission = (((PrecioArt * LinecantTotal)) * porcComision) * 1;
+                var desc = glineArticulo.Descuento
+                var comiss = Math.round(Comission * 100) / 100;
+                var Total = Math.round(((PrecioArt * LinecantTotal) - comiss - desc) * 100) / 100;
+
+                //console.log(PrecioArt)
+                //console.log(LinecantTotal)
+                //console.log(porcComision)            
+              
+                glineArticulo.listTallas = listTallasCantidad;
+                glineArticulo.Total = Total;
+                glineArticulo.Comission = comiss;
+                glineArticulo.CantidadTotal = LinecantTotal;
+                glineArticulo.strUrlImagen = strUrlImagen;
+                listArticulos.push(glineArticulo);
+
+                toastr.success("Se agrego el Articulo a la venta.", 'Mensaje');
+
+                DibujarGrilla();
+            }
+
+        } else {
+            toastr.error("* Verificar las cantidades Ingresadas. <br/> * Debe ingresar cantidades mayor a cero.", "Error");
+        }
+    }
+
+    function validarAgregarLista() {
+        
+        var bValido = true;
+        var cantTotal = 0;
         $('input[name="Talla"]').each(function () {
 
             var valor = QuitarEspacios($(this).val());
             var CantTalla = ((valor == '') ? 0 : parseInt(valor));
+            cantTotal += CantTalla;
 
-            if (CantTalla > 0) {
+            if (CantTalla >= 0) {
 
-                LinecantTotal += CantTalla;
-                var codTalla = $(this).attr("id").substr(5);               
                 var cantStock = parseInt($(this).attr("data-id"));
-                var ComissionT = (((PrecioArt * CantTalla)) * porcComision) * 1;
-                var comisionTalla = Math.round(ComissionT * 100) / 100;
+                bValido = ((CantTalla > cantStock) ? false : bValido);
+            } else {
 
-                var oTalla = { codTalla: codTalla, CantTalla: CantTalla, stockTalla: cantStock, comisionTalla: comisionTalla}
-                listTallasCantidad.push(oTalla);
-              
+                bValido = false;
             }
+
         });
+      
+        bValido = ((cantTotal <= 0) ? false : bValido);
 
-        if (LinecantTotal > 0) {
-
-            var porcComision = gCustomer.comision / 100;
-            //Comission = Math.round10((((PrecioArt * LinecantTotal)) * porcComision) * 1, -2);
-            var Comission = (((PrecioArt * LinecantTotal)) * porcComision) * 1;
-            var desc = glineArticulo.Descuento
-            var comiss = Math.round(Comission * 100) / 100;
-            var Total = Math.round(((PrecioArt * LinecantTotal) - comiss - desc) * 100) / 100;
-
-            //console.log(PrecioArt)
-            //console.log(LinecantTotal)
-            //console.log(porcComision)            
-
-            glineArticulo.Comission = comiss;
-            glineArticulo.listTallas = listTallasCantidad;
-            glineArticulo.Total = Total;
-            glineArticulo.Comission = comiss;
-            glineArticulo.CantidadTotal = LinecantTotal;
-            glineArticulo.strUrlImagen = strUrlImagen;
-            listArticulos.push(glineArticulo);
-
-            toastr.success("Se agrego el Articulo a la venta.", 'Mensaje');
-
-            DibujarGrilla();
-        }
+        return bValido;
     }
 
     function recalcularCostosArticulos() {
@@ -676,7 +738,7 @@
         var montoPercepcion = 0.00;
         var Total = 0.00;
         var GranTotal = 0.00;
-
+        var apliPercepcion = 1;
         if (listArticulos != null) {
 
             for (var i = 0; i < listArticulos.length; i++) {
@@ -685,7 +747,9 @@
                 var ComisionSum = 0.00;
                 var PrecioArt = listArticulos[i].PrecioArt;
                 var listTallasCantidad = listArticulos[i].listTallas;
-                //alert(PrecioArt)
+                var percepcion = parseInt(listArticulos[i].AfecPercep); 
+                
+                apliPercepcion = ((percepcion == 0) ? 0 : parseInt(apliPercepcion));               
 
                 for (var j = 0; j < listTallasCantidad.length; j++) {
 
@@ -711,15 +775,13 @@
                 subTOTAL += Total;
             }
 
-
-
             var taxRate = Math.round((gCustomer.taxRate / 100) * 100) / 100;
             var Percepcion = gCustomer.percepcion;
             var AplicaPrecepcion = gCustomer.aplica_percepcion;
             montoTaxes = Math.round((subTOTAL * taxRate) * 100) / 100;
             Total = Math.round((subTOTAL + montoTaxes) * 100) / 100;
             var percepcionRate = (gCustomer.aplica_percepcion) ? Math.round((gCustomer.percepcion / 100) * 100) / 100 : 0;
-            montoPercepcion = Math.round(Total * percepcionRate * 100) / 100;
+            montoPercepcion = Math.round(Total * percepcionRate * apliPercepcion * 100) / 100;
             GranTotal = Math.round((Total + montoPercepcion) * 100) / 100;
         }
 
@@ -734,8 +796,6 @@
         document.getElementById("totalList").innerHTML = 'S/. ' + Total;
         document.getElementById("grantotalList").innerHTML = 'S/. ' + GranTotal;
         document.getElementById("EtiqtotalPercepcion").innerHTML = '&nbsp;<i class="fa fa-info-circle"></i>&nbsp;<b>Percepcion ' + gCustomer.percepcion + '%</b>:';
-
-
 
     }
 
@@ -968,28 +1028,46 @@
                 temrBody = temrBody.replace("Marca", listArticulos[i].MarcaArt);
                 temrBody = temrBody.replace("Color", listArticulos[i].ColorArt);
                 temrBody = temrBody.replace("Precio", listArticulos[i].PrecioArt);
-                temrBody = temrBody.replace("Comision", listArticulos[i].Comission);
+                //temrBody = temrBody.replace("Comision", listArticulos[i].Comission);
                 temrBody = temrBody.replace("Descuento", listArticulos[i].Descuento);
-
-                temrBody = temrBody.replace("TotalM", listArticulos[i].Total);
+                //temrBody = temrBody.replace("TotalM", listArticulos[i].Total);
 
                 var listTallasCantidad2 = listArticulos[i].listTallas;
                 listTalla = '';
                 listCantidad = '';
                 var total = 0;
+                var comisionTotalLine = 0.00;
+                var TotalLine = 0.00;
+
                 for (var j = 0; j < listTallasCantidad2.length; j++) {
 
                     var talla = listTallasCantidad2[j].codTalla;
                     var cantidad = listTallasCantidad2[j].CantTalla;
+                    var comisionTalla = listTallasCantidad2[j].comisionTalla;
+                    var totalTalla = listTallasCantidad2[j].totalTalla;
+                    //console.log('comision Talla')
+                    //console.log(comisionTalla)
                     total += parseInt(cantidad);
 
                     listTalla += ConstTalla;
                     listCantidad += ConstCantidad;
+                    //console.log('comision total ini  ')
+                    //console.log(comisionTotalLine)
+                    comisionTotalLine = Math.round((comisionTotalLine + comisionTalla) * 100)/100;
+                    //console.log('comision total fin  ')
+                    //console.log(comisionTotalLine)
+                    TotalLine = Math.round((TotalLine + totalTalla) * 100) / 100;;
 
                     listTalla = listTalla.replace("variableTalla", talla);
                     listCantidad = listCantidad.replace("variableCantidad", cantidad);
 
                 }
+               
+                //console.log('comision total line ')
+                //console.log(comisionTotalLine)
+
+                temrBody = temrBody.replace("Comision", comisionTotalLine);
+                temrBody = temrBody.replace("TotalM", TotalLine);
 
                 temrBody = temrBody.replace("VTotal", total);
                 temrBody = temrBody.replace("ListvariableTalla", listTalla);
@@ -1049,6 +1127,69 @@
         $('#myModalContent').html(strhtml);
         $('#myModal').modal(options);
         $('#myModal').modal('show');
+
+    }
+
+    function ValidacionLiquidacion() {
+
+        var bValidacion = true;
+        var varLocalPercep;
+     
+        /*validacion de que no esisten ningun articulo*/
+
+        if (listArticulos == null || listArticulos == '') {
+            bValidacion = false;
+            toastr.error("Debe ingresar al menos un articulo en el pedido.", "Error");
+            /*fin de la validacion de que no existe articulo*/
+
+        } else {
+
+            for (var i = 0; i < listArticulos.length; i++) {
+
+                if (i == 0) { varLocalPercep = parseInt(listArticulos[i].AfecPercep) }
+
+                if (varLocalPercep != parseInt(listArticulos[i].AfecPercep)) {
+
+                    toastr.error("No puede liquidar articulos con percepcion y sin percepción a la vez.", "Error");
+                    bValidacion = false;
+                    break;
+                }
+
+            }
+        }     
+
+        return bValidacion;
+    }
+
+    function PopupLiquidarPedido() {
+
+        if (ValidacionLiquidacion()) {
+            var strhtml = ''
+            strhtml += '<div class="modal-header modal-header-danger" style="margin-top:0px;margin-bottom:0px;padding-top:2px;padding-bottom:2px;">'
+            strhtml += '<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>'
+            strhtml += '<h5 class="modal-title" id="myModalLabel">'
+            strhtml += '<table style="border-bottom:0px;font-size:14px;width:50%;">'
+            strhtml += '<tr>'
+            strhtml += '<td style="font-size:14px;width:100%;text-align:left;">Confirmación de Liquidación</td>'
+            strhtml += '</tr>'
+            strhtml += '</table>'
+            strhtml += '</h5>'
+            strhtml += '</div>'
+            strhtml += '<div class="modal-body">'
+            strhtml += 'Desea liquidar el pedido ?.'
+            strhtml += '</div>'
+            strhtml += '<div class="modal-footer" style="margin-top:-30px">'
+            strhtml += '<button type="button" class="btn btn-default" data-dismiss="modal">Cancelar</button>'
+            strhtml += '<button type="button" class="btn btn-primary"  onclick="liquidarPedido()"   data-dismiss="modal">Liquidar Pedido</button>'
+            //strhtml += ' <button type="button"  title="Eliminar class="btn btn-danger" data-dismiss="modal" detalle" onclick="EliminarDetalle(this)"  data-id="' + codArticulo + '" data-modal="" data-toggle="modal">Elimninar</button>';
+            //strhtml += '<input type="submit" class="btn btn-primary" onclick="agregarLista()"  id="btnSubmit" value="Agregar" />'
+            strhtml += '</div>'
+            var options = { "backdrop": "static", keyboard: true };
+
+            $('#myModalContent').html(strhtml);
+            $('#myModal').modal(options);
+            $('#myModal').modal('show');
+        }
 
     }
 
@@ -1297,7 +1438,10 @@
         var cInput = control.getAttribute('Id');
         var valor = (($('#' + cInput).val() == '') ? (0) : parseInt($('#' + cInput).val()));;
         var stock = parseInt(control.getAttribute('data-id'));
-        if (valor > stock) { $('#' + cInput).val(stock); toastr.error("Valor mayor que el Stock.", "Error"); }
+        if (valor > stock) {
+            //$('#' + cInput).val(stock);
+            toastr.error("Valor mayor que el Stock.", "Error");
+        }
         if (valor < 0) { $('#' + cInput).val(0); toastr.error("Valor menor que cero.", "Error"); }
 
     }
@@ -1839,8 +1983,140 @@
         //$('#' + cInput).val(valorInt);
     }
 
-
     //FIN FUNCIONES QUE PASAN CON UN DISPOSITIVO MOVIL
+
+    function ListarNotaCreditoParcial() {
+
+        waitingDialog.show('Espere un momento por favor');
+        var TeamDetailPostBackURL ="@Url.Action("ListaNC", "Pedido")";
+
+        var $buttonClicked = $(this);
+        //var id = $buttonClicked.attr('data-id');
+       
+        var options = { "backdrop": "static", keyboard: true };
+            $.ajax({
+                type: "GET",
+                url: TeamDetailPostBackURL,
+                contentType: "application/json; charset=utf-8",
+                data: { BasId: gCustomer.idCust, LiqId:''},
+                datatype: "json",
+                cache: true,
+                success: function (data) {
+                    waitingDialog.hide();
+
+                    //debugger;
+                    $('#myModalContent').html(data);
+                    $('#myModal').modal(options);
+                    $('#myModal').modal('show');
+
+
+                },
+                error: function () {
+                    waitingDialog.hide();
+                    // waitingDialog.hide();
+                    //removeLoading();
+                    alert("Dynamic content load failed.");
+
+                }
+            })
+    }
+
+    /*LISTA LAS NOTAS DE CREDITO PARA EL PAGO DE LA LIQUIDACION*/
+
+    function ListarNotaCredito() {
+
+        waitingDialog.show('Espere un momento por favor');
+
+        var lBasId = gCustomer.idCust
+
+       
+
+        var css = 'class="row"'
+        var border2 = 'padding: 5px 5px 5px 5px;border:2px'
+        var espacio = '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'
+        var ConstTalla =  '<td><div style="margin-top:2px;margin-right:2px;"><button class="btn btn-white btn-xs" style="width:100%;">variableTalla</button></div></td>'
+        var BotonSuma = '<button title="Sumar Cantidad" class="btnSuma btn btn-success" onclick="sumarCantidad(this)" data-id="IdArticuloTallaS" data-modal="Sstock" data-toggle="modal"><span class="glyphicon glyphicon-plus"></span></button>'
+        var BotonResta = '<button title="Restar Cantidad" class="btnResta btn btn-danger" onclick="restarCantidad(this)" data-id="IdArticuloTallaR" data-modal="Rstock" data-toggle="modal"><span class="glyphicon glyphicon-minus"></span></button>'
+        var InputCantidadTalla = '<input id="inpArtTalla" type="Text"  name="Talla" value="valor" placeholder="cantidad" onchange = "validarStock(this)" data-id="inpStock" style="width:100%;" autofocus="" class="form-control"/>'
+        var ConstHtmlTienda = '<br/><div id="lugar" style="background:#FFFFFF;' + border2 + '" ><div ' + css + '  style="background:#FFFFFF;" ><div class="col-sm-12"><div><h4><strong>VariableTienda</strong></h4><p>&nbsp;DireccionTienda</p></div><table><tr><td><div style="margin-top:2px;">' + BotonResta + '</div></td><td style="width:100px"><div style="margin-top:2px;">' + InputCantidadTalla + '</div></td><td><div style="margin-top:2px;">' + BotonSuma + '</div></td></tr></table></div><br/></div></div>';
+        var ConstCantidad = ''
+        var listTalla = '';
+        var listCantidad = '';
+        var divFinal = '';
+        var strUrlImagen = '';
+        var options = { "backdrop": "static", keyboard: true };
+
+        var ControllerUrl = "@Url.Action("getListaNC", "Pedido")";
+
+        $.ajax({
+            type: "GET",
+            url: ControllerUrl,
+            contentType: "application/json; charset=utf-8",
+            data: { BasId: lBasId, LiqId: gLiqId },
+            datatype: "json",
+            cache: true,
+            success: function (data) {
+
+                //$.each(data, function (index, item) {
+                //    alert(item.Ncredito)
+                //});
+
+                var style = 'style="background:#FFFFFF;width:30%;vertical-align:middle;border: 1px solid;border-color:gainsboro"';
+                var row = '<tr><td ' + style + '>valor1</td><td ' + style + ' >valor2</td><td ' + style + ' >valor3</td></tr>'
+                var strCheck = '<input type="checkbox" name="vehicle" value="Bike">'
+                var strRowTotal = ''
+
+                $.each(data, function (index, item) {
+                    alert(item.Ncredito)
+                    strRowTotal += row;
+                    strRowTotal = strRowTotal.replace("valor1", strCheck);
+                    strRowTotal = strRowTotal.replace("valor2", item.Ncredito);
+                    strRowTotal = strRowTotal.replace("valor3", 'S/.' + item.Importe);
+
+
+                });
+
+                var strhtml = ''
+
+                strhtml += '<div class="modal-header modal-header-danger" style="margin-top:0px;margin-bottom:0px;padding-top:2px;padding-bottom:2px;">'
+                strhtml += '<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>'
+                strhtml += '<h5 class="modal-title" id="myModalLabel">'
+                strhtml += 'Seleccione nota de credito'
+                strhtml += '</h5>'
+                strhtml += '</div>'
+                strhtml += '<div class="modal-body">'
+                strhtml += '<table id="example" class="table table-hover dataTable  table-striped table-responsive">'
+                strhtml += '<tbody>'
+                strhtml += strRowTotal
+                strhtml += '</tbody>'
+                strhtml += '</table>'
+                strhtml += '</div>'
+                strhtml += '<div class="modal-footer" style="margin-top:-30px">'
+                strhtml += '<button type="button" class="btn btn-default" data-dismiss="modal">Cerrar</button>'
+                strhtml += '</div>'
+                var options = { "backdrop": "static", keyboard: true };
+
+                $('#myModalContent').html(strhtml);
+                $('#myModal').modal(options);
+                $('#myModal').modal('show');
+               
+                
+                waitingDialog.hide();
+
+            },
+            error: function () {
+                waitingDialog.hide();
+                alert('Error')
+            }
+
+        });
+
+        waitingDialog.hide();
+    }   
+
+    /*FIN DEL LISTADO DE LAS NOTAS DE CREDITO*/
+
+
 
 
 

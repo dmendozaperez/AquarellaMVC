@@ -1323,6 +1323,7 @@
     <Content Include="Views\Promotor\ListaPcPromotor.cshtml" />
     <Content Include="Views\Pedido\ListarPedido.cshtml" />
     <Content Include="Views\Pedido\ListaPcPedidos.cshtml" />
+    <Content Include="Views\Pedido\ListaNC.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

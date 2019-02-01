@@ -1,0 +1,63 @@
+﻿@{
+    Layout = null;
+}
+@Scripts.Render("~/bundles/bootstrap-select")
+@Styles.Render("~/Content/Bootstrap-Select/css")
+<link rel="stylesheet" type="text/css" href="~/Content/bootstrap-select.css" />
+
+@using (Ajax.BeginForm("Nuevo", new AjaxOptions { OnBegin = "OnNuevo_Grabar();" }))
+{
+    <div class="modal-content">
+        <div class="modal-header modal-header-danger" style="margin-top:0px;margin-bottom:0px;padding-top:2px;padding-bottom:2px;">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span>
+            </button><h5 class="modal-title" id="myModalLabel">Seleccione Nota de Crédito</h5></div><div class="modal-body">
+            <div id="listTalla" style="overflow-x: hidden; overflow-y:auto; height: 378px;">
+                <table id="result" class="table table-hover dataTable  table-striped table-responsive">
+                    <thead>
+                        <tr>
+                            <th></th>
+                            <th>Numero</th>
+                            <th>Importe</th>
+                            
+                        </tr>
+                    </thead>
+                    <tbody data-bind="foreach:">
+                        @using CapaEntidad.Pedido
+                        @model IEnumerable<Ent_Pago_NCredito>
+
+                        @foreach (Ent_Pago_NCredito item in Model)
+                        {
+                            <tr>
+                                <td>
+                                    <div class="pull-right">
+                                        <button title="Borrar" class="btnborrar btn btn-danger" data-id="@item.Activado" data-modal="" data-toggle="modal"><span class="glyphicon glyphicon-remove"></span></button>
+                                    </div>
+                                </td>
+                                <td>@item.Ncredito.ToString()</td>
+                                <td>@item.Importe.ToString()</td>
+                               
+                            </tr>
+
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div><div class="modal-footer" style="margin-top:-30px"><button type="button" class="btn btn-default" data-dismiss="modal">Cerrar</button><input type="button" class="btn btn-primary" onclick="agregarLista()" value="Agregar"></div>
+    </div>
+}
+<script>
+$(document).ready(function() {
+    $("#dwfuncion").select({
+    dropdownParent: $("#myModal")
+  });
+});
+</script>
+<script type="text/javascript">
+    
+</script>
+<script type="text/javascript">
+    function OnNuevo_Grabar() {
+        
+        alert(1)
+    }
+</script> 

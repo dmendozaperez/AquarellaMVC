@@ -117,6 +117,8 @@ namespace CapaDato.Pedido
                                                  nombrecompleto = dr["nombrecompleto"].ToString(),
                                                  premio = dr["Premio"].ToString(),
                                                  aplica_percepcion = Convert.ToBoolean(dr["aplica_percepcion"].ToString()),
+                                                 cant_nota = Convert.ToDecimal(dr["cant_Nota"]),
+                                                 
 
                                              }).ToList();
                         }
@@ -364,6 +366,58 @@ namespace CapaDato.Pedido
             catch (Exception e) { throw new Exception(e.Message, e.InnerException); }
         }
 
+
+        public List<Ent_Pago_NCredito> ListarNotaCredito(string BasId, string LiqId) {
+
+            DataSet dsReturn = new DataSet();
+            string sqlquery = "USP_Leer_Pago_Liq";
+            List<Ent_Pago_NCredito> ListNotaCredito = null;          
+
+            try
+            {
+                if (LiqId == null) LiqId = "";
+
+                using (SqlConnection cn = new SqlConnection(Ent_Conexion.conexion))
+                {
+                    using (SqlCommand cmd = new SqlCommand(sqlquery, cn))
+                    {
+                        SqlParameter oBasId = cmd.Parameters.Add("@bas_id", SqlDbType.Decimal);
+                        oBasId.Direction = ParameterDirection.Input;
+                        oBasId.Value = BasId;
+
+                        SqlParameter oLiqId = cmd.Parameters.Add("@liq_id", SqlDbType.VarChar);
+                        oLiqId.Direction = ParameterDirection.Input;
+                        oLiqId.Value = LiqId;
+
+                        cmd.CommandTimeout = 0;
+                        cmd.CommandType = CommandType.StoredProcedure;
+                        using (SqlDataAdapter da = new SqlDataAdapter(cmd))
+                        {
+
+                            da.Fill(dsReturn);
+
+                            ListNotaCredito = new List<Ent_Pago_NCredito>();
+                            ListNotaCredito = (from DataRow dr in dsReturn.Tables[0].Rows
+                                             select new Ent_Pago_NCredito()
+                                             {
+                                                 Consumido = Convert.ToBoolean(dr["checks"]),
+                                                 Activado = Convert.ToBoolean(dr["active"]),
+                                                 Ncredito = dr["ncredito"].ToString(),
+                                                 Importe = Convert.ToDecimal(dr["importe"]),
+                                                 Rhv_return_nro = dr["rhv_return_no"].ToString(),
+                                                 Fecha_documento = Convert.ToDateTime(dr["dtd_document_date"]),
+
+                                             }).ToList();      
+                        }
+                    }
+                }                
+            }
+            catch (Exception exc)
+            {
+                ListNotaCredito = null;
+            }
+            return ListNotaCredito;
+        }
 
     }
 }

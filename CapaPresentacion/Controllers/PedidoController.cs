@@ -207,6 +207,26 @@ namespace CapaPresentacion.Controllers
             return listPedido;
         }
 
+        //public ActionResult ListaNC(string BasId,string LiqId)
+        //{
+        //    List<Ent_Pago_NCredito> listNotaC = listaNotaCredito(BasId, LiqId);
+        //    return View(listNotaC);
+        //}
+        public JsonResult getListaNC(string BasId, string LiqId)
+        {
+            List<Ent_Pago_NCredito> listNotaC = listaNotaCredito(BasId, LiqId);
+
+          
+            return Json(listNotaC, JsonRequestBehavior.AllowGet);// Json(new { listNotaC = listNotaC }, JsonRequestBehavior.AllowGet);
+        }
+
+        public List<Ent_Pago_NCredito> listaNotaCredito(string BasId, string LiqId)
+        {
+            List<Ent_Pago_NCredito> listNotaC = datPedido.ListarNotaCredito(BasId, LiqId);
+
+            return listNotaC;
+        }
+
         public ActionResult getListPedido(Ent_jQueryDataTableParams param)
         {
 
