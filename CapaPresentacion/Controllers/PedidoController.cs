@@ -139,12 +139,27 @@ namespace CapaPresentacion.Controllers
                                        decimal _discCommValue = 0, string _shipTo = "", string _specialInstr = "", List<Ent_Order_Dtl> _itemsDetail = null,
                                        decimal _varpercepcion = 0, Int32 _estado = 0, string _ped_id = "", string _liq = "", Int32 _liq_dir = 0,
                                        Int32 _PagPos = 0, string _PagoPostarjeta = "", string _PagoNumConsignacion = "", decimal _PagoTotal = 0,
-                                       DataTable dtpago = null, Boolean _pago_credito = false, Decimal _porc_percepcion = 0, List<Order_Dtl_Temp>
+                                       /*DataTable dtpago = null*/ List<Ent_Documents_Trans> ListPago=null, Boolean _pago_credito = false, Decimal _porc_percepcion = 0, List<Order_Dtl_Temp>
                                         order_dtl_temp = null, string strTipoPago = "N")
         {
 
             string[] noOrder;
             Ent_Usuario _usuario = (Ent_Usuario)Session[Ent_Constantes.NameSessionUser];
+
+            /*Armamos los documentos de pago (nota de credito) utilizados en la liquidacion*/
+            DataTable dtpago = new DataTable();
+            dtpago.Columns.Add("Liq_Id", typeof(string));
+            dtpago.Columns.Add("Doc_Tra_Id", typeof(string));
+            dtpago.Columns.Add("Monto", typeof(Double));
+
+            foreach (Ent_Documents_Trans dTx in ListPago)
+            {
+                dtpago.Rows.Add("", dTx.numeroDoc, dTx.valorDoc);
+            }
+
+            /*fin de los documentos de pago*/
+
+
 
             noOrder = datPedido.Gua_Mod_Liquidacion(_usuario.usu_id, _idCust, string.Empty, _discCommPctg, 0, string.Empty, string.Empty, _itemsDetail, _varpercepcion,
                                                     _estado, _ped_id, _liq, _liq_dir, _PagPos, _PagoPostarjeta, _PagoNumConsignacion, _PagoTotal, dtpago, _pago_credito,

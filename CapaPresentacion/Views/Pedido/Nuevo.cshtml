@@ -308,12 +308,15 @@
     var listArticulos = [];
     var glistOtderDtlTem = [];
     var glistOtderDtl = [];
+    var glistPago = [];
     var gArtBusqueda
     var glistTalla = [];
     var gStyleMovile = ''
     var gbMovile = false;
     var gMontoPercepcion = 0.00;
-    var gLiqId="";
+    var gLiqId = "";
+    var gvalorTotalCredito = 0.00;
+    var gTotal = 0.00;
  
     var gCustomer = {
         comision: 0.00,
@@ -779,7 +782,8 @@
             var Percepcion = gCustomer.percepcion;
             var AplicaPrecepcion = gCustomer.aplica_percepcion;
             montoTaxes = Math.round((subTOTAL * taxRate) * 100) / 100;
-            Total = Math.round((subTOTAL + montoTaxes) * 100) / 100;
+            Total = Math.round(((subTOTAL + montoTaxes) - gvalorTotalCredito) * 100) / 100;
+            Total = ((Total < 0) ? 0 : Total);
             var percepcionRate = (gCustomer.aplica_percepcion) ? Math.round((gCustomer.percepcion / 100) * 100) / 100 : 0;
             montoPercepcion = Math.round(Total * percepcionRate * apliPercepcion * 100) / 100;
             GranTotal = Math.round((Total + montoPercepcion) * 100) / 100;
@@ -790,9 +794,12 @@
         //alert(percepcionRate)
         //alert(montoPercepcion);
         gMontoPercepcion = montoPercepcion;
+        gTotal = Total;
         document.getElementById("subTotalList").innerHTML = 'S/. ' + subTOTAL;
         document.getElementById("totalImpuesto").innerHTML = 'S/. ' + montoTaxes;
         document.getElementById("totalPercepcion").innerHTML = 'S/. ' + montoPercepcion;
+        document.getElementById("totalNota").innerHTML = 'S/. ' + gvalorTotalCredito;
+        
         document.getElementById("totalList").innerHTML = 'S/. ' + Total;
         document.getElementById("grantotalList").innerHTML = 'S/. ' + GranTotal;
         document.getElementById("EtiqtotalPercepcion").innerHTML = '&nbsp;<i class="fa fa-info-circle"></i>&nbsp;<b>Percepcion ' + gCustomer.percepcion + '%</b>:';
@@ -1624,7 +1631,8 @@
             _PagoPostarjeta: "",//""
             _PagoNumConsignacion: "",//""
             _PagoTotal: 0,//0
-            dtpago: null,
+            //dtpago: null,
+             ListPago: glistPago,
             _pago_credito: false,//false
             _porc_percepcion: gCustomer.percepcion,//2
             order_dtl_temp: glistOtderDtlTem,
@@ -2027,9 +2035,7 @@
 
         waitingDialog.show('Espere un momento por favor');
 
-        var lBasId = gCustomer.idCust
-
-       
+        var lBasId = gCustomer.idCust       
 
         var css = 'class="row"'
         var border2 = 'padding: 5px 5px 5px 5px;border:2px'
@@ -2063,15 +2069,21 @@
 
                 var style = 'style="background:#FFFFFF;width:30%;vertical-align:middle;border: 1px solid;border-color:gainsboro"';
                 var row = '<tr><td ' + style + '>valor1</td><td ' + style + ' >valor2</td><td ' + style + ' >valor3</td></tr>'
-                var strCheck = '<input type="checkbox" name="vehicle" value="Bike">'
+                var strCheck = '<input type="checkbox" onchange="validarMontoNC(this)" id="IdNc" name="notaCredito" value="Bike">'
                 var strRowTotal = ''
-
+                var divGeneral = '<div id="IdMto" style="display:none;" >valorMto</div>'
+                var divList =''
                 $.each(data, function (index, item) {
-                    alert(item.Ncredito)
+                    //alert(item.Ncredito)
+                    
                     strRowTotal += row;
                     strRowTotal = strRowTotal.replace("valor1", strCheck);
+                    strRowTotal = strRowTotal.replace("IdNc", item.Rhv_return_nro);
                     strRowTotal = strRowTotal.replace("valor2", item.Ncredito);
                     strRowTotal = strRowTotal.replace("valor3", 'S/.' + item.Importe);
+                    divList += divGeneral;
+                    divList = divList.replace("IdMto", 'dm_' + item.Rhv_return_nro);
+                    divList = divList.replace("valorMto", item.Importe);
 
 
                 });
@@ -2091,28 +2103,86 @@
                 strhtml += '</tbody>'
                 strhtml += '</table>'
                 strhtml += '</div>'
+                strhtml += '<div id="listadeNotas" style="display:none;" >'
+                strhtml +=   divList
+                strhtml += '</div>'
                 strhtml += '<div class="modal-footer" style="margin-top:-30px">'
                 strhtml += '<button type="button" class="btn btn-default" data-dismiss="modal">Cerrar</button>'
+                strhtml += '<input type="button" class="btn btn-primary" onclick="agregarNotaCredito()"   value="Agregar" />'
                 strhtml += '</div>'
                 var options = { "backdrop": "static", keyboard: true };
 
                 $('#myModalContent').html(strhtml);
                 $('#myModal').modal(options);
-                $('#myModal').modal('show');
-               
+                $('#myModal').modal('show');              
                 
                 waitingDialog.hide();
-
             },
             error: function () {
                 waitingDialog.hide();
                 alert('Error')
             }
-
         });
 
         waitingDialog.hide();
-    }   
+    }
+
+    function agregarNotaCredito() {
+
+         gvalorTotalCredito = 0.00;
+         glistPago = [];
+
+        $('input[name="notaCredito"]').each(function () {
+
+            var Idnota = $(this).attr("id");
+        
+            if ($(this).is(':checked')) {
+                var valorNC = parseFloat(document.getElementById('dm_' + Idnota).innerHTML);
+
+                var objNc = {
+                    numeroDoc: Idnota,
+                    valorDoc: valorNC
+                }
+
+                gvalorTotalCredito += valorNC;  
+                glistPago.push(objNc);
+            }                   
+
+        });
+        recalcularCostosArticulos();
+    }
+
+    function validarMontoNC(control) {
+
+        var ctrlId =  $(control).attr("id");
+        var montoTotalNC = 0.00;
+        var bchekect
+
+        $('input[name="notaCredito"]').each(function (){
+
+            var Idnota = $(this).attr("id");
+
+            if ($(this).is(':checked')) {
+
+                if (ctrlId != Idnota) {
+                    var valorNC = parseFloat(document.getElementById('dm_' + Idnota).innerHTML);
+                    montoTotalNC += valorNC
+                } else {
+
+                }
+                              
+            } 
+        });
+
+        if (montoTotalNC > gTotal) {           
+            document.getElementById(ctrlId).checked = false;
+            toastr.error("No se puede seleccionar este registro, porque el total de saldos es mayor al total pedido.", "Error");
+          
+        }
+    
+    }
+
+
 
     /*FIN DEL LISTADO DE LAS NOTAS DE CREDITO*/
 
