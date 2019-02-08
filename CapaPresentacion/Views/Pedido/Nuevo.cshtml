@@ -484,6 +484,11 @@
                     var CategoriArticulo = '';
                     var PrecioSinIgv = '';
                     var stock = '';
+                    var Ofe_Id = '';
+                    var Ofe_MaxPares = '';
+                    var Ofe_Porc = '';
+                    var Ofe_tipo = '';
+                    var Ofe_ArtVenta = '';
 
                     $.each(valors, function (index, item) {
 
@@ -492,10 +497,19 @@
                         NombreArticulo = item.Art_Descripcion
                         MarcaArticulo = item.Mar_Descripcion
                         ColorArticulo = item.Col_Descripcion
-                        PrecioSinIgv = item.Art_Pre_Sin_Igv
+                        PrecioSinIgv = item.Art_Pre_Sin_Igv                      
                         CategoriArticulo = item.Cat_Pri_Descripcion + ' > ' + item.Cat_Descripcion
                         CodTalla = item.Tal_Descripcion
                         codTienda = item.Tall_Des;
+
+                        /*campo para ofertas*/
+                        Ofe_Id = item.Ofe_Id;
+                        Ofe_MaxPares = item.Ofe_MaxPares;
+                        Ofe_Porc = item.Ofe_Porc;
+                        Ofe_tipo = item.Ofe_tipo;
+                        Ofe_ArtVenta = item.Ofe_ArtVenta;
+                        /*fin de campo de ofertas*/
+
                         nombreTienda = '<i class="fa fa-check-circle"></i>&nbsp;Talla:&nbsp;&nbsp;' + item.Tall_Des
                         DireccionTienda = '<i class="fa fa-info-circle"></i>&nbsp;Stock:&nbsp;&nbsp;' + item.Tall_Cant
                         stock = item.Tall_Cant;
@@ -558,6 +572,11 @@
                     strhtml += '<div id="DivHColArt"  style="display:none;">' + ColorArticulo + '</div>'
                     strhtml += '<div id="DivHPrecioArt"  style="display:none;">' + PrecioSinIgv + '</div>'
                     strhtml += '<div id="DivHImagenArt"  style="display:none;">' + strUrlImagen + '</div>'
+                    strhtml += '<div id="DivHOfe_tipo"  style="display:none;">' + Ofe_tipo + '</div>'
+                    strhtml += '<div id="DivHOfe_Id"  style="display:none;">' + Ofe_Id + '</div>'
+                    strhtml += '<div id="DivHOfe_MaxPares"  style="display:none;">' + Ofe_MaxPares + '</div>'
+                    strhtml += '<div id="DivHOfe_Porc"  style="display:none;">' + Ofe_Porc + '</div>'
+                    strhtml += '<div id="DivHOfe_ArtVenta"  style="display:none;">' + Ofe_ArtVenta + '</div>'
 
                     strhtml += '</div>'
                     strhtml += '</td>'
@@ -623,6 +642,13 @@
             var ColorArt = document.getElementById('DivHColArt').innerHTML;
             var PrecioArt = document.getElementById('DivHPrecioArt').innerHTML;
             var AfecPercep = document.getElementById('DivHAfecPerc').innerHTML;
+
+            var Ofe_tipo = document.getElementById('DivHOfe_tipo').innerHTML;
+            var Ofe_Id = document.getElementById('DivHOfe_Id').innerHTML;
+            var Ofe_MaxPares = document.getElementById('DivHOfe_MaxPares').innerHTML;
+            var Ofe_Porc = document.getElementById('DivHOfe_Porc').innerHTML;
+            var Ofe_ArtVenta = document.getElementById('DivHOfe_ArtVenta').innerHTML;
+
             var strUrlImagen = '';
             var LinecantTotal = 0;
             var listTallasCantidad = []; //lista de las tallas escogidas
@@ -635,6 +661,11 @@
                 ColorArt: ColorArt,
                 PrecioArt: PrecioArt,
                 AfecPercep: AfecPercep,
+                Ofe_tipo: Ofe_tipo,
+                Ofe_Id: Ofe_Id,
+                Ofe_MaxPares: Ofe_MaxPares,
+                Ofe_Porc: Ofe_Porc,
+                Ofe_ArtVenta: Ofe_ArtVenta,
                 listTallas: [],
                 Comission: 0.00,
                 Descuento: 0.00,
@@ -664,12 +695,23 @@
                    var CostoTotal = Math.round((PrecioArt * CantTalla) * 100) / 100;
                    //console.log(CostoTotal);
                    //console.log(comisionTalla);
-
                    var TotalTalla = Math.round((CostoTotal - comisionTalla) * 100) / 100;
                    //console.log('total');
                    //console.log(TotalTalla);
 
-                   var oTalla = { codTalla: codTalla, CantTalla: CantTalla, stockTalla: cantStock, comisionTalla: comisionTalla, totalTalla: TotalTalla }
+                    var oTalla = {
+                        Ofe_tipo: Ofe_tipo,
+                        Ofe_Id: Ofe_Id,
+                        Ofe_MaxPares: Ofe_MaxPares,
+                        Ofe_Porc: Ofe_Porc,
+                        Ofe_ArtVenta: Ofe_ArtVenta,
+                        codTalla: codTalla,
+                        CantTalla: CantTalla,
+                        stockTalla: cantStock,
+                        comisionTalla: comisionTalla,
+                        descuentoTalla: 0.00,
+                        totalTalla: TotalTalla
+                    }
 
                    listTallasCantidad.push(oTalla);
 
@@ -677,18 +719,15 @@
             });
 
             if (LinecantTotal > 0) {
-
                 //var porcComision = gCustomer.comision / 100;
                 //Comission = Math.round10((((PrecioArt * LinecantTotal)) * porcComision) * 1, -2);
                 var Comission = (((PrecioArt * LinecantTotal)) * porcComision) * 1;
                 var desc = glineArticulo.Descuento
                 var comiss = Math.round(Comission * 100) / 100;
                 var Total = Math.round(((PrecioArt * LinecantTotal) - comiss - desc) * 100) / 100;
-
                 //console.log(PrecioArt)
                 //console.log(LinecantTotal)
-                //console.log(porcComision)            
-              
+                //console.log(porcComision)          
                 glineArticulo.listTallas = listTallasCantidad;
                 glineArticulo.Total = Total;
                 glineArticulo.Comission = comiss;
@@ -696,8 +735,10 @@
                 glineArticulo.strUrlImagen = strUrlImagen;
                 listArticulos.push(glineArticulo);
 
+                listArticulos = listArticulos.sort(function (a, b) { return a.PrecioArt - b.PrecioArt }); //ordenamos de menor a mayor precio
+               
                 toastr.success("Se agrego el Articulo a la venta.", 'Mensaje');
-
+                validarOferta();
                 DibujarGrilla();
             }
 
@@ -705,6 +746,179 @@
             toastr.error("* Verificar las cantidades Ingresadas. <br/> * Debe ingresar cantidades mayor a cero.", "Error");
         }
     }
+
+    function validarOferta() {
+
+        var porcComision = gCustomer.comision / 100;
+        var listArticulosOfertaPorcentaje = listArticulos.filter(obj => obj.Ofe_tipo === 'N'); //lista de articulos con ofertas tipo desc Porcentaje
+
+             listArticulosOfertaPorcentaje = listArticulosOfertaPorcentaje.sort(function (a, b) { return a.Ofe_Id - b.Ofe_Id });
+
+        var listOfertaPorc = uniqueBy(listArticulosOfertaPorcentaje, "Ofe_Id"); //lista de ofertas porcentaje que existe  
+
+            for (var i = 0; i < listOfertaPorc.length; i++){//recorremos oferta por oferta
+                
+                var totalPares = 0;
+                var maxPares = 0;
+                var prcOfeDesc= 0.00
+                var tmpListOfeArt=[];
+                
+                var listArticulosOferta = listArticulosOfertaPorcentaje.filter(obj => obj.Ofe_Id === listOfertaPorc[i]);//optenemos todos los articulos con una oferta
+
+                for (var j = 0; j < listArticulosOferta.length; j++) {
+
+                    var codigoArt = listArticulosOferta[j].codigoArt;
+                   
+                    var PrecioArt = listArticulosOferta[j].PrecioArt;
+                        maxPares = listArticulosOferta[j].Ofe_MaxPares;
+                    var listaTallas = listArticulosOferta[j].listTallas;
+                         prcOfeDesc = parseFloat(listArticulosOferta[j].Ofe_Porc) / 100;
+                    //console.log('ver lista')
+                    //console.log(listaTallas)
+                    $.each(listaTallas, function (index, item) {
+
+                        var qty = parseInt(item.CantTalla);
+                            totalPares += qty;
+                        var CodTalla = item.codTalla;
+                        //alert('CodTalla seteado')
+                        //alert(CodTalla)
+                        for (var k = 0; k < qty; k++) {
+
+                            var objArtPromocion = {
+                                codigoArt:codigoArt,
+                                CodTalla:CodTalla,
+                                PrecioArt:PrecioArt,
+                                cantidad: 1,
+                                porc_comision:porcComision,
+                                descuento:0,
+                                oferta: listOfertaPorc[i]
+                            }
+                            tmpListOfeArt.push(objArtPromocion);
+                        }
+
+                    })
+
+                }
+                
+                var res = Math.floor(totalPares/maxPares);
+                //alert('res')
+                //alert(res)
+                tmpListOfeArt = tmpListOfeArt.sort(function (a, b) { return a.PrecioArt - b.PrecioArt }); //ordenamos de menor a mayor precio
+
+                if (res > 0) {
+
+                    if (prcOfeDesc == 1)
+                    {
+                        prcOfeDesc = 0.5;
+                        res = 2;
+                    }
+
+                    var desc_oferta = 0.00;
+
+                    for (var j = 0; j < res; ++j) {
+
+                        var itmPrecio = tmpListOfeArt[j].PrecioArt;
+                        var itmPrcCom = tmpListOfeArt[j].porc_comision;
+                        var itmCant = tmpListOfeArt[j].cantidad;
+                        var _com_mon = Math.round((itmPrecio * itmCant) * itmPrcCom * 100) / 100;
+                        //alert(itmPrecio);
+                        //alert(_com_mon);
+                        //alert(prcOfeDesc);                       
+                        var montoDesc = parseFloat(((itmPrecio * itmCant) - _com_mon) * (prcOfeDesc));
+                        //alert(montoDesc)
+                        //alert(montoDesc)
+                        if ((j == 0 && maxPares > 0) || (maxPares == 1)) {
+                            desc_oferta = redondearDecimal(montoDesc)
+                        }
+                      
+                        //desc_oferta = desc_oferta.toFixed(2);                        
+                        //alert('descuento en el temporal')
+                        //alert(desc_oferta)
+                        //alert(tmpListOfeArt[j].codigoArt)
+                          tmpListOfeArt[j].descuento = desc_oferta;                         
+                    }
+                   
+                    for (var j = 0; j < listArticulos.length; j++) {
+
+                        var codigoArt = listArticulos[j].codigoArt;                    
+                        var listTallaCantidad = listArticulos[j].listTallas;
+                        var listdescuentoArticulo = tmpListOfeArt.filter(obj => obj.codigoArt === codigoArt);
+                                             
+                        for (var k = 0; k < listTallaCantidad.length; k++) {
+
+                            var codTalla = listTallaCantidad[k].codTalla;
+                            //alert('talla')
+                            //alert(codTalla)                          
+                            //console.log(listdescuentoArticulo)
+                            var listdescuentoArtTalla = listdescuentoArticulo.filter(obj => obj.CodTalla === codTalla);
+                            //alert(listdescuentoArtTalla.length)
+                            var dscto = 0.00;
+
+                            for (var l = 0; l < listdescuentoArtTalla.length; l++) {
+
+                                dscto += listdescuentoArtTalla[l].descuento;
+
+                            }
+                            //alert('descuento talla')
+                            //alert(dscto)
+                            listTallaCantidad[k].descuentoTalla = dscto;
+                            listTallaCantidad[k].totalTalla = listTallaCantidad[k].totalTalla - dscto;
+                        }
+
+                        listArticulos[j].listTallas = listTallaCantidad;
+
+                    }               
+
+                }
+
+             }
+
+
+
+        //for (var i = 0; i < listOfertaPorcentaje.length; i++) {
+
+        //    alert(listOfertaPorcentaje[i].codigoArt);
+        //    alert(listOfertaPorcentaje[i].PrecioArt);
+        //}
+
+        //var listArticulosOfertaPack = listArticulos.filter(obj => obj.Ofe_tipo === 'P');  //lista de articulos con ofertas tipo precio Pack
+        //console.log(listOfertaPack);
+        //for (var i = 0; i < listOfertaPack.length; i++) {
+
+        //    alert(listOfertaPack[i].codigoArt);
+        //    alert(listOfertaPack[i].PrecioArt);
+        //}
+     
+    }
+
+    function redondearDecimal(numero) {
+        //alert('entro')
+        numero = parseFloat(numero.toFixed(6));
+        //alert(numero);
+        numero = parseFloat(numero.toFixed(5));
+        //alert(numero);
+        numero = parseFloat(numero.toFixed(4));
+        //alert(numero);
+        numero = parseFloat(numero.toFixed(3));
+        //alert(numero);
+        numero = Math.round(numero * 100) / 100
+        //alert('t');
+        //alert(numero);
+        numero = parseFloat(numero.toFixed(2));
+        //alert(numero);
+        //alert('termino')
+   
+        return numero
+    }
+
+    function uniqueBy(arr, prop) {
+        return arr.reduce((a, d) => {
+            if (!a.includes(d[prop])) { a.push(d[prop]); }
+            return a;
+        }, []);
+    } 
+
+   
 
     function validarAgregarLista() {
         
@@ -751,21 +965,23 @@
                 var PrecioArt = listArticulos[i].PrecioArt;
                 var listTallasCantidad = listArticulos[i].listTallas;
                 var percepcion = parseInt(listArticulos[i].AfecPercep); 
-                
+                var desc = 0.00;
                 apliPercepcion = ((percepcion == 0) ? 0 : parseInt(apliPercepcion));               
 
                 for (var j = 0; j < listTallasCantidad.length; j++) {
 
                     var CodTalla = listTallasCantidad[j].codTalla;
                     var Cantidad = listTallasCantidad[j].CantTalla;
-                    var comisionTalla = listTallasCantidad[j].comisionTalla;
+                    var ComisionTalla = listTallasCantidad[j].comisionTalla;
+                    var desctoTalla = listTallasCantidad[j].descuentoTalla;
 
                     LinecantTotal += Cantidad;
-                    ComisionSum += comisionTalla;
+                    ComisionSum += ComisionTalla;
+                    desc += desctoTalla;
                 }
 
                 var Comission = ComisionSum;//(((PrecioArt * LinecantTotal)) * porcComision) * 1;
-                var desc = 0;
+               
 
                 var comiss = Math.round(Comission * 100) / 100;
                 var Total = Math.round(((PrecioArt * LinecantTotal) - comiss - desc) * 100) / 100;
@@ -852,7 +1068,7 @@
                     //$('inpt_' + CodTalla).val(Cantidad);
                     //$('#' + cInput).val(valorInt);
                     $('#inpt_06').val(numero)
-                    alert($('#inpt_06').val())
+                    //alert($('#inpt_06').val())
 
                 }
             }
@@ -886,6 +1102,8 @@
     }
 
     function GrillaComputador() {
+
+        recalcularCostosArticulos();
 
         var strtable='';
         var theader='';
@@ -1035,8 +1253,7 @@
                 temrBody = temrBody.replace("Marca", listArticulos[i].MarcaArt);
                 temrBody = temrBody.replace("Color", listArticulos[i].ColorArt);
                 temrBody = temrBody.replace("Precio", listArticulos[i].PrecioArt);
-                //temrBody = temrBody.replace("Comision", listArticulos[i].Comission);
-                temrBody = temrBody.replace("Descuento", listArticulos[i].Descuento);
+                //temrBody = temrBody.replace("Comision", listArticulos[i].Comission);               
                 //temrBody = temrBody.replace("TotalM", listArticulos[i].Total);
 
                 var listTallasCantidad2 = listArticulos[i].listTallas;
@@ -1045,16 +1262,18 @@
                 var total = 0;
                 var comisionTotalLine = 0.00;
                 var TotalLine = 0.00;
-
+                var descuentoArticulo = 0.00;
                 for (var j = 0; j < listTallasCantidad2.length; j++) {
 
                     var talla = listTallasCantidad2[j].codTalla;
                     var cantidad = listTallasCantidad2[j].CantTalla;
                     var comisionTalla = listTallasCantidad2[j].comisionTalla;
                     var totalTalla = listTallasCantidad2[j].totalTalla;
+                    var dsctoTalla = listTallasCantidad2[j].descuentoTalla;
                     //console.log('comision Talla')
                     //console.log(comisionTalla)
                     total += parseInt(cantidad);
+                    descuentoArticulo += dsctoTalla;
 
                     listTalla += ConstTalla;
                     listCantidad += ConstCantidad;
@@ -1069,6 +1288,9 @@
                     listCantidad = listCantidad.replace("variableCantidad", cantidad);
 
                 }
+
+                //temrBody = temrBody.replace("Descuento", listArticulos[i].Descuento);
+                temrBody = temrBody.replace("Descuento", descuentoArticulo);
                
                 //console.log('comision total line ')
                 //console.log(comisionTotalLine)
@@ -1096,7 +1318,7 @@
             strtable = '<table style="width:100%;">' + theader + '<tbody>' + Body + '</tbody>' + '</table>';
         }
         document.getElementById("divDetalleVenta").innerHTML = strtable;
-        recalcularCostosArticulos();
+       
     }
     
     function verDetalle(control){
@@ -1334,24 +1556,27 @@
                 var strCantidad = strIni + 'Cantidad:' + strMedio + item.CantidadTotal + strFin;
                 var strPrecio = strIni + 'Precio:' + strMedio + item.PrecioArt + strFin;
                 var strComision = strIni + 'Comision:' + strMedio + item.Comission + strFin;
-                var strDescuento = strIni + 'Descuento:' + strMedio + item.Descuento + strFin;
+             
                 var strTotal = strIniTotal + 'TOTAL:' + strMedio +'<b>'+ item.Total + strFin;
 
                 strhtml = strhtml.replace("Cantidad", strCantidad);
                 strhtml = strhtml.replace("Precio", strPrecio);
                 strhtml = strhtml.replace("Comision", strComision);
-                strhtml = strhtml.replace("Descuento", strDescuento);
+               
                 strhtml = strhtml.replace("Total", strTotal);
                 
                 var listTallasCantidad2 = item.listTallas;
                 var total = 0;
+                var totalDescuento = 0.00;
 
                 for (var j = 0; j < listTallasCantidad2.length; j++) {
 
                     var talla = listTallasCantidad2[j].codTalla;
                     var cantidad = listTallasCantidad2[j].CantTalla;
-                    total += parseInt(cantidad);
+                    var descuen = listTallasCantidad2[j].descuentoTalla;
 
+                    totalDescuento += descuen;
+                    total += parseInt(cantidad);
                     listTalla += ConstTalla;
                     listCantidad += ConstCantidad;
 
@@ -1359,6 +1584,8 @@
                     listCantidad = listCantidad.replace("variableCantidad", cantidad);
 
                 }
+                var strDescuento = strIni + 'Descuento:' + strMedio + totalDescuento + strFin;
+                strhtml = strhtml.replace("Descuento", strDescuento);
 
                 strTablaTallas = strTablaTallas.replace("VTotal", total);
                 strTablaTallas = strTablaTallas.replace("ListvariableTalla", listTalla);

@@ -28,6 +28,8 @@ namespace CapaEntidad.Pedido
         public string Ofe_Id { get; set; }
         public string Ofe_MaxPares { get; set; }
         public string Ofe_Porc { get; set; }
+        public string Ofe_Tipo { get; set; }
+        public string Ofe_ArtVenta { get; set; }
         public string Tal_Descripcion { get; set; }//campo de talla
         public string Tall_Des { get; set; }//campo de talla
         public string Tall_Cant { get; set; }//campo de talla -- Cantidad por talla
