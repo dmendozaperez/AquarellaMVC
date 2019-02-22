@@ -13,7 +13,7 @@ namespace CapaDato.Pedido
     public class Dat_Pedido
     {
 
-        public Ent_Pedido_Maestro Listar_Maestros_Pedido(decimal usuarioId, string usu_postPago)
+        public Ent_Pedido_Maestro Listar_Maestros_Pedido(decimal usuarioId, string usu_postPago, string IdCustomer)
         {
             DataSet dsReturn = new DataSet();
             string sqlquery = "USP_LEER_MAESTROS_PEDIDO_MVC";
@@ -21,6 +21,7 @@ namespace CapaDato.Pedido
             List<Ent_Combo> ListFormaPago = null;
            
             Ent_Pedido_Maestro Maestro = new Ent_Pedido_Maestro();
+            if (IdCustomer == "") {IdCustomer = "0";}
 
             try
             {
@@ -32,9 +33,13 @@ namespace CapaDato.Pedido
                         oCodUsuario.Direction = ParameterDirection.Input;
                         oCodUsuario.Value = usuarioId;
 
-                        SqlParameter oCodPost = cmd.Parameters.Add("@post", SqlDbType.Decimal);
+                        SqlParameter oCodPost = cmd.Parameters.Add("@post", SqlDbType.VarChar);
                         oCodPost.Direction = ParameterDirection.Input;
                         oCodPost.Value = usu_postPago;
+
+                        SqlParameter oCustt = cmd.Parameters.Add("@customer", SqlDbType.Decimal);
+                        oCustt.Direction = ParameterDirection.Input;
+                        oCustt.Value = Convert.ToDecimal(IdCustomer);
 
                         cmd.CommandTimeout = 0;
                         cmd.CommandType = CommandType.StoredProcedure;
@@ -322,9 +327,71 @@ namespace CapaDato.Pedido
             return resultDoc;
         }
 
+        public List<Ent_Order_Dtl> getLiquidacionDetalle(string  idLiquidacion)
+        {
+            string sqlquery = "USP_LEER_LIQUIDACION_MVC";
+            SqlConnection cn = null;
+            SqlCommand cmd = null;
+            SqlDataAdapter da = null;
+            DataSet ds = null;
+            List<Ent_Order_Dtl> ListPedido = null;
+            Ent_Order_Dtl entPedido = null;
+
+            try
+            {
+
+                cn = new SqlConnection(Ent_Conexion.conexion);
+                cmd = new SqlCommand(sqlquery, cn);
+                cmd.CommandTimeout = 0;
+                cmd.CommandType = CommandType.StoredProcedure;
+                cmd.Parameters.AddWithValue("@Liq_Id", idLiquidacion);
+                da = new SqlDataAdapter(cmd);
+                ds = new DataSet();
+                da.Fill(ds);
+                ListPedido = new List<Ent_Order_Dtl>();
+                ListPedido = (from DataRow dr in ds.Tables[0].Rows
+                              select new Ent_Order_Dtl()
+                              {
+                                  _idPedido = dr["Liq_PedId"].ToString(),
+                                  _code = dr["Art_Id"].ToString(),
+                                  _brand = dr["Mar_Descripcion"].ToString(),
+                                  _artName = dr["Art_Descripcion"].ToString(),
+                                  _ArtImg = dr["Ped_Imagen"].ToString(),
+                                  _size = dr["Tal_Descripcion"].ToString(),
+                                  _color = dr["Col_Descripcion"].ToString(),
+                                  _qty = Convert.ToInt16(dr["Ped_Det_Cantidad"]),
+                                  _Stkqty = Convert.ToInt16(dr["stk_Cant"]),
+                                  _price = Convert.ToDecimal(dr["Ped_Det_Precio"]),
+                                  _commission = Convert.ToDecimal(dr["Ped_Det_ComisionM"]),
+                                  _Mto_percepcion = Convert.ToDecimal(dr["Ped_Mto_Perc"]),
+                                  _Pctg_percepcion = Convert.ToDecimal(dr["Ped_Por_Perc"]),
+
+                                  _ofe_Tipo = dr["Ofe_tipo"].ToString(),
+                                  _ofe_PrecioPack = Convert.ToDecimal(dr["Ofe_ArtVenta"]),
+                                  _ofe_id = Convert.ToDecimal(dr["Ped_Det_OfeID"]),
+                                  _ofe_porc = Convert.ToDecimal(dr["Ped_Det_OfertaP"]),
+                                  _ofe_maxpares = Convert.ToDecimal(dr["Ofe_MaxPares"]),
+                                  _dscto = Convert.ToDecimal(dr["Ped_Det_OfertaM"]),
+                                  
+                             
+                                  _comm = Convert.ToInt16(dr["Ped_Por_Com"]),
+                                  _premio = dr["Premio"].ToString(),
+                                  _premId = dr["PremioId"].ToString(),
+                                  _ap_percepcion = dr["Ped_Por_Perc"].ToString(),
+                                  _premioDesc = dr["Regalo"].ToString()
+
+                              }).ToList();
+
+                return ListPedido;
+            }
+            catch (Exception e) {
+                throw new Exception(e.Message, e.InnerException);
+            }
+        }
+
         public List<Ent_Liquidacion> ListarPedidos(decimal IdPromotor)
         {
-            string sqlquery = "USP_Leer_Pedido_Usuario";
+            string sqlquery = "USP_LEER_PEDIDO_USUARIO_MVC";
             SqlConnection cn = null;
             SqlCommand cmd = null;
             SqlDataAdapter da = null;
@@ -348,6 +415,8 @@ namespace CapaDato.Pedido
                                select new Ent_Liquidacion()
                                {
                                    liq_Id = dr["Liq_Id"].ToString(),
+                                   cust_Id = dr["Liq_BasId"].ToString(),
+                                   ped_Id = dr["liq_PedId"].ToString(),
                                    liq_Fecha = dr["Fecha"].ToString(),
                                    Pares = Convert.ToDecimal(dr["Liq_Det_Cantidad"]),
                                    Estado = dr["Est_Descripcion"].ToString(),
@@ -370,7 +439,7 @@ namespace CapaDato.Pedido
         public List<Ent_Pago_NCredito> ListarNotaCredito(string BasId, string LiqId) {
 
             DataSet dsReturn = new DataSet();
-            string sqlquery = "USP_Leer_Pago_Liq";
+            string sqlquery = "USP_LEER_PAGO_LIQ_MVC";
             List<Ent_Pago_NCredito> ListNotaCredito = null;          
 
             try

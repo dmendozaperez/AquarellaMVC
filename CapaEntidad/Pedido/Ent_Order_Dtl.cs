@@ -9,6 +9,7 @@ namespace CapaEntidad.Pedido
 {
     public class Ent_Order_Dtl
     {
+        public string _idPedido { get; set; }
         public string _code { get; set; }
         /// <summary>
         /// Nombre de articulo
@@ -25,6 +26,7 @@ namespace CapaEntidad.Pedido
         /// <summary>
         /// Color
         /// </summary>
+        public string _ArtImg{ get; set; }
         public string _color { get; set; }
         /// <summary>
         /// Talla
@@ -34,6 +36,7 @@ namespace CapaEntidad.Pedido
         /// Unidades
         /// </summary>
         public int _qty { get; set; }
+        public int _Stkqty { get; set; }
         /// <summary>
         /// Unidades cancelAQUARELLAs
         /// </summary>
@@ -89,6 +92,8 @@ namespace CapaEntidad.Pedido
         /// % de comision
         /// </summary>
         public decimal _commissionPctg { get; set; }
+        public decimal _Mto_percepcion { get; set; }
+        public decimal _Pctg_percepcion { get; set; }
 
         /// <summary>
         /// Formato de moneda del valor de la comision
@@ -128,6 +133,7 @@ namespace CapaEntidad.Pedido
         /// </summary>
         public string _lineTotDesc { get; set; }
 
+       
         public string _ap_percepcion { get; set; }
 
         public string _ofe_Tipo { get; set; }

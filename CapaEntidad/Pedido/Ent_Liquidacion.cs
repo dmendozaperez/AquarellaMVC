@@ -10,6 +10,8 @@ namespace CapaEntidad.Pedido
     public class Ent_Liquidacion
     {
         public string liq_Id { get; set; }
+        public string ped_Id { get; set; }
+        public string cust_Id { get; set; }
         public string liq_Fecha { get; set; }
         public decimal Pares { get; set; } 
         public string Estado { get; set; }

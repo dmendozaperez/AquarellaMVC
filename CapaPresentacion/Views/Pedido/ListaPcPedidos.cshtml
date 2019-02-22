@@ -11,7 +11,7 @@
 <table id="example" class="table table-hover dataTable  table-striped table-responsive">
     <thead>
         <tr style="background-color:#3d566e; color:#ecf0f1">
-            <th style="background-color:#d9534f">Pedido</th>
+            <th style="background-color:#d9534f">Nro. Liquidacion</th>
             <th style="background-color:#d9534f">Fecha</th>
             <th style="background-color:#d9534f">Pares</th>
             <th style="background-color:#d9534f">Estados</th>
@@ -57,7 +57,7 @@
                 "bDeferRender": true,
                 "aoColumns": [
 
-                       { "sName": "liq_PedId", "mData": "liq_PedId" },
+                       { "sName": "liq_Id", "mData": "liq_Id" },
                        { "sName": "liq_Fecha", "mData": "liq_Fecha" },
                        { "sName": "Pares", "mData": "Pares" },
                        { "sName": "Estado", "mData": "Estado" },
@@ -66,9 +66,11 @@
                              "render": function (data, type, full) {
                                
 
-                                 var envio = full.liq_PedId
+                                 var liqId = full.liq_Id                                
+                                 var pedId = full.ped_Id
+                                 var custId = full.cust_Id
 
-                                 return '<div> <a onclick="get_url(' + envio + ')" target="_blank" class="btn btn-success btn-sm"> <span class="glyphicon glyphicon-edit fa-1x"></span></a></div>';
+                                 return '<div> <a onclick="EditarLiquidacion(' + liqId + ',' + pedId + ',' + custId + ')" target="_blank" class="btn btn-success btn-sm"> <span class="glyphicon glyphicon-edit fa-1x"></span></a></div>';
                                
                              }
                          }
@@ -93,5 +95,15 @@
             });
 
         });
+
+    function EditarLiquidacion(IdLiquidacion,IdPedido,IdCustomer) {     
+
+        var strLiquidacion = IdLiquidacion + '_' + IdPedido + '_' + IdCustomer
+        url = '@Url.Action("Nuevo", "Pedido" , new { idLiq = "xxxx"})';
+        url = url.replace("xxxx", strLiquidacion);
+     
+        location.href = url;
+
+    }
 
 </script>

@@ -24,7 +24,7 @@ namespace CapaPresentacion.Controllers
         private string _session_listPedido_private = "_session_listPedido_private";
 
         [Authorize]
-        public ActionResult Nuevo()
+        public ActionResult Nuevo(string idLiq= "")
         {
             Ent_Usuario _usuario = (Ent_Usuario)Session[Ent_Constantes.NameSessionUser];
 
@@ -45,15 +45,33 @@ namespace CapaPresentacion.Controllers
                 valida_rol = valida_controller.AccesoMenu(menu, this);
                 #endregion
                 if (valida_rol)
-                {              
-                    Ent_Pedido_Maestro maestros = datPedido.Listar_Maestros_Pedido(_usuario.usu_id, _usuario.usu_postPago);
-                                
+                {
+                    string IdPedido = "";
+                    string IdCustomer = "";
+                    string strLiqId = "";
+
+                    if (idLiq != "")
+                    {
+                        string[] words = idLiq.Split('_');
+                        strLiqId = words[0].ToString();
+                        IdPedido = words[1].ToString();
+                        IdCustomer = words[2].ToString();
+                    }
+
+                    Ent_Pedido_Maestro maestros = datPedido.Listar_Maestros_Pedido(_usuario.usu_id, _usuario.usu_postPago, IdCustomer);
+
 
                     ViewBag.listPromotor = maestros.combo_ListPromotor;
-                    ViewBag.listFormaPago = maestros.combo_ListFormaPago;                 
+                    ViewBag.listFormaPago = maestros.combo_ListFormaPago;
+                    ViewBag.IdLiquidacion = idLiq;
 
+                    Ent_Liquidacion oLiquidacion = new Ent_Liquidacion();                   
 
-                    return View();
+                    oLiquidacion.liq_Id = strLiqId;
+                    oLiquidacion.ped_Id = IdPedido;
+                    oLiquidacion.cust_Id = IdCustomer;
+
+                    return View("Nuevo", oLiquidacion);
                 }
                 else
                 {
@@ -152,9 +170,12 @@ namespace CapaPresentacion.Controllers
             dtpago.Columns.Add("Doc_Tra_Id", typeof(string));
             dtpago.Columns.Add("Monto", typeof(Double));
 
-            foreach (Ent_Documents_Trans dTx in ListPago)
-            {
-                dtpago.Rows.Add("", dTx.numeroDoc, dTx.valorDoc);
+            if (ListPago != null) { 
+
+                foreach (Ent_Documents_Trans dTx in ListPago)
+                {
+                    dtpago.Rows.Add("", dTx.numeroDoc, dTx.valorDoc);
+                }
             }
 
             /*fin de los documentos de pago*/
@@ -198,7 +219,7 @@ namespace CapaPresentacion.Controllers
                 return RedirectToAction("Login", "Control", new { returnUrl = return_view });
             }
 
-            Ent_Pedido_Maestro maestros = datPedido.Listar_Maestros_Pedido(_usuario.usu_id, _usuario.usu_postPago);
+            Ent_Pedido_Maestro maestros = datPedido.Listar_Maestros_Pedido(_usuario.usu_id, _usuario.usu_postPago,"");
             ViewBag.listPromotor = maestros.combo_ListPromotor;
             //Ent_Promotor_Maestros maestros = datUtil.ListarEnt_Maestros_Promotor(_usuario.usu_id);
             //ViewBag.listLider = maestros.combo_ListLider;
@@ -234,13 +255,28 @@ namespace CapaPresentacion.Controllers
           
             return Json(listNotaC, JsonRequestBehavior.AllowGet);// Json(new { listNotaC = listNotaC }, JsonRequestBehavior.AllowGet);
         }
-
         public List<Ent_Pago_NCredito> listaNotaCredito(string BasId, string LiqId)
         {
             List<Ent_Pago_NCredito> listNotaC = datPedido.ListarNotaCredito(BasId, LiqId);
 
             return listNotaC;
         }
+
+        public JsonResult getLiquidacionDetalle(string LiqId)
+        {
+            List<Ent_Order_Dtl> listLiqDetalle = listaDetalleLiquidacion(LiqId);
+
+
+            return Json(listLiqDetalle, JsonRequestBehavior.AllowGet);// Json(new { listNotaC = listNotaC }, JsonRequestBehavior.AllowGet);
+        }
+
+        public List<Ent_Order_Dtl> listaDetalleLiquidacion(string LiqId)
+        {
+            List<Ent_Order_Dtl> listLiqDetalle = datPedido.getLiquidacionDetalle(LiqId);
+
+            return listLiqDetalle;
+        }
+
 
         public ActionResult getListPedido(Ent_jQueryDataTableParams param)
         {
@@ -287,7 +323,9 @@ namespace CapaPresentacion.Controllers
                              a.liq_Fecha,
                              a.Pares,
                              a.Estado,
-                            
+                             a.ped_Id,
+                             a.cust_Id,
+
                              a.TotalPagar,
                          };
             //Se devuelven los resultados por json

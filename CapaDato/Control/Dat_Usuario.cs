@@ -16,7 +16,7 @@ namespace CapaDato.Control
         public Ent_Usuario get_login(string _usuario)
         {
             string sqlquery = "[USP_Leer_Usuario_MVC]";
-            Ent_Usuario usuario = null;
+                Ent_Usuario usuario = null;
             try
             {
                 using (SqlConnection cn = new SqlConnection(Ent_Conexion.conexion))

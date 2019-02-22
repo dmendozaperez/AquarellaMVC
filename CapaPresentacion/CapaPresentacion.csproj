@@ -239,7 +239,15 @@
     <Content Include="Content\AdminLTE\img\credit\visa.png" />
     <Content Include="Content\AdminLTE\img\default-50x50.gif" />
     <Content Include="Content\AdminLTE\img\icons.png" />
+    <Content Include="Content\AdminLTE\img\icon_list.png" />
+    <Content Include="Content\AdminLTE\img\logo1.jpg" />
+    <Content Include="Content\AdminLTE\img\logo1_opt.jpg" />
+    <Content Include="Content\AdminLTE\img\logo1_opt_A.jpg" />
     <Content Include="Content\AdminLTE\img\logoaq.png" />
+    <Content Include="Content\AdminLTE\img\Logo_aq.png" />
+    <Content Include="Content\AdminLTE\img\Logo_aq1.jpg" />
+    <Content Include="Content\AdminLTE\img\Logo_aq1B.jpg" />
+    <Content Include="Content\AdminLTE\img\Logo_aq1C.jpg" />
     <Content Include="Content\AdminLTE\img\Logo_aq_Ico.jpg" />
     <Content Include="Content\AdminLTE\img\photo1.png" />
     <Content Include="Content\AdminLTE\img\photo2.png" />
@@ -274,6 +282,7 @@
     <Content Include="Content\bootstrap.css" />
     <Content Include="Content\bootstrap.min.css" />
     <Content Include="Content\css\style.css" />
+    <Content Include="Content\custom.css" />
     <Content Include="Content\datatables.min.css" />
     <Content Include="Content\datepicker.css" />
     <Content Include="Content\font-awesome-4.5.0\css\font-awesome.css" />
