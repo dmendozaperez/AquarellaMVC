@@ -116,7 +116,7 @@ namespace CapaPresentacion.Controllers
                 }
                 else
                 {
-                    ModelState.AddModelError("", "Usuario y/o Password con incorrectos.");
+                    ModelState.AddModelError("", "Usuario y/o contraseña son incorrectos.");
                     return View(model);
                 }
             }

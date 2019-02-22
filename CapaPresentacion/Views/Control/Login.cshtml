@@ -2,6 +2,7 @@
 @{
     Layout = null;
 }
+
 <!DOCTYPE html>
 <html>
 <head>
@@ -33,11 +34,15 @@
                     @using (Html.BeginForm("Login", "Control", new { returnUrl = Model.returnUrl }, FormMethod.Post, new { @class = "login-box-body" }))
                     {
                         <h1>Iniciar Sesión</h1>
-                        <div>
-                            <input name="Usuario" id="Usuario" type="text" class="form-control" placeholder="Usuario" data-parsley-maxlength="255" data-parsley-maxlength-message="Ingresar un nombre de usuario valido" required="required" />
+                        @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+                     
+                        <div class="form-group has-feedback">
+                            <input name="Usuario" id="Usuario" type="text" class="form-control" placeholder="Usuario" autofocus oninvalid="InvalidMsg(this,'Ingrese el usuario')"  data-parsley-maxlength="255" data-parsley-maxlength-message="Ingresar un nombre de usuario valido"   required="required" />
+                            <span class="glyphicon glyphicon-user form-control-feedback"></span>
                         </div>
-                        <div>
-                            <input name="Password" id="txtContrasena" type="Password" class="form-control" placeholder="Contraseña" data-parsley-maxlength="255" data-parsley-maxlength-message="Ingresar una contraseña valida" required="required" />
+                        <div  class="form-group has-feedback">
+                            <input name="Password" id="txtContrasena" type="Password" class="form-control" placeholder="Contraseña" oninvalid="InvalidMsg(this, 'Ingrese el password')"  data-parsley-maxlength="255" data-parsley-maxlength-message="Ingresar una contraseña valida" required="required" />
+                            <span class="glyphicon glyphicon-lock form-control-feedback"></span>
                         </div>
                         <div>
                             <input id="btnEnviar" type="submit" class="btn btn-default submit"  value="Iniciar sesión" />
@@ -59,5 +64,18 @@
     </div>   
 </body>
 </html>
+<script type="text/javascript">
+
+    function InvalidMsg(textbox,str) {
+     
+        if (textbox.value.length == 0) {
+            textbox.setCustomValidity(str);
+        }
+        else {
+                textbox.setCustomValidity('');
+        }
+        return true;
+    }
+</script>
 
 
