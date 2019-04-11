@@ -1,6 +1,7 @@
 ﻿using CapaDato.Control;
 using CapaDato.Maestros;
 using CapaEntidad.Control;
+using CapaEntidad.General;
 using CapaEntidad.Menu;
 using CapaEntidad.Util;
 using CapaPresentacion.Bll;
@@ -61,6 +62,64 @@ namespace CapaPresentacion.Controllers
             Session[_session_listusu_private] = listusuario;
             return listusuario;
         }
+
+        public ActionResult getUsuario(Ent_jQueryDataTableParams param)
+        {
+
+            /*verificar si esta null*/
+            if (Session[_session_listusu_private] == null)
+            {
+                List<Ent_Usuario> listusuario = new List<Ent_Usuario>();
+                Session[_session_listusu_private] = listusuario;
+            }
+
+            //Traer registros
+            IQueryable<Ent_Usuario> membercol = ((List<Ent_Usuario>)(Session[_session_listusu_private])).AsQueryable();  //lista().AsQueryable();
+
+            //Manejador de filtros
+            int totalCount = membercol.Count();
+            IEnumerable<Ent_Usuario> filteredMembers = membercol;
+
+            if (!string.IsNullOrEmpty(param.sSearch))
+            {
+                filteredMembers = membercol
+                    .Where(m => m.usu_nombre.ToUpper().Contains(param.sSearch.ToUpper()) ||
+                     m.usu_login.ToUpper().Contains(param.sSearch.ToUpper()));
+            }
+            //Manejador de orden
+            var sortIdx = Convert.ToInt32(Request["iSortCol_0"]);
+            Func<Ent_Usuario, string> orderingFunction =
+            (
+            m => sortIdx == 0 ? m.usu_nombre :
+             m.usu_login
+            );
+            var sortDirection = Request["sSortDir_0"];
+            if (sortDirection == "asc")
+                filteredMembers = filteredMembers.OrderBy(orderingFunction);
+            else
+                filteredMembers = filteredMembers.OrderByDescending(orderingFunction);
+            var displayMembers = filteredMembers
+                .Skip(param.iDisplayStart)
+                .Take(param.iDisplayLength);
+            var result = from a in displayMembers
+                         select new
+                         {
+                             a.usu_id,
+                             a.usu_nombre,
+                             a.usu_login,
+                             a.usu_tip_nom,
+                             a.usu_est_id
+                         };
+            //Se devuelven los resultados por json
+            return Json(new
+            {
+                sEcho = param.sEcho,
+                iTotalRecords = totalCount,
+                iTotalDisplayRecords = filteredMembers.Count(),
+                aaData = result
+            }, JsonRequestBehavior.AllowGet);
+        }
+
 
         public ActionResult Nuevo()
         {

@@ -3,7 +3,7 @@
 @{
     ViewBag.Title = "Control de usuarios";
 }
-@Scripts.Render("~/bundles/bootstrap")
+@*@Scripts.Render("~/bundles/bootstrap")*@
 
 <p class="text-danger">Muestra la lista de usuarios utilizadas. Permite crear nuevos usuarios dentro del sistema y editar las existentes.</p>
 <div class="box box-body box-default">
@@ -11,11 +11,43 @@
     <button type="submit" id="btnaceptar" name="btnaceptar" title="Agregar" class="nuevo btn btn-small btn-primary" data-modal="" data-toggle="modal">Agregar Usuario</button>
    
     <div class="box-body" id="lista">
-        @{Html.RenderPartial("ListaUsuario", Model); }
+        @{Html.RenderPartial("ListUsuario", Model); }
     </div>
 </div>
+<script src="~/Scripts/bootstrap.min.js"></script>
 
 <script>
+    function agregarRol(idUsuario) {
+
+        var TeamDetailPostBackURL ="@Url.Action("Roles", "Usuarios")";
+        //debugger;
+        var $buttonClicked = $(this);
+        var id = idUsuario;
+        waitingDialog.show('Espere un momento por favor');
+        var options = { "backdrop": "static", keyboard: true };
+        $.ajax({
+            type: "GET",
+            url: TeamDetailPostBackURL,
+            contentType: "application/json; charset=utf-8",
+            data: { "Id": id },
+            datatype: "json",
+            cache: true,
+            success: function (data) {
+                waitingDialog.hide();
+                //debugger;
+                $('#myModalContent').html(data);
+                $('#myModal').modal(options);
+                $('#myModal').modal('show');
+                // debugger;
+
+            },
+            error: function () {
+                waitingDialog.hide();
+                alert("Dynamic content load failed.");
+            }
+        });
+    }
+
     $(function () {
         $(".nuevo").click(function () {
             waitingDialog.show('Espere un momento por favor');

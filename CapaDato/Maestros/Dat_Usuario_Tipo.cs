@@ -47,7 +47,7 @@ namespace CapaDato.Maestros
                     }
                 }
             }
-            catch (Exception)
+            catch (Exception ex)
             {
                 list = null;
             }
