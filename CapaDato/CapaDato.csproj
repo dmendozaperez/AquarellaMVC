@@ -45,12 +45,14 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Admonred\Dat_Coordinator.cs" />
     <Compile Include="ArticuloStock\Dat_ArticuloStock.cs" />
     <Compile Include="ArticuloSustituto\Dat_ArticuloSustituto.cs" />
     <Compile Include="Control\Dat_Aplicacion.cs" />
     <Compile Include="Control\Dat_Funcion.cs" />
     <Compile Include="Control\Dat_Roles.cs" />
     <Compile Include="Control\Dat_Usuario.cs" />
+    <Compile Include="Financiera\Dat_Clear.cs" />
     <Compile Include="Maestros\Dat_Estado.cs" />
     <Compile Include="Maestros\Dat_Usuario_Tipo.cs" />
     <Compile Include="Menu\Dat_Menu.cs" />

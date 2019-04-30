@@ -421,13 +421,6 @@ namespace CapaDato.Pedido
                                    Pares = Convert.ToDecimal(dr["Liq_Det_Cantidad"]),
                                    Estado = dr["Est_Descripcion"].ToString(),
                                    TotalPagar = Convert.ToDecimal(dr["Tpagar"]),
-                                   //commission_POS_visaUnica = Convert.ToDecimal(dr["Con_Fig_PorcDescPos"]),
-                                   //percepcion = Convert.ToDecimal(dr["Con_Fig_Percepcion"]),
-                                   //email = dr["bas_correo"].ToString(),
-                                   //nombrecompleto = dr["nombrecompleto"].ToString(),
-
-                                   //aplica_percepcion = Convert.ToBoolean(dr["aplica_percepcion"].ToString()),
-
                                }).ToList();
 
                 return ListPedido;

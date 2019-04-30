@@ -1,0 +1,54 @@
+﻿@using CapaEntidad.Financiera
+@{
+    ViewBag.Title = "Cruce de Pagos y liquidaciones";
+    AjaxOptions options = new AjaxOptions
+    {
+        HttpMethod = "GET",
+        InsertionMode = InsertionMode.Replace,
+        UpdateTargetId = "lista",
+        OnComplete = "waitingDialog.hide();",
+        OnBegin = "waitingDialog.show('Espere un momento por favor');",
+        OnFailure = "waitingDialog.hide();"
+    };
+}
+
+<link href="~/ContentSelect/bootstrap-select.css" rel="stylesheet" />
+
+<p class="text-danger">Por favor seleccione las liquidaciones y los pagos con los cuales va a cruzar.  El sistema no permite grabar hasta que el "Gran Total" sea un número mayor a cero ó sus pagos superen el valor de sus pedidos o deudas.</p>
+<br />
+<div class="box box-body box-default">
+
+    <button type="submit" id="btnaceptar" name="btnaceptar" title="Agregar" class="nuevo btn btn-small btn-primary" data-modal="" data-toggle="modal">Guardar el cruce realizado</button>
+
+    <div class="box-body" id="lista">
+        @*@{Html.RenderPartial("ListaAplicacion", Model); }*@
+    </div>
+</div>
+
+@*<div class="box box-body box-default">
+        @using (Ajax.BeginForm("ListaPcPromotor", options))
+        {
+            <div class="row">
+                <form id="form1">
+                    <div class="row" style="margin-top:10px;margin-left:10px;margin-right:10px;margin-bottom:10px;background-color:#f4f4f4;border-radius:5px;padding-top:10px;padding-bottom:10px;">
+                        <div class="col-sm-3" style="margin-top:2px;margin-bottom:2px;">
+                            <label for="disponible">*Seleccione Promotor</label>
+                        </div>
+                        <div class="col-sm-3" style="margin-top:2px;margin-bottom:2px;">
+                            @Html.DropDownList("dwlider", new SelectList(ViewBag.listLider, "codigo", "descripcion", "-1"), new { @class = "selectpicker", @data_live_search = "true", @id = "dwlider", @onchange = "MostrarListado()", @name = "dwlider", @enable = "false" })
+                        </div>
+                        <div class="col-sm-3" style="margin-top:2px;margin-bottom:2px;">
+                            <button type="submit" title="Consultar" class="btn btn-primary">
+                                <span class="glyphicon glyphicon-search"></span>
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        }
+
+        <div class="box-body" id="lista">
+            @{Html.RenderPartial("ListaPCPromotor", Model);}
+        </div>
+        <br />
+</div>*@
