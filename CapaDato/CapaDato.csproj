@@ -45,8 +45,6 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="ArticuloStock\Dat_ArticuloStock.cs" />
-    <Compile Include="ArticuloSustituto\Dat_ArticuloSustituto.cs" />
     <Compile Include="Control\Dat_Aplicacion.cs" />
     <Compile Include="Control\Dat_Funcion.cs" />
     <Compile Include="Control\Dat_Roles.cs" />
@@ -58,12 +56,7 @@
     <Compile Include="Persona\Dat_Persona.cs" />
     <Compile Include="Promotor\Dat_Promotor.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Reporte\Dat_Combo.cs" />
-    <Compile Include="ReportsValeCompra\Dat_ReportValeCompra.cs" />
-    <Compile Include="Reports\Dat_Bataclub.cs" />
     <Compile Include="Util\Dat_Util.cs" />
-    <Compile Include="ValeCompra\Dat_Cliente.cs" />
-    <Compile Include="ValeCompra\Dat_ValeCompra.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\CapaEntidad\CapaEntidad.csproj">
