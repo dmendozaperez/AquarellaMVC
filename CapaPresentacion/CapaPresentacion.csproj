@@ -198,23 +198,16 @@
     <Compile Include="Bll\ReportCredentials.cs" />
     <Compile Include="Controllers\AdminLteController.cs" />
     <Compile Include="Controllers\AplicacionController.cs" />
-    <Compile Include="Controllers\ArticuloSustitutoController.cs" />
+   
     <Compile Include="Controllers\ClearController.cs" />
     <Compile Include="Controllers\PedidoController.cs" />
     <Compile Include="Controllers\PromotorController.cs" />
-    <Compile Include="Controllers\IntermedioController.cs" />
     <Compile Include="Controllers\ControlController.cs" />
     <Compile Include="Controllers\FuncionController.cs" />
     <Compile Include="Controllers\HomeController.cs" />
-    <Compile Include="Controllers\LoginIntermedioController.cs" />
     <Compile Include="Controllers\MenuController.cs" />
-    <Compile Include="Controllers\ReporteController.cs" />
-    <Compile Include="Controllers\ReportsBataclubController.cs" />
-    <Compile Include="Controllers\ArticuloStockController.cs" />
-    <Compile Include="Controllers\ReportsValeCompraController.cs" />
     <Compile Include="Controllers\RolesController.cs" />
     <Compile Include="Controllers\UsuariosController.cs" />
-    <Compile Include="Controllers\ValeCompraController.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
@@ -368,10 +361,6 @@
     <Content Include="Content\vendors\pnotify\libtests\browserify\index.js" />
     <Content Include="favicon.ico" />
     <Content Include="fonts\glyphicons-halflings-regular.svg" />
-    <Content Include="FormatoCupon\cupon.jpg" />
-    <Content Include="FormatoCupon\htmlcupon20.html" />
-    <Content Include="FormatoCupon\VALE COMPRA.jpg" />
-    <Content Include="FormatoCupon\vale.jpg" />
     <Content Include="Global.asax" />
     <Content Include="Content\Site.css" />
     <Content Include="Models\data\saveAsExcel.js" />
@@ -1319,27 +1308,6 @@
     <Content Include="Views\Usuarios\Edit.cshtml" />
     <Content Include="Views\Usuarios\Roles.cshtml" />
     <Content Include="Views\Usuarios\ListaRolUsu.cshtml" />
-    <Content Include="Views\ReportsBataclub\Index.cshtml" />
-    <Content Include="Views\ReportsBataclub\ListaBataclub.cshtml" />
-    <Content Include="Views\ReportsBataclub\tabladata.cshtml" />
-    <Content Include="Views\ValeCompra\Index.cshtml" />
-    <Content Include="Views\ValeCompra\ListaValeCompra.cshtml" />
-    <Content Include="Views\ValeCompra\Nuevo.cshtml" />
-    <Content Include="Views\ValeCompra\Consulta.cshtml" />
-    <Content Include="Views\ReportsValeCompra\Index.cshtml" />
-    <Content Include="Views\ReportsValeCompra\ListaValeCompra.cshtml" />
-    <Content Include="Views\ArticuloStock\Index.cshtml" />
-    <Content Include="Views\Intermedio\Index.cshtml" />
-    <Content Include="Views\ArticuloStock\Index_Acceso.cshtml" />
-    <Content Include="Views\Reporte\ReportePlanilla.cshtml" />
-    <Content Include="Views\Reporte\ReportePlanillaView.cshtml" />
-    <Content Include="Views\Reporte\ReportePlanillaTda.cshtml" />
-    <Content Include="Views\Reporte\ReportePlanillaTdaView.cshtml" />
-    <Content Include="Views\LoginIntermedio\Index.cshtml" />
-    <Content Include="Views\ArticuloSustituto\Index.cshtml" />
-    <Content Include="Views\ArticuloSustituto\Index_Acceso.cshtml" />
-    <Content Include="Views\LoginIntermedio\Login.cshtml" />
-    <Content Include="Views\ArticuloSustituto\IndexAdmin.cshtml" />
     <Content Include="Views\Control\Login.cshtml" />
     <Content Include="Views\Promotor\Nuevo.cshtml" />
     <None Include="Service References\ws_clientedniruc\Cons_Cliente.wsdl" />
