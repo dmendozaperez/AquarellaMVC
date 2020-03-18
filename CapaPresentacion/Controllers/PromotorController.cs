@@ -234,12 +234,12 @@ namespace CapaPresentacion.Controllers
 
             if (strJson != "[]")
             {
-               jRespuesta = Json(serializer.Deserialize<List<Persona>>(strJson), JsonRequestBehavior.AllowGet);
+               jRespuesta = Json(serializer.Deserialize<List<Ent_Persona>>(strJson), JsonRequestBehavior.AllowGet);
             }
             else {
 
                 DataTable dt = null;
-                Persona persona = new Persona();
+                Ent_Persona persona = new Ent_Persona();
                 ws_clientedniruc.Cons_ClienteSoapClient ws_cliente = new ws_clientedniruc.Cons_ClienteSoapClient();
                 dt = ws_cliente.ws_persona_reniec(nroDocumento);
                 Int32 EstadoReniec = Convert.ToInt32(dt.Rows[0]["estado"]);
@@ -287,7 +287,7 @@ namespace CapaPresentacion.Controllers
 
                     
                 }
-                List<Persona> list = new List<Persona>();
+                List<Ent_Persona> list = new List<Ent_Persona>();
                 list.Add(persona);
                 jRespuesta = Json(list, JsonRequestBehavior.AllowGet);
 

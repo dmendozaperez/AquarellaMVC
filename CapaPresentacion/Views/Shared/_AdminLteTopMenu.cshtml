@@ -15,13 +15,15 @@
 @*style="box-shadow: rgb(250, 140, 127) 0px 3px 2px 0px;" ---rojo suave*@ 
 @*style="box-shadow:rgb(135, 133, 135) 0px 3px 2px 0px;" ---plomo oscuro*@ 
 
-<header class="main-header" style="box-shadow:rgb(135, 133, 135) 0px 3px 2px 0px;">
+<header class="main-header">
     <!-- Logo -->
     <a id="alogo" class="logo">
-        <span class="logo-lg">@*<img src="~/Content/AdminLTE/img/BataLogo.png" />*@
-            <img src="~/Content/AdminLTE/img/Logo_aq1.jpg" width="90%" height="90%"/>
+        @*<span class="logo-lg">
+    <img src="~/Content/AdminLTE/img/BataLogo.png" />
+            <!--img src="~/Content/AdminLTE/img/Logo_aq1.jpg" width="90%" height="90%"/-->
 
-        </span>
+        </span>*@
+        <b>Aquarella</b>
     </a>
     @*<a href="index2.html" class="logo"><b>BATA</b></a>*@
     <!-- Header Navbar: style can be found in header.less -->
@@ -44,14 +46,14 @@
                     <li class="dropdown user user-menu">
                         <a href="#" class="dropdown-toggle" data-toggle="dropdown">
                             <img src="~/Content/AdminLTE/img/user2-160x160.jpg" class="user-image" alt="User Image" />
-                            <span class="hidden-xs">@User.Identity.GetUserName()</span>
+                            <span class="hidden-xs">@user.usu_nom_ape</span>
                         </a>
                         <ul class="dropdown-menu">
                             <!-- User image -->
                             <li class="user-header">
                                 <img src="~/Content/AdminLTE/img/user2-160x160.jpg" class="img-circle" alt="User Image" />
                                 <p>
-                                    @User.Identity.GetUserName()
+                                    @user.usu_nom_ape
                                     <small>@user.usu_tip_nom</small>
                                 </p>
                             </li>
