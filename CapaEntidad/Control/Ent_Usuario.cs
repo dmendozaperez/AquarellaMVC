@@ -18,5 +18,6 @@ namespace CapaEntidad.Control
         public string usu_tip_nom { get; set; }
         public string usu_ip { get; set; }
         public string usu_postPago { get; set; }
+        public string usu_nom_ape { get; set;}
     }
 }

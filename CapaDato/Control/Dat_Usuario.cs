@@ -43,7 +43,7 @@ namespace CapaDato.Control
                                 usuario.usu_tip_nom = dr["usu_tip_nombre"].ToString();
                                 usuario.usu_login = dr["usu_login"].ToString();
                                 usuario.usu_postPago = dr["postpago"].ToString();
-
+                                usuario.usu_nom_ape = dr["Nombre"].ToString();
 
                             }
                         }

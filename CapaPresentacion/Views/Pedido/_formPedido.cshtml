@@ -1,0 +1,46 @@
+﻿<div class="row">
+    <div class="col-md-7">
+        <div class="box box-widget">
+            <div class="box-header with-border">
+                <i class="fa fa-user"></i>&nbsp;Información Promotor(a)
+                <div class="box-tools pull-right">
+                    <button type="button" class="btn btn-box-tool" data-widget="collapse">
+                        <i class="fa fa-minus"></i>
+                    </button>
+                </div>
+            </div>
+            <div class="box-body">
+                <div class="row" id="infoProm">
+
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-5">
+        <div class="box box-widget">
+            <div class="box-header with-border">
+                Forma de pago
+            </div>
+            <div class="box-body">
+                <div class="row">
+                    <div class="col-md-10 col-xs-10">
+                        <div class="form-group">
+                            @Html.DropDownList("dwPromotor", new SelectList(ViewBag.listPromotor, "codigo", "descripcion", null), new { @class = "form-control selectpicker", @data_live_search = "true", @id = "dwPromotor", @name = "dwPromotor" })
+                            <span class="help-block" style="color: #31708f">Seleccione un promotor sobre el cual realizará las acciones</span>
+                        </div>
+                    </div>
+                    <button type="button" title="Consultar" id="btnConsultar" class="btn btn-primary">
+                        <small class="glyphicon glyphicon-search"></small>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+
+
+
+
