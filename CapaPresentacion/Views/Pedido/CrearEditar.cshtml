@@ -327,12 +327,13 @@ else
                 <div class="row">
                     <div class="col-md-12">
                         <div id="ifrReporte" class="well" style="width: 100%; height: 100%; padding:0;">
-                            <iframe id="load" src="" frameborder="0" marginheight="1" marginwidth="1" scrolling="auto" style="zoom:90%; width: 100%; height: calc(100vh - 100px);"></iframe>
+                            <iframe id="load" src="" frameborder="0" marginheight="1" marginwidth="1" scrolling="auto" 
+                                    onload="javascript: waitingDialog.hide();" style="zoom:90%; width: 100%; height: calc(100vh - 100px); margin-bottom:0px"></iframe>
                         </div>
                     </div>
                 </div>
             </div>
-            <div class="modal-footer">
+            <div class="modal-footer" style="padding-top: 7px; padding-bottom: 7px;">
                 <a href="@Url.Action("Lista","Pedido")" class="btn btn-primary">Volver a Pedidos</a>
             </div>
         </div>
@@ -673,7 +674,7 @@ else
                           url: '@Url.Action("LiquidarPedido", "Pedido")',
                           //data: { articulo: articulo, size: size },
                           success: function (data) {
-                              waitingDialog.hide();
+                              
                               toastr.success("Liquidacion generada con exito.", 'Mensaje');
                               //$('#load').show();
                               $("#load").attr("src", "../AspNetForms/ReportLiquidation.aspx");

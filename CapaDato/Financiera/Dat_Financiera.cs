@@ -12,6 +12,108 @@ namespace CapaDato.Financiera
 {
     public class Dat_Financiera
     {
+        public  string setCrearLiquidacionPremio(int basId, int premioId, string TipoPremio = "C")
+        {
+            //return "";
+            string strLiqui = string.Empty;
+            string sqlquery = "USP_Generar_LiquidacionPremio";
+            SqlConnection cn = null;
+            SqlCommand cmd = null;
+            try
+            {
+                cn = new SqlConnection(Ent_Conexion.conexion);
+                if (cn.State == 0) cn.Open();
+                cmd = new SqlCommand(sqlquery, cn);
+                cmd.CommandTimeout = 0;
+                cmd.CommandType = CommandType.StoredProcedure;
+                cmd.Parameters.AddWithValue("@bas_id", basId);
+                //cmd.Parameters.AddWithValue("@gru_id_devolver", DbType.String);
+                cmd.Parameters.AddWithValue("@tipoRegalo", premioId);
+                cmd.Parameters.AddWithValue("@tipoPremio", TipoPremio);
+                //cmd.Parameters["@gru_id_devolver"].Direction = ParameterDirection.Output;
+                cmd.Parameters.Add("@gru_id_devolver", SqlDbType.VarChar, 20).Direction = ParameterDirection.Output;
+                cmd.ExecuteNonQuery();
+
+                strLiqui = Convert.ToString(cmd.Parameters["@gru_id_devolver"].Value);
+                return strLiqui;
+
+                //Database db = DatabaseFactory.CreateDatabase(_conn);
+                ////                
+                //string sqlCommand = "financiera.sp_pre_clear";
+                ////
+                //DbCommand dbCommandWrapper = db.GetStoredProcCommand(sqlCommand, _company, _list_liquidations, _list_documentrans, clearId);
+                ////
+                //db.ExecuteNonQuery(dbCommandWrapper);
+                //clearId = db.GetParameterValue(dbCommandWrapper, "p_clv_clear_id").ToString();
+
+                //return clearId;
+            }
+            catch (Exception e) { throw new Exception(e.Message, e.InnerException); }
+        }
+        public string setPreClear(string _list_liquidations, DataTable dt)
+        {
+            //return "";
+            string clearId = string.Empty;
+            string sqlquery = "USP_Pre_Grupo";
+            SqlConnection cn = null;
+            SqlCommand cmd = null;
+            try
+            {
+                cn = new SqlConnection(Ent_Conexion.conexion);
+                if (cn.State == 0) cn.Open();
+                cmd = new SqlCommand(sqlquery, cn);
+                cmd.CommandTimeout = 0;
+                cmd.CommandType = CommandType.StoredProcedure;
+                cmd.Parameters.AddWithValue("@liq_id", _list_liquidations);
+                //cmd.Parameters.AddWithValue("@gru_id_devolver", DbType.String);
+                cmd.Parameters.AddWithValue("@Tmp_Pago", dt);
+                //cmd.Parameters["@gru_id_devolver"].Direction = ParameterDirection.Output;
+                cmd.Parameters.Add("@gru_id_devolver", SqlDbType.VarChar, 80).Direction = ParameterDirection.Output;
+                cmd.ExecuteNonQuery();
+
+                clearId = Convert.ToString(cmd.Parameters["@gru_id_devolver"].Value);
+                return clearId;
+
+                //Database db = DatabaseFactory.CreateDatabase(_conn);
+                ////                
+                //string sqlCommand = "financiera.sp_pre_clear";
+                ////
+                //DbCommand dbCommandWrapper = db.GetStoredProcCommand(sqlCommand, _company, _list_liquidations, _list_documentrans, clearId);
+                ////
+                //db.ExecuteNonQuery(dbCommandWrapper);
+                //clearId = db.GetParameterValue(dbCommandWrapper, "p_clv_clear_id").ToString();
+
+                //return clearId;
+            }
+            catch (Exception e) { throw new Exception(e.Message, e.InnerException); }
+        }
+        /*Ajustar*/
+        public string setvalidaclear(string _list_liquidations, ref string _ncredito, ref string _fecharef)
+        {
+            String sqlquery = "USP_Valida_Finanzas_PagoNc";
+            SqlConnection cn = null;
+            SqlCommand cmd = null;
+            try
+            {
+                cn = new SqlConnection(Ent_Conexion.conexion);
+                if (cn.State == 0) cn.Open();
+                cmd = new SqlCommand(sqlquery, cn);
+                cmd.CommandTimeout = 0;
+                cmd.CommandType = CommandType.StoredProcedure;
+                cmd.Parameters.AddWithValue("@liq_id", _list_liquidations);
+                cmd.Parameters.Add("@ncredito", SqlDbType.VarChar, 20);
+                cmd.Parameters.Add("@fecha_ref", SqlDbType.VarChar, 20);
+                cmd.Parameters["@ncredito"].Direction = ParameterDirection.Output;
+                cmd.Parameters["@fecha_ref"].Direction = ParameterDirection.Output;
+                cmd.ExecuteNonQuery();
+
+                _ncredito = cmd.Parameters["@ncredito"].Value.ToString();
+                _fecharef = cmd.Parameters["@fecha_ref"].Value.ToString();
+
+                return _ncredito;
+            }
+            catch (Exception e) { throw new Exception(e.Message, e.InnerException); }
+        }
         public List<Ent_Pag_Liq> getPagsLiqs (string custId)
         {
             List<Ent_Pag_Liq> data = null;

@@ -74,7 +74,7 @@
                                     <tfoot>
                                         <tr>
                                             <th colspan="4"><span class="pull-right text-bold" id="totalPL">S/ 99.99</span></th>
-                                            <th></th>
+                                            <th class="text-center" id="iconPL"></th>
                                         </tr>
                                     </tfoot>
                                 </table>
@@ -82,7 +82,7 @@
                         </div>
                         <div class="row">
                             <div class="col-md-12">
-                                <button class="btn btn-success pull-right" type="button"><i class="fa fa-floppy-o"></i>&nbsp;&nbsp;Guardar el cruce realizado</button>
+                                <button class="btn btn-success pull-right" disabled type="button" id="btnCruce"><i class="fa fa-floppy-o"></i>&nbsp;&nbsp;Guardar el cruce realizado</button>
                             </div>
                         </div>
                     </div>
@@ -147,6 +147,17 @@
             "fnServerData": function (sSource, aoData, fnCallback) {
                 $.getJSON(sSource, aoData, function (json) {
                     $("#totalPL").html("S/ " + parseFloat(json.total).toFixed(2));
+                    if (parseFloat(json.total) > 0) {
+                        $("#totalPL").removeClass("text-danger");
+                        $("#totalPL").addClass("text-success");
+                        $("#iconPL").html("<span class='text-success'><i class='fa fa-check-circle'></i></span>");
+                        $("#btnCruce").prop("disabled", false);                        
+                    } else {
+                        $("#totalPL").removeClass("text-success");
+                        $("#totalPL").addClass("text-danger");
+                        $("#iconPL").html("<span class='text-danger'><i class='fa fa-exclamation-circle'></i></span>");
+                        $("#btnCruce").prop("disabled", true);
+                    }
                     fnCallback(json);
                 });
             },
@@ -211,6 +222,41 @@
                 checking = false;
                 checkVal = null;
             });
+        });
+        $("#btnCruce").click(function () {
+            swal({
+                title: "Guardar cruce de pago",
+                text: "¿Está seguro de guardar el cruce?",
+                icon: "warning",
+                buttons: ["No", "Si"],
+                dangerMode: true,
+            }).then((cambiar) => {
+                if (cambiar) {
+                    waitingDialog.show("Espere un momento por favor.")
+                    $.ajax({
+                        type: "POST",
+                        url: '@Url.Action("GuardarCruce", "Financiera")',
+                        data: null,
+                        success: function (data) {                            
+                            if (data.estado == 0) {
+                                toastr.success(data.mensaje);
+                                checking = false;
+                                checkVal = null;
+                                $('#tblPL').DataTable().ajax.reload(function () {
+                                    waitingDialog.hide();
+                                });
+                            } else {
+                                toastr.error(data.mensaje);
+                                waitingDialog.hide();
+                            }
+                        },
+                        error: function (XMLHttpRequest, textStatus, errorThrown) {
+                            waitingDialog.hide();
+                            toastr.error("Error al consultar.", "Alerta");
+                        }
+                    });
+                }
+            });           
         });
     });
 </script>    

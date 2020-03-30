@@ -123,7 +123,7 @@ namespace CapaPresentacion.Controllers
         }
         public ActionResult VerLiquidacion(string liquidacion)
         {
-            GetCRLiquidacion(liquidacion, true);
+            GetCRLiquidacion(liquidacion, false);
             return Json(new { estado = 0 });
         }
         public ActionResult PersonaPedido(int basId) {
@@ -365,6 +365,10 @@ namespace CapaPresentacion.Controllers
 
         public ActionResult Lista()
         {
+            Session[_session_listPedido_private] = null;
+            Session[_session_list_NotaCredito] = null;
+            Session[_session_list_consignaciones] = null;
+            Session[_session_list_saldos] = null;
             Ent_Usuario _usuario = (Ent_Usuario)Session[Ent_Constantes.NameSessionUser];
             string actionName = this.ControllerContext.RouteData.GetRequiredString("action");
             string controllerName = this.ControllerContext.RouteData.GetRequiredString("controller");
