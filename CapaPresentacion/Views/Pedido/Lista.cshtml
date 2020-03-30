@@ -276,9 +276,24 @@
 //"~/ScriptsSelect/bootstrap-select.js",
 *@
 
-<div id="ifrReporte">
-    <iframe id="load" src="" frameborder="0" marginheight="1" 
-            marginwidth="1" scrolling="auto"></iframe>
+<div class="modal fade" id="CRLiquidacion" tabindex="-1" role="dialog" aria-labelledby="CRLiquidacion">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-12">
+                        <div id="ifrReporte" class="well" style="width: 100%; height: 100%; padding:0;">
+                            <iframe id="load" src="" frameborder="0" marginheight="1" marginwidth="1" scrolling="auto" 
+                                    onload="javascript: waitingDialog.hide();" style="zoom:90%; width: 100%; height: calc(100vh - 100px);"></iframe>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button data-dismiss="modal" class="btn btn-primary">Cerrar</button>
+            </div>
+        </div>
+    </div>
 </div>
 
 @section scripts{ 
@@ -479,7 +494,7 @@
                     if (data.estado == 0) {
                         $("#load").show();
                         $("#load").attr("src", "../AspNetForms/ReportLiquidation.aspx");
-                        setTimeout(() => { waitingDialog.hide(); }, 3000);
+                        $("#CRLiquidacion").modal({ backdrop: 'static', keyboard: false });
                     } else {
                         waitingDialog.hide()
                     }

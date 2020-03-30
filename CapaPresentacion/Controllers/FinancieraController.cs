@@ -23,6 +23,7 @@ namespace CapaPresentacion.Controllers
         private Dat_Financiera datFinanciera = new Dat_Financiera();
 
         private string _sessionPagsLiqs = "_SessionPagsLiqs";
+        private string _sessin_customer = "_sessin_customer";
 
         // GET: Financiera
         public ActionResult Index()
@@ -44,6 +45,7 @@ namespace CapaPresentacion.Controllers
             try
             {
                 Ent_Persona info = datPersona.GET_INFO_PERSONA(codigo);
+                Session[_sessin_customer] = info;
                 Session[_sessionPagsLiqs] = getPagsLiqs(info.Bas_id);
                 
                 return Json(new { estado = 0, info = info});
@@ -116,15 +118,22 @@ namespace CapaPresentacion.Controllers
         public ActionResult GuardarCruce()
         {
             string _mensaje = "";
+            int estado = 1;
             if (Session[_sessionPagsLiqs] == null)
             {
                 List<Ent_Pag_Liq> listPed = new List<Ent_Pag_Liq>();
                 Session[_sessionPagsLiqs] = listPed;
             }
+
+            Ent_Persona cust = (Ent_Persona)Session[_sessin_customer];
+
             List<Ent_Pag_Liq> list = (List<Ent_Pag_Liq>)Session[_sessionPagsLiqs];
             list = list.Where(w => w.checks).ToList();
 
             int countLiqSel = list.Where(w => w.dtv_concept_id == "LIQUIDACIONES").Count();
+            int countPagSel = list.Where(w => w.dtv_concept_id == "PAGOS").Count();
+            DataTable dtpagos = new DataTable();
+            dtpagos.Columns.Add("Doc_Tra_Id", typeof(string));
 
             if (list.Count == 0)
             {
@@ -138,9 +147,87 @@ namespace CapaPresentacion.Controllers
             {
                 _mensaje = "no ha seleccionado ningun pedido para cruzar el pago";
             }
-            
-           
+            if (countPagSel > 1)
+            {
+                decimal _sum_pag = 0;
+                decimal _liq_val = list.Where(w => w.dtv_concept_id == "LIQUIDACIONES").Select(s => s.val).FirstOrDefault();
+                
+                foreach (Ent_Pag_Liq item in list.OrderByDescending(o=> o.val))
+                {
+                    if ( item.dtv_concept_id == "PAGOS")
+                    {                        
+                        _sum_pag += item.val;
+                        if (_sum_pag > _liq_val)
+                        {
+                            _mensaje = "por favor solo seleccione el pago necesario para pagar su pedido";
+                            break;
+                        }
+                    }
+                }                    
+             }
+            if (countLiqSel > 0 && countPagSel > 0)
+            {
+                string listLiq = list.Where(w => w.dtv_concept_id == "LIQUIDACIONES").Select(s => s.dtv_transdoc_id).FirstOrDefault(); 
+                try
+                {
+                    string vrefnc = "";
+                    string vreffec = "";
+                    string _validaref = string.Empty;
 
+                    _validaref = datFinanciera.setvalidaclear(listLiq, ref vrefnc, ref vreffec);
+                    if (!(string.IsNullOrEmpty(_validaref)))
+                    {
+                        _mensaje = "No se puede realizar cruce de pagos; porque la fecha de referencia de la nota de credito N " + vrefnc +
+                            " pertenece a otro mes con fecha " + vreffec + "  ,por favor anule este pedido y vuelva a generar otro pedido" ;                        
+                    }
+                    foreach (Ent_Pag_Liq item in list.Where(w=>w.dtv_concept_id == "PAGOS"))
+                    {
+                        dtpagos.Rows.Add(item.dtv_transdoc_id);
+                    }
+                    
+                    string strIdPromotor = cust.Bas_id;
+                    string clear = datFinanciera.setPreClear(listLiq, dtpagos);
+
+                    if (!String.IsNullOrEmpty(clear))
+                    {
+                        string[] prems = clear.Split('|');
+                        string strpremio = prems[1].ToString();
+                        string strpremio2 = prems[2].ToString();
+                        string strmensaje = "";
+                        string strmensajePremio = "";
+
+                        if (strpremio != "N" && strpremio != "0")
+                        {
+                            string strIdLiquidacion = datFinanciera.setCrearLiquidacionPremio(Convert.ToInt32(strIdPromotor), Convert.ToInt32(strpremio), "C");
+                            strmensajePremio = "Premio generado en el pedido:" + strIdLiquidacion + " ";
+                        }
+
+                        if (strpremio2 != "N" && strpremio2 != "0")
+                        {
+                            string strIdLiquidacion = datFinanciera.setCrearLiquidacionPremio(Convert.ToInt32(strIdPromotor), Convert.ToInt32(strpremio2), "P");
+                            string cadena = "";
+                            if (strmensajePremio != "") { cadena = "y"; }
+
+                            strmensajePremio = strmensajePremio + " " + cadena + " en el pedido:" + strIdLiquidacion + " ";
+                        }
+
+                        if (strmensajePremio != "") { strmensajePremio = " ( " + strmensajePremio + " ) "; }
+
+                        _mensaje = "El cruce de información fue grabado correctamente " + strmensajePremio + ", su pedido sera enviado  marcación y posterior facturación; número del cruce: " + prems[0].ToString() + strmensaje;
+                        estado = 0;
+                    }
+                }
+                catch (Exception ex)
+                {
+                    _mensaje = ex.Message;                    
+                }
+            }
+            if (estado == 0)
+            {
+                Session[_sessionPagsLiqs] = getPagsLiqs(cust.Bas_id);
+            }
+
+            return Json(new { estado = estado, mensaje = _mensaje });      
         }
         #endregion
     }    
