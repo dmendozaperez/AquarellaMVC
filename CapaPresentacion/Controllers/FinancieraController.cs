@@ -113,35 +113,35 @@ namespace CapaPresentacion.Controllers
                 total = membercol.Where(w => w.checks).Sum(s => s.val * s.von_increase)
             }, JsonRequestBehavior.AllowGet);
         }
-        public ActionResult GuardarCruce()
-        {
-            string _mensaje = "";
-            if (Session[_sessionPagsLiqs] == null)
-            {
-                List<Ent_Pag_Liq> listPed = new List<Ent_Pag_Liq>();
-                Session[_sessionPagsLiqs] = listPed;
-            }
-            List<Ent_Pag_Liq> list = (List<Ent_Pag_Liq>)Session[_sessionPagsLiqs];
-            list = list.Where(w => w.checks).ToList();
+        //public ActionResult GuardarCruce()
+        //{
+        //    string _mensaje = "";
+        //    if (Session[_sessionPagsLiqs] == null)
+        //    {
+        //        List<Ent_Pag_Liq> listPed = new List<Ent_Pag_Liq>();
+        //        Session[_sessionPagsLiqs] = listPed;
+        //    }
+        //    List<Ent_Pag_Liq> list = (List<Ent_Pag_Liq>)Session[_sessionPagsLiqs];
+        //    list = list.Where(w => w.checks).ToList();
 
-            int countLiqSel = list.Where(w => w.dtv_concept_id == "LIQUIDACIONES").Count();
+        //    int countLiqSel = list.Where(w => w.dtv_concept_id == "LIQUIDACIONES").Count();
 
-            if (list.Count == 0)
-            {
-                _mensaje = "No ha seleccionado ningun item.";
-            }
-            if (countLiqSel > 1)
-            {
-                _mensaje = "No se puede realizar cruce de pagos con 2 o más Pedidos, por favor seleccione solo 1 pedido.";
-            }
-            if (countLiqSel == 0)
-            {
-                _mensaje = "no ha seleccionado ningun pedido para cruzar el pago";
-            }
+        //    if (list.Count == 0)
+        //    {
+        //        _mensaje = "No ha seleccionado ningun item.";
+        //    }
+        //    if (countLiqSel > 1)
+        //    {
+        //        _mensaje = "No se puede realizar cruce de pagos con 2 o más Pedidos, por favor seleccione solo 1 pedido.";
+        //    }
+        //    if (countLiqSel == 0)
+        //    {
+        //        _mensaje = "no ha seleccionado ningun pedido para cruzar el pago";
+        //    }
             
            
 
-        }
+        //}
         #endregion
     }    
 }
