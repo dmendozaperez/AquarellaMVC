@@ -242,13 +242,13 @@ namespace CapaPresentacion.Controllers
             {
                 noOrder = datPedido.Gua_Mod_Liquidacion(_usuario.usu_id, Convert.ToDecimal(cust.Bas_id), string.Empty, cust._commission, 0, string.Empty, string.Empty, order, header._percepcion,
                                                     _estado, _ped_id, _liq, _liq_dir, _PagPos, _PagoPostarjeta, _PagoNumConsignacion, _PagoTotal, dtpago, _pago_credito,
-                                                    cust._percepcion, order_dtl_temp, "005");
+                                                    cust._percepcion, order_dtl_temp, cust._vartipopago);
             }
             else
             {
                 noOrder = datPedido.Gua_Mod_Liquidacion(_usuario.usu_id, Convert.ToDecimal(cust.Bas_id), string.Empty, cust._commission, 0, string.Empty, string.Empty, order, header._percepcion,
                                                     2, liq.ped_Id, liq.liq_Id, _liq_dir, _PagPos, _PagoPostarjeta, _PagoNumConsignacion, _PagoTotal, dtpago, _pago_credito,
-                                                    cust._percepcion, order_dtl_temp, "005");
+                                                    cust._percepcion, order_dtl_temp, cust._vartipopago);
             }
             var oJRespuesta = new JsonResponse();
 
@@ -445,7 +445,22 @@ namespace CapaPresentacion.Controllers
 
             return order;
         }
-
+        public ActionResult udateTipoPago(string tipoPago)
+        {
+            try
+            {
+                List<Ent_Order_Dtl> pedidoCompleto = (List<Ent_Order_Dtl>)Session[_session_list_detalle_pedido];
+                for (int i = 0; i < pedidoCompleto.Count; i++)
+                {
+                    _addArticle(pedidoCompleto[i], 0, tipoPago, true);
+                }              
+                return Json(new { estado = 0 });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { estado = 1 , mensaje = "Error al cambiar tipo de pago; " + ex.Message  });
+            }            
+        }
         /** Lista Liquidaciones **/
         public ActionResult getListPedido(Ent_jQueryDataTableParams param)
         {
@@ -731,7 +746,7 @@ namespace CapaPresentacion.Controllers
             }, JsonRequestBehavior.AllowGet);
         }
         [HttpPost]
-        public ActionResult setDetallePedido(List<Ent_Nueva_Linea_Talla> listTallasCantidad = null, bool editar = false)
+        public ActionResult setDetallePedido(List<Ent_Nueva_Linea_Talla> listTallasCantidad = null, bool editar = false, string tipoPago = "005" )
         {
             try
             {
@@ -813,7 +828,7 @@ namespace CapaPresentacion.Controllers
                         //nroProms = dtArt.Rows.Count,
                     };
                     _nuevo._size = item.codTalla;
-                    _addArticle(_nuevo, item.CantTalla, "005", editar);                    
+                    _addArticle(_nuevo, item.CantTalla, tipoPago, editar);                    
                 }
                 return Json(new { estado = 1  });
             }
@@ -831,7 +846,7 @@ namespace CapaPresentacion.Controllers
             try
             {
                 Ent_Persona cust = (Ent_Persona)Session[_session_customer];
-                string varTipoPago = "005"; // cust._vartipopago;
+                string varTipoPago = cust._vartipopago;
                 // se agregó varPagoxOPG.06-06-19
                 if (orderLines != null && varTipoPago != "008" && varTipoPago != "OPG")
                 {
@@ -1698,7 +1713,7 @@ namespace CapaPresentacion.Controllers
             //decimal ofertporcentaje;
             //decimal ofertamaxpares;
             Ent_Persona cust = (Ent_Persona)Session[_session_customer];
-            
+            cust._vartipopago = varTipoPago;
             if (varTipoPago == "004")
             {
                 commPercent = cust._commission / 100;
@@ -1754,6 +1769,7 @@ namespace CapaPresentacion.Controllers
                     {
                         if (editar)
                         {
+                            if (qty > 0)
                             qty = qty - resultLine._qty;
                         }
                         newQty = resultLine._qty + qty;
@@ -1769,6 +1785,7 @@ namespace CapaPresentacion.Controllers
                         resultLine._lineTotal = Math.Round((resultLine._price * newQty) - (resultLine._dscto * newQty) - resultLine._commission, 2, MidpointRounding.AwayFromZero);
                         //resultLine._lineTotDesc = (num * ((resultLine._price * newQty) - (resultLine._dscto * newQty) - resultLine._commission)).ToString(_currency);
                         // resultLine._lineTotDesc = ((resultLine._priceigv * newQty) - (resultLine._dscto * newQty) - resultLine._commissionigv).ToString(_currency);
+                        resultLine._lineTotDesc = resultLine._lineTotal;
                         if (varTipoPago == "008" || varTipoPago == "OPG")
                         {
                             resultLine._lineTotal = (resultLine._price * newQty);
@@ -1777,7 +1794,7 @@ namespace CapaPresentacion.Controllers
                             resultLine._commission = 0;
                             resultLine._dscto = 0;
                             //resultLine._lineTotal = 0m;
-                           // resultLine._lineTotDesc = (0).ToString(_currency);
+                            resultLine._lineTotDesc = (0);
 
                             //resultLine._priceigvDesc = (0).ToString(_currency);
 
@@ -1802,7 +1819,7 @@ namespace CapaPresentacion.Controllers
                     newLine._lineTotal = Math.Round((newLine._price * qty) - (newLine._dscto * qty) - newLine._commission, 2, MidpointRounding.AwayFromZero);
                     //newLine._lineTotDesc = (num2 * ((newLine._price * qty) - (newLine._dscto * qty) - newLine._commission)).ToString(_currency);
                     //newLine._lineTotDesc = ((newLine._priceigv * qty) - (newLine._dscto * qty) - newLine._commissionigv).ToString(_currency);
-
+                    newLine._lineTotDesc = newLine._lineTotal;
                     if (varTipoPago == "008" || varTipoPago == "OPG")
                     {
                         newLine._lineTotal = (newLine._price * qty);
@@ -1811,7 +1828,7 @@ namespace CapaPresentacion.Controllers
                         newLine._commission = 0;
                         newLine._dscto = 0;
                         //newLine._lineTotal = 0m;
-                        //newLine._lineTotDesc = (0).ToString(_currency);
+                        newLine._lineTotDesc = 0;
                         //newLine._priceigvDesc = (0).ToString(_currency);
 
                     }
@@ -1901,9 +1918,9 @@ namespace CapaPresentacion.Controllers
                     decimal taxRate = (cust._taxRate / 100);
                     int totalQty = order.Sum(q => q._qty);
                     decimal subTotal = Math.Round(order.Sum(x => x._lineTotal), 2, MidpointRounding.AwayFromZero);
-                    //string subTotalDesc = subTotal.ToString(_currency);
+                    decimal subTotalDesc = subTotal;
                     decimal taxes = Math.Round((order.Sum(x => x._lineTotal)) * taxRate, 2, MidpointRounding.AwayFromZero);
-                    //string taxesDesc = taxes.ToString(_currency);
+                    decimal taxesDesc = taxes;
 
                     if (Session[_session_notas_persona] == null)
                     {
@@ -1968,20 +1985,20 @@ namespace CapaPresentacion.Controllers
                     //*******************************
 
                     decimal _totalOPG = 0.00m;
-                    //if (cust._vartipopago == "008" || cust._vartipopago == "OPG")
-                    //{
-                    //    _totalOPG = grandTotal;
-                    //    //subTotalDesc = (0).ToString(_currency);
-                    //    //grandTotalDesc = (0).ToString(_currency);
-                    //    grandTotal = 0m;
-                    //    percepcion = 0m;
-                    //    //percepciondesc = (0).ToString(_currency);
-                    //    mtopercepcion = 0m;
-                    //    //mtopercepciondesc = (0).ToString(_currency);
-                    //    mtoncredito = 0m;
-                    //    //mtoncreditodesc = (0).ToString(_currency);
-
-                    //}
+                    if (cust._vartipopago == "008" || cust._vartipopago == "OPG")
+                    {
+                        _totalOPG = grandTotal;
+                        subTotalDesc = (0);
+                        //grandTotalDesc = (0).ToString(_currency);
+                        grandTotal = 0m;
+                        percepcion = 0m;
+                        //percepciondesc = (0).ToString(_currency);
+                        mtopercepcion = 0m;
+                        //mtopercepciondesc = (0).ToString(_currency);
+                        mtoncredito = 0m;
+                        //mtoncreditodesc = (0).ToString(_currency);
+                        taxesDesc = (0);
+                    }
 
 
                     orderHdr = new Ent_Order_Hdr
@@ -1990,9 +2007,9 @@ namespace CapaPresentacion.Controllers
                         _subTotalOPG = _totalOPG,
                         _taxes = taxes,
                         _subTotal = subTotal,
-                        //_subTotalDesc = subTotalDesc,
+                        _subTotalDesc = subTotalDesc,
                         //_grandTotalDesc = grandTotalDesc,
-                        //_taxesDesc = taxesDesc,
+                        _taxesDesc = taxesDesc,
                         _grandTotal = grandTotal,
                         _percepcion = percepcion,
                         //_percepciondesc = percepciondesc,
@@ -2084,7 +2101,8 @@ namespace CapaPresentacion.Controllers
                                  _price = g.Average(a => a._price),
                                  _commission = g.Sum(s => s._commission),
                                  _lineTotal = g.Sum(s => s._lineTotal),
-                                 _dscto = g.Sum(s => s._dscto)
+                                 _dscto = g.Sum(s => s._dscto),
+                                 _lineTotDesc = g.Sum(s => s._lineTotDesc),
                              }).ToList();
             //IQueryable <Ent_Order_Dtl> membercol = ((List<Ent_Order_Dtl>)(Session[_session_list_detalle_pedido])).AsQueryable();  //lista().AsQueryable();
 
@@ -2161,6 +2179,7 @@ namespace CapaPresentacion.Controllers
                              a._dscto,
                              a._tallas , 
                              a._qtys,
+                             a._lineTotDesc,
                          };
             //Se devuelven los resultados por json
             return Json(new
