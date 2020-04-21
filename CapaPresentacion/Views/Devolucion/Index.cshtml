@@ -1,0 +1,488 @@
+﻿
+@{
+    ViewBag.Title = "Devolucion de Mercaderia";
+}
+<style>
+    #dwcliente {
+        width: 200px;
+    }
+
+    .imgRedonda {
+        width: 100px;
+        height: 80px;
+        border-radius: 15px;
+    }
+
+    #divImagen {
+        width: 100%;
+        height: 100%;
+    }
+
+    #listatallas {
+        border-radius: 10px 10px 10px 10px;
+        -moz-border-radius: 10px 10px 10px 10px;
+        -webkit-border-radius: 10px 10px 10px 10px;
+        border: 2px;
+    }
+
+    #lugar {
+        border-radius: 10px 10px 10px 10px;
+        -moz-border-radius: 10px 10px 10px 10px;
+        -webkit-border-radius: 10px 10px 10px 10px;
+        border: 2px;
+    }
+
+    .table thead {
+        background-color: #5799bf;
+        color: #fff;
+    }
+
+    .boton-xs-td {
+        padding-top: 5px !important;
+        padding-bottom: 5px !important;
+    }
+
+    .nav-tabs-custom > .nav-tabs > li.active > a, .nav-tabs-custom > .nav-tabs > li.active:hover > a {
+        background-color: #e8e8e8;
+        color: #444;
+    }
+</style>
+<p class="text-primary">Generacion de Devoluciones de Mercaderia.</p>
+<div class="row">
+    <div class="col-md-12">
+        @*@using (Ajax.BeginForm("ListaPcPedidos", options))
+            {*@
+        <div class="row">
+            <div class="col-md-5">
+                <div class="box box-widget">
+                    <div class="box-header with-border">
+                        Promotor(a)
+                    </div>
+                    <div class="box-body">
+                        <div class="row">
+                            <div class="col-md-10 col-xs-10">
+                                <div class="form-group">
+                                    @Html.DropDownList("dwPromotor", new SelectList(ViewBag.listPromotor, "codigo", "descripcion", null), new { @class = "form-control selectpicker", @data_live_search = "true", @id = "dwPromotor", @name = "dwPromotor" })
+                                    <span class="help-block" style="color: #31708f">Seleccione un promotor sobre el cual realizará las acciones</span>
+                                </div>
+                            </div>
+                            <button type="button" title="Consultar" id="btnConsultar" class="btn btn-primary">
+                                <small class="glyphicon glyphicon-search"></small>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <div id="Botones" class="box box-widget">
+
+                </div>
+            </div>
+            <div class="col-md-5">
+                <div class="box box-widget">
+                    <div class="box-header with-border">
+                        <div class="user-block">
+                            <img class="img-circle" src="../Content/images/placeholder-user.jpg" alt="User Image">
+                            <span class="username" id="doc-nom-persona">&nbsp;</span>
+                            <span class="description" id="ubi-persona">&nbsp;</span>
+                        </div>
+                        <!-- /.user-block -->
+                        <div class="box-tools">
+                            <button type="button" class="btn btn-box-tool" data-widget="collapse">
+                                <i class="fa fa-minus"></i>
+                            </button>
+                        </div>
+                        <!-- /.box-tools -->
+                    </div>
+                    <div class="box-body">
+                        <div class="row" id="infoProm">
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        @* }   *@
+    </div>
+</div>
+<div class="row">
+    <div class="col-md-12">
+        <div class="nav-tabs-custom">
+            <ul class="nav nav-tabs">
+              
+                <li class="active"><a href="#tab_2" data-toggle="tab" aria-expanded="false">Consulta de Facturacion y Generacion</a></li>
+                <li class=""><a href="#tab_3" data-toggle="tab" aria-expanded="false">Consulta de Devolucion y Estado</a></li>
+               
+            </ul>
+            <div class="tab-content">              
+                <!-- /.tab-Liquidaciones -->
+                <div class="tab-pane active" id="tab_2">
+                    <h5 class="text-bold">Facturacion de Clientes</h5>
+                    <p class="text-info">Consulta de Facturacion y Generacion de Devolucion.</p>
+
+                    <div class="table-responsive">
+                        <table id="tblLiquidaciones" class="table table-hover table-bordered compact">
+                            <thead>
+                                <tr>
+                                    <th>TipoDoc</th>
+                                    <th>Nro.doc</th>
+                                    <th>FecDoc</th>
+                                    <th>SubTotal</th>
+                                    <th>Igv</th>
+                                    <th>Total</th>   
+                                    <th>Generar Dev.</th>                                 
+                                </tr>
+                            </thead>
+                            <tbody data-bind="foreach:"></tbody>
+                            <tfoot>
+                                <tr>
+                                    <th>TipoDoc</th>
+                                    <th>Nro.doc</th>
+                                    <th>FecDoc</th>
+                                    <th>SubTotal</th>
+                                    <th>Igv</th>
+                                    <th>Total</th>   
+                                    <th>Generar Dev.</th>           
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+                </div>
+                <!-- /.tab-NotaCredito -->
+                <div class="tab-pane" id="tab_3">
+                    <h5 class="text-bold">Consulta de Devoluciones</h5>
+                    <p class="text-info">Consulta de Devoluciones y Estado.</p>
+                    <div class="table-responsive">
+                        <table id="tblNC" class="table table-hover table-bordered compact">
+                            <thead>
+                                <tr>
+                                    <th>Nro NC</th>
+                                    <th>Fecha</th>
+                                    <th>Unidades</th>
+                                    <th>Valor</th>
+                                    <th>Devol</th>
+                                </tr>
+                            </thead>
+                            <tbody data-bind="foreach:"></tbody>
+                            <tfoot>
+                                <tr>
+                                    <th>Nro NC</th>
+                                    <th>Fecha</th>
+                                    <th>Unidades</th>
+                                    <th>Valor</th>
+                                    <th>Devol</th>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+                </div>               
+            </div>
+            <!-- /.tab-content -->
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="myModal1" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="row">
+                    <div class="col-md-4">
+                        <p style="font-size:medium" class="text-primary modal-title" id="myModalLabel"><b>DETALLES DEL DOCUMENTO: &nbsp;</b></p>
+                        <p style="font-size:small" class="text-primary modal-title" id="myModalLabel"><strong class="text-danger" id="tienda_str"></strong></p>
+                        <p style="font-size:small" class="text-primary modal-title" id="myModalLabel"><strong class="text-black" id="doc_str"></strong></p>
+                        <p style="font-size:small" class="text-primary modal-title" id="myModalLabel"><strong class="text-blue" id="cantidad"></strong></p>
+                    </div>
+                </div>
+            </div>
+            <div style="font-size:small" class="modal-body" id="modalBody1">
+
+            </div>
+            <div class="modal-footer">
+                <input type="submit" onclick="guardar_dev();" class="btn btn-info" id="btnSubmit" value="Guardar" />
+                <input type="submit" class="btn btn-success" id="btnSubmit" value="Guardar y Cerrar" />
+                <button type="button" class="btn btn-default" data-dismiss="modal" onclick="">Cerrar</button>
+            </div>
+        </div>
+    </div>
+</div>
+@section scripts{ 
+<script>
+
+    function guardar_dev() {
+
+        var table = $('#tabPromtipo').DataTable();
+
+       
+
+        tbl = $('#tabPromtipo').DataTable();
+
+        var valida_ingreso = 0;
+        var valida_cant_ing = 0;
+
+        var data = tbl.rows().data();
+
+        data.each(function (value, index) {
+            
+            var row = table.rows(index).data();
+
+            var cell = table.cell({ row: index, column: 3 }).node();
+
+            var cant_ven = value.CANTIDAD;
+            var cant_ing =parseInt($('input', cell).val());
+
+            valida_ingreso += cant_ing;
+
+            if (cant_ing > cant_ven) {
+                valida_cant_ing = 1;
+                toastr.error("La Cantidad a devolver es mayor a la cantidad que se facturo del codigo: " + value.ARTICULO, "Alerta");
+                return;
+            }        
+        });
+        if (valida_cant_ing == 1) { return;}
+        if (valida_ingreso == 0) {
+            toastr.error("No ha ingresado ningun valor a devolver", "Alerta");
+            return;
+        }
+
+        swal({
+            title: "Liquidar pedido?",
+            text: "¿Desea guardar el pedido y generar liquidacion?",
+            icon: "warning",
+            buttons: ["No", "Si"],
+            dangerMode: true,
+        })
+  .then((cambiar) => {
+      if (cambiar) {
+          waitingDialog.show("Espere por favor...")
+          $.ajax({
+              type: "Post",
+              url: '@Url.Action("LiquidarPedido", "Pedido")',
+              //data: { articulo: articulo, size: size },
+              success: function (data) {
+
+                  toastr.success("Liquidacion generada con exito.", 'Mensaje');
+                  //$('#load').show();
+                  $("#load").attr("src", "../AspNetForms/ReportLiquidation.aspx");
+                  $("#CRLiquidacion").modal({ backdrop: 'static', keyboard: false });
+                  //if (data.estado == 0) {                                 
+
+
+                  //} else {
+                  //    toastr.error(data.mensaje, 'Error');
+                  //}
+              },
+              error: function (xhr) {
+                  waitingDialog.hide();
+                  toastr.error(xhr, 'Mensaje');
+              }
+          });
+      }
+  });
+       
+    }
+
+    $("#btnConsultar").click(function () {
+        waitingDialog.show("Espere un momento por favor.")
+        $.ajax({
+            type: "POST",
+            url: '@Url.Action("GET_INFO_PERSONA_DEVOLUCION", "Devolucion")',
+            data: { codigo: $("#dwPromotor").val() },
+            success: function (data) {
+                waitingDialog.hide();
+                if (data.estado == 0) {
+                    $("#doc-nom-persona").html(data.info.Bas_Documento + ' - ' + data.info.NombreCompleto);
+                    $("#ubi-persona").html(data.info.Ubicacion);
+                    var html = '<div class="col-md-12 col-xs-12" >\
+                                        <dl class="dl-horizontal">\
+                                        <dt>Asesor Comercial :</dt>\
+                                        <dd>' + data.info.asesor + '</dd>\
+                                        <dt>Lider :</dt>\
+                                        <dd>' + data.info.Are_Descripcion + '</dd>\
+                                        <dt>Ubicación :</dt>\
+                                        <dd>' + data.info.Ubicacion + '</dd>\
+                                        <dt>E-Mail de contacto :</dt>\
+                                        <dd>' + data.info.Bas_Correo + '</dd>\
+                                        <dt>Agencia :</dt>\
+                                        <dd>' + data.info.bas_agencia + '</dd>\
+                                        <dt>Destino :</dt>\
+                                        <dd>' + data.info.bas_destino + '</dd>\
+                                        <dt>Premio por ganar :</dt>\
+                                        <dd></dd>\
+                                        </dl>\
+                                    </div>'
+                    @*var botones = '<div class="box-body">\
+                                        <form action="@Url.Action("CrearEditar", "Pedido")" method="post">\
+                                            <input type="hidden" name="custId" value="' + $("#dwPromotor").val() + '" />\
+                                            <button type="submit" class="btn btn-success" ><i class="fa fa-shopping-cart"></i>&nbsp; Nuevo Pedido</button>\
+                                        </form>\
+                                      </div>'*@
+
+                    $("#infoProm").html(html);
+                    //$("#Botones").html(botones);
+                    $('#tblLiquidaciones').DataTable().ajax.reload();
+                    //$('#tblNC').DataTable().ajax.reload();
+                    //$('#tblConsignaciones').DataTable().ajax.reload();
+                    //$('#tblSaldos').DataTable().ajax.reload();
+                
+                }
+            },
+            error: function (XMLHttpRequest, textStatus, errorThrown) {
+                waitingDialog.hide();
+                toastr.error("Error al consultar.", "Alerta");
+            }
+        });
+    });
+</script>
+<script>
+    $(document).ready(function () {
+        /** Documentos **/
+        $('#tblLiquidaciones').DataTable({
+            dom: 'Bfrtip',
+            //columnDefs: [
+            //    {
+            //        //targets: [6, 7, 8, 9], //[0,1,2,3,4,5,10,11,12,13,14],
+            //        //visible: false,
+            //    },
+            //    {
+            //        //targets: [11],
+            //        //orderable: false,
+            //    }
+            //],
+            buttons: [
+                {
+                    extend: 'colvis',
+                    collectionLayout: 'fixed three-column',
+                }
+            ],
+            "language": {
+                "url": "../Scripts/DataTables/Spanish.json",
+                buttons: {
+                    colvis: 'Columnas'
+                }
+            },
+            "bServerSide": true,
+            "bAutoWidth": false,
+            "sAjaxSource": '@Url.Action("getListDocumentosDev", "Devolucion")',
+            "bdestroy": true,
+            //"bFilter": true,
+            "start": 0,
+            //"bPaginate": false,
+            "orderable": false,
+            "order": [0, "desc"],
+            "bDeferRender": true,
+            "columns": [
+                   { "data": "TIPODOC" },
+                   { "data": "NDOC" },
+                   { "data": "FDOC" },                   
+                   {
+                       render: function (data, type, full) {
+                           return "S/ " + full.SUBTOTAL.toFixed(2);
+                       },
+                   },
+                   {
+                       render: function (data, type, full) {
+                           return "S/ " + full.IGV.toFixed(2);
+                       },
+                   },
+                   {
+                       render: function (data, type, full) {
+                           return "S/ " + full.TOTAL.toFixed(2);
+                       },
+                   },
+                    {
+                        "render": function (data, type, full) {
+                            var ndoc = full.NDOC
+                            var pedId = '122';//full.ped_Id
+                            var custId = '11';//full.cust_Id
+                            //return '<a onclick="EditarLiquidacion(' + liqId + ',' + pedId + ',' + custId + ')" target="_blank" class="btn btn-default btn-sm"><span class="glyphicon glyphicon-print fa-1x"></span></a>';
+                            @*var btnEdit = full.estId == "PS" || full.estId == "PC" ? '<form action="@Url.Action("CrearEditar", "Pedido")" method="post" style="display: inline;">\
+                                            <input type="hidden" name="liqId" value="' + liqId + '" />\
+                                            <input type="hidden" name="pedId" value="' + pedId + '" />\
+                                            <input type="hidden" name="custId" value="' + custId + '" />\
+                                            <button type="submit" title="Editar Liquidacion" class="btn btn-xs btn-default btn-tabla editar-fila"><span class="fa fa-pencil text-primary"></span></button>\
+                                        </form>' : ("&nbsp;").repeat(10);*@
+                            var btnVliq = '<button title="Generar Devolucion." class="btn btn-default btn-sm detalles-cupon"  onclick="get_detalle(\'' + ndoc + '\',\'' + 'ok2' + '\',\'' + 'ok3' + '\',\'' + 'ok5' + '\',\'' + 'ok5' + '\',' + 5 + ');" data-cupon="XXXX"  data-cliente="YYYYYY"><i class="glyphicon glyphicon-folder-open"></i></button>';
+                            //var btnVliq = '<button title="Ver Liquidacion" class="btn btn-xs btn-default btn-tabla ver-liq" data-liqId="' + liqId + '" data-pedId="' + pedId + '" data-custId="' + custId + '" ><span class="fa fa-print"></span></button>';
+                            //var btnVfac = full.ventaId == "" || full.ventaId == null ? ("&nbsp;").repeat(10) : '<button title="Ver Factura" class="btn btn-xs btn-default btn-tabla editar-fila" style="margin-left: 3.5px;"><span class="fa fa-file-text-o text-success"></span></button>';
+                            //var btnAnu = full.estId == "PS" || full.estId == "PC" ? '<button title="Anular" class="btn btn-xs btn-default btn-tabla anular" data-liqId="' + liqId + '" data-pedId="' + pedId + '" data-custId="' + custId + '" ><span class="fa fa-trash text-danger"></span></button>' : ("&nbsp;").repeat(10);
+                            return btnVliq;// + btnVfac +/* btnEdit +*/ btnAnu;
+                        }, "class": "boton-xs-td"
+                    },
+                                                         
+            ]
+        });
+    });
+
+    function get_detalle(nro_doc, tienda, tipotransac, tipo_doc, num_doc, cant)
+    {
+        waitingDialog.show('Este proceso, puede tardar unos minutos.', {
+            headerText: 'Espere un momento por favor.',
+            headerClass: 'content2',
+        });
+        var ControllerUrl = "@Url.Action("genera_nuevo_dev", "Devolucion")";
+        $.ajax({
+            type: "GET",
+            url: ControllerUrl,
+            contentType: "application/json; charset=utf-8",
+            data: { nro_doc: nro_doc },
+            datatype: "json",
+            cache: true,
+            success: function (data) {
+
+                var options = { "backdrop": "static", keyboard: true };
+            
+
+                //$("#tienda_str").html('TIENDA:' + tienda);
+                //$("#doc_str").html(tipotransac + '-' + tipo_doc + '-' + num_doc);
+                //$("#cantidad").html('TOTAL CANTIDAD: ' +cant );
+
+            
+
+                $('#modalBody1').html(data);
+                $('#myModal1').modal(options);
+                waitingDialog.hide();
+
+                $('#tabPromtipo').dataTable({
+                    "language": {
+                        "url": "../Scripts/DataTables/Spanish.json"
+                    },
+                    "bProcessing": true,
+                    "bServerSide": true,
+                    "bAutoWidth": false,
+                    "sAjaxSource": '@Url.Action("getTableconsdocDetNewAjax", "Devolucion")',
+                    "fnServerParams": function (aoData) {
+                    },
+                    "bdestroy": true,
+                    "start": 0,
+                    "sort": false,
+                    "pageLength": 5,
+                    "order": [0, "asc"],
+                  
+                    "bDeferRender": true,
+                    "aoColumns": [
+                             { "sName": "ARTICULO", "mData": "ARTICULO" },
+                             { "sName": "TALLA", "mData": "TALLA" },
+                             { "sName": "CANTIDAD", "mData": "CANTIDAD" },
+                              {
+                                  "render": function (data, type, full) {
+                                      var ndoc = full.NDOC
+                                      var pedId = '122';//full.ped_Id
+                                      var custId = '11';//full.cust_Id                                    
+                                      var txtdev = '<input name="txtsemana" type="number" id="txtsemana" min="0" value="0" style="width:25%;;font-weight:bold;font-size:15px" class="bg-success" autofocus class="form-control" />';                                      
+                                      return txtdev;
+                                  }, "class": "boton-xs-td"
+                              },
+                    ],
+                    dom: 'Bfrtip',
+                    buttons:
+                        [
+                        ]
+                });
+            },
+            error: function (xhr) {
+                waitingDialog.hide();
+                toastr.error(xhr, 'Mensaje');
+            }
+        });
+    }
+
+  </script>
+}
