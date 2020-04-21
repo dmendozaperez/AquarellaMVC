@@ -48,7 +48,7 @@ namespace CapaEntidad.Pedido
         public string _dsctoValeDesc { get; set; }
         public string _dsctoMsg { get; set; }
         public decimal _lineTotal { get; set; }
-        public string _lineTotDesc { get; set; }
+        public decimal _lineTotDesc { get; set; }
        
         public string _ap_percepcion { get; set; }
 
@@ -141,9 +141,9 @@ namespace CapaEntidad.Pedido
         public decimal _subTotal { get; set; }
         public decimal _subTotalOPG { get; set; }
         public string _subTotalOPGDesc { get; set; }
-        public string _subTotalDesc { get; set; }
+        public decimal _subTotalDesc { get; set; }
         public decimal _taxes { get; set; }
-        public string _taxesDesc { get; set; }
+        public decimal _taxesDesc { get; set; } 
         public decimal _grandTotal { get; set; }
         public string _grandTotalDesc { get; set; }
         public decimal _percepcion { get; set; }

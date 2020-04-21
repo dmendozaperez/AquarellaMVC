@@ -35,5 +35,6 @@ namespace CapaEntidad.Persona
         public decimal _commission_POS_visaUnica { get; set; }
         public decimal _percepcion { get; set; }
         public Boolean _aplica_percepcion { get; set; }
+        public string _vartipopago { get; set; }
     }
 }

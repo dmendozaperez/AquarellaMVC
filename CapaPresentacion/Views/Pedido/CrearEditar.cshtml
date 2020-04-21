@@ -143,7 +143,7 @@ else
         <div class="box box-widget">
             <div class="box-body">
                 <label for="dwFormaPago">Formas de pago:&nbsp;<i class="glyphicon glyphicon-money"></i>&nbsp;&nbsp;</label>
-                @Html.DropDownList("dwFormaPago", new SelectList(ViewBag.listFormapago, "codigo", "descripcion", "-1"), new { @class = "selectpicker", @data_live_search = "false", @id = "dwFormaPago", @placeholder = ".col-xs-1" })
+                @Html.DropDownList("dwFormaPago", new SelectList(ViewBag.listFormapago, "codigo", "descripcion", "005"), new { @class = "selectpicker", @data_live_search = "false", @id = "dwFormaPago", @placeholder = ".col-xs-1" })
             </div>
         </div>
     </div>
@@ -201,6 +201,16 @@ else
             <div class="box-body">
                 <div class="row">
                     <div class="col-sm-offset-5 col-sm-7 col col-md-offset-7 col-md-5">
+                        <div class="row row-no-gutter">
+                            <div class="col-xs-7 col-sm-5 col-md-6"><strong>Cantidades totales:</strong></div>
+                            <div class="col-xs-2 col-sm-3 col-md-2 text-right"></div>
+                            <div class="col-xs-3 col-sm-4 col-md-4 text-right"><span id="cantitdades">0</span></div>
+                        </div>
+                        <div class="row row-no-gutter">
+                            <div class="col-xs-7 col-sm-5 col-md-6"><strong>Operacione Gratuitas:</strong></div>
+                            <div class="col-xs-2 col-sm-3 col-md-2 text-right">S/</div>
+                            <div class="col-xs-3 col-sm-4 col-md-4 text-right"><span id="opeGratuitas">0.00</span></div>
+                        </div>
                         <div class="row row-no-gutter">
                             <div class="col-xs-7 col-sm-5 col-md-6"><strong>Sub Total (Sin IGV):</strong></div>
                             <div class="col-xs-2 col-sm-3 col-md-2 text-right">S/</div>
@@ -357,6 +367,28 @@ else
         var tablaProcessing = true;
         $(document).ready(function () {
             //waitingDialog.show("Espere por favor...")
+            $("#dwFormaPago").change(function () {
+                $.ajax({
+                    type: "Post",
+                    url: '@Url.Action("udateTipoPago", "Pedido")',
+                    data: { tipoPago: $(this).val() },
+                    success: function (data) {
+                        //waitingDialog.hide();
+                        if (data.estado == 0) {
+                            $('#detPedido').DataTable().ajax.reload(function () {
+                                waitingDialog.hide();
+                            });
+                        } else {
+                            waitingDialog.hide()
+                            toastr.error(data.mensaje, 'Error');
+                        }
+                    },
+                    error: function (xhr) {
+                        waitingDialog.hide();
+                        toastr.error(xhr, 'Mensaje');
+                    }
+                });
+            });
             $("#txtArticulo").keyup(function (event) {
                 if (event.keyCode === 13) {
                     event.preventDefault();
@@ -435,7 +467,7 @@ else
                 });
             });
             /** Carga de lista de pedidos **/
-            
+
             $('#detPedido').on('processing.dt', function (e, settings, processing) {
                 if (tablaProcessing) {
                     if (processing) {
@@ -463,8 +495,9 @@ else
                 "fnServerData": function (sSource, aoData, fnCallback) {
                     $.getJSON(sSource, aoData, function (json) {
                         var header = json.header;
-                        $("#subTotalList").html(header._subTotal.toFixed(2));
-                        $("#totalImpuesto").html(header._taxes.toFixed(2));
+                        $("#opeGratuitas").html(header._subTotalOPG.toFixed(2));
+                        $("#subTotalList").html(header._subTotalDesc.toFixed(2));
+                        $("#totalImpuesto").html(header._taxesDesc.toFixed(2));
                         $("#totalNota").html(header._mtoncredito.toFixed(2));
                         $("#totalList").html(header._grandTotal.toFixed(2));
                         $("#totalPercepcion").html(header._percepcion.toFixed(2));
@@ -518,7 +551,7 @@ else
                        },
                        {
                            render: function (data, type, full) {
-                               return "S/ " + full._lineTotal.toFixed(2);
+                               return "S/ " + full._lineTotDesc.toFixed(2);
                            }, "className": "desktop tablet precio"
                        },
                        {
@@ -597,7 +630,7 @@ else
                                                                     <td>' + "S/ " + full._price.toFixed(2) + '</td>\
                                                                     <td>' + "S/ " + full._commission.toFixed(2) + '</td>\
                                                                     <td>' + "S/ " + full._dscto.toFixed(2) + '</td>\
-                                                                    <td>' + "S/ " + full._lineTotal.toFixed(2) + '</td>\
+                                                                    <td>' + "S/ " + full._lineTotDesc.toFixed(2) + '</td>\
                                                                 </tr>\
                                                             </tbody>\
                                                         </table>\
@@ -649,7 +682,7 @@ else
                            }
                        });
                    }
-               });               
+               });
             });
             $('#detPedido').on('click', '.editar-fila', function (e) {
                 var articulo = $(this).attr('data-articulo');
@@ -674,13 +707,13 @@ else
                           url: '@Url.Action("LiquidarPedido", "Pedido")',
                           //data: { articulo: articulo, size: size },
                           success: function (data) {
-                              
+
                               toastr.success("Liquidacion generada con exito.", 'Mensaje');
-                              ////$('#load').show();
-                              //$("#load").attr("src", "../AspNetForms/ReportLiquidation.aspx");
-                              //$("#CRLiquidacion").modal({ backdrop: 'static', keyboard: false });
-                              //if (data.estado == 0) {                                 
-                                  
+                              //$('#load').show();
+                              $("#load").attr("src", "../AspNetForms/ReportLiquidation.aspx");
+                              $("#CRLiquidacion").modal({ backdrop: 'static', keyboard: false });
+                              //if (data.estado == 0) {
+
 
                               //} else {
                               //    toastr.error(data.mensaje, 'Error');
@@ -998,7 +1031,7 @@ else
                                     <div class="col-xs-12 col-sm-7"><span class="overf">' + ColorArticulo + '</span></div>\
                                 </div>';
                     strhtml += '<div id="DivCateg" style="text-align:left"><h5><b>Categorización:</b></h5></div>'
-                    
+
                     strhtml += '<div id="DivHCodArt"  style="display:none;">' + codArticulo + '</div>'
                     strhtml += '<div id="DivHAfecPerc"  style="display:none;">' + afecPercep + '</div>'
                     strhtml += '<div id="DivHDesArt"  style="display:none;">' + NombreArticulo + '</div>'
@@ -1031,21 +1064,21 @@ else
                     $('#myModalContent').html(strhtml);
                     $('#myModal').modal(options);
                     $('#myModal').modal('show');
-                    waitingDialog.hide();
+                    $('#myModal').on('shown.bs.modal', function (event) {
+                        waitingDialog.hide();
+                    })
+                    //
                 } else {
                     toastr.error("Stock por ingresar.", "Aviso");
-                }
-                waitingDialog.hide();
-
+                    waitingDialog.hide();
+                }               
             },
             error: function () {
                 waitingDialog.hide();
                 alert('Error DibujarMostrarArticulo')
             }
-
         });
-
-        waitingDialog.hide();
+        //waitingDialog.hide();
     }
 
     function sumarCantidad(control) {
@@ -1100,12 +1133,13 @@ else
                     type: "POST",
                     url: '@Url.Action("setDetallePedido", "Pedido")',
                     //contentType: "application/json; charset=utf-8",
-                    data: { listTallasCantidad: listTallasCantidad, editar : (editar == null ? false : true) },
+                    data: { listTallasCantidad: listTallasCantidad, editar: (editar == null ? false : true), tipoPago: $("#dwFormaPago").val() },
                     //dataType: "json",
                     success: function (data) {
                         tablaProcessing = false;
                         toastr.success("Se agrego el Articulo a la venta.", 'Mensaje');
                         $('#detPedido').DataTable().ajax.reload();
+                        $('#myModal').modal('hide')
                        // validarOferta();
                     },
                     error: function (xhr) {
