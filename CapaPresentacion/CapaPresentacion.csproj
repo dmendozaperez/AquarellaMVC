@@ -218,6 +218,7 @@
     <Compile Include="Controllers\AdminLteController.cs" />
     <Compile Include="Controllers\AplicacionController.cs" />
     <Compile Include="Controllers\ClearController.cs" />
+    <Compile Include="Controllers\DevolucionController.cs" />
     <Compile Include="Controllers\FinancieraController.cs" />
     <Compile Include="Controllers\PedidoController.cs" />
     <Compile Include="Controllers\PromotorController.cs" />
@@ -3036,6 +3037,8 @@
     <Content Include="Views\Clear\Index.cshtml" />
     <Content Include="Views\Pedido\_formPedido.cshtml" />
     <Content Include="Views\Financiera\CrucePago.cshtml" />
+    <Content Include="Views\Devolucion\Index.cshtml" />
+    <Content Include="Views\Devolucion\genera_nuevo_dev.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
