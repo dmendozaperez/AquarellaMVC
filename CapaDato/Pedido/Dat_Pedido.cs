@@ -61,7 +61,7 @@ namespace CapaDato.Pedido
                                                 select new Ent_Combo()
                                                 {
                                                     codigo = dr["bas_id"].ToString(),
-                                                    descripcion = dr["Nombres"].ToString(),
+                                                    descripcion = dr["Nombres"].ToString().Replace("  "," "),
 
                                                 }).ToList();                        
 

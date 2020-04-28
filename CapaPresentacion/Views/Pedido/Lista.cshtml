@@ -310,7 +310,8 @@
                     waitingDialog.hide();
                     if (data.estado == 0) {
                         $("#doc-nom-persona").html(data.info.Bas_Documento + ' - ' + data.info.NombreCompleto);
-                        $("#ubi-persona").html(data.info.Ubicacion);
+                        var strPremio = data.info.premio.length > 0 ? '<b class="pull-right text-danger"><i class="fa fa-gift"></i>&nbsp;' + data.info.premio + '</b>' : "";
+                        $("#ubi-persona").html(data.info.Ubicacion + strPremio);
                         var html = '<div class="col-md-12 col-xs-12" >\
                                         <dl class="dl-horizontal">\
                                         <dt>Asesor Comercial :</dt>\
@@ -326,7 +327,7 @@
                                         <dt>Destino :</dt>\
                                         <dd>' + data.info.bas_destino + '</dd>\
                                         <dt>Premio por ganar :</dt>\
-                                        <dd></dd>\
+                                        <dd>' + data.info.premio + '</dd>\
                                         </dl>\
                                     </div>'
                         var botones = '<div class="box-body">\
@@ -466,6 +467,7 @@
                            var liqId = full.liq_Id
                            var pedId = full.ped_Id
                            var custId = full.cust_Id
+                           var venId = full.ventaId
                            //return '<a onclick="EditarLiquidacion(' + liqId + ',' + pedId + ',' + custId + ')" target="_blank" class="btn btn-default btn-sm"><span class="glyphicon glyphicon-print fa-1x"></span></a>';
                            var btnEdit =  full.estId == "PS" || full.estId == "PC" ? '<form action="@Url.Action("CrearEditar", "Pedido")" method="post" style="display: inline;">\
                                             <input type="hidden" name="liqId" value="' + liqId + '" />\
@@ -474,7 +476,7 @@
                                             <button type="submit" title="Editar Liquidacion" class="btn btn-xs btn-default btn-tabla editar-fila"><span class="fa fa-pencil text-primary"></span></button>\
                                         </form>' : ("&nbsp;").repeat(10);
                            var btnVliq = '<button title="Ver Liquidacion" class="btn btn-xs btn-default btn-tabla ver-liq" data-liqId="' + liqId + '" data-pedId="' + pedId + '" data-custId="' + custId + '" ><span class="fa fa-print"></span></button>';
-                           var btnVfac = full.ventaId == "" || full.ventaId == null ? ("&nbsp;").repeat(10) : '<button title="Ver Factura" class="btn btn-xs btn-default btn-tabla editar-fila" style="margin-left: 3.5px;"><span class="fa fa-file-text-o text-success"></span></button>';
+                           var btnVfac = full.ventaId == "" || full.ventaId == null ? ("&nbsp;").repeat(10) : '<button title="Ver Factura" class="btn btn-xs btn-default btn-tabla ver-fac"  data-liqId="' + liqId + '" data-venId="' + venId + '" style="margin-left: 3.5px;"><span class="fa fa-file-text-o text-success"></span></button>';
                            var btnAnu = full.estId == "PS" || full.estId == "PC" ? '<button title="Anular" class="btn btn-xs btn-default btn-tabla anular" data-liqId="' + liqId + '" data-pedId="' + pedId + '" data-custId="' + custId + '" ><span class="fa fa-trash text-danger"></span></button>' : ("&nbsp;").repeat(10) ;
                            return  btnVliq + btnVfac + btnEdit + btnAnu ;
                        }, "class": "boton-xs-td"
@@ -494,6 +496,29 @@
                     if (data.estado == 0) {
                         $("#load").show();
                         $("#load").attr("src", "../AspNetForms/ReportLiquidation.aspx");
+                        $("#CRLiquidacion").modal({ backdrop: 'static', keyboard: false });
+                    } else {
+                        waitingDialog.hide()
+                    }
+                },
+                error: function (xhr) {
+                    waitingDialog.hide();
+                    toastr.error(xhr, 'Mensaje');
+                }
+            });
+        });
+        $('#tblLiquidaciones').on('click', '.ver-fac', function (e) {
+            var liqId = $(this).attr('data-liqId');
+            var venId = $(this).attr('data-venId');
+            waitingDialog.show("Espere por favor...");
+            $.ajax({
+                type: "Post",
+                url: '@Url.Action("VerFactura", "Pedido")',
+                data: { liquidacion: liqId, invoice: venId },
+                success: function (data) {
+                    if (data.estado == 0) {
+                        $("#load").show();
+                        $("#load").attr("src", "../AspNetForms/ReportInvoice.aspx");
                         $("#CRLiquidacion").modal({ backdrop: 'static', keyboard: false });
                     } else {
                         waitingDialog.hide()

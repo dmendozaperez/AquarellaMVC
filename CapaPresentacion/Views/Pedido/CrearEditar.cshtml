@@ -100,7 +100,14 @@ else
                 <div class="user-block">
                     <img class="img-circle" src="../Content/images/placeholder-user.jpg" alt="User Image">
                     <span class="username">@persona.Bas_Documento - @persona.NombreCompleto</span>
-                    <span class="description">@persona.Ubicacion</span>
+                    @if (String.IsNullOrEmpty(persona.premio))
+                    {
+                        <span class="description">@persona.Ubicacion</span>
+                    }
+                    else
+                    {
+                        <span class="description">@persona.Ubicacion<b class="pull-right text-danger"><i class="fa fa-gift"></i>&nbsp;@persona.premio</b></span>
+                    }
                 </div>
                 <!-- /.user-block -->
                 <div class="box-tools">
@@ -131,7 +138,7 @@ else
                             <dt>Destino :</dt>
                             <dd>@persona.bas_destino</dd>
                             <dt>Premio por ganar :</dt>
-                            <dd></dd>
+                            <dd>@persona.premio</dd>
                         </dl>
                         <input type="hidden" id="dwPromo" name="dwPromo" value="@persona.Bas_id" />
                     </div>
@@ -226,7 +233,7 @@ else
                                 @if ((int)ViewBag.CountNotas > 0)
                                 {
                                     <button class="btn btn-xs btn-info" data-toggle="modal" data-target="#modalNC">Nota de Credito</button>
-                                }else
+    }else
                                 {
                                     @("Nota de Credito:");
                                 }
@@ -252,12 +259,12 @@ else
                         </div>
                     </div>
                 </div>
-            </div>    
+            </div>
             <div class="box-footer">
                 <div class="row">
                     <div class="col-md-12 text-right">
                         @if (ViewBag.operacion == "Nuevo")
-                        {
+    {
                             <button class="btn btn-success" type="button" id="btnliquidar" name="btnliquidar" title="Liquidar">
                                 <span class="fa fa-floppy-o"></span>&nbsp;Liquidar Pedido
                             </button>

@@ -84,7 +84,8 @@ namespace CapaDato.Persona
                                         _commission_POS_visaUnica = Convert.ToDecimal(dr["Con_Fig_PorcDescPos"]),
                                         _percepcion = Convert.ToDecimal(dr["Con_Fig_Percepcion"]),
                                         Bas_Per_Tip_Id = Convert.ToString(dr["Bas_Per_Tip_Id"]),
-                                        _aplica_percepcion = Convert.ToBoolean(dr["aplica_percepcion"])
+                                        _aplica_percepcion = Convert.ToBoolean(dr["aplica_percepcion"]),
+                                        premio = Convert.ToString(dr["Premio"])                                       
                                     }).FirstOrDefault();
                         }
                     }
