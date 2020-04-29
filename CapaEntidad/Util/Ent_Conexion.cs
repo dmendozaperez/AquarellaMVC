@@ -15,7 +15,8 @@ namespace CapaEntidad.Util
                 //return "Server=10.10.10.232;Database=BdAquarellaQA2;User ID=sa;Password=Bata2013;Trusted_Connection=False;";
                 //return "Server=172.19.7.169;Database=BD_AQUARELLA_QA2;User ID=prueba1;Password=123456;Trusted_Connection=False;";
                 //return "Server=posperu.bgr.pe;Database=BdAquarella;User ID=pos_oracle;Password=Bata2018**;Trusted_Connection=False;";
-                return "Server=172.28.7.14;Database=BdAquarella;User ID=enrique;Password=Bata2019**.@;Trusted_Connection=False;";
+                //return "Server=172.28.7.14;Database=BdAquarella;User ID=enrique;Password=Bata2019**.@;Trusted_Connection=False;";
+                return "Server=172.28.7.14;Database=BdAquarella_QA;User ID=enrique;Password=Bata2019**.@;Trusted_Connection=False;";
             }
         }
 

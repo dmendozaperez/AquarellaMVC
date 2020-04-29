@@ -1,11 +1,11 @@
-﻿<link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/buttons/1.5.1/css/buttons.dataTables.min.css" />
+﻿@*<link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/buttons/1.5.1/css/buttons.dataTables.min.css" />*@
 
 <style type="text/css">
     .dt-buttons {
         display: none;
     }
 </style>
-<table class="table table-hover dataTable  table-striped table-responsive">
+<table id="TablaUsuarios" class="table table-hover dataTable  table-striped table-responsive">
     <thead>
         <tr style="background-color:#dd4b39; color:#ecf0f1">
             <th>Id</th>
@@ -39,146 +39,9 @@
         </div>
     </div>
 </div>
-<script src='https://cdn.datatables.net/buttons/1.5.1/js/dataTables.buttons.min.js'></script>
+@*<script src='https://cdn.datatables.net/buttons/1.5.1/js/dataTables.buttons.min.js'></script>
 <script src='//cdnjs.cloudflare.com/ajax/libs/jszip/3.1.3/jszip.min.js'></script>
 <script src='//cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.32/pdfmake.min.js'></script>
 <script src='//cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.32/vfs_fonts.js'></script>
-<script src='//cdn.datatables.net/buttons/1.5.1/js/buttons.html5.min.js'></script>
+<script src='//cdn.datatables.net/buttons/1.5.1/js/buttons.html5.min.js'></script>*@
 
-<script>
-    $(document).ready(function () {
-
-      
-
-        $('.table').dataTable({
-            "language": {
-                "url": "../Scripts/DataTables/Spanish.json"
-            },
-            "bServerSide": true,
-            "bAutoWidth": false,
-            "sAjaxSource": '@Url.Action("getUsuario", "Usuarios")',
-            "bdestroy": true,
-            "start": 0,
-            "order": [0, "asc"],
-            "bDeferRender": true,
-            "aoColumns": [
-                 { "sName": "usu_id", "mData": "usu_id" },
-                   { "sName": "usu_nombre", "mData": "usu_nombre" },
-                   { "sName": "usu_login", "mData": "usu_login", "sClass": "left" },
-                   //{ "sName": "usu_tip_nom", "mData": "usu_tip_nom", "sClass": "left" },
-                   { "sName": "usu_est_id", "mData": "usu_est_id", "sClass": "left" },
-
-                    {
-                        "render": function (data, type, full) {
-                            return '<button title="Agregar Roles" style="border-radius:50%" class="btnrol btn btn-success"  onclick="agregarRol(' + full.usu_id + ')" data-id="' + full.usu_id + '" data-modal="" data-toggle="modal"><span class="glyphicon glyphicon-list-alt"></span></button>';
-                        }
-                    }
-
-
-
-            ],
-            dom: 'Bfrtip',
-            buttons: [
-           {
-               extend: 'excelHtml5',
-               title: 'Bataclub_xls'
-           },
-           {
-               extend: 'csvHtml5',
-               title: 'BataClub_csv'
-           },
-           {
-               extend: 'pdfHtml5',
-               title: 'BataClub_pdf'
-           },
-           'copyHtml5',
-            ]
-        });
-
-
-    });
-</script>
-<script>
-
-    $(function () {
-        $(".btneditar").click(function () {
-            var TeamDetailPostBackURL ="@Url.Action("Edit", "Usuarios")";
-            //debugger;
-            var $buttonClicked = $(this);
-            waitingDialog.show('Espere un momento por favor');
-            var id = $buttonClicked.attr('data-id');
-            var options = { "backdrop": "static", keyboard: true };
-            $.ajax({
-                type: "GET",
-                url: TeamDetailPostBackURL,
-                contentType: "application/json; charset=utf-8",
-                data: { "Id": id },
-                datatype: "json",
-                cache: true,
-                success: function (data) {
-                    //debugger;
-                    waitingDialog.hide();
-                    $('#myModalContent').html(data);
-                    $('#myModal').modal(options);
-                    $('#myModal').modal('show');
-                    // debugger;
-
-                },
-                error: function () {
-                    waitingDialog.hide();
-                    alert("Dynamic content load failed.");
-                }
-            });
-        });
-
-
-        $("#closbtn").click(function () {
-            // debugger;
-            waitingDialog.hide();
-            $('#myModal').modal('hide');
-        });
-    });    
-</script>
-<script type="text/javascript">
-    $(function () {
-        $(".btnrol").click(function () {
-            var TeamDetailPostBackURL ="@Url.Action("Roles", "Usuarios")";
-            //debugger;
-            var $buttonClicked = $(this);
-            var id = $buttonClicked.attr('data-id');
-            waitingDialog.show('Espere un momento por favor');
-            var options = { "backdrop": "static", keyboard: true };
-            $.ajax({
-                type: "GET",
-                url: TeamDetailPostBackURL,
-                contentType: "application/json; charset=utf-8",
-                data: { "Id": id },
-                datatype: "json",
-                cache: true,
-                success: function (data) {
-                    waitingDialog.hide();
-                    //debugger;
-                    $('#myModalContent').html(data);
-                    $('#myModal').modal(options);
-                    $('#myModal').modal('show');
-                    // debugger;
-
-                },
-                error: function () {
-                    waitingDialog.hide();
-                    alert("Dynamic content load failed.");
-                }
-            });
-        });
-        
-
-       
-
-
-        $("#closbtn").click(function () {
-            // debugger;
-            waitingDialog.hide();
-            $('#myModal').modal('hide');
-        });
-    });
-</script>

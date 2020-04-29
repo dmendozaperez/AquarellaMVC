@@ -1,5 +1,5 @@
 ﻿
-<table class="table table-hover dataTable  table-striped table-responsive">
+<table id="ListaFuncion" class="table table-hover dataTable  table-striped table-responsive">
     <thead>
         <tr style="background-color:#dd4b39; color:#ecf0f1">
             <th>Id</th>
@@ -53,91 +53,3 @@
         </div>
     </div>
 </div>
-<script>
-    $(document).ready(function () {
-        $('.table').dataTable({
-            "language": {
-                "url": "../Scripts/DataTables/Spanish.json"
-            }
-        });
-    });
-</script>
-<script>
-
-    $(function () {
-        $(".btneditar").click(function () {
-            var TeamDetailPostBackURL ="@Url.Action("Edit", "Funcion")";
-            //debugger;
-            var $buttonClicked = $(this);
-            waitingDialog.show('Espere un momento por favor');
-            var id = $buttonClicked.attr('data-id');
-            var options = { "backdrop": "static", keyboard: true };
-            $.ajax({
-                type: "GET",
-                url: TeamDetailPostBackURL,
-                contentType: "application/json; charset=utf-8",
-                data: { "Id": id },
-                datatype: "json",
-                cache: true,
-                success: function (data) {
-                    //debugger;
-                    waitingDialog.hide();
-                    $('#myModalContent').html(data);
-                    $('#myModal').modal(options);
-                    $('#myModal').modal('show');
-                    // debugger;
-
-                },
-                error: function () {
-                    waitingDialog.hide();
-                    alert("Dynamic content load failed.");
-                }
-            });
-        });
-
-
-        $("#closbtn").click(function () {
-            // debugger;
-            waitingDialog.hide();
-            $('#myModal').modal('hide');
-        });
-    });
-    $(function () {
-        $(".btnapli").click(function () {
-            var TeamDetailPostBackURL ="@Url.Action("Aplicacion", "Funcion")";
-            //debugger;
-            var $buttonClicked = $(this);
-            var id = $buttonClicked.attr('data-id');
-            waitingDialog.show('Espere un momento por favor');
-            var options = { "backdrop": "static", keyboard: true };
-            $.ajax({
-                type: "GET",
-                url: TeamDetailPostBackURL,
-                contentType: "application/json; charset=utf-8",
-                data: { "Id": id },
-                datatype: "json",
-                cache: true,
-                success: function (data) {
-                    waitingDialog.hide();
-                    //debugger;
-                    $('#myModalContent').html(data);
-                    $('#myModal').modal(options);
-                    $('#myModal').modal('show');
-                    // debugger;
-
-                },
-                error: function () {
-                    waitingDialog.hide();
-                    alert("Dynamic content load failed.");
-                }
-            });
-        });
-
-
-        $("#closbtn").click(function () {
-            // debugger;
-            waitingDialog.hide();
-            $('#myModal').modal('hide');
-        });
-    });
-</script>

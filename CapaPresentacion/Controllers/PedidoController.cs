@@ -1989,6 +1989,8 @@ namespace CapaPresentacion.Controllers
 
                     //resultLine._lineTotDesc = resultLine._lineTotal.ToString(_currency);
                     //resultLine._lineTotDesc = ((resultLine._priceigv * newQty) - (resultLine._dscto * newQty) - resultLine._commissionigv).ToString(_currency);
+                    resultLine._lineTotDesc = resultLine._lineTotal;
+
                     order.Add(resultLine);
                 }
             }
@@ -2007,6 +2009,7 @@ namespace CapaPresentacion.Controllers
 
                 //newLine._lineTotDesc = ((newLine._price * newLine._qty) - (newLine._dscto * newLine._qty) - newLine._commission).ToString(_currency);
                 //newLine._lineTotDesc = ((newLine._priceigv * newLine._qty) - (newLine._dscto * newLine._qty) - newLine._commissionigv).ToString(_currency);
+                newLine._lineTotDesc = newLine._lineTotDesc;
                 order.Add(newLine);
             }
         }

@@ -178,7 +178,7 @@ namespace CapaDato.Pedido
             {
                 SqlConnection cn = new SqlConnection(Ent_Conexion.conexion);
                 cn.Open();
-                SqlCommand oComando = new SqlCommand("USP_Leer_Articulo", cn);
+                SqlCommand oComando = new SqlCommand("USP_Leer_Articulo_MVC", cn);
                 oComando.CommandType = CommandType.StoredProcedure;
 
                 SqlParameter oArticulo = oComando.Parameters.Add("@Art_Id", SqlDbType.VarChar);

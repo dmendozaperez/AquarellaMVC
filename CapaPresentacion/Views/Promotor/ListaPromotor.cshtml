@@ -18,7 +18,7 @@
     }
 
 </style>
-<link href="~/ContentSelect/bootstrap-select.css" rel="stylesheet" />
+
 
 <div class="box box-body box-default">
     @using (Ajax.BeginForm("ListaPcPromotor", options))
@@ -57,8 +57,8 @@
 
 
 </div>
-<script src="~/Scripts/bootstrap.min.js"></script>
-<script src="~/ScriptsSelect/bootstrap-select.js"></script>
+@section scripts{
+    
 <script type="text/javascript">
     function InvalidMsg(textbox, str) {
 
@@ -79,7 +79,6 @@
 
 
 </script>
-
 <script>
     $(document).ready(function () {
         //, disabled = "disabled"
@@ -134,3 +133,35 @@
     });
 
 </script>
+<script>
+        $(document).ready(function () {
+            $('.table').dataTable({
+                "language": {
+                    "url": "../Scripts/DataTables/Spanish.json"
+                },
+                "bServerSide": true,
+                "bAutoWidth": false,
+                "sAjaxSource": '@Url.Action("getListPromotor", "Promotor")',
+                "bdestroy": true,
+                //"bFilter": true,
+                "start": 0,
+                //"bPaginate": false,
+                "orderable": false,
+                //"order": [0, "asc"],
+                "bDeferRender": true,
+                "aoColumns": [
+
+                       { "sName": "prmt_NroDoc", "mData": "prmt_NroDoc" },
+                       { "sName": "prmt_Nombre1", "mData": "prmt_Nombre1" },
+                       { "sName": "prmt_Nombre2", "mData": "prmt_Nombre2" },
+                       { "sName": "prmt_ApePater", "mData": "prmt_ApePater" },
+                       { "sName": "prmt_ApeMater", "mData": "prmt_ApeMater" },
+                       { "sName": "prmt_Correo", "mData": "prmt_Correo" },
+
+                ],
+            });
+
+        });
+
+</script>
+}

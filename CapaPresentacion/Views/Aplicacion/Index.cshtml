@@ -3,7 +3,7 @@
 @{
     ViewBag.Title = "Control de Aplicaciones";
 }
-@Scripts.Render("~/bundles/bootstrap")
+
 
 <p class="text-danger">Muestra la lista de Aplicaciones (Formularios Web). Permite crear nuevas Aplicación para utilizar en el Sistema y editar las existentes.</p>
 <div class="box box-body box-default">
@@ -14,7 +14,8 @@
         @{Html.RenderPartial("ListaAplicacion", Model); }
     </div>
 </div>
-
+@section scripts{    
+    @*index*@
 <script>
     $(function () {
         $(".nuevo").click(function () {
@@ -61,3 +62,150 @@
         });
     });
 </script>
+    @*Edit*@
+<script type="text/javascript">
+    function OnEditar_Grabar() {
+       var msg_titulo = 'Mensaje Aquarella!';
+        var id = $("#idapl").val();
+        var nombre = $("#nombre").val();
+        var orden = $("#orden").val();
+        var controller = $("#controller").val();
+        var action = $("#action").val();
+
+        waitingDialog.show('Espere un momento por favor');
+        $.ajax
+             ({
+                 url: '../Aplicacion/Edit',
+                 dataType: "json",
+                 type: "POST",
+                 data: { apl_id:id,apl_nombre: nombre, apl_orden: orden, apl_controller: controller, apl_action: action },
+                 success: function (data, textStatus, XMLHttpRequest) {
+                     if (data.estado == '1') {
+
+                         $('#myModal').modal('hide');
+                         $('body').removeClass('modal-open');
+                         $('.modal-backdrop').remove();
+
+                         $('#lista').load('@Url.Action("ListaAplicacion", "Aplicacion")', {});
+                         waitingDialog.hide();
+                         toastr.success(data.desmsg, msg_titulo);
+                     }
+                     else {
+                         waitingDialog.hide();
+                         toastr.error(data.desmsg, msg_titulo);
+                     }
+                 },
+                 error: function (xhr) {
+                     waitingDialog.hide();
+                     toastr.error(xhr, msg_titulo);
+                 }
+             })
+
+    }
+</script>
+    @*Lista Aplicacion*@
+<script>
+    $(document).ready(function () {
+        $('.table').dataTable({
+            "language": {
+                "url": "../Scripts/DataTables/Spanish.json"
+            }
+        });
+    });
+</script>
+<script type="text/javascript">
+
+    $(function () {
+        $(".btneditar").click(function () {
+            var TeamDetailPostBackURL ="@Url.Action("Edit", "Aplicacion")";
+            //debugger;
+            var $buttonClicked = $(this);
+            waitingDialog.show('Espere un momento por favor');
+            var id = $buttonClicked.attr('data-id');
+            var options = { "backdrop": "static", keyboard: true };
+            $.ajax({
+                type: "GET",
+                url: TeamDetailPostBackURL,
+                contentType: "application/json; charset=utf-8",
+                data: { "Id": id },
+                datatype: "json",
+                cache: true,
+                success: function (data) {
+                    //debugger;
+                    waitingDialog.hide();
+                    $('#myModalContent').html(data);
+                    $('#myModal').modal(options);
+                    $('#myModal').modal('show');
+                    // debugger;
+
+                },
+                error: function () {
+                    waitingDialog.hide();
+                    alert("Dynamic content load failed.");
+                }
+            });
+        });
+
+
+        $("#closbtn").click(function () {
+            // debugger;
+            waitingDialog.hide();
+            $('#myModalnew').modal('hide');
+        });
+    });
+
+
+
+</script>
+    @*Aplicacion*@
+<script type="text/javascript">
+    function InvalidMsg(textbox, str) {
+
+        if (textbox.value.length == 0) {
+            textbox.setCustomValidity(str);
+        }
+        else {
+            textbox.setCustomValidity('');
+        }
+        return true;
+    }
+</script>
+<script type="text/javascript">
+    function OnNuevo_Grabar() {
+         var msg_titulo = 'Mensaje Aquarella!';
+        var nombre = $("#nombre").val();
+        var orden = $("#orden").val();
+        var controller = $("#controller").val();
+        var action = $("#action").val();
+
+        waitingDialog.show('Espere un momento por favor');
+        $.ajax
+             ({
+                 url: '../Aplicacion/Nuevo',
+                 dataType: "json",
+                 type: "POST",
+                 data: { apl_nombre: nombre,  apl_orden: orden,  apl_controller: controller, apl_action: action },
+                 success: function (data, textStatus, XMLHttpRequest) {
+                     if (data.estado == '1') {
+
+                         $('#myModal').modal('hide');
+                         $('body').removeClass('modal-open');
+                         $('.modal-backdrop').remove();
+
+                         $('#lista').load('@Url.Action("ListaAplicacion", "Aplicacion")', {});
+                         waitingDialog.hide();
+                         toastr.success(data.desmsg, msg_titulo);
+                     }
+                     else {
+                         waitingDialog.hide();
+                         toastr.error(data.desmsg, msg_titulo);
+                     }
+                 },
+                 error: function (xhr) {
+                     waitingDialog.hide();
+                     toastr.error(xhr, msg_titulo);
+                 }
+             })
+    }
+</script> 
+}
