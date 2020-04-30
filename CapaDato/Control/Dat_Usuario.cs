@@ -209,8 +209,8 @@ namespace CapaDato.Control
                                 _usu.usu_nombre= dr["Usu_Nombre"].ToString();
                                 _usu.usu_login = dr["Usu_Login"].ToString();
                                 _usu.usu_est_id = dr["Usu_Est_Id"].ToString();
-                                _usu.usu_tip_nom = dr["Usu_Tip_Nombre"].ToString();
-                                _usu.usu_tip_id= dr["Usu_Tip_Id"].ToString();
+                               // _usu.usu_tip_nom = dr["Usu_Tip_Nombre"].ToString();
+                               // _usu.usu_tip_id= dr["Usu_Tip_Id"].ToString();
                                 list.Add(_usu);
                             }
                         }

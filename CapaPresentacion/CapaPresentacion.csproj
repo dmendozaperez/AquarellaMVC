@@ -198,6 +198,13 @@
     <Compile Include="App_Start\FilterConfig.cs" />
     <Compile Include="App_Start\RouteConfig.cs" />
     <Compile Include="App_Start\Startup.Auth.cs" />
+    <Compile Include="AspNetForms\ReportInvoice.aspx.cs">
+      <DependentUpon>ReportInvoice.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="AspNetForms\ReportInvoice.aspx.designer.cs">
+      <DependentUpon>ReportInvoice.aspx</DependentUpon>
+    </Compile>
     <Compile Include="AspNetForms\ReportLiquidation.aspx.cs">
       <DependentUpon>ReportLiquidation.aspx</DependentUpon>
       <SubType>ASPXCodeBehind</SubType>
@@ -225,9 +232,16 @@
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
     <Compile Include="Models\Control\LoginViewModel.cs" />
+    <Compile Include="Models\Crystal\Invoice.cs" />
     <Compile Include="Models\Crystal\Liquidation.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="RptsCrystal\Data\Data_Cr_Aquarella.cs" />
+    <Compile Include="RptsCrystal\InvoiceReport.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>InvoiceReport.rpt</DependentUpon>
+      <SubType>Component</SubType>
+    </Compile>
     <Compile Include="RptsCrystal\liquidationReport.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
@@ -242,6 +256,7 @@
     <Compile Include="Startup.cs" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="AspNetForms\ReportInvoice.aspx" />
     <Content Include="AspNetForms\ReportLiquidation.aspx" />
     <Content Include="ContentSelect\bootstrap-select.css" />
     <Content Include="ContentSelect\bootstrap.css" />
@@ -3063,6 +3078,10 @@
     <Service Include="{C0C07587-41A7-46C8-8FBD-3F9C8EBE2DDC}" />
   </ItemGroup>
   <ItemGroup>
+    <EmbeddedResource Include="RptsCrystal\InvoiceReport.rpt">
+      <Generator>CrystalDecisions.VSDesigner.CodeGen.ReportCodeGenerator</Generator>
+      <LastGenOutput>InvoiceReport.cs</LastGenOutput>
+    </EmbeddedResource>
     <EmbeddedResource Include="RptsCrystal\liquidationReport.rpt">
       <Generator>CrystalDecisions.VSDesigner.CodeGen.ReportCodeGenerator</Generator>
       <LastGenOutput>liquidationReport.cs</LastGenOutput>

@@ -9,7 +9,6 @@
 @*@Scripts.Render("~/bundles/bootstrap")*@
 <link href="~/Content/plugins/iCheck/custom.css" rel="stylesheet" />
 
-<link href="~/ContentSelect/bootstrap-select.css" rel="stylesheet" />
 <div class="box box-body box-default">
  
 @using (Ajax.BeginForm("Nuevo", new AjaxOptions { OnBegin = "EsperandoBusqueda();" }))
@@ -351,11 +350,14 @@
 
 
 </div>
-<script src="~/Scripts/bootstrap.min.js"></script>
+@*<script src="~/Scripts/bootstrap.min.js"></script>
 <script src="~/ScriptsSelect/bootstrap-select.js"></script>
-<script src="~/Scripts/BI.js"></script>
-<script src="~/Scripts/Plugins/iCheck/icheck.min.js"></script>
 
+<script src="~/Scripts/Plugins/iCheck/icheck.min.js"></script>*@
+@section scripts {
+    
+
+<script src="~/Scripts/BI.js"></script>
 <script>
     var gTipoDoc = '';
     var gTipoPer = '';
@@ -373,7 +375,6 @@
     });
 
 </script>
-
 <script>
 
     $(function () {
@@ -877,3 +878,4 @@
 
 
 </script>
+}

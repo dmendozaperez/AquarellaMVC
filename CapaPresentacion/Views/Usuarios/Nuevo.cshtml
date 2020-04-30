@@ -1,9 +1,7 @@
 ﻿@{
     Layout = null;
 }
-@Scripts.Render("~/bundles/bootstrap-select")
-@Styles.Render("~/Content/Bootstrap-Select/css")
-<link rel="stylesheet" type="text/css" href="~/Content/bootstrap-select.css" />
+
 @using (Ajax.BeginForm("Nuevo", new AjaxOptions { OnBegin = "OnNuevo_Grabar();" }))
 { 
 <div class="modal-content">
@@ -84,57 +82,3 @@ $(document).ready(function() {
     //console.log('Tu IP es: "' + ip + '"')
 });
 </script>
-<script type="text/javascript">
-   
-    function InvalidMsg(textbox, str) {
-
-        if (textbox.value.length == 0) {
-            textbox.setCustomValidity(str);
-        }
-        else {
-            textbox.setCustomValidity('');
-        }
-        return true;
-    }
-</script>
-<script type="text/javascript">   
-    function OnNuevo_Grabar() {
-        
-        var msg_titulo = 'Mensaje Aquarella!';
-        var _tipo = $('select[name=dwtipo]').selectpicker('val');
-     
-        var _nombres = $("#nombre").val();
-        var _login = $("#login").val();
-        var _password = $("#password").val();
-        waitingDialog.show('Espere un momento por favor');
-        $.ajax
-             ({
-                 url: '../Usuarios/Nuevo',
-                 dataType: "json",
-                 type: "POST",
-                 data: { nombre: _nombres, login: _login, password: _password, tipo: _tipo },
-                 success: function (data, textStatus, XMLHttpRequest) {
-                     if (data.estado == '1') {
-
-                         $('body').removeClass('modal-open');
-                         $('#myModal').modal('hide');
-
-                         $('.modal-backdrop').remove();
-
-                         $('#lista').load('@Url.Action("ListaUsuario", "Usuarios")', {});
-
-                         waitingDialog.hide();
-                         toastr.success(data.desmsg, msg_titulo);
-                     }
-                     else {
-                         waitingDialog.hide();
-                         toastr.error(data.desmsg, msg_titulo);
-                     }
-                 },
-                 error: function (xhr) {
-                     waitingDialog.hide();
-                     toastr.error(xhr, msg_titulo);
-                 }
-             })
-    }
-</script> 

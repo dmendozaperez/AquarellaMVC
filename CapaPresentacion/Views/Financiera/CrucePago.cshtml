@@ -107,7 +107,8 @@
                     waitingDialog.hide();
                     if (data.estado == 0) {
                         $("#doc-nom-persona").html(data.info.Bas_Documento + ' - ' + data.info.NombreCompleto);
-                        $("#ubi-persona").html(data.info.Ubicacion);
+                        var strPremio = data.info.premio.length > 0 ? '<b class="pull-right text-danger"><i class="fa fa-gift"></i>&nbsp;' + data.info.premio + '</b>' : "";
+                        $("#ubi-persona").html(data.info.Ubicacion + strPremio);
                         var html = '<div class="col-md-12 col-xs-12" >\
                                         <dl class="dl-horizontal">\
                                         <dt>Asesor Comercial :</dt>\
@@ -123,7 +124,7 @@
                                         <dt>Destino :</dt>\
                                         <dd>' + data.info.bas_destino + '</dd>\
                                         <dt>Premio por ganar :</dt>\
-                                        <dd></dd>\
+                                        <dd>' + data.info.premio + '</dd>\
                                         </dl>\
                                     </div>'
                         $("#infoProm").html(html);

@@ -11,7 +11,7 @@ namespace CapaEntidad.Financiera
         public string   dtv_transdoc_id { get;set;}
         public string   dtv_concept_id       {get;set;}
         public string   cov_description { get;set;}
-        public DateTime document_date_desc {get;set;}
+        public string document_date_desc {get;set;}
         public DateTime dtd_document_date  {get;set;}
         public decimal  debito              {get;set;}
         public decimal  credito             {get;set;}

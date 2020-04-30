@@ -3,9 +3,6 @@
 @{
     Layout = null;
 }
-@Scripts.Render("~/bundles/bootstrap-select")
-@Styles.Render("~/Content/Bootstrap-Select/css")
-<link rel="stylesheet" type="text/css" href="~/Content/bootstrap-select.css" />
 
 <div class="modal-content">
     <div style="background-color:#c0392b; color:white;" class="modal-header">
@@ -39,45 +36,3 @@
     </div>
 
 </div>
-<script>
-
-
-$(document).ready(function() {
-    $("#dwrol").select({
-        dropdownParent: $("#myModal")
-  });
-});
-
-</script>
-<script>
-    function onAgregar_Rol() {
-        var msg_titulo = 'Mensaje Aquarella!';
-        var usuid = $("#idusu").val();
-        var rolid = $('select[name=dwrol]').selectpicker('val');
-        waitingDialog.show('Espere un momento por favor');
-        $.ajax
-             ({
-                 url: '../Usuarios/Agregar_Rol',
-                 dataType: "json",
-                 type: "POST",
-                 data: { usu_id: usuid, rol_id: rolid },
-                 success: function (data, textStatus, XMLHttpRequest) {
-                     if (data.estado == '1') {
-                         $('#listarol').load('@Url.Action("ListaRolUsu", "Usuarios")', { usuid: usuid });
-                         waitingDialog.hide();
-                         toastr.success(data.desmsg, msg_titulo);
-
-                     }
-                     else {
-                         waitingDialog.hide();
-                         toastr.error(data.desmsg, msg_titulo);
-                     }
-                 },
-                 error: function (xhr) {
-                     waitingDialog.hide();
-                     toastr.error(xhr, msg_titulo);
-                 }
-             })
-
-    }
-</script>

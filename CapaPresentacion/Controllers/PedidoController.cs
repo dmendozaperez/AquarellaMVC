@@ -126,6 +126,19 @@ namespace CapaPresentacion.Controllers
             GetCRLiquidacion(liquidacion, false);
             return Json(new { estado = 0 });
         }
+        public ActionResult VerFactura(string liquidacion, string invoice)
+        {
+            try
+            {
+                GetCRInvoice(invoice, liquidacion);
+                return Json(new { estado = 0 });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { estado = 1 });
+            }
+            
+        }
         public ActionResult PersonaPedido(int basId) {
             
             Ent_Pedido_Persona Persona = new Ent_Pedido_Persona();
@@ -312,7 +325,7 @@ namespace CapaPresentacion.Controllers
                      dRow["estado"].ToString(), 0, Convert.ToDecimal(dRow["igvporc"]), Convert.ToDecimal(dRow["igvmonto"]), 0,
                      dRowDtl["Art_Id"].ToString(), dRowDtl["Mar_Descripcion"].ToString(), dRowDtl["Col_Descripcion"].ToString(), dRowDtl["art_descripcion"].ToString(), dRowDtl["Liq_Det_TalId"].ToString(), Convert.ToDecimal(dRowDtl["Liq_Det_Cantidad"]),
                      Convert.ToDecimal(dRowDtl["Liq_Det_Precio"]), Convert.ToDecimal(dRowDtl["Liq_Det_Comision"]), 0, Convert.ToDecimal(dRow["Percepcionm"]), Convert.ToDecimal(dRow["Percepcionp"]),
-                     Convert.ToDecimal(dRow["ncredito"]), vncredito, Convert.ToDateTime(vfecha), VtotalcreditoTotal, liq, Convert.ToDecimal(dRow["totalop"]), Convert.ToDecimal(dRowDtl["Liq_Det_OfertaM"]));
+                     Convert.ToDecimal(dRow["ncredito"]), vncredito, Convert.ToDateTime(vfecha), VtotalcreditoTotal, liq, Convert.ToDecimal(dRow["totalop"]), Convert.ToDecimal(dRowDtl["Liq_Det_OfertaM"]), dRow["Opg"].ToString());
 
                     _liqValsReport.Add(objLiqReport);
                 }
@@ -362,7 +375,107 @@ namespace CapaPresentacion.Controllers
             this.HttpContext.Session["rptSource2"] = _liqValsPagoSubReport;
             this.HttpContext.Session["rptDownload"] = download;
         }
+        public void GetCRInvoice(string invoice,string noOrder) 
+        {
+            
+                Data_Cr_Aquarella datCrAq = new Data_Cr_Aquarella();
+                DataSet ds_venta = datCrAq.getInvoiceHdr(invoice);
+                DataTable invoiceHdr = ds_venta.Tables[0].Copy();
+                //DataTable invoiceHdr = Facturacion.getInvoiceHdr(this._user._usv_co, this._noInvoice, this._noOrderUrl);
+                if (invoiceHdr.Rows.Count > 0)
+                {
+                    //DataTable warehouseByPk = new warehouses(this._user._usv_co, invoiceHdr.Rows[0]["stv_warehouse"].ToString()).getWarehouseByPk();
+                    string wavDescription = "";
+                    string wavAddress = "";
+                    string wavPhone = "";
+                    string wavUbication = "";
+                    //if (warehouseByPk != null && warehouseByPk.Rows.Count > 0)
+                    //{
+                    wavDescription = invoiceHdr.Rows[0]["almacen"].ToString().ToUpper();
+                    wavAddress = invoiceHdr.Rows[0]["alm_direccion"].ToString();
+                    wavPhone = invoiceHdr.Rows[0]["Alm_Telefono"].ToString();
+                    wavUbication = "";
+                    //}
+                    string typeresolution = "";
 
+                    //DataTable invoiceDtl = Facturacion.getInvoiceDtl(this._user._usv_co, this._noInvoice);
+
+                    DataTable invoiceDtl = ds_venta.Tables[1].Copy();
+
+                    string str = "";
+                    Decimal descuentoGnral = 0;
+                    string numeroRemision = "";
+                    string destinatario = invoiceHdr.Rows[0]["nombres"].ToString();
+                    string cedula = invoiceHdr.Rows[0]["Bas_Documento"].ToString();
+                    string ubicacionDestinatario = invoiceHdr.Rows[0]["ubicacion"].ToString();
+                    string telefono = invoiceHdr.Rows[0]["Bas_Telefono"].ToString();
+                    string trasportadora = invoiceHdr.Rows[0]["Tra_Descripcion"].ToString();
+                    string numeroGuia = invoiceHdr.Rows[0]["Tra_Gui_No"].ToString();
+                    Decimal porc_percepcion = Convert.ToDecimal(invoiceHdr.Rows[0]["Percepcionp"].ToString());
+                    Decimal iva = Convert.ToDecimal(invoiceHdr.Rows[0]["igvmonto"].ToString());
+                    Decimal flete = 0;
+                    DateTime fechaRemision = Convert.ToDateTime(invoiceHdr.Rows[0]["Ven_Fecha"].ToString());
+                    Decimal ncredito = Convert.ToDecimal(invoiceHdr.Rows[0]["ncredito"].ToString());
+                    Decimal totalop = Convert.ToDecimal(invoiceHdr.Rows[0]["totalop"].ToString());
+                    List<Invoice> _invoice = new List<Invoice>();
+
+                    foreach (DataRow dataRow in (InternalDataCollectionBase)invoiceDtl.Rows)
+                    {
+                        string numFactura = dataRow["Ven_Det_Id"].ToString();
+                        string esCopia = str;
+                        string msgs = "";// invoiceHdr.Rows[0]["imv_text"].ToString();
+                        string codigoArticulo = dataRow["Art_Id"].ToString();
+                        string nomArticulo = dataRow["art_descripcion"].ToString();
+                        Decimal cantidad = Convert.ToDecimal(dataRow["Ven_Det_Cantidad"].ToString());
+                        string talla = dataRow["Ven_Det_TalId"].ToString();
+                        Decimal precio = Convert.ToDecimal(dataRow["Ven_Det_Precio"].ToString());
+                        Decimal valorLinea = Convert.ToDecimal(dataRow["articulo_value"].ToString());
+                        Decimal descuentoArticulo = 0;
+                        Decimal comisionLineal = Convert.ToDecimal(dataRow["Ven_Det_ComisionM"].ToString());
+                        string descripcionArtic = dataRow["Col_Descripcion"].ToString();
+                        _invoice.Add(new Invoice(destinatario, ubicacionDestinatario, telefono, "", "", cedula, "", noOrder, numFactura, fechaRemision, numeroRemision, "", esCopia, typeresolution, codigoArticulo, nomArticulo, descripcionArtic, cantidad, talla, precio, descuentoArticulo, comisionLineal, valorLinea, iva, flete, numeroGuia, trasportadora, msgs, descuentoGnral, wavDescription, wavAddress, wavPhone, wavUbication, porc_percepcion, ncredito, totalop));
+                    }
+                this.HttpContext.Session["rptSource"] = _invoice;
+                List<LiqNcSubinforme> subin1 = new List<LiqNcSubinforme>();
+
+                    //DataSet dsLiqpagoInfo = Liquidations_Hdr.getpagoncreditoliqui(this._noOrderUrl);
+                    DataSet dsLiqpagoInfo = new DataSet();
+                    dsLiqpagoInfo.Tables.Add(ds_venta.Tables[2].Copy());
+
+                    if (dsLiqpagoInfo == null)
+                        return;
+
+                    foreach (DataRow dRowDtl in dsLiqpagoInfo.Tables[0].Rows)
+                    {
+                        string vncredito = dRowDtl["ncredito"].ToString();
+                        decimal VtotalcreditoTotal = Convert.ToDecimal(dRowDtl["Total"].ToString());
+                        DateTime vfecha = Convert.ToDateTime(dRowDtl["fecha"].ToString());
+
+                        LiqNcSubinforme objLiqpagoReport = new LiqNcSubinforme("", vncredito, vfecha, VtotalcreditoTotal);
+
+                        subin1.Add(objLiqpagoReport);
+                    }
+                this.HttpContext.Session["rptSource1"] = subin1;
+                List<VentaPagoSubInforme> subin2 = new List<VentaPagoSubInforme>();
+                    //DataSet dsLiqpagoformaInfo = Liquidations_Hdr.getpagonformaliqui(this._noOrderUrl);
+                    DataSet dsLiqpagoformaInfo = new DataSet();
+                    dsLiqpagoformaInfo.Tables.Add(ds_venta.Tables[3].Copy());
+                    if (dsLiqpagoInfo == null)
+                        return;
+
+                    foreach (DataRow dRowDtl in dsLiqpagoformaInfo.Tables[0].Rows)
+                    {
+                        string vpago = dRowDtl["pago"].ToString();
+                        string vdocumento = dRowDtl["Documento"].ToString();
+                        DateTime vfecha = Convert.ToDateTime(dRowDtl["fecha"].ToString());
+                        Decimal vtotal = Convert.ToDecimal(dRowDtl["Total"].ToString());
+                        VentaPagoSubInforme objLiqpagoformaReport = new VentaPagoSubInforme(vpago, vdocumento, vfecha, vtotal);
+                        subin2.Add(objLiqpagoformaReport);
+                    }
+                this.HttpContext.Session["rptSource2"] = subin2;
+            }
+            this.HttpContext.Session["ReportName"] = "InvoiceReport.rpt";
+        }
         public ActionResult Lista()
         {
             Session[_session_listPedido_private] = null;
@@ -425,7 +538,6 @@ namespace CapaPresentacion.Controllers
 
             return listNotaC;
         }
-
         public JsonResult getLiquidacionDetalle(string LiqId)
         {
             List<Ent_Order_Dtl> listLiqDetalle = listaDetalleLiquidacion(LiqId);
@@ -433,7 +545,6 @@ namespace CapaPresentacion.Controllers
 
             return Json(listLiqDetalle, JsonRequestBehavior.AllowGet);// Json(new { listNotaC = listNotaC }, JsonRequestBehavior.AllowGet);
         }
-
         public List<Ent_Order_Dtl> listaDetalleLiquidacion(string LiqId , decimal comm = 0)
         {
             List<Ent_Order_Dtl> listLiqDetalle = datPedido.getLiquidacionDetalle(LiqId);
@@ -554,7 +665,6 @@ namespace CapaPresentacion.Controllers
                 aaData = result
             }, JsonRequestBehavior.AllowGet);
         }
-
         /** Lista Nota de cRedito **/
         public ActionResult getListNotaCredito(Ent_jQueryDataTableParams param)
         {
@@ -617,7 +727,6 @@ namespace CapaPresentacion.Controllers
                 aaData = result
             }, JsonRequestBehavior.AllowGet);
         }
-
         /** Lista Consignaciones **/
         public ActionResult getListConsignaciones(Ent_jQueryDataTableParams param)
         {
@@ -682,7 +791,6 @@ namespace CapaPresentacion.Controllers
                 aaData = result
             }, JsonRequestBehavior.AllowGet);
         }
-
         /** Lista Saldos **/
         public ActionResult getListSaldos(Ent_jQueryDataTableParams param)
         {
@@ -1881,6 +1989,8 @@ namespace CapaPresentacion.Controllers
 
                     //resultLine._lineTotDesc = resultLine._lineTotal.ToString(_currency);
                     //resultLine._lineTotDesc = ((resultLine._priceigv * newQty) - (resultLine._dscto * newQty) - resultLine._commissionigv).ToString(_currency);
+                    resultLine._lineTotDesc = resultLine._lineTotal;
+
                     order.Add(resultLine);
                 }
             }
@@ -1899,6 +2009,7 @@ namespace CapaPresentacion.Controllers
 
                 //newLine._lineTotDesc = ((newLine._price * newLine._qty) - (newLine._dscto * newLine._qty) - newLine._commission).ToString(_currency);
                 //newLine._lineTotDesc = ((newLine._priceigv * newLine._qty) - (newLine._dscto * newLine._qty) - newLine._commissionigv).ToString(_currency);
+                newLine._lineTotDesc = newLine._lineTotDesc;
                 order.Add(newLine);
             }
         }
@@ -2191,7 +2302,6 @@ namespace CapaPresentacion.Controllers
                 header = header
             }, JsonRequestBehavior.AllowGet);
         }
-
         public ActionResult getPedidoNC(Ent_jQueryDataTableParams param)
         {
             /*verificar si esta null*/
@@ -2231,9 +2341,6 @@ namespace CapaPresentacion.Controllers
                 aaData = result,
             }, JsonRequestBehavior.AllowGet);
         }
-
-
-
         public ActionResult AnularLiquidacion(string liq, string cliente)
         {
             string mensaje = "";

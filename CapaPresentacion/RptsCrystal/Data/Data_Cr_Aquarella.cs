@@ -45,5 +45,40 @@ namespace CapaPresentacion.Data.RptsCrystal
             }
             return ds;
         }
+        public  DataSet getInvoiceHdr(string inv)
+        {
+            string sqlquery = "USP_Leer_Venta_Reporte";
+            DataSet ds = null;
+            try
+            {
+                using (SqlConnection cn = new SqlConnection(Ent_Conexion.conexion))
+                {
+                    try
+                    {
+                        using (SqlCommand cmd = new SqlCommand(sqlquery, cn))
+                        {
+                            cmd.CommandTimeout = 0;
+                            cmd.CommandType = CommandType.StoredProcedure;
+                            cmd.Parameters.AddWithValue("@Ven_Id", inv);
+                            using (SqlDataAdapter da = new SqlDataAdapter(cmd))
+                            {
+                                ds = new DataSet();
+                                da.Fill(ds);
+                            }
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+
+                    }
+                }
+            }
+            catch
+            {
+
+            }
+            return ds;
+            
+        }
     }
 }

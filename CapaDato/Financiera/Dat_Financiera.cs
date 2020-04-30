@@ -138,7 +138,7 @@ namespace CapaDato.Financiera
                                     dtv_transdoc_id         = Convert.ToString(dr["dtv_transdoc_id"]),    
                                     dtv_concept_id         = Convert.ToString(dr["dtv_concept_id"]),
                                     cov_description       = Convert.ToString(dr["cov_description"]),
-                                    document_date_desc     = Convert.ToDateTime(dr["document_date_desc"]),
+                                    document_date_desc     = Convert.ToString(dr["document_date_desc"]),
                                     dtd_document_date      = Convert.ToDateTime(dr["dtd_document_date"]),
                                     debito                 = (dr["debito"] == DBNull.Value) ? 0 : Convert.ToDecimal(dr["debito"]),
                                     credito                = (dr["credito"] == DBNull.Value) ? 0 : Convert.ToDecimal(dr["credito"]),

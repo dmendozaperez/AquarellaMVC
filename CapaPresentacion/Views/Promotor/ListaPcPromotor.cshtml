@@ -1,5 +1,4 @@
-﻿<link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/buttons/1.5.1/css/buttons.dataTables.min.css" />
-
+﻿
 <style type="text/css">
     .dt-buttons {
         display: none;
@@ -30,57 +29,7 @@
         </tr>
     </tfoot>
 </table>
-<script src='https://cdn.datatables.net/buttons/1.5.1/js/dataTables.buttons.min.js'></script>
-<script src='//cdnjs.cloudflare.com/ajax/libs/jszip/3.1.3/jszip.min.js'></script>
-<script src='//cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.32/pdfmake.min.js'></script>
-<script src='//cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.32/vfs_fonts.js'></script>
-<script src='//cdn.datatables.net/buttons/1.5.1/js/buttons.html5.min.js'></script>
 
 
-<script>
-        $(document).ready(function () {
-            $('.table').dataTable({
-                "language": {
-                    "url": "../Scripts/DataTables/Spanish.json"
-                },
-                "bServerSide": true,
-                "bAutoWidth": false,
-                "sAjaxSource": '@Url.Action("getListPromotor", "Promotor")',
-                "bdestroy": true,
-                //"bFilter": true,
-                "start": 0,
-                //"bPaginate": false,
-                "orderable": false,
-                //"order": [0, "asc"],
-                "bDeferRender": true,
-                "aoColumns": [
-                      
-                       { "sName": "prmt_NroDoc", "mData": "prmt_NroDoc" },
-                       { "sName": "prmt_Nombre1", "mData": "prmt_Nombre1" },
-                       { "sName": "prmt_Nombre2", "mData": "prmt_Nombre2" },
-                       { "sName": "prmt_ApePater", "mData": "prmt_ApePater" },
-                       { "sName": "prmt_ApeMater", "mData": "prmt_ApeMater" },
-                       { "sName": "prmt_Correo", "mData": "prmt_Correo" },
-              
-                ],
-                dom: 'Bfrtip',
-                buttons: [
-               {
-                   extend: 'excelHtml5',
-                   title: 'Bataclub_xls'
-               },
-               {
-                   extend: 'csvHtml5',
-                   title: 'BataClub_csv'
-               },
-               {
-                   extend: 'pdfHtml5',
-                   title: 'BataClub_pdf'
-               },
-               'copyHtml5',
-                ]
-            });
 
-        });
 
-</script>
