@@ -182,25 +182,82 @@
 <div class="modal fade" id="myModal1" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
     <div class="modal-dialog" role="document">
         <div class="modal-content">
-            <div class="modal-header">
-                <div class="row">
-                    <div class="col-md-4">
-                        <p style="font-size:medium" class="text-primary modal-title" id="myModalLabel"><b>DETALLES DEL DOCUMENTO: &nbsp;</b></p>
-                        <p style="font-size:small" class="text-primary modal-title" id="myModalLabel"><strong class="text-danger" id="tienda_str"></strong></p>
-                        <p style="font-size:small" class="text-primary modal-title" id="myModalLabel"><strong class="text-black" id="doc_str"></strong></p>
-                        <p style="font-size:small" class="text-primary modal-title" id="myModalLabel"><strong class="text-blue" id="cantidad"></strong></p>
-                    </div>
-                </div>
+            <div class="modal-header modal-header-danger">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="myModalLabel">Nueva Devolucion</h4>
             </div>
-            <div style="font-size:small" class="modal-body" id="modalBody1">
+            <div class="modal-body">              
+                        <div class="box box-widget">
+                            <div class="box-header with-border">
+                                <div class="user-block">
+                                    <p style="font-size:medium" class="text-primary modal-title" id="myModalLabel"><b>DETALLES DEL DOCUMENTO: &nbsp;</b></p>
+                                   
+                                </div>
+                                <!-- /.user-block -->
+                                <div class="box-tools">
+                                    <button type="button" class="btn btn-box-tool" data-widget="collapse">
+                                        <i class="fa fa-minus"></i>
+                                    </button>
+                                </div>
+                                <!-- /.box-tools -->
+                            </div>
+                            <div class="box-body">
+                                @*<div class="row" id="infoProm">*@
+                                    <table class="table table-striped">
+                                        <tr>
+                                            <td><label for="dwtipo">Id :</label></td>
+                                            <td>
+                                                1
+                                            </td>
+                                            <td><label for="dwtipo">N°Documento :</label></td>
+                                            <td>
+                                                B0313211
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td><label for="dwtipo">Fecha Doc :</label></td>
+                                            <td>
+                                                29-04-2020
+                                            </td>
+                                            <td><label for="dwtipo">Cant. a Devolver :</label></td>
+                                            <td>
+                                                3
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td><label for="dwtipo">Monto a Devolver :</label></td>
+                                            <td>
+                                                120.00
+                                            </td>
+                                            <td><label for="dwtipo">Tipo de Devolucion :</label></td>
+                                            <td>
+                                                DEVOLUCION
+                                            </td>
+                                        </tr>
+                                    </table>
+                                    <div style="font-size:small" class="modal-body" id="modalBody1">
 
-            </div>
-            <div class="modal-footer">
-                <input type="submit" onclick="guardar_dev();" class="btn btn-info" id="btnSubmit" value="Guardar" />
-                <input type="submit" class="btn btn-success" id="btnSubmit" value="Guardar y Cerrar" />
-                <button type="button" class="btn btn-default" data-dismiss="modal" onclick="">Cerrar</button>
-            </div>
-        </div>
+                                    </div>
+                            <div class="modal-footer">
+                            <input type="submit" onclick="guardar_dev();" class="btn btn-info" id="btnSubmit" value="Guardar" />
+                            <input type="submit" class="btn btn-success" id="btnSubmit" value="Guardar y Cerrar" />
+                            <button type="button" class="btn btn-default" data-dismiss="modal" onclick="">Cerrar</button>
+                            </div>
+                                                        
+@*</div>*@
+                            </div>
+                        </div>
+             
+             </div>   
+            
+         
+         
+             </div>
+            
+          
+       
+      
+           
     </div>
 </div>
 @section scripts{ 
@@ -453,7 +510,8 @@
                     "bdestroy": true,
                     "start": 0,
                     "sort": false,
-                    "pageLength": 5,
+                    "bFilter": false,
+                    "pageLength": 3,
                     "order": [0, "asc"],
                   
                     "bDeferRender": true,
