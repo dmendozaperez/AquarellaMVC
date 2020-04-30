@@ -565,7 +565,7 @@ else
                            "render": function (data, type, full) {
                                return '<div style="height:100%; vertical-align:central">\
                                 <button title="Editar" class="btn btn-xs btn-default btn-tabla editar-fila" data-size="' + full._tallas + '" data-articulo="' + full._code + '" data-qty="' + full._qtys + '" data-modal="" data-toggle="modal"><span class="fa fa-pencil text-success"></span></button>\
-                                <button title="Ver detalle" class="btn btn-xs btn-default btn-tabla" data-size="' + full._tallas + '" data-articulo="' + full._code + '" data-qty="' + full._qtys + '" data-modal="" data-toggle="modal"><span class="fa fa-info text-primary"></span></button>\
+                                <button title="Ver detalle" class="btn btn-xs btn-default btn-tabla ver-info" data-size="' + full._tallas + '" data-articulo="' + full._code + '" data-qty="' + full._qtys + '" data-modal="" data-toggle="modal"><span class="fa fa-info text-primary"></span></button>\
                                 <button title="Eliminar detalle" class="btn btn-xs btn-default btn-tabla eliminar-fila" data-size="' + full._tallas + '" data-articulo="' + full._code + '" data-modal="" data-toggle="modal"><span class="fa fa-remove text-danger"></span></button>\
                             </div>';
                            }, "className": "desktop tablet"
@@ -597,12 +597,12 @@ else
                                                     <div class="col-xs-4">\
                                                         <div class="row">\
                                                             <div class="col-xs-12">\
-                                                                <img class="img-responsive img-thumbnail" alt="Imagen Usuario" src="data:image/png;base64,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" />\
+                                                                <img class="img-responsive img-thumbnail" alt="Imagen Usuario" src="' + full._uriPhoto + '" />\
                                                             </div>\
                                                             <div class="col-xs-12 text-center">\
-                                                                <button title="Editar" onclick="EditarDetalle(this)" class="btn btn-xs btn-default btn-tabla" data-id="' + full._code + '" data-modal="" data-toggle="modal"><span class="fa fa-pencil text-success"></span></button>\
-                                                                <button title="Ver detalle" onclick="verDetalle(this)" class="btn btn-xs btn-default btn-tabla" data-id="' + full._code + '" data-modal="" data-toggle="modal"><span class="fa fa-info text-primary"></span></button>\
-                                                                <button title="Eliminar detalle" onclick="PopupEliminar(this)" class="btn btn-xs btn-default btn-tabla" data-id="' + full._code + '" data-modal="" data-toggle="modal"><span class="fa fa-remove text-danger"></span></button>\
+                                                                 <button title="Editar" class="btn btn-xs btn-default btn-tabla editar-fila" data-size="' + full._tallas + '" data-articulo="' + full._code + '" data-qty="' + full._qtys + '" data-modal="" data-toggle="modal"><span class="fa fa-pencil text-success"></span></button>\
+                                                                <button title="Ver detalle" class="btn btn-xs btn-default btn-tabla ver-info" data-size="' + full._tallas + '" data-articulo="' + full._code + '" data-qty="' + full._qtys + '" data-modal="" data-toggle="modal"><span class="fa fa-info text-primary"></span></button>\
+                                                                <button title="Eliminar detalle" class="btn btn-xs btn-default btn-tabla eliminar-fila" data-size="' + full._tallas + '" data-articulo="' + full._code + '" data-modal="" data-toggle="modal"><span class="fa fa-remove text-danger"></span></button>\
                                                             </div>\
                                                         </div>\
                                                     </div>\
@@ -696,6 +696,12 @@ else
                 var size = $(this).attr('data-size');
                 var qty = $(this).attr('data-qty');
                 DibujarMostrarArticulo(articulo, size, qty);
+            });
+            $('#detPedido').on('click', '.ver-info', function (e) {
+                var articulo = $(this).attr('data-articulo');
+                var size = $(this).attr('data-size');
+                var qty = $(this).attr('data-qty');
+                DibujarDetalleArticulo(articulo);
             });
         })
         $("#btnliquidar").click(function () {
@@ -2070,55 +2076,60 @@ else
     }
 
     function DibujarDetalleArticulo(codArticulo) {
+        var infoART ;
+        var infoTallas ;
+        waitingDialog.show('Espere un momento por favor');
+        $.ajax({
+            type: "Post",
+            url: '@Url.Action("listarStr_ArticuloTalla", "Pedido")',
+            data: { codArticulo: codArticulo },
+            success: function (data) {
+                
+                infoART = data.articulo;
+                infoTallas = data.tallas;
+                var border2 = 'padding: 5px 5px 5px 5px;border:2px';
+                var espacio = '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;';
+                var css = 'class="row"';
+                var ConstTalla = '<td><div style="margin-top:2px;margin-right:2px;"><button class="btn btn-white btn-xs" style="width:100%;">variableTalla</button></div></td>'
+                var BotonSuma = '<button title="Sumar Cantidad" class="btnSuma btn btn-success" onclick="sumarCantidad(this)" data-id="IdArticuloTallaS" data-modal="Sstock" data-toggle="modal"><span class="glyphicon glyphicon-plus"></span></button>'
+                var BotonResta = '<button title="Restar Cantidad" class="btnResta btn btn-danger" onclick="restarCantidad(this)" data-id="IdArticuloTallaR" data-modal="Rstock" data-toggle="modal"><span class="glyphicon glyphicon-minus"></span></button>'
+                var InputCantidadTalla = '<input id="inpArtTalla" type="Text"  name="Talla" value="valor" placeholder="cantidad" onchange = "validarStock(this)" data-id="inpStock" style="width:100%;" autofocus="" class="form-control"/>'
+                var ConstHtmlDetalleTallas = '<br/><div id="listatallas" style="background:#FFFFFF;' + border2 + '" ><div ' + css + '  style="background:#FFFFFF;" ><div class="col-sm-12"><i class="fa fa-info-circle"></i>&nbsp;<b>Tallas y Cantidades</b><br/></div><div class="col-sm-12">ListaTallas</div><br/></div></div>';
+                var ConstHtmlDetalle = '<br/><div id="lugar" style="background:#FFFFFF;' + border2 + '" ><div ' + css + '  style="background:#FFFFFF;" ><div class="col-sm-12"><table style="width:100%">Cantidad&nbsp;Precio&nbsp;Comision&nbsp;Descuento&nbsp;Total</table></div><br/></div></div>';
+
+                var strTablaTallas = '<table><tr><td><div style="margin-top:2px;margin-right:2px;"><button class="btn btn-white btn-xs"  title="Tallas"  style="width:100%;">Tallas:</button></div></td><td><div style="margin-top:2px;margin-right:2px;"><button class="btn btn-success btn-xs" style="width:100%;">Total</button></div></td>ListvariableTalla</tr><tr><td><div style="margin-top:2px;margin-right:2px;"><button  title="Cantidad"  class="btn btn-white btn-xs" style="width:100%;">Cantidad:</button></div></td></td><td><div style="margin-top:2px;margin-right:2px;"><button class="btn btn-success btn-xs" style="width:100%;">VTotal</button></div></td>ListvariableCantidad</tr></table>'
+                var ConstTalla = '<td><div style="margin-top:2px;margin-right:2px;"><button class="btn btn-primary btn-xs"  style="width:100%;" title="Talla"  data-id="codTienda" data-tda="desTiendaS" data-modal="codTalla" data-art="codArticulo"  >variableTalla</button></div></td>'
+                var ConstCantidad = '<td><div style="margin-top:2px;margin-right:2px;"><button class="btn btn-info btn-xs" style="width:100%;text-align:center;">variableCantidad</button></div></td>'
+
+                var listTalla = '';
+                var listCantidad = '';
+                var divFinal = '';
+                var strUrlImagen = '';
+                var codTienda = ''
+                var consTienda = ''
+                var Precio = 0.00;
+                var Comision = 0.00;
+                var Descuento = 0.00;
+                var Total = 0.00;
+                var urlImagenSusti = '';
+                var DireccionTienda = '';
+                var CodTalla = '';
+                var cantidad = '';
+
+                var NombreArticulo = '';
+                var MarcaArticulo = '';
+                var ColorArticulo = '';
+                var CategoriArticulo = '';
+                var PrecioSinIgv = '';
+                var stock = '';
 
 
-        var border2 = 'padding: 5px 5px 5px 5px;border:2px';
-        var espacio = '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;';
-        var css = 'class="row"';
-        var ConstTalla = '<td><div style="margin-top:2px;margin-right:2px;"><button class="btn btn-white btn-xs" style="width:100%;">variableTalla</button></div></td>'
-        var BotonSuma = '<button title="Sumar Cantidad" class="btnSuma btn btn-success" onclick="sumarCantidad(this)" data-id="IdArticuloTallaS" data-modal="Sstock" data-toggle="modal"><span class="glyphicon glyphicon-plus"></span></button>'
-        var BotonResta = '<button title="Restar Cantidad" class="btnResta btn btn-danger" onclick="restarCantidad(this)" data-id="IdArticuloTallaR" data-modal="Rstock" data-toggle="modal"><span class="glyphicon glyphicon-minus"></span></button>'
-        var InputCantidadTalla = '<input id="inpArtTalla" type="Text"  name="Talla" value="valor" placeholder="cantidad" onchange = "validarStock(this)" data-id="inpStock" style="width:100%;" autofocus="" class="form-control"/>'
-        var ConstHtmlDetalleTallas = '<br/><div id="listatallas" style="background:#FFFFFF;' + border2 + '" ><div ' + css + '  style="background:#FFFFFF;" ><div class="col-sm-12"><i class="fa fa-info-circle"></i>&nbsp;<b>Tallas y Cantidades</b><br/></div><div class="col-sm-12">ListaTallas</div><br/></div></div>';
-        var ConstHtmlDetalle = '<br/><div id="lugar" style="background:#FFFFFF;' + border2 + '" ><div ' + css + '  style="background:#FFFFFF;" ><div class="col-sm-12"><table style="width:100%">Cantidad&nbsp;Precio&nbsp;Comision&nbsp;Descuento&nbsp;Total</table></div><br/></div></div>';
-
-        var strTablaTallas = '<table><tr><td><div style="margin-top:2px;margin-right:2px;"><button class="btn btn-white btn-xs"  title="Tallas"  style="width:100%;">Tallas:</button></div></td><td><div style="margin-top:2px;margin-right:2px;"><button class="btn btn-success btn-xs" style="width:100%;">Total</button></div></td>ListvariableTalla</tr><tr><td><div style="margin-top:2px;margin-right:2px;"><button  title="Cantidad"  class="btn btn-white btn-xs" style="width:100%;">Cantidad:</button></div></td></td><td><div style="margin-top:2px;margin-right:2px;"><button class="btn btn-success btn-xs" style="width:100%;">VTotal</button></div></td>ListvariableCantidad</tr></table>'
-        var ConstTalla = '<td><div style="margin-top:2px;margin-right:2px;"><button class="btn btn-primary btn-xs"  style="width:100%;" title="Talla"  data-id="codTienda" data-tda="desTiendaS" data-modal="codTalla" data-art="codArticulo"  >variableTalla</button></div></td>'
-        var ConstCantidad = '<td><div style="margin-top:2px;margin-right:2px;"><button class="btn btn-info btn-xs" style="width:100%;text-align:center;">variableCantidad</button></div></td>'
-
-        var listTalla = '';
-        var listCantidad = '';
-        var divFinal = '';
-        var strUrlImagen = '';
-        var codTienda = ''
-        var consTienda = ''
-        var Precio = 0.00;
-        var Comision = 0.00;
-        var Descuento = 0.00;
-        var Total = 0.00;
-        var urlImagenSusti = '';
-        var DireccionTienda = '';
-        var CodTalla = '';
-        var cantidad = '';
-
-        var NombreArticulo = '';
-        var MarcaArticulo = '';
-        var ColorArticulo = '';
-        var CategoriArticulo = '';
-        var PrecioSinIgv = '';
-        var stock = '';
-
-
-        $.each(listArticulos, function (index, item) {
-
-            if (codArticulo == item.codigoArt) {
-
-                strUrlImagen = item.strUrlImagen
-                NombreArticulo = item.DescriArt
-                MarcaArticulo = item.MarcaArt
-                ColorArticulo = item.ColorArt
-                PrecioSinIgv = item.PrecioArt
-                CategoriArticulo = item.Cat_Pri_Descripcion + ' > ' + item.Cat_Descripcion
+                strUrlImagen = infoART.Art_Foto
+                NombreArticulo = infoART.Art_Descripcion
+                MarcaArticulo = infoART.Mar_Descripcion
+                ColorArticulo = infoART.Col_Descripcion
+                PrecioSinIgv = infoART.Art_Pre_Sin_Igv
+                CategoriArticulo = infoART.Cat_Pri_Descripcion + ' > ' + infoART.Col_Descripcion
 
                 var strhtml = ConstHtmlDetalle;
                 var strhtmlTallas = ConstHtmlDetalleTallas
@@ -2127,11 +2138,11 @@ else
                 var strMedio = '</b></p></td><td valign="top" style="padding:0; margin:0;text-align:right">&nbsp;&nbsp;'
                 var strFin = '</td></tr>';
 
-                var strCantidad = strIni + 'Cantidad:' + strMedio + item.CantidadTotal + strFin;
-                var strPrecio = strIni + 'Precio:' + strMedio + item.PrecioArt + strFin;
-                var strComision = strIni + 'Comision:' + strMedio + item.Comission + strFin;
+                var strCantidad = strIni + 'Cantidad:' + strMedio + infoART.CantidadTotal + strFin;
+                var strPrecio = strIni + 'Precio:' + strMedio + infoART.PrecioArt + strFin;
+                var strComision = strIni + 'Comision:' + strMedio + infoART.Comission + strFin;
 
-                var strTotal = strIniTotal + 'TOTAL:' + strMedio + '<b>' + item.Total + strFin;
+                var strTotal = strIniTotal + 'TOTAL:' + strMedio + '<b>' + infoART.Total + strFin;
 
                 strhtml = strhtml.replace("Cantidad", strCantidad);
                 strhtml = strhtml.replace("Precio", strPrecio);
@@ -2139,14 +2150,14 @@ else
 
                 strhtml = strhtml.replace("Total", strTotal);
 
-                var listTallasCantidad2 = item.listTallas;
+                var listTallasCantidad2 = infoTallas;
                 var total = 0;
                 var totalDescuento = 0.00;
 
                 for (var j = 0; j < listTallasCantidad2.length; j++) {
 
-                    var talla = listTallasCantidad2[j].codTalla;
-                    var cantidad = listTallasCantidad2[j].CantTalla;
+                    var talla = listTallasCantidad2[j].Tal_Descripcion;
+                    var cantidad = listTallasCantidad2[j].Tall_Cant;
                     var descuen = listTallasCantidad2[j].descuentoTalla;
 
                     totalDescuento += descuen;
@@ -2167,66 +2178,69 @@ else
                 strhtmlTallas = strhtmlTallas.replace("ListaTallas", strTablaTallas);
 
                 divFinal += strhtmlTallas
-                divFinal += strhtml;
+                //divFinal += strhtml;
+
+                var strhtml = ''
+                var pOcu = "ocultarDivFast('tdImagen');mostrarDivFast('bverP'); ocultarDivFast('bocuP')"
+                var pVer = "mostrarDivFast('tdImagen');ocultarDivFast('bverP'); mostrarDivFast('bocuP')"
+
+                strhtml += '<div class="modal-header modal-header-danger" style="margin-top:0px;margin-bottom:0px;padding-top:2px;padding-bottom:2px;">'
+                strhtml += '<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>'
+                strhtml += '<h5 class="modal-title" id="myModalLabel">'
+                strhtml += '<table style="border-bottom:0px;font-size:14px;width:100%;">'
+                strhtml += '<tr>'
+                strhtml += '<td style="font-size:14px;width:5%;text-align:left;">'
+                strhtml += '<span id="bocuP" onclick ="' + pOcu + '"  class="glyphicon glyphicon-eye-close"></span>'
+                strhtml += '<span id="bverP" onclick ="' + pVer + '" style="display:none" class="glyphicon glyphicon-picture"></span>'
+                strhtml += '</td>'
+                strhtml += '<td style="font-size:14px;width:90%;text-align:left;">Articulo:&nbsp;&nbsp;' + codArticulo + '&nbsp;&nbsp;-&nbsp;&nbsp;Precio:&nbsp;&nbsp;S/&nbsp;&nbsp;' + PrecioSinIgv + '</td>'
+                strhtml += '</tr>'
+                strhtml += '</table>'
+                strhtml += '</h5>'
+                strhtml += '</div>'
+                strhtml += '<div class="modal-body"><div class="table-responsive">'
+                strhtml += '<table id="example" class="table table-hover dataTable  table-striped table-responsive">'
+                strhtml += '<tbody>'
+                strhtml += '<tr>'
+                strhtml += '<td Id="tdImagen"style="background:#FFFFFF;width:30%;vertical-align:middle;border: 1px solid;border-color:gainsboro">'
+                strhtml += '<div Id="DivgImagen">'
+                strhtml += '<div id="DivNombre" style="text-align:center;"><h5><b>' + NombreArticulo + '</b></h5></div><br/>'
+                strhtml += '<div id="DivImagen" style="text-align:center;">'
+                strhtml += '<img id="imagenCatalogo" class="imgRedonda" src="' + strUrlImagen + '" width="100%" height="100%" />'
+                strhtml += '</div></div><br/>'
+                strhtml += '<div id="DivPrecio" style="text-align:left"><table style="width:100%" ><tr><td style="width:50%" ><div style="width:100%" ><h5><b>Precio:&nbsp;&nbsp;</b></h5></div></td><td><div style="width:100%;color:#FF0000"><h5><b>S/&nbsp;&nbsp;' + PrecioSinIgv + '</b></h5></div></td></tr></table></div>'
+                strhtml += '<div id="DivMarca" style="text-align:left"><h5><b>Marca:&nbsp;&nbsp;</b>' + MarcaArticulo + '</h5></div>'
+                strhtml += '<div id="DivColor" style="text-align:left"><h5><b>Color:&nbsp;&nbsp;</b>' + ColorArticulo + '</h5></div>'
+                strhtml += '<div id="DivCateg" style="text-align:left"><h5><b>Categorización:</b></h5></div>'
+
+                strhtml += '</div>'
+                strhtml += '</td>'
+                strhtml += '<td>'
+                strhtml += '<div id="listTalla" style="overflow-x: hidden; overflow-y:auto; height: 378px;">'
+                strhtml += divFinal
+                strhtml += '</div>'
+                strhtml += '</td>'
+                strhtml += '</tr>'
+                strhtml += '</tbody>'
+                strhtml += '</table>'
+                strhtml += '</div>'
+                strhtml += '<div class="modal-footer" style="margin-top:-30px">'
+                strhtml += '<button type="button" class="btn btn-default" data-dismiss="modal">Cerrar</button>'
+                strhtml += '</div>'
+                var options = { "backdrop": "static", keyboard: true };
+
+                $('#myModalContent').html(strhtml);
+                $('#myModal').modal(options);
+                $('#myModal').modal('show');
+                $('#myModal').on('shown.bs.modal', function (event) {
+                    waitingDialog.hide();
+                })
+            },
+            error: function (xhr) {
+                waitingDialog.hide();
+                toastr.error(xhr, 'Mensaje');
             }
-
         });
-
-
-        var strhtml = ''
-        var pOcu = "ocultarDivFast('tdImagen');mostrarDivFast('bverP'); ocultarDivFast('bocuP')"
-        var pVer = "mostrarDivFast('tdImagen');ocultarDivFast('bverP'); mostrarDivFast('bocuP')"
-
-        strhtml += '<div class="modal-header modal-header-danger" style="margin-top:0px;margin-bottom:0px;padding-top:2px;padding-bottom:2px;">'
-        strhtml += '<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>'
-        strhtml += '<h5 class="modal-title" id="myModalLabel">'
-        strhtml += '<table style="border-bottom:0px;font-size:14px;width:100%;">'
-        strhtml += '<tr>'
-        strhtml += '<td style="font-size:14px;width:5%;text-align:left;">'
-        strhtml += '<span id="bocuP" onclick ="' + pOcu + '"  class="glyphicon glyphicon-eye-close"></span>'
-        strhtml += '<span id="bverP" onclick ="' + pVer + '" style="display:none" class="glyphicon glyphicon-picture"></span>'
-        strhtml += '</td>'
-        strhtml += '<td style="font-size:14px;width:90%;text-align:left;">Articulo:&nbsp;&nbsp;' + codArticulo + '&nbsp;&nbsp;-&nbsp;&nbsp;Precio:&nbsp;&nbsp;S/&nbsp;&nbsp;' + PrecioSinIgv + '</td>'
-        strhtml += '</tr>'
-        strhtml += '</table>'
-        strhtml += '</h5>'
-        strhtml += '</div>'
-        strhtml += '<div class="modal-body">'
-        strhtml += '<table id="example" class="table table-hover dataTable  table-striped table-responsive">'
-        strhtml += '<tbody>'
-        strhtml += '<tr>'
-        strhtml += '<td Id="tdImagen"style="background:#FFFFFF;width:30%;vertical-align:middle;border: 1px solid;border-color:gainsboro">'
-        strhtml += '<div Id="DivgImagen">'
-        strhtml += '<div id="DivNombre" style="text-align:center;"><h5><b>' + NombreArticulo + '</b></h5></div><br/>'
-        strhtml += '<div id="DivImagen" style="text-align:center;">'
-        strhtml += '<img id="imagenCatalogo" class="imgRedonda" src="' + strUrlImagen + '" width="100%" height="100%" />'
-        strhtml += '</div><br/>'
-        strhtml += '<div id="DivPrecio" style="text-align:left"><table style="width:100%" ><tr><td style="width:50%" ><div style="width:100%" ><h5><b>Precio:&nbsp;&nbsp;</b></h5></div></td><td><div style="width:100%;color:#FF0000"><h5><b>S/&nbsp;&nbsp;' + PrecioSinIgv + '</b></h5></div></td></tr></table></div>'
-        strhtml += '<div id="DivMarca" style="text-align:left"><h5><b>Marca:&nbsp;&nbsp;</b>' + MarcaArticulo + '</h5></div>'
-        strhtml += '<div id="DivColor" style="text-align:left"><h5><b>Color:&nbsp;&nbsp;</b>' + ColorArticulo + '</h5></div>'
-        strhtml += '<div id="DivCateg" style="text-align:left"><h5><b>Categorización:</b></h5></div>'
-
-        strhtml += '</div>'
-        strhtml += '</td>'
-        strhtml += '<td>'
-        strhtml += '<div id="listTalla" style="overflow-x: hidden; overflow-y:auto; height: 378px;">'
-        strhtml += divFinal
-        strhtml += '</div>'
-        strhtml += '</td>'
-        strhtml += '</tr>'
-        strhtml += '</tbody>'
-        strhtml += '</table>'
-        strhtml += '</div>'
-        strhtml += '<div class="modal-footer" style="margin-top:-30px">'
-        strhtml += '<button type="button" class="btn btn-default" data-dismiss="modal">Cerrar</button>'
-        strhtml += '</div>'
-        var options = { "backdrop": "static", keyboard: true };
-
-        $('#myModalContent').html(strhtml);
-        $('#myModal').modal(options);
-        $('#myModal').modal('show');
-
-
     }
 
     function restarCantidad(control) {

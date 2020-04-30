@@ -58,17 +58,17 @@ namespace CapaPresentacion.Controllers
             else
             {
                 #region<VALIDACION DE ROLES DE USUARIO>
-                Boolean valida_rol = true;
-                Basico valida_controller = new Basico();
-                List<Ent_Menu_Items> menu = (List<Ent_Menu_Items>)Session[Ent_Global._session_menu_user];
-                valida_rol = valida_controller.AccesoMenu(menu, this);
+                //Boolean valida_rol = true;
+                //Basico valida_controller = new Basico();
+                //List<Ent_Menu_Items> menu = (List<Ent_Menu_Items>)Session[Ent_Global._session_menu_user];
+                //valida_rol = valida_controller.AccesoMenu(menu, this);
                 #endregion
                 if (custId == "")
                 {
                     return RedirectToAction("Lista", "Pedido");
                 }
-                if (valida_rol)
-                {
+                //if (valida_rol)
+                //{
                     string IdPedido = "";
                     string IdCustomer = "";
                     string strLiqId = "";
@@ -113,11 +113,11 @@ namespace CapaPresentacion.Controllers
                     Session[_session_lnfo_liquidacion] = oLiquidacion;
 
                     return View("CrearEditar", oLiquidacion);
-                }
-                else
-                {
-                    return RedirectToAction("Login", "Control", new { returnUrl = return_view });
-                }
+                //}
+                //else
+                //{
+                //    return RedirectToAction("Login", "Control", new { returnUrl = return_view });
+                //}
             }
 
         }
@@ -2199,6 +2199,7 @@ namespace CapaPresentacion.Controllers
                                  _artName = fila._artName,
                                  _brand = fila._brand,
                                  _color = fila._color,
+                                 _uriPhoto = fila._uriPhoto,
                              }
                              into g
                              select new Ent_Order_Dtl
@@ -2214,6 +2215,7 @@ namespace CapaPresentacion.Controllers
                                  _lineTotal = g.Sum(s => s._lineTotal),
                                  _dscto = g.Sum(s => s._dscto),
                                  _lineTotDesc = g.Sum(s => s._lineTotDesc),
+                                 _uriPhoto = g.Key._uriPhoto
                              }).ToList();
             //IQueryable <Ent_Order_Dtl> membercol = ((List<Ent_Order_Dtl>)(Session[_session_list_detalle_pedido])).AsQueryable();  //lista().AsQueryable();
 
@@ -2291,6 +2293,7 @@ namespace CapaPresentacion.Controllers
                              a._tallas , 
                              a._qtys,
                              a._lineTotDesc,
+                             a._uriPhoto
                          };
             //Se devuelven los resultados por json
             return Json(new
