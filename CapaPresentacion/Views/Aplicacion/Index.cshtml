@@ -1,22 +1,260 @@
-﻿@using CapaEntidad.Control
-@model IEnumerable<Ent_Aplicacion>
-@{
+﻿@{
     ViewBag.Title = "Control de Aplicaciones";
 }
+<style>
+    .table thead {
+        background-color: #5799bf;
+        color: #fff;
+    }
+</style>
 
-
-<p class="text-danger">Muestra la lista de Aplicaciones (Formularios Web). Permite crear nuevas Aplicación para utilizar en el Sistema y editar las existentes.</p>
+<p class="text-primary">Muestra la lista de Aplicaciones (Formularios Web). Permite crear nuevas Aplicación para utilizar en el Sistema y editar las existentes.</p>
 <div class="box box-body box-default">
 
-    <button type="submit" id="btnaceptar" name="btnaceptar" title="Agregar" class="nuevo btn btn-small btn-primary" data-modal="" data-toggle="modal">Agregar Aplicación</button>
+    <button type="submit" id="btnaceptar" onclick="nuevo();" name="btnaceptar" title="Agregar" class="nuevo btn btn-small btn-primary" data-modal="" data-toggle="modal">Agregar Aplicación</button>
 
     <div class="box-body" id="lista">
-        @{Html.RenderPartial("ListaAplicacion", Model); }
+        <table id="tbaplicacion" class="table table-hover table-bordered compact">
+            <thead>
+                <tr>
+                    <th>Id</th>
+                    <th>Nombre</th>
+                    <th>Orden</th>
+                    <th>Controller</th>
+                    <th>Action</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody data-bind="foreach:"></tbody>
+            <tfoot>
+                <tr>
+                    <th>Id</th>
+                    <th>Nombre</th>
+                    <th>Orden</th>
+                    <th>Controller</th>
+                    <th>Action</th>
+                    <th>Acciones</th>
+                </tr>
+            </tfoot>
+        </table>
     </div>
 </div>
-@section scripts{    
-    @*index*@
-<script>
+<div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" ng-app>
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-body" id="myModalContent">
+            </div>
+        </div>
+    </div>
+</div>
+
+@section scripts{  
+    <script>
+        function OnNuevo_Grabar() {
+            var msg_titulo = 'Mensaje Aquarella!';
+            var nombre = $("#nombre").val();
+            var orden = $("#orden").val();
+            var controller = $("#controller").val();
+            var action = $("#action").val();
+
+            waitingDialog.show('Espere un momento por favor');
+            $.ajax
+                 ({
+                     url: '../Aplicacion/Nuevo',
+                     dataType: "json",
+                     type: "POST",
+                     data: { apl_nombre: nombre, apl_orden: orden, apl_controller: controller, apl_action: action },
+                     success: function (data, textStatus, XMLHttpRequest) {
+                         if (data.estado == '1') {
+
+                             $('#myModal').modal('hide');
+                             $('body').removeClass('modal-open');
+                             $('.modal-backdrop').remove();
+
+                              actualizar = "1";
+                              $('#tbaplicacion').DataTable().ajax.reload();
+                              actualizar = "";
+
+                             waitingDialog.hide();
+                             toastr.success(data.desmsg, msg_titulo);
+                         }
+                         else {
+                             waitingDialog.hide();
+                             toastr.error(data.desmsg, msg_titulo);
+                         }
+                     },
+                     error: function (xhr) {
+                         waitingDialog.hide();
+                         toastr.error(xhr, msg_titulo);
+                     }
+                 });
+        }
+    </script>
+    <script>
+        function InvalidMsg(textbox, str) {
+
+            if (textbox.value.length == 0) {
+                textbox.setCustomValidity(str);
+            }
+            else {
+                textbox.setCustomValidity('');
+            }
+            return true;
+        }
+    </script>
+
+    <script>
+        function nuevo() {
+            waitingDialog.show('Espere un momento por favor');
+            var TeamDetailPostBackURL ="@Url.Action("Nuevo", "Aplicacion")";
+
+            //var $buttonClicked = $(this);
+            //var id = $buttonClicked.attr('data-id');
+
+            var options = { "backdrop": "static", keyboard: true };
+            $.ajax({
+                type: "GET",
+                url: TeamDetailPostBackURL,
+                contentType: "application/json; charset=utf-8",
+                data: {},
+                datatype: "json",
+                cache: true,
+                success: function (data) {
+                    waitingDialog.hide();
+
+                    //debugger;
+                    $('#myModalContent').html(data);
+                    $('#myModal').modal(options);
+                    $('#myModal').modal('show');
+
+
+                },
+                error: function () {
+                    waitingDialog.hide();
+                    // waitingDialog.hide();
+                    //removeLoading();
+                    alert("Dynamic content load failed.");
+
+                }
+            });
+        }
+    </script>
+    <script>
+        function OnEditar_Grabar() {
+            var msg_titulo = 'Mensaje Aquarella!';
+            var id = $("#idapl").val();
+            var nombre = $("#nombre").val();
+            var orden = $("#orden").val();
+            var controller = $("#controller").val();
+            var action = $("#action").val();
+
+            waitingDialog.show('Espere un momento por favor');
+            $.ajax
+                 ({
+                     url: '../Aplicacion/Edit',
+                     dataType: "json",
+                     type: "POST",
+                     data: { apl_id: id, apl_nombre: nombre, apl_orden: orden, apl_controller: controller, apl_action: action },
+                     success: function (data, textStatus, XMLHttpRequest) {
+                         if (data.estado == '1') {
+
+                             $('#myModal').modal('hide');
+                             $('body').removeClass('modal-open');
+                             $('.modal-backdrop').remove();
+
+                              actualizar = "1";
+                              $('#tbaplicacion').DataTable().ajax.reload();
+                             actualizar = "";
+
+                             waitingDialog.hide();
+                             toastr.success(data.desmsg, msg_titulo);
+                         }
+                         else {
+                             waitingDialog.hide();
+                             toastr.error(data.desmsg, msg_titulo);
+                         }
+                     },
+                     error: function (xhr) {
+                         waitingDialog.hide();
+                         toastr.error(xhr, msg_titulo);
+                     }
+                 })
+
+        }
+    </script>
+
+    <script>
+        function editar(id) {
+            var TeamDetailPostBackURL ="@Url.Action("Edit", "Aplicacion")";
+            //debugger;
+            //var $buttonClicked = $(this);
+            waitingDialog.show('Espere un momento por favor');
+            //var id = $buttonClicked.attr('data-id');
+            var options = { "backdrop": "static", keyboard: true };
+            $.ajax({
+                type: "GET",
+                url: TeamDetailPostBackURL,
+                contentType: "application/json; charset=utf-8",
+                data: { "Id": id },
+                datatype: "json",
+                cache: true,
+                success: function (data) {
+                    //debugger;
+                    waitingDialog.hide();
+                    $('#myModalContent').html(data);
+                    $('#myModal').modal(options);
+                    $('#myModal').modal('show');
+                    // debugger;
+
+                },
+                error: function () {
+                    waitingDialog.hide();
+                    alert("Dynamic content load failed.");
+                }
+            });
+        }
+    </script>   
+      
+ <script>
+        var actualizar = "";
+        $(document).ready(function () {
+
+            $('#tbaplicacion').DataTable({
+                "language": {
+                    "url": "../Scripts/DataTables/Spanish.json"
+                },
+                "bServerSide": true,
+                "bAutoWidth": false,
+                "sAjaxSource": '@Url.Action("getListaAplicacionAjax", "Aplicacion")',
+                "fnServerParams": function (aoData) {
+                    aoData.push({ "name": "actualizar", "value": actualizar });
+                },
+                "bdestroy": true,
+                "start": 0,
+                "columnDefs": [{
+
+                    "orderable": true
+                }],
+                "bDeferRender": true,
+                "aoColumns": [
+                      { "sName": "apl_id", "mData": "apl_id" },
+                      { "sName": "apl_nombre", "mData": "apl_nombre" },
+                      { "sName": "apl_orden", "mData": "apl_orden" },
+                      { "sName": "apl_controller", "mData": "apl_controller" },
+                      { "sName": "apl_action", "mData": "apl_action" },
+                      {
+                          "render": function (data, type, full) {                              
+                              return ' <div class="pull-right"><button title="Editar Aplicación" onclick="editar(' + full.apl_id + ');" style="border-radius:50%"  class="btneditar btn btn-primary" data-id="" data-modal="" data-toggle="modal"><span class="glyphicon glyphicon-pencil"></span></button></div>'
+                          }, "class": "boton-td"
+                      }
+                ]
+            });
+
+        });
+</script>
+       
+
+@*<script>
     $(function () {
         $(".nuevo").click(function () {
             waitingDialog.show('Espere un momento por favor');
@@ -61,9 +299,9 @@
             $('#myModal').modal('hide');
         });
     });
-</script>
+</script>*@
     @*Edit*@
-<script type="text/javascript">
+@*<script type="text/javascript">
     function OnEditar_Grabar() {
        var msg_titulo = 'Mensaje Aquarella!';
         var id = $("#idapl").val();
@@ -102,9 +340,9 @@
              })
 
     }
-</script>
+</script>*@
     @*Lista Aplicacion*@
-<script>
+@*<script>
     $(document).ready(function () {
         $('.table').dataTable({
             "language": {
@@ -112,8 +350,8 @@
             }
         });
     });
-</script>
-<script type="text/javascript">
+</script>*@
+@*<script type="text/javascript">
 
     $(function () {
         $(".btneditar").click(function () {
@@ -156,9 +394,9 @@
 
 
 
-</script>
+</script>*@
     @*Aplicacion*@
-<script type="text/javascript">
+@*<script type="text/javascript">
     function InvalidMsg(textbox, str) {
 
         if (textbox.value.length == 0) {
@@ -169,8 +407,8 @@
         }
         return true;
     }
-</script>
-<script type="text/javascript">
+</script>*@
+@*<script type="text/javascript">
     function OnNuevo_Grabar() {
          var msg_titulo = 'Mensaje Aquarella!';
         var nombre = $("#nombre").val();
@@ -207,5 +445,5 @@
                  }
              })
     }
-</script> 
+</script>*@ 
 }

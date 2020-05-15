@@ -84,7 +84,11 @@
         overflow-wrap:break-word;
     }
 </style>
-<link href="~/Content/plugins/iCheck/custom.css" rel="stylesheet" />
+@*<link href="~/Content/plugins/iCheck/custom.css" rel="stylesheet" />
+<link href="~/Content/plugins/iCheck/custom.css" rel="stylesheet" />*@
+
+<link href="@Url.Content("~/Content/plugins/iCheck/custom.css")" rel="stylesheet" type="text/css" />
+
 @if (ViewBag.operacion == "Nuevo")
 {
     <p class="text-primary">Creando nueva liquidacion: </p>
@@ -171,7 +175,7 @@ else
                     <div class="col-xs-12 col-sm-5 col-md-3 col-lg-3">
                         <label>Articulo:</label>
                         <div class="input-group">
-                            <input id="txtArticulo" type="number" min="0" step="1" focus="true" placeholder="Ingrese articulo" class="form-control" />
+                            <input id="txtArticulo" type="number" min="0" step="1" maxlength="7" focus="true" placeholder="Ingrese articulo" class="form-control" />
                             <span class="input-group-btn">
                                 <button class="btn btn-primary" type="submit" id="btnBuscarArticulo" name="btnConsultar" title="Buscar">
                                     <span class="glyphicon glyphicon-search"></span>
@@ -364,8 +368,12 @@ else
 @*<script src="~/Scripts/bootstrap.min.js"></script>
 <script src="~/ScriptsSelect/bootstrap-select.js"></script>*@
 
+@*<script src="~/Scripts/bootstrap-select.min.js"></script>
+<script src="@Url.Content("~/Scripts/bootstrap.min.js")"></script>*@
+
 @section scripts
 {
+
 <script src="~/Scripts/BI.js"></script>
 @*<script src="~/Scripts/Plugins/iCheck/icheck.min.js"></script>*@
 
@@ -651,6 +659,7 @@ else
                 ]
             });
             $("#btnBuscarArticulo").click(function () {
+
                 MostrarArticulo();
             });
             $('#detPedido').on('click', '.eliminar-fila', function (e) {
@@ -880,8 +889,17 @@ else
         var codArticulo = $('#txtArticulo').val();
         codArticulo = codArticulo.replace(/^\s+|\s+$/g, "");
         if (codArticulo != "") {
-            DibujarMostrarArticulo(codArticulo);
-            $('#txtArticulo').val('');
+
+            if (codArticulo.length==7){
+                DibujarMostrarArticulo(codArticulo);
+                //$('#txtArticulo').val('');
+
+            }
+            else
+            {
+                toastr.error("El codigo ingresado debe de tener 7 digitos.", "Aviso");
+            }
+            
         } else {
             toastr.error("Debe ingresar un codigo.", "Aviso");
         }
@@ -933,6 +951,25 @@ else
 
                 var codTienda = ''
                 var consTienda = ''
+
+                if (data.articulo.Art_id == null){
+                    waitingDialog.hide();
+                    toastr.error("El codigo de articulo no existe", "Aviso");                    
+                    return;
+                }
+
+                if (data.tallas.length == 0) {
+                    waitingDialog.hide();
+                    toastr.error("El codigo de articulo no tiene stock disponible", "Aviso");
+                    return;
+                }
+
+                if (data.articulo.Art_Pre_Sin_Igv == 0) {
+                    waitingDialog.hide();
+                    toastr.error("El Codigo de articulo no tiene precio", "Aviso");
+                    return;
+                }
+
 
                 if (data != '' && data != '[]') {
                     var infoART = data.articulo;

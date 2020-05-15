@@ -4,7 +4,7 @@
 @using (Ajax.BeginForm("Nuevo", new AjaxOptions { OnBegin = "OnNuevo_Grabar();" }))
 {
     <div class="modal-content">
-        <div class="modal-header modal-header-danger">
+        <div class="modal-header modal-header-primary">
             <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
             <h4 class="modal-title" id="myModalLabel">Creando Nuevo Rol</h4>
         </div>
@@ -16,7 +16,13 @@
                     <td>
                         <input type="text" id="nombre" value="" placeholder="Ingrese el nombre" autofocus class="form-control" oninvalid="InvalidMsg(this,'Ingrese el nombre')" required="required" />
                     </td>
-                </tr>              
+                </tr> 
+                <tr>
+                    <td><label for="nombre">Descripcion</label></td>
+                    <td>
+                        <input type="text" id="descripcion" value="" placeholder="Ingrese la Descripcion" autofocus class="form-control" oninvalid="InvalidMsg(this,'Ingrese la descripcion')" required="required" />
+                    </td>
+                </tr>                       
             </table>
         </div>
         <div class="modal-footer" style="margin-top:-30px">

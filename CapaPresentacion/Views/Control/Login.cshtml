@@ -11,7 +11,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Login - Aquarella</title>
-    <link rel="icon" type="image/x-icon" href="@Url.Content("~/Images/lock-favicon.png")" />    
+    @*<link rel="icon" type="image/x-icon" href="@Url.Content("~/Images/lock-favicon.png")" />*@    
     @Styles.Render("~/Content/vendors/bootstrap/dist/css/bootstrap.min.css")
     @Styles.Render("~/Content/vendors/font-awesome/css/font-awesome.min.css")
     @Styles.Render("~/Content/vendors/pnotify/dist/pnotify.css")
@@ -27,7 +27,7 @@
         <div id="wrapper" class="mod_wrapper">
             <div id="login" class="form">
                 <div style="text-align:center;">
-                    <img src="@Url.Content("~/Content/AdminLTE/img/Logo_aq_Ico.jpg")" style="width: 80px;height: 80px;border-radius: 40px;" alt="Aquarella" width="150" height="150">
+                    <img src="@Url.Content("~/Content/LogoAq/logoaq2.png")" style="width: 85px;height: 72px;border-radius: 40px;" alt="Aquarella" width="150" height="150">
                     @*border:2px solid red*@                   
                 </div>
                 <section class="login_content">
@@ -44,16 +44,33 @@
                             <input name="Password" id="txtContrasena" type="Password" class="form-control" placeholder="Contraseña" oninvalid="InvalidMsg(this, 'Ingrese el password')"  data-parsley-maxlength="255" data-parsley-maxlength-message="Ingresar una contraseña valida" required="required" />
                             <span class="glyphicon glyphicon-lock form-control-feedback"></span>
                         </div>
-                        <div>
+                        @*<div class="">
                             <input id="btnEnviar" type="submit" class="btn btn-default submit"  value="Iniciar sesión" />
                 
+                        </div>*@
+                        <div class="row">
+                            <div class="col-xs-8">
+                                <div class="checkbox icheck">
+                                    <label>
+                                        <input type="checkbox" id="Recordar" name="Recordar" value="true" @(Model.Recordar ? "checked=\"checked\"" : "")> Recordármelo la próxima vez
+                                    </label>
+                                </div>
+                            </div>
+                            <!-- /.col -->
+                            <div class="col-xs-4">
+                                <button type="submit" class="btn btn-primary btn-block btn-flat">Ingresar</button>
+                            </div>
+                            <!-- /.col -->
                         </div>
+                        <a style="visibility:hidden" href="#">¿Ha olvidado la contraseña?</a><br>
+
+
                         <div class="clearfix"></div>
                         <div class="separator">
                             <div class="clearfix"></div>
                             <br />
                             <div>
-                                <h1><img src="@Url.Content("~/Content/AdminLTE/img/Logo_aq_Ico.jpg")"  style="border-radius: 23px;" width=46 height=46 >&nbsp;&nbsp;Aquarella</h1>
+                                <h1><img src="@Url.Content("~/Content/LogoAq/logoaq2.png")"  style="border-radius: 23px;" width=46 height=41 >&nbsp;&nbsp;Aquarella</h1>
                                 <p>Área de Sistemas - Bata Perú - &copy; @DateTime.Now.Year</p>
                             </div>
                         </div>                 

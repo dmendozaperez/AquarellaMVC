@@ -1,5 +1,6 @@
 ﻿using CapaDato.Control;
 using CapaEntidad.Control;
+using CapaEntidad.General;
 using CapaEntidad.Menu;
 using CapaEntidad.Util;
 using CapaPresentacion.Bll;
@@ -116,6 +117,102 @@ namespace CapaPresentacion.Controllers
 
             Boolean _valida_editar = aplicacion.UpdateAplicacion();
             return Json(new { estado = (_valida_editar) ? "1" : "-1", desmsg = (_valida_editar) ? "Se actualizo satisfactoriamente." : "Hubo un error al actualizar." });
+        }
+
+        public ActionResult getListaAplicacionAjax(Ent_jQueryDataTableParams param, string actualizar)
+        {
+
+            List<Ent_Aplicacion> listaplicacion = new List<Ent_Aplicacion>();
+
+            if (!String.IsNullOrEmpty(actualizar))
+            {
+                listaplicacion = lista();
+                //listAtributos = datOE.get_lista_atributos();
+                Session[_session_listaplicacion_private] = listaplicacion;
+            }
+
+            /*verificar si esta null*/
+            if (Session[_session_listaplicacion_private] == null)
+            {
+                listaplicacion = new List<Ent_Aplicacion>();
+                listaplicacion = lista(); //datOE.get_lista_atributos();
+                if (listaplicacion == null)
+                {
+                    listaplicacion = new List<Ent_Aplicacion>();
+                }
+                Session[_session_listaplicacion_private] = listaplicacion;
+            }
+
+            //Traer registros
+
+            IQueryable<Ent_Aplicacion> membercol = ((List<Ent_Aplicacion>)(Session[_session_listaplicacion_private])).AsQueryable();  //lista().AsQueryable();
+
+            //Manejador de filtros
+            int totalCount = membercol.Count();
+            IEnumerable<Ent_Aplicacion> filteredMembers = membercol;
+
+            if (!string.IsNullOrEmpty(param.sSearch))
+            {
+                filteredMembers = membercol
+                    .Where(m => m.apl_id.ToUpper().Contains(param.sSearch.ToUpper()) ||
+                     m.apl_nombre.ToString().ToUpper().Contains(param.sSearch.ToUpper()) ||
+                     m.apl_orden.ToString().ToUpper().Contains(param.sSearch.ToUpper()) ||
+                     m.apl_controller.ToString().ToUpper().Contains(param.sSearch.ToUpper()) ||
+                     m.apl_action.ToString().ToUpper().Contains(param.sSearch.ToUpper())
+                     );
+            }
+            //Manejador de orden
+            var sortIdx = Convert.ToInt32(Request["iSortCol_0"]);
+            var sortDirection = Request["sSortDir_0"];
+            if (param.iSortingCols > 0)
+            {
+                if (sortDirection == "asc")
+                {
+                    if (sortIdx == 0) filteredMembers = filteredMembers.OrderBy(o => o.apl_id);
+                    else if (sortIdx == 1) filteredMembers = filteredMembers.OrderBy(o => o.apl_nombre);
+                    else if (sortIdx == 2) filteredMembers = filteredMembers.OrderBy(o => o.apl_orden);
+                    else if (sortIdx == 3) filteredMembers = filteredMembers.OrderBy(o => o.apl_controller);
+                    else if (sortIdx == 4) filteredMembers = filteredMembers.OrderBy(o => o.apl_action);
+                }
+                else
+                {
+                    if (sortIdx == 0) filteredMembers = filteredMembers.OrderByDescending(o => o.apl_id);
+                    else if (sortIdx == 1) filteredMembers = filteredMembers.OrderByDescending(o => o.apl_nombre);
+                    else if (sortIdx == 2) filteredMembers = filteredMembers.OrderByDescending(o => o.apl_orden);
+                    else if (sortIdx == 3) filteredMembers = filteredMembers.OrderByDescending(o => o.apl_controller);
+                    else if (sortIdx == 4) filteredMembers = filteredMembers.OrderByDescending(o => o.apl_action);
+                }
+            }
+
+            //Func<Ent_Funcion, DateTime> orderingFunction =
+            //    (
+            //        m => Convert.ToDateTime(m.FECHA_CREACION)
+            //    );
+            //var sortDirection = Request["sSortDir_0"];
+            //if (sortDirection == "asc")
+            //    filteredMembers = filteredMembers.OrderBy(orderingFunction);
+            //else
+            //    filteredMembers = filteredMembers.OrderByDescending(orderingFunction);
+            var displayMembers = filteredMembers
+                .Skip(param.iDisplayStart)
+                .Take(param.iDisplayLength);
+            var result = from a in displayMembers
+                         select new
+                         {
+                             a.apl_id,
+                             a.apl_nombre,
+                             a.apl_orden,
+                             a.apl_controller,
+                             a.apl_action,
+                         };
+            //Se devuelven los resultados por json
+            return Json(new
+            {
+                sEcho = param.sEcho,
+                iTotalRecords = totalCount,
+                iTotalDisplayRecords = filteredMembers.Count(),
+                aaData = result
+            }, JsonRequestBehavior.AllowGet);
         }
     }
 }

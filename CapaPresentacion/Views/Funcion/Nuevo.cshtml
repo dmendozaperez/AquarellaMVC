@@ -4,16 +4,14 @@
 @Scripts.Render("~/bundles/bootstrap-select")
 @Styles.Render("~/Content/Bootstrap-Select/css")
 <link rel="stylesheet" type="text/css" href="~/Content/bootstrap-select.css" />
-
 @using (Ajax.BeginForm("Nuevo", new AjaxOptions { OnBegin = "OnNuevo_Grabar();" }))
 {
     <div class="modal-content">
-        <div class="modal-header modal-header-danger">
+        <div class="modal-header modal-header-primary">
             <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
             <h4 class="modal-title" id="myModalLabel">Creando Nueva Función</h4>
         </div>
         <div class="modal-body">
-
             <table class="table table-striped">
                 <tr>
                     <td><label for="nombre">Nombre</label></td>
@@ -32,7 +30,7 @@
                     <td>
                         <input type="text" id="orden" placeholder="Ingese el orden" class="form-control" />
                     </td>
-                </tr>              
+                </tr>
             </table>
         </div>
         <div class="modal-footer" style="margin-top:-30px">
@@ -41,3 +39,60 @@
         </div>
     </div>
 }
+@*<script>
+$(document).ready(function() {
+    $("#dwfuncion").select({
+    dropdownParent: $("#myModal")
+  });
+});
+</script>*@
+@*<script type="text/javascript">
+    function InvalidMsg(textbox, str) {
+
+        if (textbox.value.length == 0) {
+            textbox.setCustomValidity(str);
+        }
+        else {
+            textbox.setCustomValidity('');
+        }
+        return true;
+    }
+</script>*@
+@*<script type="text/javascript">
+    function OnNuevo_Grabar() {
+        var msg_titulo = 'Mensaje Aquarella!';
+        var nombre = $("#nombre").val();
+        var padre = $('select[name=dwfuncion]').selectpicker('val');
+        var orden = $("#orden").val();
+        waitingDialog.show('Espere un momento por favor');
+        $.ajax
+             ({
+                 url: '../Funcion/Nuevo',
+                 dataType: "json",
+                 type: "POST",
+                 data: { nombre: nombre,orden: orden, padre: padre },
+                 success: function (data, textStatus, XMLHttpRequest) {
+                     if (data.estado == '1') {
+
+                         $('body').removeClass('modal-open');
+                         $('#myModal').modal('hide');
+
+                         $('.modal-backdrop').remove();
+
+                         $('#lista').load('@Url.Action("ListaFuncion", "Funcion")', {});
+
+                         waitingDialog.hide();
+                         toastr.success(data.desmsg, msg_titulo);
+                     }
+                     else {
+                         waitingDialog.hide();
+                         toastr.success(data.desmsg, msg_titulo);
+                     }
+                 },
+                 error: function (xhr) {
+                     waitingDialog.hide();
+                     toastr.error(xhr, msg_titulo);
+                 }
+             })
+    }
+</script>*@ 

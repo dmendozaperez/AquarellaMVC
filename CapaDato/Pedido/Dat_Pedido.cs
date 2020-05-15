@@ -195,21 +195,21 @@ namespace CapaDato.Pedido
 
                 articulo = new Ent_Articulo_pedido();
                 articulo = (from DataRow dr in ds.Tables[0].Rows
-                             select new Ent_Articulo_pedido()
-                             {
-                                 Art_id = Convert.ToString(dr["Art_id"]),
-                                 Art_Descripcion = Convert.ToString(dr["Art_Descripcion"]),
-                                 Mar_Descripcion = Convert.ToString(dr["Mar_Descripcion"]),
-                                 Col_Descripcion = Convert.ToString(dr["Col_Descripcion"]),
-                                 Cat_Pri_Descripcion = Convert.ToString(dr["Cat_Pri_Descripcion"]),
-                                 Cat_Descripcion = Convert.ToString(dr["Cat_Descripcion"]),
-                                 Sca_Descripcion = Convert.ToString(dr["Sca_Descripcion"]),
-                                 Art_Comision = Convert.ToDecimal(dr["Art_Comision"]),
-                                 Con_Fig_Percepcion = Convert.ToDecimal(dr["Con_Fig_Percepcion"]),
-                                 Afec_Percepcion = Convert.ToDecimal(dr["Afec_Percepcion"]),
-                                 Art_Pre_Sin_Igv = Convert.ToDecimal(dr["Art_Pre_Sin_Igv"]),
-                                 Art_Pre_Con_Igv = Convert.ToDecimal(dr["Art_Pre_Con_Igv"]),
-                                 Art_Costo = Convert.ToDecimal(dr["Art_Costo"]),
+                            select new Ent_Articulo_pedido()
+                            {
+                                Art_id = Convert.ToString(dr["Art_id"]),
+                                Art_Descripcion = Convert.ToString(dr["Art_Descripcion"]),
+                                Mar_Descripcion = Convert.ToString(dr["Mar_Descripcion"]),
+                                Col_Descripcion = Convert.ToString(dr["Col_Descripcion"]),
+                                Cat_Pri_Descripcion = Convert.ToString(dr["Cat_Pri_Descripcion"]),
+                                Cat_Descripcion = Convert.ToString(dr["Cat_Descripcion"]),
+                                Sca_Descripcion = Convert.ToString(dr["Sca_Descripcion"]),
+                                Art_Comision = Convert.ToDecimal(dr["Art_Comision"]),
+                                Con_Fig_Percepcion = Convert.ToDecimal(dr["Con_Fig_Percepcion"]),
+                                Afec_Percepcion = Convert.ToDecimal(dr["Afec_Percepcion"]),
+                                Art_Pre_Sin_Igv = (dr["Art_Pre_Sin_Igv"] == null) ? 0 : Convert.ToDecimal(dr["Art_Pre_Sin_Igv"]),//  Convert.ToDecimal(dr["Art_Pre_Sin_Igv"]),
+                                Art_Pre_Con_Igv = (dr["Art_Pre_Con_Igv"] == null) ? 0 : Convert.ToDecimal(dr["Art_Pre_Con_Igv"]),  //Convert.ToDecimal(dr["Art_Pre_Con_Igv"]),
+                                Art_Costo = Convert.ToDecimal(dr["Art_Costo"]),
                                  Art_Mar_Id = Convert.ToString(dr["Art_Mar_Id"]),
                                  Ofe_Id = Convert.ToDecimal(dr["Ofe_Id"]),
                                  Ofe_MaxPares = Convert.ToDecimal(dr["Ofe_MaxPares"]),
@@ -450,13 +450,14 @@ namespace CapaDato.Pedido
                 da.Fill(ds);
                 infoProm = new Ent_Info_Promotor();
                 
+                
                 infoProm.liquidacion = (from DataRow dr in ds.Tables[1].Rows
                                select new Ent_Liquidacion()
                                {
                                    liq_Id = dr["Liq_Id"].ToString(),
                                    cust_Id = dr["Liq_BasId"].ToString(),
                                    ped_Id = dr["liq_PedId"].ToString(),
-                                   liq_Fecha =Convert.ToDateTime(dr["Fecha"]).ToString("dd/MM/yyyy hh:mm:ss"),
+                                   liq_Fecha = dr["Fecha"].ToString(), //Convert.ToDateTime(dr["Fecha"]).ToString("dd/MM/yyyy hh:mm:ss"),
                                    Pares = Convert.ToDecimal(dr["Liq_Det_Cantidad"]),
                                    Estado = dr["Est_Descripcion"].ToString(),
                                    Total = Convert.ToDecimal(dr["Total"]),
@@ -468,6 +469,8 @@ namespace CapaDato.Pedido
                                    N_C = Convert.ToDecimal(dr["PagoNcSf"]),
                                    Percepcion = Convert.ToDecimal(dr["Percepcion"]),
                                }).ToList();
+
+
 
                 infoProm.notaCredito = (from DataRow dr in ds.Tables[2].Rows
                                         select new Ent_NotaCredito()

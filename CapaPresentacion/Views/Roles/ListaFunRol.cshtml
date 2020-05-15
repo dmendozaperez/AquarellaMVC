@@ -26,3 +26,68 @@
         }
     </tbody>
 </table>
+<script type="text/javascript">
+    $(document).ready(function () {
+        $('#result').DataTable({
+            "language": {
+                "url": "../Scripts/DataTables/Spanish.json"
+            },
+            "paging": true,
+            "lengthChange": false,
+            "searching": false,
+            "ordering": true,
+            "info": true,
+            "autoWidth": false,
+            "iDisplayLength": 4
+        });
+    });
+</script>
+<script type="text/javascript">
+    $(function () {
+        $(".btnborrar").click(function () {
+                       var $buttonClicked = $(this);
+            var rolid = $("#idrol").val();
+            var funid = $buttonClicked.attr('data-id');
+            bootbox.confirm({
+                message: "Esta seguro de borrar de la lista el id: " + funid,
+                buttons: {
+                    confirm: {
+                        label: 'Si',
+                        className: 'btn-success'
+                    },
+                    cancel: {
+                        label: 'No',
+                        className: 'btn-danger'
+                    }
+                },
+                callback: function (result) {
+                    if (result) {
+                        waitingDialog.show('Espere un momento por favor');
+                        $.ajax
+                            ({
+                                url: '../Roles/Borrar_Fun',
+                                dataType: "json",
+                                type: "POST",
+                                data: { fun_id: funid, rol_id: rolid },
+                                success: function (data, textStatus, XMLHttpRequest) {
+                                    if (data.estado == '1') {
+                                        $('#listafun').load('@Url.Action("ListaFunRol", "Roles")', { rolid: rolid });
+                                        waitingDialog.hide();
+                                        toastr.success(data.desmsg, msg_titulo);
+                                    }
+                                    else {
+                                        waitingDialog.hide();
+                                        toastr.error(data.desmsg, msg_titulo);
+                                    }
+                                },
+                                error: function (xhr) {
+                                    waitingDialog.hide();
+                                    toastr.error(xhr, msg_titulo);
+                                }
+                            })
+                    }
+                }
+            });
+        })
+    })
+</script>

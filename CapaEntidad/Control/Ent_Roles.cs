@@ -10,5 +10,6 @@ namespace CapaEntidad.Control
     {
         public string rol_id { get; set; }
         public string rol_nombre { get; set; }
+        public string rol_descripcion { get; set; }
     }
 }

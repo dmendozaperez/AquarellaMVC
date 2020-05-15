@@ -26,3 +26,70 @@
         }
     </tbody>
 </table>
+<script type="text/javascript">
+    $(document).ready(function () {
+        $('#result').DataTable({
+            "language": {
+                "url": "../Scripts/DataTables/Spanish.json"
+            },
+            "paging": true,
+            "lengthChange": false,
+            "searching": false,
+            "ordering": true,
+            "info": true,
+            "autoWidth": false,
+            "iDisplayLength": 4
+        });
+    });
+</script>
+<script type="text/javascript">
+        $(function () {
+            $(".btnborrar").click(function () {
+                var $buttonClicked = $(this);
+                var usuid = $("#idusu").val();
+                var rolid = $buttonClicked.attr('data-id');
+                bootbox.confirm({
+                    message: "Esta seguro de borrar de la lista el id: " + rolid,
+                    buttons: {
+                        confirm: {
+                            label: 'Si',
+                            className: 'btn-success'
+                        },
+                        cancel: {
+                            label: 'No',
+                            className: 'btn-danger'
+                        }
+                    },
+                    callback: function (result) {
+                        if (result) {
+                            waitingDialog.show('Espere un momento por favor');
+                            $.ajax
+                                ({
+                                    url: '../Usuarios/Borrar_Rol',
+                                    dataType: "json",
+                                    type: "POST",
+                                    data: { usu_id: usuid, rol_id: rolid },
+                                    success: function (data, textStatus, XMLHttpRequest) {
+                                        if (data.estado == '1') {
+
+                                            $('#listarol').load('@Url.Action("ListaRolUsu", "Usuarios")', { usuid: usuid });
+                                            waitingDialog.hide();
+                                            toastr.success(data.desmsg, msg_titulo);
+
+                                        }
+                                        else {
+                                            waitingDialog.hide();
+                                            toastr.error(data.desmsg, msg_titulo);
+                                        }
+                                    },
+                                    error: function (xhr) {
+                                        waitingDialog.hide();
+                                        toastr.error(xhr, msg_titulo);
+                                    }
+                                })
+                        }
+                    }
+                });
+            })
+        })
+    </script>

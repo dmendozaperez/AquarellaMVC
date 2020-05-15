@@ -63,17 +63,32 @@ namespace CapaPresentacion.Controllers
             return listusuario;
         }
 
-        public ActionResult getUsuario(Ent_jQueryDataTableParams param)
+        public ActionResult getListaUsuarioAjax(Ent_jQueryDataTableParams param, string actualizar)
         {
+
+            List<Ent_Usuario> listusuario = new List<Ent_Usuario>();
+
+            if (!String.IsNullOrEmpty(actualizar))
+            {
+                listusuario = lista();
+                //listAtributos = datOE.get_lista_atributos();
+                Session[_session_listusu_private] = listusuario;
+            }
 
             /*verificar si esta null*/
             if (Session[_session_listusu_private] == null)
             {
-                List<Ent_Usuario> listusuario = new List<Ent_Usuario>();
+                listusuario = new List<Ent_Usuario>();
+                listusuario = lista(); //datOE.get_lista_atributos();
+                if (listusuario == null)
+                {
+                    listusuario = new List<Ent_Usuario>();
+                }
                 Session[_session_listusu_private] = listusuario;
             }
 
             //Traer registros
+
             IQueryable<Ent_Usuario> membercol = ((List<Ent_Usuario>)(Session[_session_listusu_private])).AsQueryable();  //lista().AsQueryable();
 
             //Manejador de filtros
@@ -83,21 +98,38 @@ namespace CapaPresentacion.Controllers
             if (!string.IsNullOrEmpty(param.sSearch))
             {
                 filteredMembers = membercol
-                    .Where(m => m.usu_nombre.ToUpper().Contains(param.sSearch.ToUpper()) ||
-                     m.usu_login.ToUpper().Contains(param.sSearch.ToUpper()));
+                    .Where(m => m.usu_id.ToString().ToUpper().Contains(param.sSearch.ToUpper()) ||
+                     m.usu_nombre.ToString().ToUpper().Contains(param.sSearch.ToUpper()) ||
+                     m.usu_login.ToString().ToUpper().Contains(param.sSearch.ToUpper()));
             }
             //Manejador de orden
             var sortIdx = Convert.ToInt32(Request["iSortCol_0"]);
-            Func<Ent_Usuario, string> orderingFunction =
-            (
-            m => sortIdx == 0 ? m.usu_nombre :
-             m.usu_login
-            );
             var sortDirection = Request["sSortDir_0"];
-            if (sortDirection == "asc")
-                filteredMembers = filteredMembers.OrderBy(orderingFunction);
-            else
-                filteredMembers = filteredMembers.OrderByDescending(orderingFunction);
+            if (param.iSortingCols > 0)
+            {
+                if (sortDirection == "asc")
+                {
+                    if (sortIdx == 0) filteredMembers = filteredMembers.OrderBy(o => o.usu_id);
+                    else if (sortIdx == 1) filteredMembers = filteredMembers.OrderBy(o => o.usu_nombre);
+                    else if (sortIdx == 2) filteredMembers = filteredMembers.OrderBy(o => o.usu_login);                    
+                }
+                else
+                {
+                    if (sortIdx == 0) filteredMembers = filteredMembers.OrderByDescending(o => o.usu_id);
+                    else if (sortIdx == 1) filteredMembers = filteredMembers.OrderByDescending(o => o.usu_nombre);
+                    else if (sortIdx == 2) filteredMembers = filteredMembers.OrderByDescending(o => o.usu_login);                    
+                }
+            }
+
+            //Func<Ent_Funcion, DateTime> orderingFunction =
+            //    (
+            //        m => Convert.ToDateTime(m.FECHA_CREACION)
+            //    );
+            //var sortDirection = Request["sSortDir_0"];
+            //if (sortDirection == "asc")
+            //    filteredMembers = filteredMembers.OrderBy(orderingFunction);
+            //else
+            //    filteredMembers = filteredMembers.OrderByDescending(orderingFunction);
             var displayMembers = filteredMembers
                 .Skip(param.iDisplayStart)
                 .Take(param.iDisplayLength);
@@ -107,8 +139,7 @@ namespace CapaPresentacion.Controllers
                              a.usu_id,
                              a.usu_nombre,
                              a.usu_login,
-                             a.usu_tip_nom,
-                             a.usu_est_id
+                             a.usu_est_id,
                          };
             //Se devuelven los resultados por json
             return Json(new
@@ -119,6 +150,63 @@ namespace CapaPresentacion.Controllers
                 aaData = result
             }, JsonRequestBehavior.AllowGet);
         }
+
+        //public ActionResult getUsuario(Ent_jQueryDataTableParams param)
+        //{
+
+        //    /*verificar si esta null*/
+        //    if (Session[_session_listusu_private] == null)
+        //    {
+        //        List<Ent_Usuario> listusuario = new List<Ent_Usuario>();
+        //        Session[_session_listusu_private] = listusuario;
+        //    }
+
+        //    //Traer registros
+        //    IQueryable<Ent_Usuario> membercol = ((List<Ent_Usuario>)(Session[_session_listusu_private])).AsQueryable();  //lista().AsQueryable();
+
+        //    //Manejador de filtros
+        //    int totalCount = membercol.Count();
+        //    IEnumerable<Ent_Usuario> filteredMembers = membercol;
+
+        //    if (!string.IsNullOrEmpty(param.sSearch))
+        //    {
+        //        filteredMembers = membercol
+        //            .Where(m => m.usu_nombre.ToUpper().Contains(param.sSearch.ToUpper()) ||
+        //             m.usu_login.ToUpper().Contains(param.sSearch.ToUpper()));
+        //    }
+        //    //Manejador de orden
+        //    var sortIdx = Convert.ToInt32(Request["iSortCol_0"]);
+        //    Func<Ent_Usuario, string> orderingFunction =
+        //    (
+        //    m => sortIdx == 0 ? m.usu_nombre :
+        //     m.usu_login
+        //    );
+        //    var sortDirection = Request["sSortDir_0"];
+        //    if (sortDirection == "asc")
+        //        filteredMembers = filteredMembers.OrderBy(orderingFunction);
+        //    else
+        //        filteredMembers = filteredMembers.OrderByDescending(orderingFunction);
+        //    var displayMembers = filteredMembers
+        //        .Skip(param.iDisplayStart)
+        //        .Take(param.iDisplayLength);
+        //    var result = from a in displayMembers
+        //                 select new
+        //                 {
+        //                     a.usu_id,
+        //                     a.usu_nombre,
+        //                     a.usu_login,
+        //                     a.usu_tip_nom,
+        //                     a.usu_est_id
+        //                 };
+        //    //Se devuelven los resultados por json
+        //    return Json(new
+        //    {
+        //        sEcho = param.sEcho,
+        //        iTotalRecords = totalCount,
+        //        iTotalDisplayRecords = filteredMembers.Count(),
+        //        aaData = result
+        //    }, JsonRequestBehavior.AllowGet);
+        //}
 
 
         public ActionResult Nuevo()

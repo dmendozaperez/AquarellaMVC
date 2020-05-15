@@ -73,11 +73,11 @@
                             <div class="row">
                                 <div class="col-md-10 col-xs-10">
                                     <div class="form-group">
-                                        @Html.DropDownList("dwPromotor", new SelectList(ViewBag.listPromotor, "codigo", "descripcion", null), new { @class = "form-control selectpicker", @data_live_search = "true", @id = "dwPromotor", @name = "dwPromotor"})
+                                        @Html.DropDownList("dwPromotor", new SelectList(ViewBag.listPromotor, "codigo", "descripcion", null), new { @class = "form-control selectpicker", @data_live_search = "true", @id = "dwPromotor", @name = "dwPromotor", @onchange = "get_info_cliente();" })
                                         <span class="help-block" style="color: #31708f">Seleccione un promotor sobre el cual realizará las acciones</span>
                                     </div>
                                 </div>
-                                <button type="button" title="Consultar" id="btnConsultar" class="btn btn-primary">
+                                <button type="button" title="Consultar" onclick="get_info_cliente();" id="btnConsultar" class="btn btn-primary">
                                     <small class="glyphicon glyphicon-search"></small>
                                 </button>
                             </div>
@@ -295,13 +295,69 @@
         </div>
     </div>
 </div>
+<script src="~/Scripts/bootstrap-select.min.js"></script>
+<script src="@Url.Content("~/Scripts/bootstrap.min.js")"></script>
 
 @section scripts{ 
 <script>
     var gbMovile = false;
+
+    function get_info_cliente() {
+        waitingDialog.show("Espere un momento por favor.")
+        $.ajax({
+            type: "POST",
+            url: '@Url.Action("GET_INFO_PERSONA_PEDIDO", "Pedido")',
+            data: { codigo: $("#dwPromotor").val() },
+            success: function (data) {
+                waitingDialog.hide();
+                if (data.estado == 0) {
+                    $("#doc-nom-persona").html(data.info.Bas_Documento + ' - ' + data.info.NombreCompleto);
+                    var strPremio = data.info.premio.length > 0 ? '<b class="pull-right text-danger"><i class="fa fa-gift"></i>&nbsp;' + data.info.premio + '</b>' : "";
+                    $("#ubi-persona").html(data.info.Ubicacion + strPremio);
+                    var html = '<div class="col-md-12 col-xs-12" >\
+                                        <dl class="dl-horizontal">\
+                                        <dt>Asesor Comercial :</dt>\
+                                        <dd>' + data.info.asesor + '</dd>\
+                                        <dt>Lider :</dt>\
+                                        <dd>' + data.info.Are_Descripcion + '</dd>\
+                                        <dt>Ubicación :</dt>\
+                                        <dd>' + data.info.Ubicacion + '</dd>\
+                                        <dt>E-Mail de contacto :</dt>\
+                                        <dd>' + data.info.Bas_Correo + '</dd>\
+                                        <dt>Agencia :</dt>\
+                                        <dd>' + data.info.bas_agencia + '</dd>\
+                                        <dt>Destino :</dt>\
+                                        <dd>' + data.info.bas_destino + '</dd>\
+                                        <dt>Premio por ganar :</dt>\
+                                        <dd>' + data.info.premio + '</dd>\
+                                        </dl>\
+                                    </div>'
+                    var botones = '<div class="box-body">\
+                                        <form action="@Url.Action("CrearEditar", "Pedido")" method="post">\
+                                            <input type="hidden" name="custId" value="' + $("#dwPromotor").val() + '" />\
+                                            <button type="submit" class="btn btn-success" ><i class="fa fa-shopping-cart"></i>&nbsp; Nuevo Pedido</button>\
+                                        </form>\
+                                      </div>'
+
+                    $("#infoProm").html(html);
+                    $("#Botones").html(botones);
+                    $('#tblLiquidaciones').DataTable().ajax.reload();
+                    $('#tblNC').DataTable().ajax.reload();
+                    $('#tblConsignaciones').DataTable().ajax.reload();
+                    $('#tblSaldos').DataTable().ajax.reload();
+                    //CargarLiq(data.liquidacion);
+                }
+            },
+            error: function (XMLHttpRequest, textStatus, errorThrown) {
+                waitingDialog.hide();
+                toastr.error("Error al consultar.", "Alerta");
+            }
+        });
+    }
+
     $(document).ready(function () {
-        $("#btnConsultar").click(function () {
-            waitingDialog.show("Espere un momento por favor.")
+        //$("#btnConsultar").click(function () {
+            @*waitingDialog.show("Espere un momento por favor.")
             $.ajax({
                 type: "POST",
                 url: '@Url.Action("GET_INFO_PERSONA_PEDIDO", "Pedido")',
@@ -350,8 +406,8 @@
                     waitingDialog.hide();
                     toastr.error("Error al consultar.", "Alerta");
                 }
-            });
-        });
+            });*@
+        //});
     });
 
     function DibujarGrilla() {

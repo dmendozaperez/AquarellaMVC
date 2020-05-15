@@ -27,7 +27,8 @@ namespace CapaDato.Control
                         cmd.CommandTimeout = 0;
                         cmd.CommandType = CommandType.StoredProcedure;
                         cmd.Parameters.AddWithValue("@rol_id", 0);
-                        cmd.Parameters.AddWithValue("@rol_nombre", rol.rol_nombre);                        
+                        cmd.Parameters.AddWithValue("@rol_nombre", rol.rol_nombre);
+                        cmd.Parameters.AddWithValue("@rol_descripcion", rol.rol_descripcion);
                         cmd.ExecuteNonQuery();
                         valida = true;
                     }
@@ -62,7 +63,8 @@ namespace CapaDato.Control
                             {
                                 Ent_Roles rol = new Ent_Roles();
                                 rol.rol_id = dr["rol_id"].ToString();
-                                rol.rol_nombre = dr["rol_nombre"].ToString();                               
+                                rol.rol_nombre = dr["rol_nombre"].ToString();
+                                rol.rol_descripcion = dr["rol_Descripcion"].ToString();
                                 list.Add(rol);
                             }
                         }
@@ -90,13 +92,14 @@ namespace CapaDato.Control
                         cmd.CommandTimeout = 0;
                         cmd.CommandType = CommandType.StoredProcedure;
                         cmd.Parameters.AddWithValue("@rol_id", rol.rol_id);
-                        cmd.Parameters.AddWithValue("@rol_nombre", rol.rol_nombre);                        
+                        cmd.Parameters.AddWithValue("@rol_nombre", rol.rol_nombre);
+                        cmd.Parameters.AddWithValue("@rol_descripcion", rol.rol_descripcion);                        
                         cmd.ExecuteNonQuery();
                         valida = true;
                     }
                 }
             }
-            catch (Exception)
+            catch (Exception exc)
             {
                 valida = false;
             }

@@ -1,5 +1,6 @@
 ﻿using CapaDato.Control;
 using CapaEntidad.Control;
+using CapaEntidad.General;
 using CapaEntidad.Menu;
 using CapaEntidad.Util;
 using CapaPresentacion.Bll;
@@ -161,6 +162,98 @@ namespace CapaPresentacion.Controllers
         {
             return PartialView(lista());
         }
+
+        public ActionResult getListaFuncionAjax(Ent_jQueryDataTableParams param, string actualizar)
+        {
+            
+            List<Ent_Funcion> listfunction = new List<Ent_Funcion>();
+
+            if (!String.IsNullOrEmpty(actualizar))
+            {
+                listfunction = lista();
+                //listAtributos = datOE.get_lista_atributos();
+                Session[_session_listfuncion_private] = listfunction;
+            }
+
+            /*verificar si esta null*/
+            if (Session[_session_listfuncion_private] == null)
+            {
+                listfunction = new List<Ent_Funcion>();
+                listfunction = lista(); //datOE.get_lista_atributos();
+                if (listfunction == null)
+                {
+                    listfunction = new List<Ent_Funcion>();
+                }
+                Session[_session_listfuncion_private] = listfunction;
+            }
+
+            //Traer registros
+
+            IQueryable<Ent_Funcion> membercol = ((List<Ent_Funcion>)(Session[_session_listfuncion_private])).AsQueryable();  //lista().AsQueryable();
+
+            //Manejador de filtros
+            int totalCount = membercol.Count();
+            IEnumerable<Ent_Funcion> filteredMembers = membercol;
+
+            if (!string.IsNullOrEmpty(param.sSearch))
+            {
+                filteredMembers = membercol
+                    .Where(m => m.fun_id.ToUpper().Contains(param.sSearch.ToUpper()) ||
+                     m.fun_nombre.ToString().ToUpper().Contains(param.sSearch.ToUpper()) ||
+                     m.fun_orden.ToString().ToUpper().Contains(param.sSearch.ToUpper()));
+            }
+            //Manejador de orden
+            var sortIdx = Convert.ToInt32(Request["iSortCol_0"]);
+            var sortDirection = Request["sSortDir_0"];
+            if (param.iSortingCols > 0)
+            {
+                if (sortDirection == "asc")
+                {
+                    if (sortIdx == 0) filteredMembers = filteredMembers.OrderBy(o => o.fun_id);
+                    else if (sortIdx == 1) filteredMembers = filteredMembers.OrderBy(o => o.fun_nombre);
+                    else if (sortIdx == 2) filteredMembers = filteredMembers.OrderBy(o => o.fun_orden);
+                    else if (sortIdx == 3) filteredMembers = filteredMembers.OrderBy(o => o.fun_padre);                    
+                }
+                else
+                {
+                    if (sortIdx == 0) filteredMembers = filteredMembers.OrderByDescending(o => o.fun_id);
+                    else if (sortIdx == 1) filteredMembers = filteredMembers.OrderByDescending(o => o.fun_nombre);
+                    else if (sortIdx == 2) filteredMembers = filteredMembers.OrderByDescending(o => o.fun_orden);
+                    else if (sortIdx == 3) filteredMembers = filteredMembers.OrderByDescending(o => o.fun_padre);                    
+                }
+            }
+
+            //Func<Ent_Funcion, DateTime> orderingFunction =
+            //    (
+            //        m => Convert.ToDateTime(m.FECHA_CREACION)
+            //    );
+            //var sortDirection = Request["sSortDir_0"];
+            //if (sortDirection == "asc")
+            //    filteredMembers = filteredMembers.OrderBy(orderingFunction);
+            //else
+            //    filteredMembers = filteredMembers.OrderByDescending(orderingFunction);
+            var displayMembers = filteredMembers
+                .Skip(param.iDisplayStart)
+                .Take(param.iDisplayLength);
+            var result = from a in displayMembers
+                         select new
+                         {
+                             a.fun_id,
+                             a.fun_nombre,
+                             a.fun_orden,
+                             a.fun_padre,
+                             
+                         };
+            //Se devuelven los resultados por json
+            return Json(new
+            {
+                sEcho = param.sEcho,
+                iTotalRecords = totalCount,
+                iTotalDisplayRecords = filteredMembers.Count(),
+                aaData = result
+            }, JsonRequestBehavior.AllowGet);
+        }
+
         public List<Ent_Funcion> lista()
         {
             List<Ent_Funcion> listfuncion = funcion.get_lista(true);
