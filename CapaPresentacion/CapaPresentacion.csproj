@@ -1938,8 +1938,12 @@
     <Content Include="Content\images\lupa.jpg" />
     <Content Include="Content\images\placeholder-user.jpg" />
     <Content Include="Content\images\wall-calendar-with-lines.svg" />
+    <Content Include="Content\LogoAq\logo1c.jpg" />
     <Content Include="Content\LogoAq\logoaq.png" />
     <Content Include="Content\LogoAq\logoaq2.png" />
+    <Content Include="Content\LogoAq\logonew.png" />
+    <Content Include="Content\LogoAq\logonew2.png" />
+    <Content Include="Content\LogoAq\logonewmini.png" />
     <Content Include="Content\plugins\iCheck\custom.css" />
     <Content Include="Content\plugins\iCheck\green%402x.png" />
     <Content Include="Content\plugins\iCheck\green.png" />
@@ -1998,10 +2002,12 @@
     <Content Include="Content\vendors\pnotify\dist\pnotify.reference.js" />
     <Content Include="Content\vendors\pnotify\dist\pnotify.tooltip.js" />
     <Content Include="Content\vendors\pnotify\libtests\browserify\index.js" />
-    <Content Include="Content\images\favicon.ico" />
+    <Content Include="favicon.ico" />
     <Content Include="fonts\glyphicons-halflings-regular.svg" />
     <Content Include="Global.asax" />
     <Content Include="Content\Site.css" />
+    <Content Include="logoico.ico" />
+    <Content Include="logoico.png" />
     <Content Include="Models\data\saveAsExcel.js" />
     <Content Include="ReportViewerWebForm.aspx" />
     <Content Include="ScriptsSelect\bootstrap-select.js" />
@@ -2943,6 +2949,8 @@
     <Content Include="Scripts\jquery.validate.min.js" />
     <Content Include="Scripts\jquery.validate.unobtrusive.js" />
     <Content Include="Scripts\jquery.validate.unobtrusive.min.js" />
+    <Content Include="Scripts\Linkend\linq.js" />
+    <Content Include="Scripts\Linkend\linq.min.js" />
     <Content Include="Scripts\LogStats.js" />
     <Content Include="Scripts\modernizr-1.7.js" />
     <Content Include="Scripts\modernizr-1.7.min.js" />
@@ -3097,7 +3105,7 @@
     <VSToolsPath Condition="'$(VSToolsPath)' == ''">$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)</VSToolsPath>
   </PropertyGroup>
   <PropertyGroup>
-    <ApplicationIcon>Content\images\favicon.ico</ApplicationIcon>
+    <ApplicationIcon>favicon.ico</ApplicationIcon>
   </PropertyGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <Import Project="$(VSToolsPath)\WebApplications\Microsoft.WebApplication.targets" Condition="'$(VSToolsPath)' != ''" />

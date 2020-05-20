@@ -4,9 +4,11 @@ using CapaDato.Persona;
 using CapaEntidad.Control;
 using CapaEntidad.Financiera;
 using CapaEntidad.General;
+using CapaEntidad.Menu;
 using CapaEntidad.Pedido;
 using CapaEntidad.Persona;
 using CapaEntidad.Util;
+using CapaPresentacion.Bll;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -34,11 +36,41 @@ namespace CapaPresentacion.Controllers
 
         public ActionResult CrucePago()
         {
-            Session[_sessionPagsLiqs] = null;
+            
+
+
             Ent_Usuario _usuario = (Ent_Usuario)Session[Ent_Constantes.NameSessionUser];
-            Ent_Pedido_Maestro maestros = datPedido.Listar_Maestros_Pedido(_usuario.usu_id, _usuario.usu_postPago, "");
-            ViewBag.listPromotor = maestros.combo_ListPromotor;
-            return View();
+
+            string actionName = this.ControllerContext.RouteData.GetRequiredString("action");
+            string controllerName = this.ControllerContext.RouteData.GetRequiredString("controller");
+            string return_view = actionName + "|" + controllerName;
+
+            if (_usuario == null)
+            {
+                return RedirectToAction("Login", "Control", new { returnUrl = return_view });
+            }
+            else
+            {
+                #region<VALIDACION DE ROLES DE USUARIO>
+                Boolean valida_rol = true;
+                Basico valida_controller = new Basico();
+                List<Ent_Menu_Items> menu = (List<Ent_Menu_Items>)Session[Ent_Global._session_menu_user];
+                valida_rol = valida_controller.AccesoMenu(menu, this);
+                #endregion
+                if (valida_rol)
+                {
+                    Session[_sessionPagsLiqs] = null;
+                    //Ent_Usuario _usuario = (Ent_Usuario)Session[Ent_Constantes.NameSessionUser];
+                    Ent_Pedido_Maestro maestros = datPedido.Listar_Maestros_Pedido(_usuario.usu_id, _usuario.usu_postPago, "");
+                    ViewBag.listPromotor = maestros.combo_ListPromotor;
+                    ViewBag.usutipo = _usuario.usu_tip_id.ToString();
+                    return View();
+                }
+                else
+                {
+                    return RedirectToAction("Login", "Control", new { returnUrl = return_view });
+                }
+            }
         }
         public ActionResult GET_INFO_PERSONA(string codigo)
         {

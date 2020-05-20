@@ -10,7 +10,7 @@
 </head>
 <body>
     <form id="form1" runat="server">
-        <asp:Button Text="PDF" runat="server" OnClick="Unnamed1_Click" />
+      <%--  <asp:Button Text="PDF" runat="server" OnClick="Unnamed1_Click" />--%>
         <div id="dvReport">
             <CR:CrystalReportViewer ID="crv" runat="server" HasCrystalLogo="False" HasRefreshButton="True" EnableDatabaseLogonPrompt="False" PrintMode="Pdf" />   
         </div>

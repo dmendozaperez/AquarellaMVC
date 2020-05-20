@@ -73,7 +73,7 @@
                             <div class="row">
                                 <div class="col-md-10 col-xs-10">
                                     <div class="form-group">
-                                        @Html.DropDownList("dwPromotor", new SelectList(ViewBag.listPromotor, "codigo", "descripcion", null), new { @class = "form-control selectpicker", @data_live_search = "true", @id = "dwPromotor", @name = "dwPromotor", @onchange = "get_info_cliente();" })
+                                        @Html.DropDownList("dwPromotor", new SelectList(ViewBag.listPromotor, "codigo", "descripcion", "-1"), new { @class = "form-control selectpicker", @data_live_search = "true", @id = "dwPromotor", @name = "dwPromotor", @onchange = "get_info_cliente();" })
                                         <span class="help-block" style="color: #31708f">Seleccione un promotor sobre el cual realizará las acciones</span>
                                     </div>
                                 </div>
@@ -447,6 +447,11 @@
 </script>
 <script>
     $(document).ready(function () {
+
+        var usutip = @ViewBag.usutipo;
+
+        if (usutip=='02') get_info_cliente();
+
         /** Liquidaciones **/
         $('#tblLiquidaciones').DataTable({
             dom: 'Bfrtip',

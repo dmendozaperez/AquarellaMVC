@@ -167,4 +167,11 @@ namespace CapaEntidad.Pedido
         public string premio { get; set; }
         public string premId { get; set; }
     }
+
+    public class Ent_Order_Stk_Disponible
+    {
+        public string disponible { get; set; }
+        public string articulo { get; set; }
+        public string talla { get; set; }
+    }
 }

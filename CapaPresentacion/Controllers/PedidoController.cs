@@ -212,6 +212,8 @@ namespace CapaPresentacion.Controllers
             Ent_Order_Hdr header = getTotals();
             order_dtl_temp = new List<Order_Dtl_Temp>();
 
+
+
             int index = 0;
             foreach (Ent_Order_Dtl item in order)
             {
@@ -494,6 +496,7 @@ namespace CapaPresentacion.Controllers
 
             Ent_Pedido_Maestro maestros = datPedido.Listar_Maestros_Pedido(_usuario.usu_id, _usuario.usu_postPago,"");
             ViewBag.listPromotor = maestros.combo_ListPromotor;
+            ViewBag.usutipo = _usuario.usu_tip_id.ToString();
             
             //Ent_Promotor_Maestros maestros = datUtil.ListarEnt_Maestros_Promotor(_usuario.usu_id);
             //ViewBag.listLider = maestros.combo_ListLider;
@@ -969,6 +972,7 @@ namespace CapaPresentacion.Controllers
                            // orderLines[c]._dsctoDesc = orderLines[c]._dscto.ToString(_currency);
 
                             orderLines[c]._lineTotal = Math.Round((orderLines[c]._qty * orderLines[c]._price) - (orderLines[c]._commission) - (orderLines[c]._dscto), 2, MidpointRounding.AwayFromZero);
+                            orderLines[c]._lineTotDesc = orderLines[c]._lineTotal;
                            // orderLines[c]._lineTotDesc = orderLines[c]._lineTotal.ToString(_currency);
                         }
                     }
@@ -1105,6 +1109,7 @@ namespace CapaPresentacion.Controllers
                                                 //orderLines[i]._dsctoDesc = orderLines[i]._dscto.ToString(_currency);
 
                                                 orderLines[i]._lineTotal = Math.Round((orderLines[i]._qty * orderLines[i]._price) - (orderLines[i]._commission) - (orderLines[i]._dscto), 2, MidpointRounding.AwayFromZero);
+                                                orderLines[i]._lineTotDesc = orderLines[i]._lineTotal;
                                                 //orderLines[i]._lineTotDesc = orderLines[i]._lineTotal.ToString(_currency);
                                             }
                                         }
@@ -2365,5 +2370,131 @@ namespace CapaPresentacion.Controllers
             }
             return Json(new { estado = 0 });
         }
+
+        public ActionResult get_valida_pedido()
+        {
+            string prom = "0";
+            try
+            {
+                List<Ent_Order_Dtl> info = null;
+                if (Session[_session_list_detalle_pedido] == null)
+                {
+                    info = new List<Ent_Order_Dtl>();
+                }
+                else
+                {
+                    info = (List<Ent_Order_Dtl>)Session[_session_list_detalle_pedido];
+                }
+
+                if (info.Count==0) return Json(new { estado = 0, info = info });
+
+
+                var validapercep = info.GroupBy(g => g._ap_percepcion).ToList();
+
+                if (validapercep.Count>=2) return Json(new { estado = 0, info = info });
+
+                /*validacion de oferta*/
+                DataTable dt = new DataTable();
+                dt.Columns.Add("cod_artic", typeof(string));
+                dt.Columns.Add("precio", typeof(decimal));
+                dt.Columns.Add("cantidad", typeof(decimal));
+                string valida_descuento = "0";
+
+                Int32 i = 1;
+                foreach (Ent_Order_Dtl item in info)
+                {
+                    if (item._dscto < 0) valida_descuento = "1";
+
+                    dt.Rows.Add(item._code, item._price, item._qty);
+                    i++;
+                }
+                if (dt.Rows.Count>0)
+                {
+                    Dat_Pedido dat_prom = new Dat_Pedido();
+                    Boolean val_promo = dat_prom._return_valida_promo_exists(dt);
+                    if (val_promo) return Json(new { estado = 0, info = info, prom = prom });
+                }
+                Ent_Persona cust = (Ent_Persona)Session[_session_customer];
+
+                if (cust.Bas_id=="0") return Json(new { estado = 0, info = info, prom = prom, user = cust.Bas_id.ToString() });
+
+                string articulo = "";
+                string talla = "";
+                Ent_Order_Stk_Disponible stk = new Ent_Order_Stk_Disponible();
+                if (!(fvalidastock(ref articulo, ref talla)))
+                {
+                   
+                    stk.disponible = "1";
+                    stk.articulo = articulo;
+                    stk.talla = talla;
+
+                    return Json(new { estado = 0, info = info, prom = prom, user = cust.Bas_id.ToString(), stk= stk });
+
+                }
+                else
+                {
+                    stk.disponible = "0";
+                }
+
+
+
+                return Json(new { estado = 0, info = info, prom = prom,user=cust.Bas_id.ToString(), stk = stk, valida_descuento= valida_descuento });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { estado = 2, mensaje = ex.Message });
+            }
+        }
+
+        private Boolean fvalidastock(ref string articulo, ref string talla)
+        {
+
+            Dat_Pedido dat_ped = new Dat_Pedido();
+            Ent_Liquidacion liq = (Ent_Liquidacion)Session[_session_lnfo_liquidacion];
+
+            Boolean valida = true;
+            string estadoliquid = liq.estId;//  (string)Session[_estadoliqui];
+            string nroliq = liq.liq_Id; // (string)Session[_nSOrderUrl];
+
+            List<Ent_Order_Dtl> order = (List<Ent_Order_Dtl>)Session[_session_list_detalle_pedido];
+
+            foreach (Ent_Order_Dtl item in order)
+            {
+
+                Int32 vcantidad = dat_ped.fvalidastock(item._code, item._size, item._qty, (!(string.IsNullOrEmpty(estadoliquid))) ? nroliq : "");
+                if (vcantidad == 0)
+                {
+                    articulo = item._code;
+                    talla = item._size;
+                    valida = false;
+                    break;
+                }
+
+            }
+            return valida;
+        }
+
+        // [HttpPost]        
+        //public ActionResult get_detalle_pedido()
+        //{
+        //    List<Ent_Order_Dtl> listar = null;
+        //    if (Session[_session_list_detalle_pedido]==null)
+        //    {
+        //        listar = new List<Ent_Order_Dtl>();
+        //    }
+        //    else
+        //    {
+        //        listar = (List<Ent_Order_Dtl>) Session[_session_list_detalle_pedido];
+        //    }
+        //    //return View(listar);
+        //    // return listar;
+        //    return Json(new
+        //    {
+        //        sEcho = param.sEcho,
+        //        iTotalRecords = totalCount,
+        //        iTotalDisplayRecords = filteredMembers.Count(),
+        //        aaData = result
+        //    }, JsonRequestBehavior.AllowGet);
+        //}
     }
 }

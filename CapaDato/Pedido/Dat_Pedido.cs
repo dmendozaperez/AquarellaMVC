@@ -13,6 +13,79 @@ namespace CapaDato.Pedido
     public class Dat_Pedido
     {
 
+        public  Int32 fvalidastock(string article, string talla, Int32 cantidad, string nroliqui = "")
+        {
+            //return 0;
+            //Int32 vdevolvercantidad = 0;
+            string sqlquery = "USP_VerificaStockArticulo";
+            SqlConnection cn = null;
+            SqlCommand cmd = null;
+            Int32 _devolver = 0;
+            try
+            {
+                cn = new SqlConnection(Ent_Conexion.conexion);
+                if (cn.State == 0) cn.Open();
+                cmd = new SqlCommand(sqlquery, cn);
+                cmd.CommandTimeout = 0;
+                cmd.CommandType = CommandType.StoredProcedure;
+                cmd.Parameters.AddWithValue("@art_id", article);
+                cmd.Parameters.AddWithValue("@Tal_Id", talla);
+                cmd.Parameters.AddWithValue("@Cantidad", cantidad);
+                cmd.Parameters.AddWithValue("@Liq_Id", nroliqui);
+                cmd.Parameters.Add("@ValidaStock", SqlDbType.Decimal);
+                cmd.Parameters["@ValidaStock"].Direction = ParameterDirection.Output;
+                cmd.ExecuteNonQuery();
+                _devolver = Convert.ToInt32(cmd.Parameters["@ValidaStock"].Value);
+
+
+            }
+            catch (Exception e)
+            {
+                if (cn != null)
+                    if (cn.State == ConnectionState.Open) cn.Close();
+                //throw new Exception(e.Message, e.InnerException);
+            }
+            if (cn != null)
+                if (cn.State == ConnectionState.Open) cn.Close();
+            return _devolver;
+        }
+        public Boolean _return_valida_promo_exists(DataTable dt)
+        {
+            Boolean valida = false;
+            string sqlquery = "USP_ValidaUpdLiq_Oferta";
+            try
+            {
+                using (SqlConnection cn = new SqlConnection(Ent_Conexion.conexion))
+                {
+                    try
+                    {
+                        if (cn.State == 0) cn.Open();
+                        using (SqlCommand cmd = new SqlCommand(sqlquery, cn))
+                        {
+                            cmd.CommandTimeout = 0;
+                            cmd.CommandType = CommandType.StoredProcedure;
+                            cmd.Parameters.AddWithValue("@tmp_articulo", dt);
+                            cmd.Parameters.Add("@valida", SqlDbType.Bit);
+                            cmd.Parameters["@valida"].Direction = ParameterDirection.Output;
+                            cmd.ExecuteNonQuery();
+                            valida = Convert.ToBoolean(cmd.Parameters["@valida"].Value);
+                        }
+                    }
+                    catch (Exception)
+                    {
+                        valida = false;
+                    }
+                    if (cn != null)
+                        if (cn.State == ConnectionState.Open) cn.Close();
+
+                }
+            }
+            catch (Exception)
+            {
+                valida = false;
+            }
+            return valida;
+        }
         public Ent_Pedido_Maestro Listar_Maestros_Pedido(decimal usuarioId, string usu_postPago, string IdCustomer)
         {
             DataSet dsReturn = new DataSet();

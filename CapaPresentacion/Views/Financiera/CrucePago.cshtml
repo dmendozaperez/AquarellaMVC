@@ -15,11 +15,11 @@
                         <div class="row">
                             <div class="col-md-10 col-xs-10">
                                 <div class="form-group">
-                                    @Html.DropDownList("dwPromotor", new SelectList(ViewBag.listPromotor, "codigo", "descripcion", null), new { @class = "form-control selectpicker", @data_live_search = "true", @id = "dwPromotor", @name = "dwPromotor" })
+                                    @Html.DropDownList("dwPromotor", new SelectList(ViewBag.listPromotor, "codigo", "descripcion", null), new { @class = "form-control selectpicker", @data_live_search = "true", @id = "dwPromotor", @name = "dwPromotor", @onchange = "consultar();" })
                                     <span class="help-block" style="color: #31708f">Seleccione un promotor sobre el cual realizará las acciones</span>
                                 </div>
                             </div>
-                            <button type="button" title="Consultar" id="btnConsultar" class="btn btn-primary">
+                            <button type="button" title="Consultar" id="btnConsultar" class="btn btn-primary" onclick="consultar();">
                                 <small class="glyphicon glyphicon-search"></small>
                             </button>
                         </div>
@@ -96,20 +96,19 @@
 <script>
     var checking = false;
     var checkVal;
-    $(document).ready(function () {
-        $("#btnConsultar").click(function () {
-            waitingDialog.show("Espere un momento por favor.")
-            $.ajax({
-                type: "POST",
-                url: '@Url.Action("GET_INFO_PERSONA", "Financiera")',
-                data: { codigo: $("#dwPromotor").val() },
-                success: function (data) {
-                    waitingDialog.hide();
-                    if (data.estado == 0) {
-                        $("#doc-nom-persona").html(data.info.Bas_Documento + ' - ' + data.info.NombreCompleto);
-                        var strPremio = data.info.premio.length > 0 ? '<b class="pull-right text-danger"><i class="fa fa-gift"></i>&nbsp;' + data.info.premio + '</b>' : "";
-                        $("#ubi-persona").html(data.info.Ubicacion + strPremio);
-                        var html = '<div class="col-md-12 col-xs-12" >\
+    function consultar() {
+        waitingDialog.show("Espere un momento por favor.")
+        $.ajax({
+            type: "POST",
+            url: '@Url.Action("GET_INFO_PERSONA", "Financiera")',
+            data: { codigo: $("#dwPromotor").val() },
+            success: function (data) {
+                waitingDialog.hide();
+                if (data.estado == 0) {
+                    $("#doc-nom-persona").html(data.info.Bas_Documento + ' - ' + data.info.NombreCompleto);
+                    var strPremio = data.info.premio.length > 0 ? '<b class="pull-right text-danger"><i class="fa fa-gift"></i>&nbsp;' + data.info.premio + '</b>' : "";
+                    $("#ubi-persona").html(data.info.Ubicacion + strPremio);
+                    var html = '<div class="col-md-12 col-xs-12" >\
                                         <dl class="dl-horizontal">\
                                         <dt>Asesor Comercial :</dt>\
                                         <dd>' + data.info.asesor + '</dd>\
@@ -127,24 +126,34 @@
                                         <dd>' + data.info.premio + '</dd>\
                                         </dl>\
                                     </div>'
-                        $("#infoProm").html(html);
-                        $('#tblPL').DataTable().ajax.reload();
-                        //CargarLiq(data.liquidacion);
-                    }
-                },
-                error: function (XMLHttpRequest, textStatus, errorThrown) {
-                    waitingDialog.hide();
-                    toastr.error("Error al consultar.", "Alerta");
+                    $("#infoProm").html(html);
+                    $('#tblPL').DataTable().ajax.reload();
+                    //CargarLiq(data.liquidacion);
                 }
-            });
+            },
+            error: function (XMLHttpRequest, textStatus, errorThrown) {
+                waitingDialog.hide();
+                toastr.error("Error al consultar.", "Alerta");
+            }
         });
+    }
+
+    $(document).ready(function () {
+
+        var usutip = @ViewBag.usutipo;
+
+        if (usutip=='02') consultar();
+
+        //$("#btnConsultar").click(function () {
+        //    consultar();
+        //});
 
         $("#tblPL").DataTable({
             "dom": 't',
             "language": {
                 "url": "../Scripts/DataTables/Spanish.json",
             },
-            "ordering": false,                        
+            "ordering": false,
             "fnServerData": function (sSource, aoData, fnCallback) {
                 $.getJSON(sSource, aoData, function (json) {
                     $("#totalPL").html("S/ " + parseFloat(json.total).toFixed(2));
@@ -152,7 +161,7 @@
                         $("#totalPL").removeClass("text-danger");
                         $("#totalPL").addClass("text-success");
                         $("#iconPL").html("<span class='text-success'><i class='fa fa-check-circle'></i></span>");
-                        $("#btnCruce").prop("disabled", false);                        
+                        $("#btnCruce").prop("disabled", false);
                     } else {
                         $("#totalPL").removeClass("text-success");
                         $("#totalPL").addClass("text-danger");
@@ -199,7 +208,7 @@
                     }, "className": "content-center-text"
                 },
                 { "data": "document_date_desc" },
-                { "data": "cov_description" },                
+                { "data": "cov_description" },
                 {
                     render: function (data, type, full) {
                         return "S/ " + full.monto.toFixed(2);
@@ -238,7 +247,7 @@
                         type: "POST",
                         url: '@Url.Action("GuardarCruce", "Financiera")',
                         data: null,
-                        success: function (data) {                            
+                        success: function (data) {
                             if (data.estado == 0) {
                                 toastr.success(data.mensaje);
                                 checking = false;
@@ -257,7 +266,7 @@
                         }
                     });
                 }
-            });           
+            });
         });
     });
 </script>    

@@ -1,4 +1,5 @@
-﻿@using CapaEntidad.Pedido
+﻿@using Newtonsoft.Json
+@using CapaEntidad.Pedido
 @using CapaEntidad.Persona
 @model Ent_Liquidacion
 @{
@@ -7,7 +8,9 @@
     ViewBag.SubTitle = ViewBag.operacion;
     Ent_Persona persona = new Ent_Persona();
     persona = ViewBag.infoProm;
-    
+
+    ViewBag._session_list_detalle_pedido = JsonConvert.SerializeObject(ViewBag._session_list_detalle_pedido, Newtonsoft.Json.Formatting.None, new JsonSerializerSettings { NullValueHandling = NullValueHandling.Ignore });
+
 }
 
 @*@Scripts.Render("~/bundles/bootstrap")*@
@@ -266,22 +269,40 @@ else
             </div>
             <div class="box-footer">
                 <div class="row">
-                    <div class="col-md-12 text-right">
-                        @if (ViewBag.operacion == "Nuevo")
-    {
-                            <button class="btn btn-success" type="button" id="btnliquidar" name="btnliquidar" title="Liquidar">
+                    @*<div class="col-md-12 text-left">
+                        <button class="btn btn-success" type="button" id="btnliquidar" name="btnliquidar" title="Liquidar">
+                            <span class="fa fa-floppy-o"></span>&nbsp;Liquidar Pedido
+                        </button>
+                    </div>*@
+                  
+                        <div class="col-md-12 text-right">
+
+                            <div class="col-xs-7 col-sm-5 col-md-9">
+                                <button class="btn btn-danger" type="button" id="btncancelar" onclick="cancelar();" name="btncancelar" title="Cancelar">
+                                    <span class="glyphicon glyphicon-remove"></span>&nbsp;Cancelar Pedido
+                                </button>
+                            </div>
+
+                            @*<button class="btn btn-warning" type="button" id="btnliquidar" name="btnliquidar" title="Liquidar">
                                 <span class="fa fa-floppy-o"></span>&nbsp;Liquidar Pedido
-                            </button>
-                        }
-                        else
-                        {
-                            <button class="btn btn-success" type="button" id="btnliquidar" name="btnliquidar" title="Liquidar">
-                                <span class="fa fa-pencil"></span>&nbsp;Modificar Liquidacion
-                            </button>
-                        }
-                        
-                    </div>
-                </div>  
+                            </button>*@
+
+
+                            @if (ViewBag.operacion == "Nuevo")
+                            {
+                                <button class="btn btn-success" type="button" id="btnliquidar" name="btnliquidar" title="Liquidar">
+                                    <span class="fa fa-floppy-o"></span>&nbsp;Liquidar Pedido
+                                </button>
+                            }
+                            else
+                            {
+                                <button class="btn btn-success" type="button" id="btnliquidar" name="btnliquidar" title="Liquidar">
+                                    <span class="fa fa-pencil"></span>&nbsp;Modificar Liquidacion
+                                </button>
+                            }
+
+                        </div>
+                    </div>  
             </div>  
         </div>
     </div>
@@ -375,8 +396,91 @@ else
 {
 
 <script src="~/Scripts/BI.js"></script>
+<script src="~/Scripts/Linkend/linq.min.js"></script>
 @*<script src="~/Scripts/Plugins/iCheck/icheck.min.js"></script>*@
+    <script>
 
+        function GenerarPedido() {
+            waitingDialog.show("Espere por favor...")
+            $.ajax({
+                type: "POST",
+                url: '@Url.Action("get_valida_pedido", "Pedido")',
+                data: {},
+                success: function (data) {
+                    waitingDialog.hide();
+                    if (data.estado == 0) {
+                        if (data.info.length == 0) {
+                            waitingDialog.hide();
+                            /*si no hay ninguna informacion en el detalle*/
+                            toastr.error("No se genero la liquidacion, porque no hay detalle", "Alerta");
+                            return;
+
+                        };
+                        
+                        /*si en el detlla hay percepcion*/
+                        var validapercep = Enumerable.from(data.info)
+                          .groupBy(
+                          null,
+                          null,
+                          "{ _ap_percepcion: $._ap_percepcion}",
+                          "'' + $._ap_percepcion"
+                          ).toArray();
+
+                        if (validapercep.length >= 2) {
+                            waitingDialog.hide();
+                            toastr.error("No se guardo el pedido, porque en el detalle hay articulo sin percepcion", "Alerta");
+                            return;
+                        }
+                        if (data.prom == "1") {
+                            waitingDialog.hide();
+                            toastr.error("No se genero la liquidacion, por favor revise las condicion de uso en la promocion utilizada", "Alerta");
+                            return;
+                        }
+                        if (data.user == "0") {
+                            waitingDialog.hide();
+                            toastr.error("No se genero la liquidacion, porque hubo un problema en los datos del cliente.. por favor vuelva a intentarlo o reinicie su session:", "Alerta");
+                            return;
+                        }
+
+                        if (data.stk.disponible=="1")
+                        {
+                            waitingDialog.hide();
+                            toastr.error("No se genero la liquidacion, porque no hay suficiente stock en el producto: " + data.stk.articulo + " Talla: " + data.stk.talla, "Alerta");
+                            return;
+                        }
+                        if (data.valida_descuento == "1") {
+                            waitingDialog.hide();
+                            toastr.error("Error en el descuento, por favor consulte los precios  " + data.stk.articulo + " Talla: " + data.stk.talla, "Alerta");
+                            return;
+                        }
+                      
+                        //if (valida == 0) {
+                            grabar_liquidacion();
+                        //}
+                        
+                    }
+                },
+                error: function (XMLHttpRequest, textStatus, errorThrown) {              
+                    toastr.error("Error al consultar.", "Alerta");
+                }
+            });            
+        }
+
+        function cancelar() {
+
+            //ValidarPedido();
+
+            window.location.href = '@Url.Action("Lista", "Pedido")';
+
+            //var firstName = '<%=Session["_session_list_detalle_pedido"]%>';
+
+            //var session = '<%= HttpContext.Current.Session["_session_list_detalle_pedido"] %>';
+            @*var productId = "@(Session["Tienda"] == null ? null : Session["Tienda"])";
+
+            var data = function () { return @Html.Raw(Json.Encode(ViewBag.detalle_pedido)); }();*@
+
+        }
+    </script>
     <script>
         var nPreWF = 0;
         var tablaProcessing = true;
@@ -510,6 +614,9 @@ else
                 "fnServerData": function (sSource, aoData, fnCallback) {
                     $.getJSON(sSource, aoData, function (json) {
                         var header = json.header;
+                        $("#cantitdades").html(header._qtys);
+                        
+
                         $("#opeGratuitas").html(header._subTotalOPG.toFixed(2));
                         $("#subTotalList").html(header._subTotalDesc.toFixed(2));
                         $("#totalImpuesto").html(header._taxesDesc.toFixed(2));
@@ -713,41 +820,49 @@ else
                 DibujarDetalleArticulo(articulo);
             });
         })
-        $("#btnliquidar").click(function () {
+
+        function grabar_liquidacion() {
             swal({
                 title: "Liquidar pedido?",
-                text: "¿Desea guardar el pedido y generar liquidacion?",
+                text: "¿Desea realizar la separacion de este pedido?",
                 icon: "warning",
-                buttons: ["No" , "Si"],
+                buttons: ["No", "Si"],
                 dangerMode: true,
             })
-              .then((cambiar) => {
-                  if (cambiar) {
-                      waitingDialog.show("Espere por favor...")
-                      $.ajax({
-                          type: "Post",
-                          url: '@Url.Action("LiquidarPedido", "Pedido")',
-                          //data: { articulo: articulo, size: size },
-                          success: function (data) {
+           .then((cambiar) => {
+               if (cambiar) {
+                   waitingDialog.show("Espere por favor...")
+                   $.ajax({
+                       type: "Post",
+                       url: '@Url.Action("LiquidarPedido", "Pedido")',
+                       //data: { articulo: articulo, size: size },
+                       success: function (data) {
 
-                              toastr.success("Liquidacion generada con exito.", 'Mensaje');
-                              //$('#load').show();
-                              $("#load").attr("src", "../AspNetForms/ReportLiquidation.aspx");
-                              $("#CRLiquidacion").modal({ backdrop: 'static', keyboard: false });
-                              //if (data.estado == 0) {
+                           toastr.success("Liquidacion generada con exito.", 'Mensaje');
+                           //$('#load').show();
+                           $("#load").attr("src", "../AspNetForms/ReportLiquidation.aspx");
+                           $("#CRLiquidacion").modal({ backdrop: 'static', keyboard: false });
+                           //if (data.estado == 0) {
 
 
-                              //} else {
-                              //    toastr.error(data.mensaje, 'Error');
-                              //}
-                          },
-                          error: function (xhr) {
-                              waitingDialog.hide();
-                              toastr.error(xhr, 'Mensaje');
-                          }
-                      });
-                  }
-              });
+                           //} else {
+                           //    toastr.error(data.mensaje, 'Error');
+                           //}
+                       },
+                       error: function (xhr) {
+                           waitingDialog.hide();
+                           toastr.error(xhr, 'Mensaje');
+                       }
+                   });
+               }
+           });
+        }
+
+        $("#btnliquidar").click(function () {
+
+            GenerarPedido();
+
+         
         });
     var gTipoDoc = '';
     var gTipoPer = '';
