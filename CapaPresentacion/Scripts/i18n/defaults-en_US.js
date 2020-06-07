@@ -23,10 +23,10 @@
 
 (function ($) {
   $.fn.selectpicker.defaults = {
-    noneSelectedText: 'Nothing selected',
+      noneSelectedText: '--Seleccione--',
     noneResultsText: 'No results match {0}',
     countSelectedText: function (numSelected, numTotal) {
-      return (numSelected == 1) ? "{0} item selected" : "{0} items selected";
+        return (numSelected == 1) ? "{0} item seleccionado" : "{0} items seleccionados";
     },
     maxOptionsText: function (numAll, numGroup) {
       return [

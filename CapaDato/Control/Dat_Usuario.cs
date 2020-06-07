@@ -13,7 +13,7 @@ namespace CapaDato.Control
     public class Dat_Usuario
     {
         #region<Region de Acceso al sistema>
-        public Ent_Usuario get_login(string _usuario)
+        public Ent_Usuario get_login(string _usuario,ref string error_con)
         {
             string sqlquery = "[USP_Leer_Usuario_MVC]";
                 Ent_Usuario usuario = null;
@@ -55,7 +55,9 @@ namespace CapaDato.Control
             }
             catch (Exception ex)
             {
-                usuario = null;                
+                error_con = "1";
+                usuario = null;
+               
             }
             return usuario;
         }

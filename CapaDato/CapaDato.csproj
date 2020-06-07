@@ -45,6 +45,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Cliente\Dat_Cliente.cs" />
+    <Compile Include="Cliente\Dat_Combo_Lider.cs" />
     <Compile Include="Control\Dat_Aplicacion.cs" />
     <Compile Include="Control\Dat_Funcion.cs" />
     <Compile Include="Control\Dat_Roles.cs" />
@@ -52,7 +54,10 @@
     <Compile Include="Devolucion\Dat_Documentos_Dev.cs" />
     <Compile Include="Financiera\Dat_Clear.cs" />
     <Compile Include="Financiera\Dat_Financiera.cs" />
+    <Compile Include="Maestros\Dat_Documento_Tipo.cs" />
     <Compile Include="Maestros\Dat_Estado.cs" />
+    <Compile Include="Maestros\Dat_Lugar.cs" />
+    <Compile Include="Maestros\Dat_Persona_Tipo.cs" />
     <Compile Include="Maestros\Dat_Usuario_Tipo.cs" />
     <Compile Include="Menu\Dat_Menu.cs" />
     <Compile Include="Pedido\Dat_Pedido.cs" />

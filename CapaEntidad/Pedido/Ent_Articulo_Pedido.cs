@@ -43,8 +43,8 @@ namespace CapaEntidad.Pedido
     public class Ent_Articulo_Tallas
     {
         public string Stk_ArtId { get; set; }
-        public decimal Tal_Descripcion { get; set; }
-        public decimal Tall_Des { get; set; }
+        public string Tal_Descripcion { get; set; }
+        public string Tall_Des { get; set; }
         public decimal Tall_Cant { get; set; }
     }
     public class Ent_Articulo_Ofertas

@@ -48,11 +48,16 @@
     <Compile Include="ArticuloStock\Departamento.cs" />
     <Compile Include="ArticuloStock\Articulo_Tienda.cs" />
     <Compile Include="ArticuloSustituto\Articulo_Sustituto_Tienda.cs" />
+    <Compile Include="Cliente\Ent_Cliente_Lista.cs" />
+    <Compile Include="Cliente\Ent_Combo_Lider.cs" />
     <Compile Include="Control\Ent_Aplicacion.cs" />
     <Compile Include="Control\Ent_Tienda.cs" />
     <Compile Include="Devolucion\Ent_Documentos_Dev.cs" />
     <Compile Include="Financiera\Ent_Cruce.cs" />
     <Compile Include="Financiera\Ent_Documents_Trans.cs" />
+    <Compile Include="Maestros\Ent_Documento_Tipo.cs" />
+    <Compile Include="Maestros\Ent_Lugar.cs" />
+    <Compile Include="Maestros\Ent_Persona_Tipo.cs" />
     <Compile Include="Pedido\Ent_Pago_NCredito.cs" />
     <Compile Include="Pedido\Ent_Liquidacion.cs" />
     <Compile Include="Pedido\Ent_Documents_Trans.cs" />

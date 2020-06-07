@@ -148,8 +148,84 @@ namespace CapaPresentacion.Controllers
                 total = membercol.Where(w => w.checks).Sum(s => s.val * s.von_increase)
             }, JsonRequestBehavior.AllowGet);
         }
+
+        public ActionResult valida_cruce()
+        {
+            #region<REGION DE VALIDACIONES>
+
+            string _mensaje = "";
+            int estado = 0;
+            if (Session[_sessionPagsLiqs] == null)
+            {
+                List<Ent_Pag_Liq> listPed = new List<Ent_Pag_Liq>();
+                Session[_sessionPagsLiqs] = listPed;
+            }
+
+            Ent_Persona cust = (Ent_Persona)Session[_sessin_customer];
+
+            List<Ent_Pag_Liq> list = (List<Ent_Pag_Liq>)Session[_sessionPagsLiqs];
+            list = list.Where(w => w.checks).ToList();
+
+            int countLiqSel = list.Where(w => w.dtv_concept_id == "LIQUIDACIONES").Count();
+            int countPagSel = list.Where(w => w.dtv_concept_id == "PAGOS").Count();
+            DataTable dtpagos = new DataTable();
+            dtpagos.Columns.Add("Doc_Tra_Id", typeof(string));
+
+            if (list.Count == 0)
+            {
+                estado = 1;
+                _mensaje = "No ha seleccionado ningun item.";
+                return Json(new { estado = estado, mensaje = _mensaje });
+            }
+            if (countLiqSel > 1)
+            {
+                estado = 1;
+                _mensaje = "No se puede realizar cruce de pagos con 2 o más Pedidos, por favor seleccione solo 1 pedido.";
+                return Json(new { estado = estado, mensaje = _mensaje });
+            }
+            if (countLiqSel == 0)
+            {
+                estado = 1;
+                _mensaje = "no ha seleccionado ningun pedido para cruzar el pago";
+                return Json(new { estado = estado, mensaje = _mensaje });
+            }
+            if (countPagSel > 1)
+            {
+                decimal _sum_pag = 0;
+                decimal _liq_val = list.Where(w => w.dtv_concept_id == "LIQUIDACIONES").Select(s => s.val).FirstOrDefault();
+                Int32 _limite = 0;
+                foreach (Ent_Pag_Liq item in list.OrderByDescending(o => o.val))
+                {
+                    if (item.dtv_concept_id == "PAGOS")
+                    {
+                        _sum_pag += item.val;
+                        if (_sum_pag > _liq_val)
+                        {
+                            if (_limite == 0)
+                            {
+                                _limite = 1;
+                            }
+                            else
+                            {
+                                estado = 1;
+                                _mensaje = "por favor solo seleccione el pago necesario para pagar su pedido";
+                                return Json(new { estado = estado, mensaje = _mensaje });
+                            }
+
+
+                        }
+                    }
+                }
+            }
+            return Json(new { estado = estado, mensaje = _mensaje });
+            #endregion
+        }
+
         public ActionResult GuardarCruce()
         {
+
+            #region<REGION DE VALIDACIONES>
+
             string _mensaje = "";
             int estado = 1;
             if (Session[_sessionPagsLiqs] == null)
@@ -171,20 +247,23 @@ namespace CapaPresentacion.Controllers
             if (list.Count == 0)
             {
                 _mensaje = "No ha seleccionado ningun item.";
+                return Json(new { estado = estado, mensaje = _mensaje });
             }
             if (countLiqSel > 1)
             {
                 _mensaje = "No se puede realizar cruce de pagos con 2 o más Pedidos, por favor seleccione solo 1 pedido.";
+                return Json(new { estado = estado, mensaje = _mensaje });
             }
             if (countLiqSel == 0)
             {
                 _mensaje = "no ha seleccionado ningun pedido para cruzar el pago";
+                return Json(new { estado = estado, mensaje = _mensaje });
             }
             if (countPagSel > 1)
             {
                 decimal _sum_pag = 0;
                 decimal _liq_val = list.Where(w => w.dtv_concept_id == "LIQUIDACIONES").Select(s => s.val).FirstOrDefault();
-                
+                Int32 _limite = 0;
                 foreach (Ent_Pag_Liq item in list.OrderByDescending(o=> o.val))
                 {
                     if ( item.dtv_concept_id == "PAGOS")
@@ -192,12 +271,23 @@ namespace CapaPresentacion.Controllers
                         _sum_pag += item.val;
                         if (_sum_pag > _liq_val)
                         {
-                            _mensaje = "por favor solo seleccione el pago necesario para pagar su pedido";
-                            break;
+                            if (_limite == 0)
+                            {
+                                _limite = 1;
+                            }
+                            else
+                            {
+                                _mensaje = "por favor solo seleccione el pago necesario para pagar su pedido";
+                                return Json(new { estado = estado, mensaje = _mensaje });
+                            }
+
+                                                     
                         }
                     }
                 }                    
              }
+            #endregion
+
             if (countLiqSel > 0 && countPagSel > 0)
             {
                 string listLiq = list.Where(w => w.dtv_concept_id == "LIQUIDACIONES").Select(s => s.dtv_transdoc_id).FirstOrDefault(); 
@@ -211,7 +301,8 @@ namespace CapaPresentacion.Controllers
                     if (!(string.IsNullOrEmpty(_validaref)))
                     {
                         _mensaje = "No se puede realizar cruce de pagos; porque la fecha de referencia de la nota de credito N " + vrefnc +
-                            " pertenece a otro mes con fecha " + vreffec + "  ,por favor anule este pedido y vuelva a generar otro pedido" ;                        
+                            " pertenece a otro mes con fecha " + vreffec + "  ,por favor anule este pedido y vuelva a generar otro pedido" ;
+                        return Json(new { estado = estado, mensaje = _mensaje });
                     }
                     foreach (Ent_Pag_Liq item in list.Where(w=>w.dtv_concept_id == "PAGOS"))
                     {

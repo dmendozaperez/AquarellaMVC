@@ -246,7 +246,7 @@ namespace CapaPresentacion.Controllers
 
             if (listNC != null) { 
 
-                foreach (Ent_Pago_NCredito dTx in listNC)
+                foreach (Ent_Pago_NCredito dTx in listNC.Where(n=>n.Consumido==true).ToList())
                 {
                     dtpago.Rows.Add("", dTx.Rhv_return_nro, dTx.Importe);
                 }
@@ -2364,11 +2364,18 @@ namespace CapaPresentacion.Controllers
             List<Ent_Pago_NCredito> listNC = new List<Ent_Pago_NCredito>();
             listNC = (List<Ent_Pago_NCredito>)Session[_session_notas_persona];
             listNC.Select(s => { s.Consumido = false; return s; }).ToList();
-            if (ncs != null) { 
-               
+
+            Int32 estado = 1;
+            string mensaje = "Ninguna nota de credito aplicada";
+
+            if (ncs != null) {
+                mensaje = "Nota de credito aplicada.";
+                estado = 1;
                 listNC.Where(w => ncs.Contains(w.Ncredito)).Select(s => { s.Consumido = true; return s; }).ToList();
             }
-            return Json(new { estado = 0 });
+
+
+            return Json(new { estado = estado, mensaje= mensaje });
         }
 
         public ActionResult get_valida_pedido()
@@ -2408,6 +2415,9 @@ namespace CapaPresentacion.Controllers
                     dt.Rows.Add(item._code, item._price, item._qty);
                     i++;
                 }
+
+                if (valida_descuento=="1") return Json(new { estado = 0, info = info, valida_descuento = valida_descuento });
+
                 if (dt.Rows.Count>0)
                 {
                     Dat_Pedido dat_prom = new Dat_Pedido();
@@ -2438,7 +2448,7 @@ namespace CapaPresentacion.Controllers
 
 
 
-                return Json(new { estado = 0, info = info, prom = prom,user=cust.Bas_id.ToString(), stk = stk, valida_descuento= valida_descuento });
+                return Json(new { estado = 0, info = info, prom = prom,user=cust.Bas_id.ToString(), stk = stk });
             }
             catch (Exception ex)
             {
@@ -2458,10 +2468,13 @@ namespace CapaPresentacion.Controllers
 
             List<Ent_Order_Dtl> order = (List<Ent_Order_Dtl>)Session[_session_list_detalle_pedido];
 
+            //string.IsNullOrEmpty(liq.liq_Id)
+
             foreach (Ent_Order_Dtl item in order)
             {
 
-                Int32 vcantidad = dat_ped.fvalidastock(item._code, item._size, item._qty, (!(string.IsNullOrEmpty(estadoliquid))) ? nroliq : "");
+                //Int32 vcantidad = dat_ped.fvalidastock(item._code, item._size, item._qty, (!(string.IsNullOrEmpty(estadoliquid))) ? nroliq : "");
+                Int32 vcantidad = dat_ped.fvalidastock(item._code, item._size, item._qty, (!(string.IsNullOrEmpty(liq.liq_Id))) ? nroliq : "");
                 if (vcantidad == 0)
                 {
                     articulo = item._code;

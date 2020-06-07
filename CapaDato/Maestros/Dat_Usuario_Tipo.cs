@@ -12,7 +12,7 @@ namespace CapaDato.Maestros
 {
     public class Dat_Usuario_Tipo
     {
-        public List<Ent_Usuario_Tipo> get_lista()
+        public List<Ent_Usuario_Tipo> get_lista(Boolean tipo_cliente=false)
         {
             List<Ent_Usuario_Tipo> list = null;
             string sqlquery = "USP_Leer_TipoUsuario";
@@ -25,6 +25,7 @@ namespace CapaDato.Maestros
                     {
                         cmd.CommandTimeout = 0;
                         cmd.CommandType = CommandType.StoredProcedure;
+                        cmd.Parameters.AddWithValue("@tipo_cliente", tipo_cliente);
 
                         SqlDataReader dr = cmd.ExecuteReader();
 

@@ -1,4 +1,5 @@
 ﻿@model CapaPresentacion.Models.Control.LoginViewModel
+@using CapaEntidad.Util
 @{
     Layout = null;
 }
@@ -10,7 +11,7 @@
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Login - Aquarella</title>
+    <title>Login - {@Ent_Global.titulo_header}</title>
     @*<link rel="icon" type="image/x-icon" href="@Url.Content("~/Images/lock-favicon.png")" />*@    
     @Styles.Render("~/Content/vendors/bootstrap/dist/css/bootstrap.min.css")
     @Styles.Render("~/Content/vendors/font-awesome/css/font-awesome.min.css")

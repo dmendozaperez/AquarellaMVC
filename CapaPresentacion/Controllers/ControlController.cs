@@ -111,7 +111,7 @@ namespace CapaPresentacion.Controllers
             {
                 if (_error_con == "1")
                 {
-                    ModelState.AddModelError("", "El intento de conexión no fue correcto. Inténtelo de nuevo");
+                    ModelState.AddModelError("", "Conexion sin Exito, No hay Sistema");
                     return View(model);
                 }
                 else
@@ -125,7 +125,7 @@ namespace CapaPresentacion.Controllers
         {
             bool _valida = false;
             Dat_Usuario _usuario = new Dat_Usuario();
-            Ent_Usuario _data_user= _usuario.get_login(usuario);
+            Ent_Usuario _data_user= _usuario.get_login(usuario,ref _error_con);
 
 
             if (_data_user == null) _valida = false;             

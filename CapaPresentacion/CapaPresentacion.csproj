@@ -218,6 +218,7 @@
     <Compile Include="Controllers\AdminLteController.cs" />
     <Compile Include="Controllers\AplicacionController.cs" />
     <Compile Include="Controllers\ClearController.cs" />
+    <Compile Include="Controllers\ClientesController.cs" />
     <Compile Include="Controllers\DevolucionController.cs" />
     <Compile Include="Controllers\FinancieraController.cs" />
     <Compile Include="Controllers\PedidoController.cs" />
@@ -1932,11 +1933,19 @@
     <Content Include="Content\fontawesome-free-5.12.1-web\webfonts\fa-brands-400.svg" />
     <Content Include="Content\fontawesome-free-5.12.1-web\webfonts\fa-regular-400.svg" />
     <Content Include="Content\fontawesome-free-5.12.1-web\webfonts\fa-solid-900.svg" />
+    <Content Include="Content\images\anular.png" />
+    <Content Include="Content\images\camion.png" />
+    <Content Include="Content\images\DuplcadoGuia.png" />
+    <Content Include="Content\images\fincaja.jpg" />
     <Content Include="Content\images\glyphicons-halflings-white.png" />
     <Content Include="Content\images\glyphicons-halflings.png" />
+    <Content Include="Content\images\images %281%291.jpg" />
+    <Content Include="Content\images\inventory.png" />
+    <Content Include="Content\images\lista.png" />
     <Content Include="Content\images\logoaq.png" />
     <Content Include="Content\images\lupa.jpg" />
     <Content Include="Content\images\placeholder-user.jpg" />
+    <Content Include="Content\images\ubicacion.png" />
     <Content Include="Content\images\wall-calendar-with-lines.svg" />
     <Content Include="Content\LogoAq\logo1c.jpg" />
     <Content Include="Content\LogoAq\logoaq.png" />
@@ -3053,6 +3062,8 @@
     <Content Include="Views\Devolucion\Index.cshtml" />
     <Content Include="Views\Devolucion\genera_nuevo_dev.cshtml" />
     <Content Include="Views\Permisos\Index.cshtml" />
+    <Content Include="Views\Clientes\Index.cshtml" />
+    <Content Include="Views\Clientes\ClienteEditar.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

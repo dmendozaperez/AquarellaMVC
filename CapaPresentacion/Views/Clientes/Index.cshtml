@@ -1,0 +1,104 @@
+﻿@{
+    ViewBag.Title = "Lista de Clientes";
+    ViewBag.SubTitle = "";
+}
+<style>
+    .table thead {
+        background-color: #5799bf;
+        color: #fff;
+    }
+</style>
+<p class="text-primary">Consulta de Clientes por dni,nombres y correo , editar y crear un nuevo cliente</p>
+<div class="box box-body box-default">
+    <div class="row">
+        <div class="col-md-12">
+            <a href="@Url.Action("ClienteEditar", "Clientes",new {estado= "1"})" class="btn btn-success"><i class="glyphicon glyphicon-plus"></i>&nbsp;Crear nuevo Cliente</a>
+        </div>
+    </div>
+    <br />
+    @*<div class="row">         
+        <div class="col-sm-7">
+            <label for="fecfin">Lider.</label>
+            <div class="form-group">
+                <div id="datepickerfin" class="input-group consu" >                    
+                    @Html.DropDownList("dwlider", new SelectList(ViewBag.lider, "bas_are_id", "nombres", "-1"), new { @class = "selectpicker", @data_live_search = "true", multiple = "multiple", @id = "dwlider", @name = "dwlider", @data_actions_box = "true", @data_selected_text_format = "count > 2" })
+                    <button type="button" class="btn btn-primary" title="Consultar">
+                        <span class="glyphicon glyphicon-search"></span>
+                    </button>                  
+                </div>
+            </div>
+        </div>                   
+    </div>*@
+    <div class="row">
+        <div class="box-body" id="lista">
+            <table id="tbcliente" class="table table-hover table-bordered compact">
+                <thead>
+                    <tr>
+                        <th>DNI</th>
+                        <th>NOMBRES</th>
+                        <th>CORREO</th>
+                        <th>TELEFONO</th>
+                        <th>CELULAR</th>
+                        <th>DIRECCIÓN</th>
+                    </tr>
+                </thead>
+                <tbody data-bind="foreach:"></tbody>
+                <tfoot>
+                    <tr>
+                        <th>DNI</th>
+                        <th>NOMBRES</th>
+                        <th>CORREO</th>
+                        <th>TELEFONO</th>
+                        <th>CELULAR</th>
+                        <th>DIRECCIÓN</th>
+                    </tr>
+                </tfoot>
+            </table>
+        </div>
+    </div>
+</div>
+@section scripts{
+  <script>
+      $(document).ready(function () {
+          $('#dwlider option').attr("selected", "selected");
+          $('#dwlider').selectpicker('refresh');
+
+
+          $('#tbcliente').DataTable({
+              "language": {
+                  "url": "../Scripts/DataTables/Spanish.json"
+              },
+              "bServerSide": true,
+              "bAutoWidth": false,
+              "sAjaxSource": '@Url.Action("getListClienteAjax", "Clientes")',
+              "fnServerParams": function (aoData) {
+                  aoData.push({ "name": "actualizar", "value": "" });
+              },
+              "bdestroy": true,
+              "start": 0,
+              "columnDefs": [{
+
+                  "orderable": true
+              }],
+              "bDeferRender": true,
+              "aoColumns": [
+                    { "sName": "dni", "mData": "dni" },
+                    { "sName": "nombres", "mData": "nombres" },
+                    { "sName": "correo", "mData": "correo" },
+                    { "sName": "telefono", "mData": "telefono" },
+                    { "sName": "celular", "mData": "celular" },
+                    { "sName": "direccion", "mData": "direccion" },
+                    //{
+                    //    "render": function (data, type, full) {
+                    //        return ' <div class="pull-right"><button title="Editar Aplicación" onclick="editar(' + full.apl_id + ');" style="border-radius:50%"  class="btneditar btn btn-primary" data-id="" data-modal="" data-toggle="modal"><span class="glyphicon glyphicon-pencil"></span></button></div>'
+                    //    }, "class": "boton-td"
+                    //}
+              ]
+          });
+
+
+
+      });
+    </script>
+
+}

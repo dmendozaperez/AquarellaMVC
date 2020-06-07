@@ -310,8 +310,8 @@ namespace CapaDato.Pedido
                           select new Ent_Articulo_Tallas()
                           {
                               Stk_ArtId = Convert.ToString(dr["Stk_ArtId"]),
-                              Tal_Descripcion = Convert.ToDecimal(dr["Tal_Descripcion"]),
-                              Tall_Des = Convert.ToDecimal(dr["Tall_Des"]),
+                              Tal_Descripcion = dr["Tal_Descripcion"].ToString(),
+                              Tall_Des = dr["Tall_Des"].ToString(),
                               Tall_Cant = Convert.ToDecimal(dr["Tall_Cant"]),
                           }).ToList();            
                 cn.Close();
@@ -471,6 +471,7 @@ namespace CapaDato.Pedido
                                   //_ArtImg = dr["Ped_Imagen"].ToString(),
                                   _size = dr["Tal_Descripcion"].ToString(),
                                   _color = dr["Col_Descripcion"].ToString(),
+                                  _uriPhoto = dr["art_foto"].ToString(),
                                   _qty = Convert.ToInt16(dr["Ped_Det_Cantidad"]),
                                   //_Stkqty = Convert.ToInt16(dr["stk_Cant"]),
                                   _price = Convert.ToDecimal(dr["Ped_Det_Precio"]),
