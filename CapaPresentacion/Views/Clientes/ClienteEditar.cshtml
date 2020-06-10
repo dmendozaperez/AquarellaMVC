@@ -251,6 +251,14 @@
                 <div class="row">
                     <div class="col-md-6" style="padding-left: 25px;">
                         <div id="prm" class="form-group" disabled>
+                            <label for="segape" style="color: #3d566e;">Asesor</label>
+                            <div class="form-group">
+                                @Html.DropDownList("dwasesor", new SelectList(ViewBag.Asesor, "Ase_Id", "Ase_Nom", "-1"), new { @class = "selectpicker", @data_live_search = "true", @id = "dwasesor", @name = "dwasesor", @data_actions_box = "true", @data_selected_text_format = "count > 2" })
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6" style="padding-left: 25px;">
+                        <div id="prm" class="form-group" disabled>
                             <label for="segape" style="color: #3d566e;">Lider</label>
                             <div class="form-group">
                                 @Html.DropDownList("dwlider", new SelectList(ViewBag.Lider, "cod_lider", "nom_lider", "-1"), new { @class = "selectpicker", @data_live_search = "true", @id = "dwlider", @name = "dwlider", @data_actions_box = "true", @data_selected_text_format = "count > 2" })                                
@@ -319,11 +327,12 @@
             <div class="box-header with-border">             
                 <div class="modal-footer" style="margin-top:-10px">                
                     <div class="col-md-12">
-                        <button name="btnguardar" id="btnguardar" title="Guardar" onclick="GeneraCliente();" class="btn btn-success" type="submit"><span class="glyphicon glyphicon-ok-circle"></span>&nbsp;Guardar</button>
                         <button name="btncancelar" id="btncancelar" title="Cancelar" onclick="cancelar();" type="button" class="btn btn-danger">
-                          <span class="glyphicon glyphicon-remove-circle">
-                          </span>&nbsp;Cancelar
+                            <span class="glyphicon glyphicon-remove-circle">
+                            </span>&nbsp;Cancelar
                         </button>
+                        <button name="btnguardar" id="btnguardar" title="Guardar" onclick="GeneraCliente();" class="btn btn-success" type="submit"><span class="glyphicon glyphicon-ok-circle"></span>&nbsp;Guardar</button>
+                        
                     </div>
                  </div>                               
             </div>           
@@ -340,13 +349,14 @@
         function cancelar(){
             window.location = '@Url.Action("Index", "Clientes")';
         }
-
+        var bas_id=null;
         $(document).ready(function () {
             ListarProv();
             ListarDis();
 
             var estado = @ViewBag.Estado;
-
+            var dataUsuario = function () { return @Html.Raw(Json.Encode(ViewBag.Usuario)); }();
+            /*si es estado 1 entonces es clientes nuevo si es 2 entonces se modifica*/
             if (estado==1){
                 $('#dwdep').val('15');
                 $('#dwdep').selectpicker('refresh');
@@ -357,7 +367,111 @@
                 $('#dwdis').val('1248');
                 $('#dwdis').selectpicker('refresh');
                 $('#dwtipocliente').focus();
+
+                if (dataUsuario.usu_tip_id=='01'){
+                    $('#dwtipocliente').val('02')                    
+                    $("#dwtipocliente").prop("disabled", true);
+                    $('#dwtipocliente').selectpicker('refresh');
+
+                    $('#dwlider').val(dataUsuario.usu_area.toString());                    
+                    $("#dwlider").prop("disabled", true);
+                    $('#dwlider').selectpicker('refresh');
+                }
+
+
+
             } else{
+
+                var dataArray = function () { return @Html.Raw(Json.Encode(ViewBag.DataCliente)); }();
+
+
+                $('#dwtipocliente').val(dataArray.Bas_Usu_TipId)
+                $('#dwtipocliente').selectpicker('refresh');
+
+                $('#dwtipodoc').val(dataArray.Bas_doc_tip_id)
+                $('#dwtipodoc').selectpicker('refresh');
+
+
+                $('#txtdni').val(dataArray.dni);
+
+                $('#txtprinom').val(dataArray.Bas_Primer_Nombre);
+                $('#txtsegnom').val(dataArray.Bas_Segundo_Nombre);
+                $('#txtpriapepat').val(dataArray.Bas_Primer_Apellido);
+                $('#txtpriapemat').val(dataArray.Bas_Segundo_Apellido);
+
+                $('#fechanac').val(dataArray.Bas_Fec_nac);
+
+                if (dataArray.Bas_Sex_Id=='F')
+                {
+                    $("#optfemenino").prop("checked", true);
+                    $("#optmasculino").prop("checked", false);
+                }
+                else{
+                    $("#optmasculino").prop("checked", true);
+                    $("#optfemenino").prop("checked", false);
+                }
+
+                $('#dwpertipo').val(dataArray.bas_per_tip_id);
+                $('#dwpertipo').selectpicker('refresh');
+
+                $('#txtemail').val(dataArray.Bas_Correo);
+                $('#txttelefono').val(dataArray.bas_telefono);
+                $('#txtcelular').val(dataArray.bas_celular);
+
+                var ubigeo=dataArray.bas_dis_id.toString();
+                var dep=ubigeo.substring(0,2);
+                var prov=ubigeo.substring(2,4);
+                var dis=ubigeo.substring(4,8);
+
+                $('#dwdep').val(dep);
+                $('#dwdep').selectpicker('refresh');
+                ListarProv();
+                $('#dwprov').val(prov);
+                $('#dwprov').selectpicker('refresh');
+                ListarDis();
+                $('#dwdis').val(dis);
+                $('#dwdis').selectpicker('refresh');
+
+
+                $('#txtdireccion').val(dataArray.direccion);
+             
+
+
+                $('#dwlider').val( (dataArray.Bas_Usu_TipId=='02')? dataArray.Bas_Are_Id:'0');
+                $('#dwlider').selectpicker('refresh');
+
+                $('#txtagencia').val(dataArray.Bas_Agencia);
+                $('#txtdestino').val(dataArray.bas_destino);
+                $('#txtagenciaruc').val(dataArray.bas_agencia_ruc);  
+                
+                /*deshabilitando controles*/
+                $("#dwtipocliente").prop("disabled", true);
+                $('#dwtipocliente').selectpicker('refresh');
+
+                $("#dwtipodoc").prop("disabled", true);
+                $('#dwtipodoc').selectpicker('refresh');
+
+                $('#txtdni').prop("disabled", true);
+
+                $("#dwasesor").prop("disabled", true);
+                $('#dwasesor').selectpicker('refresh');
+
+                if (dataArray.Bas_Usu_TipId!='02' || dataUsuario.usu_tip_id=='01'){
+                    $("#dwlider").prop("disabled", true);
+                    $('#dwlider').selectpicker('refresh');
+                    
+                    if (dataArray.Bas_Usu_TipId=='01'){
+
+
+                        $('#dwasesor').val((dataArray.bas_aco_id==''?'0':dataArray.bas_aco_id));
+                        $("#dwasesor").prop("disabled", false);
+                        $('#dwasesor').selectpicker('refresh');
+                    }
+                   
+
+                }              
+                
+                bas_id=dataArray.bas_id.toString();
 
             }
 
@@ -571,19 +685,54 @@
                 $('#dwlider').val('0');
                 $("#dwlider").prop("disabled", true);
                 $('#dwlider').selectpicker('refresh');
+
+                if (strTipoCliente=='09'){
+                    $('#dwasesor').val('0');
+                    $("#dwasesor").prop("disabled", true);
+                    $('#dwasesor').selectpicker('refresh');
+                }
+                else
+                {
+                    $('#dwasesor').val('0');
+                    $("#dwasesor").prop("disabled", false);
+                    $('#dwasesor').selectpicker('refresh');
+                }
+
             }
             else
             {
+
                 $('#dwlider').val('0');
                 $("#dwlider").prop("disabled", false);
                 $('#dwlider').selectpicker('refresh');
+
+
+                $('#dwasesor').val('0');
+                $("#dwasesor").prop("disabled", true);
+                $('#dwasesor').selectpicker('refresh');
+
             }
+
+
+
         }
 
-        function GeneraCliente() {                                                      
+        function GeneraCliente() {     
+            
+          
+
+          
+
             if (valida_grabar() == 1) return;
             var strDni = $('#txtdni').val().toString();
             var str_email = $('#txtemail').val().toString();
+
+            var estado = @ViewBag.Estado;
+
+            if (estado==2) {
+                grabar_cliente(estado);
+                return;
+            }
 
             waitingDialog.show("Espere por favor...")
             $.ajax({
@@ -593,7 +742,7 @@
                 success: function (data) {
                     waitingDialog.hide();
                     if (data.estado == 0) {
-                        grabar_cliente();
+                        grabar_cliente(estado);
                     }
                     else {
                         if (data.estado == '1') {
@@ -615,15 +764,19 @@
             });
         }
 
-        function grabar_cliente() {
-            var estado = @ViewBag.Estado;
+        function MaysPrimera(string){
+            return string.charAt(0).toUpperCase() + string.slice(1);
+        }
+
+        function grabar_cliente(estado) {
+            
             var strDni = $('#txtdni').val().toString();
             var str_email = $('#txtemail').val().toString();
             var mensaje = "";
             var sexo=(document.getElementById('optfemenino').checked)?'F':'M';
 
             var dataArray = function () { return @Html.Raw(Json.Encode(ViewBag.cliente)); }();
-            dataArray._Bas_Usu_TipId= $('#dwtipocliente').val().toString();;
+            dataArray._Bas_Usu_TipId= $('#dwtipocliente').val().toString();
             dataArray._Bas_Doc_Tip_Id= $('#dwtipodoc').val().toString();
             dataArray._Bas_Documento= $('#txtdni').val().toString();
             dataArray._Bas_Primer_Nombre= $('#txtprinom').val().toString();
@@ -643,10 +796,18 @@
             dataArray._bas_destino= $('#txtdestino').val().toString();
             dataArray._bas_agencia_ruc= $('#txtagenciaruc').val().toString();
 
+            var des_cliente=MaysPrimera($(dwtipocliente).find("option:selected").text().toLowerCase());
+          
+            dataArray._bas_aco_id= $('#dwasesor').val().toString();
+            
+
+
+            if (bas_id!=null) dataArray._bas_id= bas_id.toString();
+
             switch(estado)
             {
                 case 1:
-                    mensaje = "¿Está seguro generar un nuevo cliente?"
+                    mensaje = "¿Está seguro generar un nuevo " + des_cliente + "?"
                     break;
                 case 2:
                     mensaje = "¿Está seguro guardar los datos modificados?"
@@ -654,7 +815,7 @@
             }
 
             swal({
-                title: "Guardar datos del cliente",
+                title: "Guardar datos del " + des_cliente,
                 text: mensaje,// "¿Está seguro de guardar el cruce?",
                 icon: "warning",
                 buttons: ["No", "Si"],
@@ -665,21 +826,35 @@
                     $.ajax({
                         type: "POST",
                         url: '@Url.Action("GuardarCliente", "Clientes")',
-                        data: {dataArray:dataArray},
+                        data: {dataArray:dataArray,estado:estado},
                         success: function (data) {
                             if (data.estado == 0) {
                                // toastr.success(data.mensaje);
 
-                                if (estado=1){
+                                if (estado==1){
                                     swal({
                                         title: "Ok",
                                         text: "Se Grabo con exito los datos.\nPara ingresar al sistema debe de ingresar.\n\nUsuario: " + str_email.toString()+
                                             "\nPassword: " + strDni.toString(),
                                         icon: "success"
-                                    })
+                                    }
+                                    ).then((value) => {
+                                        cancelar();
+                                        waitingDialog.hide();
+                                    });
                                 }
-                                cancelar();
-                                waitingDialog.hide();
+                                else{
+                                    swal({
+                                        title: "Ok",
+                                        text: "Se Modificaron con exito los datos.",                                        
+                                        icon: "success"                                        
+                                    }
+                                    ).then((value) => {
+                                        cancelar();
+                                        waitingDialog.hide();
+                                    });
+                                }                               
+                              
 
                             } else {
                                 toastr.error(data.mensaje);

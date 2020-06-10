@@ -11,4 +11,9 @@ namespace CapaEntidad.Cliente
         public string cod_lider { get; set; }
         public string nom_lider { get; set; }
     }
+    public class Ent_Combo_Asesor
+    {
+        public string Ase_Id { get; set; }
+        public string Ase_Nom { get; set; }
+    }
 }

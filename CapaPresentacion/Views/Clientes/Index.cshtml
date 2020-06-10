@@ -7,8 +7,15 @@
         background-color: #5799bf;
         color: #fff;
     }
+     .boton-xs-td{
+        padding-top: 5px !important;
+        padding-bottom: 5px !important;
+    }
 </style>
 <p class="text-primary">Consulta de Clientes por dni,nombres y correo , editar y crear un nuevo cliente</p>
+
+@*<button type="submit" title="Editar datos del cliente" onclick="" class="btn btn-xs btn-default btn-tabla editar-fila"><span class="fa fa-pencil text-primary"></span></button>*@
+
 <div class="box box-body box-default">
     <div class="row">
         <div class="col-md-12">
@@ -40,6 +47,7 @@
                         <th>TELEFONO</th>
                         <th>CELULAR</th>
                         <th>DIRECCIÓN</th>
+                        <th>ACCIONES</th>
                     </tr>
                 </thead>
                 <tbody data-bind="foreach:"></tbody>
@@ -51,6 +59,7 @@
                         <th>TELEFONO</th>
                         <th>CELULAR</th>
                         <th>DIRECCIÓN</th>
+                        <th>ACCIONES</th>
                     </tr>
                 </tfoot>
             </table>
@@ -59,7 +68,11 @@
 </div>
 @section scripts{
   <script>
+      var cliente;
       $(document).ready(function () {
+
+          $("body").toggleClass('sidebar-collapse');
+
           $('#dwlider option').attr("selected", "selected");
           $('#dwlider').selectpicker('refresh');
 
@@ -88,17 +101,25 @@
                     { "sName": "telefono", "mData": "telefono" },
                     { "sName": "celular", "mData": "celular" },
                     { "sName": "direccion", "mData": "direccion" },
-                    //{
-                    //    "render": function (data, type, full) {
-                    //        return ' <div class="pull-right"><button title="Editar Aplicación" onclick="editar(' + full.apl_id + ');" style="border-radius:50%"  class="btneditar btn btn-primary" data-id="" data-modal="" data-toggle="modal"><span class="glyphicon glyphicon-pencil"></span></button></div>'
-                    //    }, "class": "boton-td"
-                    //}
+                     {
+                         "render": function (data, type, full) {
+
+                             var dni = full.dni;
+
+                             var btnEdit = '<button type="submit" title="Editar datos del cliente" onclick="Editar(\'' + dni + '\');" class="btn btn-xs btn-default btn-tabla editar-fila"><span class="fa fa-pencil text-primary"></span></button>';
+
+                            return btnEdit;
+                         }, "class": "boton-xs-td"
+                     },
               ]
           });
 
-
-
       });
+
+      function Editar(dni) {
+          window.location = "@Url.Action("ClienteEditar", "Clientes")" + "?estado=2&dni=" + dni;          
+      }
+
     </script>
 
 }

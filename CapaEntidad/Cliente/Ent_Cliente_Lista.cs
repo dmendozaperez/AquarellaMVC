@@ -14,6 +14,29 @@ namespace CapaEntidad.Cliente
         public string telefono { get; set; }
         public string celular { get; set; }
         public string direccion { get; set; }
+        public string Bas_Usu_TipId { get; set; }
+        public string Bas_doc_tip_id { get; set; }
+        public string Bas_Primer_Nombre { get; set; }
+        public string Bas_Segundo_Nombre { get; set; }
+        public string Bas_Primer_Apellido { get; set; }
+        public string Bas_Segundo_Apellido { get; set; }
+        public string Bas_Fec_nac { get; set; }
+        public string Bas_Sex_Id { get; set; }
+
+        public string bas_per_tip_id { get; set; }
+        public string Bas_Correo { get; set; }
+        public string bas_telefono { get; set; }
+        public string bas_celular { get; set; }
+        public string bas_dis_id { get; set; }
+        public string Bas_Are_Id { get; set; }
+        public string Bas_Agencia { get; set; }
+        public string bas_destino { get; set; }
+        public string bas_agencia_ruc { get; set; }
+     
+        public string bas_id { get; set; }
+        public string bas_aco_id { get; set; }
+
+
     }
     public class Ent_Lider_Lista
     {
@@ -44,6 +67,7 @@ namespace CapaEntidad.Cliente
         public string _bas_agencia { get; set; }
         public string _bas_destino { get; set; }
         public string _bas_agencia_ruc { get; set; }
+        public string _bas_aco_id { get; set; }
        
     }
 }

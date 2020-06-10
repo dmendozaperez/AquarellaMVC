@@ -14,6 +14,8 @@ namespace CapaEntidad.Control
         public string usu_est_id { get; set; }
         public decimal usu_id { get; set; }
         public string usu_tip_id { get; set; }
+        public string usu_area { get; set; }
+
 
         public string usu_tip_nom { get; set; }
         public string usu_ip { get; set; }

@@ -12,7 +12,7 @@ namespace CapaDato.Cliente
 {
     public class Dat_Cliente
     {
-        public List<Ent_Cliente_Lista> lista_cliente(string lider="-1")
+        public List<Ent_Cliente_Lista> lista_cliente(string usuario)
         {
             List<Ent_Cliente_Lista> listar = null;
             string sqlquery = "USP_MVC_LEER_CLIENTES";
@@ -24,7 +24,7 @@ namespace CapaDato.Cliente
                     {
                         cmd.CommandTimeout = 0;
                         cmd.CommandType = CommandType.StoredProcedure;
-                        cmd.Parameters.AddWithValue("@lider", lider);
+                        cmd.Parameters.AddWithValue("@usuario", usuario);
                         using (SqlDataAdapter da = new SqlDataAdapter(cmd))
                         {
                             DataTable dt = new DataTable();
@@ -39,6 +39,27 @@ namespace CapaDato.Cliente
                                           telefono= fila["telefono"].ToString(),
                                           celular = fila["celular"].ToString(),
                                           direccion= fila["direccion"].ToString(),
+                                          Bas_Usu_TipId= fila["Bas_Usu_TipId"].ToString(),
+                                          Bas_doc_tip_id = fila["Bas_doc_tip_id"].ToString(),
+                                          Bas_Primer_Nombre = fila["Bas_Primer_Nombre"].ToString(),
+                                          Bas_Segundo_Nombre = fila["Bas_Segundo_Nombre"].ToString(),
+                                          Bas_Primer_Apellido = fila["Bas_Primer_Apellido"].ToString(),
+                                          Bas_Segundo_Apellido = fila["Bas_Segundo_Apellido"].ToString(),
+                                          Bas_Fec_nac = fila["Bas_Fec_nac"].ToString(),
+                                          Bas_Sex_Id = fila["Bas_Sex_Id"].ToString(),
+
+                                          bas_per_tip_id = fila["bas_per_tip_id"].ToString(),
+                                          Bas_Correo = fila["Bas_Correo"].ToString(),
+                                          bas_telefono = fila["bas_telefono"].ToString(),
+                                          bas_celular = fila["bas_celular"].ToString(),
+                                          bas_dis_id = fila["bas_dis_id"].ToString(),
+                                          Bas_Are_Id = fila["Bas_Are_Id"].ToString(),
+                                          Bas_Agencia = fila["Bas_Agencia"].ToString(),
+                                          bas_destino = fila["bas_destino"].ToString(),
+                                          bas_agencia_ruc = fila["bas_agencia_ruc"].ToString(),
+
+                                          bas_id= fila["bas_id"].ToString(),
+                                          bas_aco_id= fila["bas_aco_id"].ToString(),
                                       }
                                    ).ToList();
                         }
@@ -170,6 +191,11 @@ namespace CapaDato.Cliente
                             cmd.Parameters.AddWithValue("@bas_destino", cliente._bas_destino);
                             cmd.Parameters.AddWithValue("@bas_agencia_ruc", cliente._bas_agencia_ruc);
                             cmd.Parameters.AddWithValue("@Bas_usu", usu_id);
+
+                            if (cliente._Bas_Usu_TipId == "01")
+                            {
+                                cmd.Parameters.AddWithValue("@Bas_aco_id", cliente._bas_aco_id);
+                            }
 
                             cmd.ExecuteNonQuery();
                         }

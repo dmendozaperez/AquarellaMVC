@@ -1,8 +1,11 @@
 ﻿using CapaDato.Cliente;
 using CapaDato.Maestros;
 using CapaEntidad.Cliente;
+using CapaEntidad.Control;
 using CapaEntidad.General;
 using CapaEntidad.Maestros;
+using CapaEntidad.Persona;
+using CapaEntidad.Util;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -17,14 +20,33 @@ namespace CapaPresentacion.Controllers
 
         private Dat_Cliente dat_cliente = new Dat_Cliente();
         private string _session_listCliente_private = "_session_listCliente_private";
+        private string _sessin_customer = "_sessin_customer";
         public ActionResult Index()
         {
 
-            ViewBag.lider = dat_cliente.lista_lider();
-           // Session[_session_listCliente_private] = dat_cliente.lista_cliente();
+            Ent_Usuario _usuario = (Ent_Usuario)Session[Ent_Constantes.NameSessionUser];
 
-            return View();
+            string actionName = this.ControllerContext.RouteData.GetRequiredString("action");
+            string controllerName = this.ControllerContext.RouteData.GetRequiredString("controller");
+            string return_view = actionName + "|" + controllerName;
+
+            if (_usuario == null)
+            {
+                return RedirectToAction("Login", "Control", new { returnUrl = return_view });
+            }
+            else
+            {
+                
+               // ViewBag.lider = dat_cliente.lista_lider();
+
+                string user_id = ((_usuario.usu_tip_id.Contains("01") || _usuario.usu_tip_id.Contains("02") || _usuario.usu_tip_id.Contains("09")) ? _usuario.usu_id.ToString() :"-1" );
+
+                Session[_session_listCliente_private] = dat_cliente.lista_cliente(user_id);
+
+                return View();
+            }
         }
+        
         public ActionResult getListClienteAjax(Ent_jQueryDataTableParams param)
         {
 
@@ -41,6 +63,7 @@ namespace CapaPresentacion.Controllers
                 Session[_session_listCliente_private] = listcliente;
             }
 
+        
             //Traer registros
             IQueryable<Ent_Cliente_Lista> membercol = ((List<Ent_Cliente_Lista>)(Session[_session_listCliente_private])).AsQueryable();  //lista().AsQueryable();
 
@@ -105,33 +128,71 @@ namespace CapaPresentacion.Controllers
                 aaData = result
             }, JsonRequestBehavior.AllowGet);
         }
-
-        //public PartialViewResult lista_clientes()
-        //{
-        //    return PartialView(lista());
-        //}
+ 
         public List<Ent_Cliente_Lista> lista()
         {
+            Ent_Usuario _usuario = (Ent_Usuario)Session[Ent_Constantes.NameSessionUser];
 
-            List<Ent_Cliente_Lista> listcliente = dat_cliente.lista_cliente();
+            string user_id = ((_usuario.usu_tip_id.Contains("01") || _usuario.usu_tip_id.Contains("02") || _usuario.usu_tip_id.Contains("09")) ? _usuario.usu_id.ToString() : "-1");
+
+            List<Ent_Cliente_Lista> listcliente = dat_cliente.lista_cliente(user_id);
             Session[_session_listCliente_private] = listcliente;
             return listcliente;
         }
 
-        public ActionResult ClienteEditar(string estado)
+        public ActionResult ClienteEditar(string estado,string dni)
         {
+
+            Ent_Usuario _usuario = (Ent_Usuario)Session[Ent_Constantes.NameSessionUser];
 
             string actionName = this.ControllerContext.RouteData.GetRequiredString("action");
             string controllerName = this.ControllerContext.RouteData.GetRequiredString("controller");
             string return_view = actionName + "|" + controllerName;
+
+            if (_usuario == null)
+            {
+                return RedirectToAction("Login", "Control", new { returnUrl = return_view });
+            }
+            else
+            {          
 
             if (estado==null) return RedirectToAction("Index", "Clientes");
 
             ViewBag.Estado = estado;
             ViewBag.EstadoDes = (estado == "1" ? "Creando nuevo Cliente" : "Modificando Cliente");
 
-           Dat_Usuario_Tipo dat_usu_tipo = new Dat_Usuario_Tipo();
-           ViewBag.UsuTipo = dat_usu_tipo.get_lista(true);
+            #region<REGION SI ES QUE EL ESTADO ES IGUAL A 2 Y SE ESTA MODIFICANDO, ENTONCES VAMOS A BUSCAR EN LA LISTA>
+            List<Ent_Cliente_Lista> listcliente = (List<Ent_Cliente_Lista>)Session[_session_listCliente_private];
+            if (listcliente==null)
+            {
+                return RedirectToAction("Index", "Clientes");
+            }
+            else
+            {
+
+                if (estado == "2")
+                {
+                    Ent_Cliente_Lista cliente_editar = listcliente.Where(a => a.dni == dni).ToArray()[0];
+                    ViewBag.DataCliente = cliente_editar;
+                }               
+            }
+
+                #endregion
+
+
+            ViewBag.Usuario = _usuario;
+
+            Dat_Usuario_Tipo dat_usu_tipo = new Dat_Usuario_Tipo();
+
+            if (estado == "1")
+            {
+                    ViewBag.UsuTipo = dat_usu_tipo.get_lista_tip_user((_usuario.usu_tip_id == "01" || _usuario.usu_tip_id == "02" || _usuario.usu_tip_id == "09" ? _usuario.usu_tip_id : "-1"), true);
+            }
+            else
+             {
+                    ViewBag.UsuTipo = dat_usu_tipo.get_lista_tip_user( "-1", true);
+                }
+            
 
             Dat_Documento_Tipo dat_doc_tipo = new Dat_Documento_Tipo();
             ViewBag.DocTipo = dat_doc_tipo.get_lista();
@@ -156,15 +217,18 @@ namespace CapaPresentacion.Controllers
 
             ViewBag.DepProvDis = combo_dep_prv_dis;
 
-            Dat_Combo_Lider cbolider = new Dat_Combo_Lider();
+            Dat_Combo_Lider cbolider = new Dat_Combo_Lider();            
 
-            ViewBag.Lider = cbolider.lista_lider();
+            ViewBag.Lider = cbolider.lista_lider((_usuario.usu_tip_id == "09")? _usuario.usu_tip_id : "-1",_usuario.usu_id.ToString());
+
+            ViewBag.Asesor = cbolider.lista_asesor();            
 
             Ent_Cliente cliente = new Ent_Cliente();
 
             ViewBag.cliente = cliente;
 
             return View();
+            }
         }
         private List<Ent_Lugar> combo_departamento(List<Ent_Lugar> combo_general)
         {
@@ -217,13 +281,18 @@ namespace CapaPresentacion.Controllers
 
 
         }
+        public ActionResult editar_cliente()
+        {
+            return RedirectToAction("ClienteEditar", "Clientes", new { estado = "1" });
+        }
 
-        public ActionResult GuardarCliente(Ent_Cliente dataArray)
+        public ActionResult GuardarCliente(Ent_Cliente dataArray,int estado)
         {
             try
             {
+                Ent_Usuario _usuario = (Ent_Usuario)Session[Ent_Constantes.NameSessionUser];
 
-                string grabar= dat_cliente.grabar_clientes(1, 1, dataArray);
+                string grabar= dat_cliente.grabar_clientes(estado, _usuario.usu_id, dataArray);
 
                 if (grabar.Length==0)
                 {
