@@ -60,6 +60,10 @@ namespace CapaDato.Cliente
 
                                           bas_id= fila["bas_id"].ToString(),
                                           bas_aco_id= fila["bas_aco_id"].ToString(),
+
+                                          bas_fecha_cre= fila["bas_fecha_cre"].ToString(),
+                                          bas_fec_actv = fila["Bas_fec_actv"].ToString(),
+                                          bas_distrito = fila["bas_distrito"].ToString(),
                                       }
                                    ).ToList();
                         }

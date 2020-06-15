@@ -37,7 +37,7 @@
         </div>                   
     </div>*@
     <div class="row">
-        <div class="box-body" id="lista">
+        <div class="table-responsive">
             <table id="tbcliente" class="table table-hover table-bordered compact">
                 <thead>
                     <tr>
@@ -47,6 +47,9 @@
                         <th>TELEFONO</th>
                         <th>CELULAR</th>
                         <th>DIRECCIÓN</th>
+                        <th>DISTRITO</th>
+                        <th>FECHA.REG</th>
+                        <th>FECHA.ACT</th>
                         <th>ACCIONES</th>
                     </tr>
                 </thead>
@@ -59,6 +62,9 @@
                         <th>TELEFONO</th>
                         <th>CELULAR</th>
                         <th>DIRECCIÓN</th>
+                        <th>DISTRITO</th>
+                        <th>FECHA.REG</th>
+                        <th>FECHA.ACT</th>
                         <th>ACCIONES</th>
                     </tr>
                 </tfoot>
@@ -70,6 +76,8 @@
   <script>
       var cliente;
       $(document).ready(function () {
+
+          var Usuario = function () { return @Html.Raw(Json.Encode(ViewBag.Usuario)); }();
 
           $("body").toggleClass('sidebar-collapse');
 
@@ -90,8 +98,8 @@
               "bdestroy": true,
               "start": 0,
               "columnDefs": [{
-
-                  "orderable": true
+                  "orderable": true,
+                   "targets": [0,1,2,6],
               }],
               "bDeferRender": true,
               "aoColumns": [
@@ -101,14 +109,20 @@
                     { "sName": "telefono", "mData": "telefono" },
                     { "sName": "celular", "mData": "celular" },
                     { "sName": "direccion", "mData": "direccion" },
+                    { "sName": "bas_distrito", "mData": "bas_distrito" },
+                    { "sName": "bas_fecha_cre", "mData": "bas_fecha_cre" },
+                    { "sName": "bas_fec_actv", "mData": "bas_fec_actv" },
+
                      {
                          "render": function (data, type, full) {
 
                              var dni = full.dni;
 
-                             var btnEdit = '<button type="submit" title="Editar datos del cliente" onclick="Editar(\'' + dni + '\');" class="btn btn-xs btn-default btn-tabla editar-fila"><span class="fa fa-pencil text-primary"></span></button>';
+                             var btnEdit = '<button type="submit" title="Editar datos del cliente" onclick="Editar(\'' + dni + '\');" class="btn btn-xs btn-default btn-tabla editar-fila"><span class="fa fa-sticky-note text-primary"></span></button>';
 
-                            return btnEdit;
+                             var btnflete = (Usuario.usu_flete == '1') ? ("&nbsp;").repeat(3) + '<button type="submit" title="Generar flete del cliente" onclick="Editar(\'' + dni + '\');" class="btn btn-xs btn-default btn-tabla editar-fila"><span class="fa fa-truck text-success"></span></button>' : '';
+
+                             return btnEdit + btnflete;
                          }, "class": "boton-xs-td"
                      },
               ]
@@ -117,7 +131,7 @@
       });
 
       function Editar(dni) {
-          window.location = "@Url.Action("ClienteEditar", "Clientes")" + "?estado=2&dni=" + dni;          
+          window.location = "@Url.Action("ClienteEditar", "Clientes")" + "?estado=2&dni=" + dni;
       }
 
     </script>

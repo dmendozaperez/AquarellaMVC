@@ -61,7 +61,7 @@
                                 <label for="segape" style="color: #3d566e;">Numero de Documento</label>
                                 <div class="form-group">
                                     @*<input type="text" value="" class="form-control" name="txtdni" id="txtdni" />*@
-                                    <input id="txtdni" type="number" min="0" step="1" maxlength="7" focus="true" required placeholder="Ingrese Dni o Ruc" class="form-control" />
+                                    <input id="txtdni" tabindex="1" data-dependency="txtprinom" type="number" min="0" step="1" maxlength="7" focus="true" required placeholder="Ingrese Dni o Ruc" class="form-control" />
                                 </div>
                             </div>
                         </div>
@@ -72,7 +72,7 @@
                             <div id="prm" class="form-group" disabled>
                                 <label for="segape" style="color: #3d566e;">Primer Nombre</label>
                                 <div class="form-group">
-                                    <input type="text" value="" placeholder="Ingrese Primer Nombre" maxlength="55" class="form-control" name="txtprinom" id="txtprinom" />
+                                    <input type="text" tabindex="2" data-dependency="txtsegnom" value="" placeholder="Ingrese Primer Nombre" maxlength="55" class="form-control" name="txtprinom" id="txtprinom" />
                                 </div>
                             </div>
                         </div>
@@ -80,7 +80,7 @@
                             <div id="prm" class="form-group" disabled>
                                 <label for="segape" style="color: #3d566e;">Segundo Nombre</label>
                                 <div class="form-group">
-                                    <input type="text" value="" placeholder="Ingrese Segundo Nombre" maxlength="55" class="form-control" name="txtsegnom" id="txtsegnom" />
+                                    <input type="text" tabindex="3" value="" placeholder="Ingrese Segundo Nombre" maxlength="55" class="form-control" name="txtsegnom" id="txtsegnom" />
                                 </div>
                             </div>
                         </div>
@@ -249,7 +249,7 @@
                     </div>
                 </div>
                 <div class="row">
-                    <div class="col-md-6" style="padding-left: 25px;">
+                    <div class="col-md-6" hidden="hidden" style="padding-left: 25px;">
                         <div id="prm" class="form-group" disabled>
                             <label for="segape" style="color: #3d566e;">Asesor</label>
                             <div class="form-group">
@@ -281,8 +281,8 @@
                 </div>
                 <!-- /.user-block -->
                 <div class="box-tools">
-                    <button type="button" class="btn btn-box-tool" data-widget="collapse">
-                        <i class="fa fa-minus"></i>
+                    <button type="button" class="btn btn-box-tool" id="btninfo" data-widget="collapse">
+                        <i class="fa fa-minus"  id="i_info"></i>
                     </button>
                 </div>
                 <!-- /.box-tools -->
@@ -307,12 +307,12 @@
                         </div>
                     </div>
                 </div>
-                <div class="row">
+                <div class="row" hidden="hidden" style="visibility:hidden">
                     <div class="col-md-6" style="padding-left: 25px;">
                         <div id="prm" class="form-group" disabled>
-                            <label for="segape" style="color: #3d566e;">Agencia Ruc</label>
+                            <label for="segape"  style="color: #3d566e;">Agencia Ruc</label>
                             <div class="form-group">                             
-                                <input id="txtagenciaruc" name="txtagenciaruc" type="number" min="0" step="1" maxlength="12" focus="true" placeholder="Ingrese la agencia del ruc" class="form-control" />
+                                <input id="txtagenciaruc"  name="txtagenciaruc" type="number" min="0" step="1" maxlength="12" focus="true" placeholder="Ingrese la agencia del ruc" class="form-control" />
                             </div>
                         </div>
                     </div>                  
@@ -347,10 +347,15 @@
     <script src="~/Scripts/Linkend/linq.min.js"></script>    
     <script>
         function cancelar(){
+            $("#btnguardar").prop("disabled", true);
+            $("#btncancelar").prop("disabled", true);
+            
+
             window.location = '@Url.Action("Index", "Clientes")';
         }
         var bas_id=null;
         $(document).ready(function () {
+          
             ListarProv();
             ListarDis();
 
@@ -366,7 +371,10 @@
                 ListarDis();
                 $('#dwdis').val('1248');
                 $('#dwdis').selectpicker('refresh');
-                $('#dwtipocliente').focus();
+
+                $('#dwtipocliente').val('02')
+                $('#dwtipocliente').selectpicker('refresh');
+                
 
                 if (dataUsuario.usu_tip_id=='01'){
                     $('#dwtipocliente').val('02')                    
@@ -377,7 +385,15 @@
                     $("#dwlider").prop("disabled", true);
                     $('#dwlider').selectpicker('refresh');
                 }
+                else
+                {
+                    $("#dwasesor").prop("disabled", true);
+                    $('#dwasesor').selectpicker('refresh');
+                }
 
+                
+
+                $('#txtdni').focus();
 
 
             } else{
@@ -840,7 +856,7 @@
                                     }
                                     ).then((value) => {
                                         cancelar();
-                                        waitingDialog.hide();
+                                        //waitingDialog.hide();
                                     });
                                 }
                                 else{
@@ -851,7 +867,7 @@
                                     }
                                     ).then((value) => {
                                         cancelar();
-                                        waitingDialog.hide();
+                                        //waitingDialog.hide();
                                     });
                                 }                               
                               
@@ -878,6 +894,8 @@
 
             var cl_ubi = document.getElementById("i_ubi").className;
 
+            var cl_info = document.getElementById("i_info").className;
+
 
             var strTipoCliente = $('#dwtipocliente').val().toString();
             var strDni = $('#txtdni').val().toString();
@@ -894,6 +912,9 @@
             var str_direccion = $('#txtdireccion').val().toString();
 
             var str_lider = $('#dwlider').val().toString();
+
+            var str_agencia = $('#txtagencia').val().toString();
+            var str_destino = $('#txtdestino').val().toString();
 
 
             if (strTipoCliente == '0') {
@@ -991,6 +1012,27 @@
                 toastr.error("Selecione un lider para el promotor", "Aviso");
                 $('#dwlider').focus();
                 return 1;
+            }
+
+            if (strTipoCliente=='01' || strTipoCliente=='02'){
+
+                if (str_agencia.trim().trimLeft().trimRight().length == 0){
+                    if (cl_info == 'fa fa-plus') $('#btninfo').click();                    
+                    toastr.error("Ingrese la agencia", "Aviso");
+                    $('#txtagencia').focus();
+                    return 1;
+                }
+                if (str_destino.trim().trimLeft().trimRight().length == 0){
+                    if (cl_info == 'fa fa-plus') $('#btninfo').click();                    
+                    toastr.error("Ingrese el destino", "Aviso");
+                    $('#txtdestino').focus();
+                    return 1;
+                }
+
+                //var str_agencia = $('#txtagencia').val().toString();
+                //var str_destino = $('#txtdestino').val().toString();
+
+
             }
 
             return 0;

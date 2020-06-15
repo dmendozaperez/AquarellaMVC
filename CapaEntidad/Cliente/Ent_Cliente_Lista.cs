@@ -36,6 +36,11 @@ namespace CapaEntidad.Cliente
         public string bas_id { get; set; }
         public string bas_aco_id { get; set; }
 
+        public string bas_fecha_cre { get; set; }
+        public string bas_fec_actv { get; set; }
+
+        public string bas_distrito { get; set; }
+
 
     }
     public class Ent_Lider_Lista

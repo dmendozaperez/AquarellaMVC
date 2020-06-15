@@ -43,6 +43,8 @@ namespace CapaPresentacion.Controllers
 
                 Session[_session_listCliente_private] = dat_cliente.lista_cliente(user_id);
 
+                ViewBag.Usuario = _usuario;
+
                 return View();
             }
         }
@@ -79,7 +81,8 @@ namespace CapaPresentacion.Controllers
                      m.correo.ToUpper().Contains(param.sSearch.ToUpper()) ||
                      m.telefono.ToUpper().Contains(param.sSearch.ToUpper()) ||
                      m.celular.ToUpper().Contains(param.sSearch.ToUpper()) ||
-                     m.direccion.ToUpper().Contains(param.sSearch.ToUpper()) 
+                     m.direccion.ToUpper().Contains(param.sSearch.ToUpper()) ||
+                     m.bas_distrito.ToUpper().Contains(param.sSearch.ToUpper()) 
                      );
             }
             //Manejador de orden
@@ -93,7 +96,8 @@ namespace CapaPresentacion.Controllers
                     {
                         case 0: filteredMembers = filteredMembers.OrderBy(o => o.dni); break;
                         case 1: filteredMembers = filteredMembers.OrderBy(o => o.nombres); break;
-                        case 2: filteredMembers = filteredMembers.OrderBy(o => o.correo); break;                        
+                        case 2: filteredMembers = filteredMembers.OrderBy(o => o.correo); break;
+                        case 6: filteredMembers = filteredMembers.OrderBy(o => o.bas_distrito); break;
                     }
                 }
                 else
@@ -102,7 +106,8 @@ namespace CapaPresentacion.Controllers
                     {
                         case 0: filteredMembers = filteredMembers.OrderByDescending(o => o.dni); break;
                         case 1: filteredMembers = filteredMembers.OrderByDescending(o => o.nombres); break;
-                        case 2: filteredMembers = filteredMembers.OrderByDescending(o => o.correo); break;                        
+                        case 2: filteredMembers = filteredMembers.OrderByDescending(o => o.correo); break;
+                        case 6: filteredMembers = filteredMembers.OrderByDescending(o => o.bas_distrito); break;
                     }
                 }
             }
@@ -118,6 +123,9 @@ namespace CapaPresentacion.Controllers
                              a.telefono,
                              a.celular,
                              a.direccion,
+                             a.bas_fecha_cre,
+                             a.bas_fec_actv,
+                             a.bas_distrito
                          };
             //Se devuelven los resultados por json
             return Json(new
@@ -311,5 +319,11 @@ namespace CapaPresentacion.Controllers
             }
             
         }
+
+        public ActionResult GeneracionFlete()
+        {
+            return View();
+        }
+
     }
 }

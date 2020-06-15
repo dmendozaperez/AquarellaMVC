@@ -3064,6 +3064,7 @@
     <Content Include="Views\Permisos\Index.cshtml" />
     <Content Include="Views\Clientes\Index.cshtml" />
     <Content Include="Views\Clientes\ClienteEditar.cshtml" />
+    <Content Include="Views\Clientes\GeneracionFlete.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

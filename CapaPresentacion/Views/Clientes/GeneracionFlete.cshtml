@@ -1,0 +1,130 @@
+﻿@{
+    ViewBag.Title = "Generacion de Flete";
+    ViewBag.SubTitle = "";
+}
+<style>
+    .table thead {
+        background-color: #5799bf;
+        color: #fff;
+    }
+</style>
+<p class="text-primary">Consulta de pedido por rango de fecha para generar el flete</p>
+<div class="box box-body box-primary">
+    <div class="col-sm-2">
+        <label for="segape">Fecha Inicio</label>
+        <div class="form-group">
+            <div class="input-group">
+                <div id="datepickerini" class="input-group date" data-date-format="dd-mm-yyyy">
+                    <input id="fecini" name="fecini" value="" class="form-control custom-input" placeholder="dd-mm-yyyy" type="text" oninvalid="InvalidMsg(this,'Ingrese la fecha inicial')" required="required" />
+                    <span class="input-group-addon  bg-white"><img src="~/Content/images/wall-calendar-with-lines.svg" height="20" width="20"></span>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-sm-2">
+        <label for="fecnac">Fecha Final</label>
+        <div class="form-group">
+            <div class="input-group">
+                <div id="datepickerfin" class="input-group date" data-date-format="dd-mm-yyyy">
+                    <input id="fecfinc" name="fecfinc" value="" class="form-control custom-input" placeholder="dd-mm-yyyy" type="text" oninvalid="InvalidMsg(this,'Ingrese la fecha final')" required="required" />
+                    <span class="input-group-addon  bg-white"><img src="~/Content/images/wall-calendar-with-lines.svg" height="20" width="20"></span>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-sm-2">
+        <label for="fecnac">&nbsp;</label>
+        <div class="form-group">
+            <div class="input-group">
+                <div id="consultar" class="input-group">
+                    <button type="submit" title="Consultar" class="btn btn-primary">
+                        <span class="glyphicon glyphicon-search"></span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+    <div class="row">
+        <div class="col-md-12">
+            <div class="box box-widget">
+                <div class="box-body">
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="table-responsive">
+                                <table id="detPedido" class="table table-hover table-bordered dataTable">
+                                    <thead>
+                                        <tr>
+                                            <th>Pedido</th>
+                                            <th>Fecha</th>
+                                            <th>Pares</th>
+                                            <th>Estado</th>
+                                            <th>Total</th>
+                                            <th>Acciones</th>
+                                            <th>Agregar</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody data-bind="foreach:"></tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>                       
+                </div>
+                
+                <div class="box-body">
+                    <div class="row">
+                        <div class="col-sm-offset-5 col-sm-7 col col-md-offset-7 col-md-5">
+                            <div class="row row-no-gutter">
+                                <div class="col-xs-7 col-sm-5 col-md-6"><strong>Cantidades totales:</strong></div>
+                                <div class="col-xs-2 col-sm-3 col-md-2 text-right"></div>
+                                <div class="col-xs-3 col-sm-4 col-md-4 text-right"><span id="cantitdades">0</span></div>
+                            </div>
+                            <div class="row row-no-gutter">
+                                <div class="col-xs-7 col-sm-5 col-md-6"><strong>Operacione Gratuitas:</strong></div>
+                                <div class="col-xs-2 col-sm-3 col-md-2 text-right">S/</div>
+                                <div class="col-xs-3 col-sm-4 col-md-4 text-right"><span id="opeGratuitas">0.00</span></div>
+                            </div>
+                            <div class="row row-no-gutter">
+                                <div class="col-xs-7 col-sm-5 col-md-6"><strong>Sub Total (Sin IGV):</strong></div>
+                                <div class="col-xs-2 col-sm-3 col-md-2 text-right">S/</div>
+                                <div class="col-xs-3 col-sm-4 col-md-4 text-right"><span id="subTotalList">0.00</span></div>
+                            </div>
+                            <div class="row row-no-gutter">
+                                <div class="col-xs-7 col-sm-5 col-md-6"><strong>(+) Impuestos (IGV)(18%) :</strong></div>
+                                <div class="col-xs-2 col-sm-3 col-md-2 text-right">S/</div>
+                                <div class="col-xs-3 col-sm-4 col-md-4 text-right"><span id="totalImpuesto">0.00</span></div>
+                            </div>
+                            <div class="row row-no-gutter">
+                                <div class="col-xs-7 col-sm-5 col-md-6">
+                                    <strong>
+                                        (-)                                        
+                                        <button class="btn btn-xs btn-info" data-toggle="modal" data-target="#modalNC">Nota de Credito</button>
+                                    </strong>
+                                </div>
+                                <div class="col-xs-2 col-sm-3 col-md-2 text-right">S/</div>
+                                <div class="col-xs-3 col-sm-4 col-md-4 text-right"><span id="totalNota">0.00</span></div>
+                            </div>
+                            <div class="row row-no-gutter">
+                                <div class="col-xs-7 col-sm-5 col-md-6"><strong>Total: </strong></div>
+                                <div class="col-xs-2 col-sm-3 col-md-2 text-right">S/</div>
+                                <div class="col-xs-3 col-sm-4 col-md-4 text-right"><span id="totalList">0.00</span></div>
+                            </div>
+                            <div class="row row-no-gutter">
+                                <div class="col-xs-7 col-sm-5 col-md-6"><strong>(+) Percepcion :</strong></div>
+                                <div class="col-xs-2 col-sm-3 col-md-2 text-right">S/</div>
+                                <div class="col-xs-3 col-sm-4 col-md-4 text-right"><span id="totalPercepcion">0.00</span></div>
+                            </div>
+                            <br />
+                            <div class="row row-no-gutter">
+                                <div class="col-xs-7 col-sm-5 col-md-6"><strong>(=) Gran Total :</strong></div>
+                                <div class="col-xs-2 col-sm-3 col-md-2 text-right">S/</div>
+                                <div class="col-xs-3 col-sm-4 col-md-4 text-right"><strong id="grantotalList">0.00</strong></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                </div>
+        </div>
+</div>
+  
+
