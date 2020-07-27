@@ -419,7 +419,7 @@ namespace CapaPresentacion.Controllers
                     DateTime fechaRemision = Convert.ToDateTime(invoiceHdr.Rows[0]["Ven_Fecha"].ToString());
                     Decimal ncredito = Convert.ToDecimal(invoiceHdr.Rows[0]["ncredito"].ToString());
                     Decimal totalop = Convert.ToDecimal(invoiceHdr.Rows[0]["totalop"].ToString());
-                    List<Invoice> _invoice = new List<Invoice>();
+                    List<ReporteFacturacion> _invoice = new List<ReporteFacturacion>();
 
                     foreach (DataRow dataRow in (InternalDataCollectionBase)invoiceDtl.Rows)
                     {
@@ -435,7 +435,7 @@ namespace CapaPresentacion.Controllers
                         Decimal descuentoArticulo = 0;
                         Decimal comisionLineal = Convert.ToDecimal(dataRow["Ven_Det_ComisionM"].ToString());
                         string descripcionArtic = dataRow["Col_Descripcion"].ToString();
-                        _invoice.Add(new Invoice(destinatario, ubicacionDestinatario, telefono, "", "", cedula, "", noOrder, numFactura, fechaRemision, numeroRemision, "", esCopia, typeresolution, codigoArticulo, nomArticulo, descripcionArtic, cantidad, talla, precio, descuentoArticulo, comisionLineal, valorLinea, iva, flete, numeroGuia, trasportadora, msgs, descuentoGnral, wavDescription, wavAddress, wavPhone, wavUbication, porc_percepcion, ncredito, totalop));
+                        _invoice.Add(new ReporteFacturacion(destinatario, ubicacionDestinatario, telefono, "", "", cedula, "", noOrder, numFactura, fechaRemision, numeroRemision, "", esCopia, typeresolution, codigoArticulo, nomArticulo, descripcionArtic, cantidad, talla, precio, descuentoArticulo, comisionLineal, valorLinea, iva, flete, numeroGuia, trasportadora, msgs, descuentoGnral, wavDescription, wavAddress, wavPhone, wavUbication, porc_percepcion, ncredito, totalop));
                     }
                 this.HttpContext.Session["rptSource"] = _invoice;
                 List<LiqNcSubinforme> subin1 = new List<LiqNcSubinforme>();
@@ -657,7 +657,8 @@ namespace CapaPresentacion.Controllers
                              a.TotalPagar,
                              a.ped_Id,
                              a.cust_Id,
-                             a.estId
+                             a.estId,
+                             a.liq_opg,
                          };
             //Se devuelven los resultados por json
             return Json(new

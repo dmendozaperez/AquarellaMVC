@@ -18,9 +18,13 @@
 
 <div class="box box-body box-default">
     <div class="row">
-        <div class="col-md-12">
-            <a href="@Url.Action("ClienteEditar", "Clientes",new {estado= "1"})" class="btn btn-success"><i class="glyphicon glyphicon-plus"></i>&nbsp;Crear nuevo Cliente</a>
+        <div class="col-md-6">
+            <a href="@Url.Action("ClienteEditar", "Clientes",new {estado= "1"})" class="btn btn-success"><i class="glyphicon glyphicon-plus"></i>&nbsp;Crear nuevo Cliente</a>       
         </div>
+        <div class="col-md-6 text-right">
+            <a href="@Url.Action("ListaClienteExcel","Clientes")" class="btn btn-primary"><i class="glyphicon glyphicon-export"></i>&nbsp;&nbsp;Exportar Lista</a>
+        </div>
+     
     </div>
     <br />
     @*<div class="row">         
@@ -37,38 +41,40 @@
         </div>                   
     </div>*@
     <div class="row">
-        <div class="table-responsive">
-            <table id="tbcliente" class="table table-hover table-bordered compact">
-                <thead>
-                    <tr>
-                        <th>DNI</th>
-                        <th>NOMBRES</th>
-                        <th>CORREO</th>
-                        <th>TELEFONO</th>
-                        <th>CELULAR</th>
-                        <th>DIRECCIÓN</th>
-                        <th>DISTRITO</th>
-                        <th>FECHA.REG</th>
-                        <th>FECHA.ACT</th>
-                        <th>ACCIONES</th>
-                    </tr>
-                </thead>
-                <tbody data-bind="foreach:"></tbody>
-                <tfoot>
-                    <tr>
-                        <th>DNI</th>
-                        <th>NOMBRES</th>
-                        <th>CORREO</th>
-                        <th>TELEFONO</th>
-                        <th>CELULAR</th>
-                        <th>DIRECCIÓN</th>
-                        <th>DISTRITO</th>
-                        <th>FECHA.REG</th>
-                        <th>FECHA.ACT</th>
-                        <th>ACCIONES</th>
-                    </tr>
-                </tfoot>
-            </table>
+        <div class="col-md-12">
+            <div class="table-responsive">
+                <table id="tbcliente" class="table table-hover table-bordered compact">
+                    <thead>
+                        <tr>
+                            <th>DNI</th>
+                            <th>NOMBRES</th>
+                            <th>CORREO</th>
+                            <th>TELEFONO</th>
+                            <th>CELULAR</th>
+                            <th>DIRECCIÓN</th>
+                            <th>DISTRITO</th>
+                            <th>FECHA.REG</th>
+                            <th>FECHA.ACT</th>
+                            <th>ACCIONES</th>
+                        </tr>
+                    </thead>
+                    <tbody data-bind="foreach:"></tbody>
+                    <tfoot>
+                        <tr>
+                            <th>DNI</th>
+                            <th>NOMBRES</th>
+                            <th>CORREO</th>
+                            <th>TELEFONO</th>
+                            <th>CELULAR</th>
+                            <th>DIRECCIÓN</th>
+                            <th>DISTRITO</th>
+                            <th>FECHA.REG</th>
+                            <th>FECHA.ACT</th>
+                            <th>ACCIONES</th>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
         </div>
     </div>
 </div>
@@ -98,8 +104,8 @@
               "bdestroy": true,
               "start": 0,
               "columnDefs": [{
-                  "orderable": true,
-                   "targets": [0,1,2,6],
+                  "orderable": false,
+                   "targets": [3,4,5,7,8,9],
               }],
               "bDeferRender": true,
               "aoColumns": [
@@ -120,7 +126,7 @@
 
                              var btnEdit = '<button type="submit" title="Editar datos del cliente" onclick="Editar(\'' + dni + '\');" class="btn btn-xs btn-default btn-tabla editar-fila"><span class="fa fa-sticky-note text-primary"></span></button>';
 
-                             var btnflete = (Usuario.usu_flete == '1') ? ("&nbsp;").repeat(3) + '<button type="submit" title="Generar flete del cliente" onclick="Editar(\'' + dni + '\');" class="btn btn-xs btn-default btn-tabla editar-fila"><span class="fa fa-truck text-success"></span></button>' : '';
+                             var btnflete = '';// (Usuario.usu_flete == '1') ? ("&nbsp;").repeat(3) + '<button type="submit" title="Generar flete del cliente" onclick="Editar(\'' + dni + '\');" class="btn btn-xs btn-default btn-tabla editar-fila"><span class="fa fa-truck text-success"></span></button>' : '';
 
                              return btnEdit + btnflete;
                          }, "class": "boton-xs-td"

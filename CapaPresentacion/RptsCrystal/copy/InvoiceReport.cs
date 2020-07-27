@@ -8,7 +8,7 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace CapaPresentacion.RptsCrystal.Rep {
+namespace CapaPresentacion.RptsCrystal {
     using System;
     using System.ComponentModel;
     using CrystalDecisions.Shared;
@@ -16,14 +16,14 @@ namespace CapaPresentacion.RptsCrystal.Rep {
     using CrystalDecisions.CrystalReports.Engine;
     
     
-    public class liquidationReport : ReportClass {
+    public class InvoiceReport : ReportClass {
         
-        public liquidationReport() {
+        public InvoiceReport() {
         }
         
         public override string ResourceName {
             get {
-                return "liquidationReport.rpt";
+                return "InvoiceReport.rpt";
             }
             set {
                 // Do nothing
@@ -41,7 +41,7 @@ namespace CapaPresentacion.RptsCrystal.Rep {
         
         public override string FullResourceName {
             get {
-                return "CapaPresentacion.RptsCrystal.Rep.liquidationReport.rpt";
+                return "CapaPresentacion.RptsCrystal.InvoiceReport.rpt";
             }
             set {
                 // Do nothing
@@ -66,7 +66,7 @@ namespace CapaPresentacion.RptsCrystal.Rep {
         
         [Browsable(false)]
         [DesignerSerializationVisibilityAttribute(System.ComponentModel.DesignerSerializationVisibility.Hidden)]
-        public CrystalDecisions.CrystalReports.Engine.Section GroupHeaderSection2 {
+        public CrystalDecisions.CrystalReports.Engine.Section GroupHeaderSection1 {
             get {
                 return this.ReportDefinition.Sections[2];
             }
@@ -82,7 +82,7 @@ namespace CapaPresentacion.RptsCrystal.Rep {
         
         [Browsable(false)]
         [DesignerSerializationVisibilityAttribute(System.ComponentModel.DesignerSerializationVisibility.Hidden)]
-        public CrystalDecisions.CrystalReports.Engine.Section GroupFooterSection2 {
+        public CrystalDecisions.CrystalReports.Engine.Section GroupFooterSection1 {
             get {
                 return this.ReportDefinition.Sections[4];
             }
@@ -106,9 +106,9 @@ namespace CapaPresentacion.RptsCrystal.Rep {
     }
     
     [System.Drawing.ToolboxBitmapAttribute(typeof(CrystalDecisions.Shared.ExportOptions), "report.bmp")]
-    public class CachedliquidationReport : Component, ICachedReport {
+    public class CachedInvoiceReport : Component, ICachedReport {
         
-        public CachedliquidationReport() {
+        public CachedInvoiceReport() {
         }
         
         [Browsable(false)]
@@ -145,7 +145,7 @@ namespace CapaPresentacion.RptsCrystal.Rep {
         }
         
         public virtual CrystalDecisions.CrystalReports.Engine.ReportDocument CreateReport() {
-            liquidationReport rpt = new liquidationReport();
+            InvoiceReport rpt = new InvoiceReport();
             rpt.Site = this.Site;
             return rpt;
         }

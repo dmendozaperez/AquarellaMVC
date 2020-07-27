@@ -542,6 +542,7 @@ namespace CapaDato.Pedido
                                    Subtotal = Convert.ToDecimal(dr["SubTotal"]),
                                    N_C = Convert.ToDecimal(dr["PagoNcSf"]),
                                    Percepcion = Convert.ToDecimal(dr["Percepcion"]),
+                                   liq_opg= dr["Liq_opg"].ToString(),
                                }).ToList();
 
 

@@ -536,9 +536,15 @@
                                             <input type="hidden" name="custId" value="' + custId + '" />\
                                             <button type="submit" title="Editar Liquidacion" class="btn btn-xs btn-default btn-tabla editar-fila"><span class="fa fa-pencil text-primary"></span></button>\
                                         </form>' : ("&nbsp;").repeat(10);
+
+                           if (full.liq_opg=='2') btnEdit=("&nbsp;").repeat(10);
+
                            var btnVliq = '<button title="Ver Liquidacion" class="btn btn-xs btn-default btn-tabla ver-liq" data-liqId="' + liqId + '" data-pedId="' + pedId + '" data-custId="' + custId + '" ><span class="fa fa-print"></span></button>';
                            var btnVfac = full.ventaId == "" || full.ventaId == null ? ("&nbsp;").repeat(10) : '<button title="Ver Factura" class="btn btn-xs btn-default btn-tabla ver-fac"  data-liqId="' + liqId + '" data-venId="' + venId + '" style="margin-left: 3.5px;"><span class="fa fa-file-text-o text-success"></span></button>';
                            var btnAnu = full.estId == "PS" || full.estId == "PC" ? '<button title="Anular" class="btn btn-xs btn-default btn-tabla anular" data-liqId="' + liqId + '" data-pedId="' + pedId + '" data-custId="' + custId + '" ><span class="fa fa-trash text-danger"></span></button>' : ("&nbsp;").repeat(10) ;
+
+                           if (usutip=='01' || usutip=='02') btnAnu=("&nbsp;").repeat(10);
+
                            return  btnVliq + btnVfac + btnEdit + btnAnu ;
                        }, "class": "boton-xs-td"
                    },

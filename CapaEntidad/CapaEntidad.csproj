@@ -48,6 +48,8 @@
     <Compile Include="ArticuloStock\Departamento.cs" />
     <Compile Include="ArticuloStock\Articulo_Tienda.cs" />
     <Compile Include="ArticuloSustituto\Articulo_Sustituto_Tienda.cs" />
+    <Compile Include="Cliente\Ent_Cliente_Agencia.cs" />
+    <Compile Include="Cliente\Ent_Cliente_Despacho.cs" />
     <Compile Include="Cliente\Ent_Cliente_Lista.cs" />
     <Compile Include="Cliente\Ent_Combo_Lider.cs" />
     <Compile Include="Control\Ent_Aplicacion.cs" />

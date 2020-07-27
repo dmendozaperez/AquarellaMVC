@@ -41,6 +41,10 @@ namespace CapaEntidad.Cliente
 
         public string bas_distrito { get; set; }
 
+        public string bas_Tip_Des { get; set; }
+        public string bas_Agencia_Direccion { get; set; }
+
+        public string bas_referencia { get; set; }
 
     }
     public class Ent_Lider_Lista
@@ -73,6 +77,8 @@ namespace CapaEntidad.Cliente
         public string _bas_destino { get; set; }
         public string _bas_agencia_ruc { get; set; }
         public string _bas_aco_id { get; set; }
-       
+        public string _bas_Tip_Des { get; set; }
+        public string _bas_Agencia_Direccion { get; set; }
+        public string _bas_Referencia { get; set; }
     }
 }

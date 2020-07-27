@@ -30,6 +30,7 @@ namespace CapaEntidad.Pedido
         public decimal TotalPagar { get; set; }
         public string estId { get; set; }
         public string ventaId { get; set; }
+        public string liq_opg { get; set; }
     }    
     public class Ent_NotaCredito
     {

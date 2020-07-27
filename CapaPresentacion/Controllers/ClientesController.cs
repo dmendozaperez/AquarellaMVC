@@ -6,6 +6,7 @@ using CapaEntidad.General;
 using CapaEntidad.Maestros;
 using CapaEntidad.Persona;
 using CapaEntidad.Util;
+using CapaPresentacion.Bll;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -43,12 +44,23 @@ namespace CapaPresentacion.Controllers
 
                 Session[_session_listCliente_private] = dat_cliente.lista_cliente(user_id);
 
-                ViewBag.Usuario = _usuario;
+                ViewBag.Usuario = _usuario;             
 
                 return View();
             }
         }
-        
+
+        public FileContentResult ListaClienteExcel()
+        {
+           
+            List<Ent_Cliente_Lista> lista = (List<Ent_Cliente_Lista>)Session[_session_listCliente_private];
+            string[] columns = { "dni", "nombres", "correo", "telefono", "direccion", "bas_fecha_cre", "bas_fec_actv" };
+
+            byte[] filecontent = ExcelExportHelper.ExportExcel(lista, "LISTA DE CLIENTES - CATALOGO - BATA", false, columns);
+            string nom_excel = "Lista de Clientes";
+            return File(filecontent, ExcelExportHelper.ExcelContentType, nom_excel + ".xlsx");
+        }
+
         public ActionResult getListClienteAjax(Ent_jQueryDataTableParams param)
         {
 
@@ -125,7 +137,10 @@ namespace CapaPresentacion.Controllers
                              a.direccion,
                              a.bas_fecha_cre,
                              a.bas_fec_actv,
-                             a.bas_distrito
+                             a.bas_distrito,
+                             a.bas_Tip_Des,
+                             a.bas_Agencia_Direccion,
+                             a.bas_referencia,
                          };
             //Se devuelven los resultados por json
             return Json(new
@@ -165,12 +180,16 @@ namespace CapaPresentacion.Controllers
             {          
 
             if (estado==null) return RedirectToAction("Index", "Clientes");
-
+            List<Ent_Cliente_Agencia> lista_agencia = new List<Ent_Cliente_Agencia>();
+            ViewBag.lista_agencia = lista_agencia;
             ViewBag.Estado = estado;
             ViewBag.EstadoDes = (estado == "1" ? "Creando nuevo Cliente" : "Modificando Cliente");
+            ViewBag.agencia = dat_cliente.lista_agencia();
+
+            ViewBag.despacho=dat_cliente.lista_despacho();
 
             #region<REGION SI ES QUE EL ESTADO ES IGUAL A 2 Y SE ESTA MODIFICANDO, ENTONCES VAMOS A BUSCAR EN LA LISTA>
-            List<Ent_Cliente_Lista> listcliente = (List<Ent_Cliente_Lista>)Session[_session_listCliente_private];
+                List<Ent_Cliente_Lista> listcliente = (List<Ent_Cliente_Lista>)Session[_session_listCliente_private];
             if (listcliente==null)
             {
                 return RedirectToAction("Index", "Clientes");
@@ -264,12 +283,14 @@ namespace CapaPresentacion.Controllers
             string mensaje = "";
             try
             {
+
+                string lider = "";
                 /*si trare valor 0 entonces no hay concidencias*/
-               string valida = dat_cliente.valida_cliente(dni, correo);
+               string valida = dat_cliente.valida_cliente(dni, correo,ref lider);
                switch(valida)
                 {                   
                     case "1":
-                        mensaje = "El Numero de documento existe, ingrese otro numero";
+                        mensaje = "El Numero de documento ya existe en la red de " + lider +", ingrese otro numero.";
                         break;
                     case "2":
                         mensaje = "El correo existe, ingrese otro correo";

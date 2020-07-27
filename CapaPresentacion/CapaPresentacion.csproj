@@ -236,6 +236,7 @@
     <Compile Include="Models\Control\LoginViewModel.cs" />
     <Compile Include="Models\Crystal\Invoice.cs" />
     <Compile Include="Models\Crystal\Liquidation.cs" />
+    <Compile Include="Models\Crystal\ReporteFacturacion.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="RptsCrystal\Data\Data_Cr_Aquarella.cs" />
     <Compile Include="RptsCrystal\InvoiceReport.cs">
@@ -3070,6 +3071,7 @@
     <Folder Include="App_Data\" />
     <Folder Include="Content\TarjetaCss\" />
     <Folder Include="Cupones\" />
+    <Folder Include="RptsCrystal\Rep\" />
     <Folder Include="Views\Shared\Menu\" />
     <Folder Include="Views\Usuario\" />
   </ItemGroup>

@@ -12,6 +12,92 @@ namespace CapaDato.Cliente
 {
     public class Dat_Cliente
     {
+        public List<Ent_Cliente_Despacho> lista_despacho()
+        {
+            List<Ent_Cliente_Despacho> listar = null;
+            string sqlquery = "USP_LEER_LISTA_DESPACHO_CLIENTE";
+            try
+            {
+                using (SqlConnection cn = new SqlConnection(Ent_Conexion.conexion))
+                {
+                    using (SqlCommand cmd = new SqlCommand(sqlquery, cn))
+                    {
+                        cmd.CommandTimeout = 0;
+                        cmd.CommandType = CommandType.StoredProcedure;
+                        using (SqlDataAdapter da = new SqlDataAdapter(cmd))
+                        {
+                            DataTable dt = new DataTable();
+                            da.Fill(dt);
+                            listar = new List<Ent_Cliente_Despacho>();
+
+                            //listar = new List<Ent_Combo_Lider>();
+
+                            List<Ent_Cliente_Despacho> des_d = new List<Ent_Cliente_Despacho>();
+                            Ent_Cliente_Despacho des = new Ent_Cliente_Despacho();
+                            des.desp_cod = "0";
+                            des.desp_des= "--Ninguno--";
+                            des_d.Add(des);
+
+                            listar = (
+                                    from DataRow fila in dt.Rows
+                                    select new Ent_Cliente_Despacho()
+                                    {
+                                        desp_cod = fila["Desp_Cod"].ToString(),
+                                        desp_des = fila["Desp_Des"].ToString(),
+
+                                    }
+                                   ).ToList();
+
+                            listar = des_d.Union(listar).ToList();                         
+                        }
+                    }
+                }
+            }
+            catch (Exception exc)
+            {
+
+                listar = new List<Ent_Cliente_Despacho>();
+            }
+            return listar;
+        }
+        public List<Ent_Cliente_Agencia> lista_agencia()
+        {
+            List<Ent_Cliente_Agencia> listar = null;
+            string sqlquery = "USP_LEER_LISTA_AGENCIA";
+            try
+            {
+                using (SqlConnection cn = new SqlConnection(Ent_Conexion.conexion))
+                {
+                    using (SqlCommand cmd = new SqlCommand(sqlquery, cn))
+                    {
+                        cmd.CommandTimeout = 0;
+                        cmd.CommandType = CommandType.StoredProcedure;
+                        using (SqlDataAdapter da = new SqlDataAdapter(cmd))
+                        {
+                            DataTable dt = new DataTable();
+                            da.Fill(dt);
+                            listar = new List<Ent_Cliente_Agencia>();
+                            listar = (from DataRow fila in dt.Rows
+                                      select new Ent_Cliente_Agencia()
+                                      {
+                                          dep_id = fila["dep_id"].ToString(),
+                                          prv_cod = fila["pro_id"].ToString(),
+                                          dis_id = fila["dis_id"].ToString(),
+                                          agencia = fila["agencia"].ToString(),
+                                          direccion_agencia = fila["direccion_agencia"].ToString(),
+                                      }
+                                   ).ToList();
+                        }
+                    }
+                }
+            }
+            catch (Exception exc)
+            {
+
+                listar = new List<Ent_Cliente_Agencia>();
+            }
+            return listar;
+        }
         public List<Ent_Cliente_Lista> lista_cliente(string usuario)
         {
             List<Ent_Cliente_Lista> listar = null;
@@ -64,6 +150,11 @@ namespace CapaDato.Cliente
                                           bas_fecha_cre= fila["bas_fecha_cre"].ToString(),
                                           bas_fec_actv = fila["Bas_fec_actv"].ToString(),
                                           bas_distrito = fila["bas_distrito"].ToString(),
+                                          
+                                         
+                                          bas_Tip_Des = fila["bas_tip_des"].ToString(),
+                                          bas_Agencia_Direccion = fila["bas_agencia_direccion"].ToString(),
+                                          bas_referencia= fila["bas_referencia"].ToString(),
                                       }
                                    ).ToList();
                         }
@@ -116,7 +207,7 @@ namespace CapaDato.Cliente
             return listar;
         }
 
-        public string valida_cliente(string dni,string correo)
+        public string valida_cliente(string dni,string correo,ref string lider)
         {
             string valida = "0";
             string sqlquery = "USP_MVC_VALIDA_CLIENTE";
@@ -137,9 +228,15 @@ namespace CapaDato.Cliente
                             cmd.Parameters.Add("@bas_existe", SqlDbType.VarChar,1);
                             cmd.Parameters["@bas_existe"].Direction = ParameterDirection.Output;
 
+                            cmd.Parameters.Add("@bas_lider", SqlDbType.VarChar, 200);
+                            cmd.Parameters["@bas_lider"].Direction = ParameterDirection.Output;
+
+
+
                             cmd.ExecuteNonQuery();
 
                             valida = cmd.Parameters["@bas_existe"].Value.ToString();
+                            lider = cmd.Parameters["@bas_lider"].Value.ToString();
                         }
                     }
                     catch
@@ -195,6 +292,10 @@ namespace CapaDato.Cliente
                             cmd.Parameters.AddWithValue("@bas_destino", cliente._bas_destino);
                             cmd.Parameters.AddWithValue("@bas_agencia_ruc", cliente._bas_agencia_ruc);
                             cmd.Parameters.AddWithValue("@Bas_usu", usu_id);
+
+                            cmd.Parameters.AddWithValue("@Bas_Tip_Des", cliente._bas_Tip_Des);
+                            cmd.Parameters.AddWithValue("@Bas_Agencia_Direccion", cliente._bas_Agencia_Direccion);
+                            cmd.Parameters.AddWithValue("@Bas_Referencia", cliente._bas_Referencia);
 
                             if (cliente._Bas_Usu_TipId == "01")
                             {
