@@ -31,6 +31,14 @@ namespace CapaEntidad.Pedido
         public string estId { get; set; }
         public string ventaId { get; set; }
         public string liq_opg { get; set; }
+        public string liq_tipo_prov { get; set; }
+        public string liq_tipo_des { get; set; }
+        public string liq_agencia { get; set; }
+        public string liq_agencia_direccion { get; set; }
+        public string liq_destino { get; set; }
+        public string liq_direccion { get; set; }
+        public string liq_referencia { get; set; }
+
     }    
     public class Ent_NotaCredito
     {

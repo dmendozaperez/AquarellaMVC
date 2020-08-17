@@ -37,5 +37,23 @@ namespace CapaEntidad.Persona
         public Boolean _aplica_percepcion { get; set; }
         public string _vartipopago { get; set; }
         public string premio { get; set; }
+        public string desp_cod { get; set; }
+        public string desp_des { get; set; }
+        public string bas_agencia_direccion { get; set; }
+        public string bas_referencia { get; set; }
+        public string bas_distrito { get; set; }
+        public string bas_tipo_dis { get; set; }
+
+        public string lider_agencia { get; set; }
+        public string lider_agencia_direccion { get; set; }
+        public string lider_destino { get; set; }
+        public string lider_direccion { get; set; }
+        public string lider_referencia { get; set; }
+        public string lider_distrito { get; set; }
+
+        public string bas_provincia { get; set; }
+        public string lider_provincia { get; set; }
+        public string lider_bas_tipo_dis { get; set; }
+
     }
 }

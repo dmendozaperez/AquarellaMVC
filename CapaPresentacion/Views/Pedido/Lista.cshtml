@@ -316,6 +316,8 @@
                     $("#ubi-persona").html(data.info.Ubicacion + strPremio);
                     var html = '<div class="col-md-12 col-xs-12" >\
                                         <dl class="dl-horizontal">\
+                                        <dt>Tipo Despacho :</dt>\
+                                        <dd>' + data.info.desp_des + '</dd>\
                                         <dt>Asesor Comercial :</dt>\
                                         <dd>' + data.info.asesor + '</dd>\
                                         <dt>Lider :</dt>\
@@ -324,6 +326,8 @@
                                         <dd>' + data.info.Ubicacion + '</dd>\
                                         <dt>E-Mail de contacto :</dt>\
                                         <dd>' + data.info.Bas_Correo + '</dd>\
+                                        <dt>Celular :</dt>\
+                                        <dd>' + data.info.Bas_Celular + '</dd>\
                                         <dt>Agencia :</dt>\
                                         <dd>' + data.info.bas_agencia + '</dd>\
                                         <dt>Destino :</dt>\
@@ -529,11 +533,28 @@
                            var pedId = full.ped_Id
                            var custId = full.cust_Id
                            var venId = full.ventaId
+
+                           var liq_tipo_prov=full.liq_tipo_prov;
+                           var liq_tipo_des=full.liq_tipo_des;
+                           var liq_agencia=full.liq_agencia;
+                           var liq_agencia_direccion=full.liq_agencia_direccion;
+                           var liq_destino=full.liq_destino;
+                           var liq_direccion=full.liq_direccion;
+                           var liq_referencia=full.liq_referencia;
+                           
+
                            //return '<a onclick="EditarLiquidacion(' + liqId + ',' + pedId + ',' + custId + ')" target="_blank" class="btn btn-default btn-sm"><span class="glyphicon glyphicon-print fa-1x"></span></a>';
                            var btnEdit =  full.estId == "PS" || full.estId == "PC" ? '<form action="@Url.Action("CrearEditar", "Pedido")" method="post" style="display: inline;">\
                                             <input type="hidden" name="liqId" value="' + liqId + '" />\
                                             <input type="hidden" name="pedId" value="' + pedId + '" />\
                                             <input type="hidden" name="custId" value="' + custId + '" />\
+                                            <input type="hidden" name="liq_tipo_prov" value="' + liq_tipo_prov + '" />\
+                                            <input type="hidden" name="liq_tipo_des" value="' + liq_tipo_des + '" />\
+                                            <input type="hidden" name="liq_agencia" value="' + liq_agencia + '" />\
+                                            <input type="hidden" name="liq_agencia_direccion" value="' + liq_agencia_direccion + '" />\
+                                            <input type="hidden" name="liq_destino" value="' + liq_destino + '" />\
+                                            <input type="hidden" name="liq_direccion" value="' + liq_direccion + '" />\
+                                            <input type="hidden" name="liq_referencia" value="' + liq_referencia + '" />\
                                             <button type="submit" title="Editar Liquidacion" class="btn btn-xs btn-default btn-tabla editar-fila"><span class="fa fa-pencil text-primary"></span></button>\
                                         </form>' : ("&nbsp;").repeat(10);
 
@@ -543,7 +564,11 @@
                            var btnVfac = full.ventaId == "" || full.ventaId == null ? ("&nbsp;").repeat(10) : '<button title="Ver Factura" class="btn btn-xs btn-default btn-tabla ver-fac"  data-liqId="' + liqId + '" data-venId="' + venId + '" style="margin-left: 3.5px;"><span class="fa fa-file-text-o text-success"></span></button>';
                            var btnAnu = full.estId == "PS" || full.estId == "PC" ? '<button title="Anular" class="btn btn-xs btn-default btn-tabla anular" data-liqId="' + liqId + '" data-pedId="' + pedId + '" data-custId="' + custId + '" ><span class="fa fa-trash text-danger"></span></button>' : ("&nbsp;").repeat(10) ;
 
-                           if (usutip=='01' || usutip=='02') btnAnu=("&nbsp;").repeat(10);
+                           if (full.liq_opg=='2') {
+                               if (usutip=='01' || usutip=='02') btnAnu=("&nbsp;").repeat(10);
+                           }
+
+                           
 
                            return  btnVliq + btnVfac + btnEdit + btnAnu ;
                        }, "class": "boton-xs-td"

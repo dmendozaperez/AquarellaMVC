@@ -321,7 +321,8 @@ namespace CapaDato.Pedido
             }
         }
 
-        public string[] Gua_Mod_Liquidacion(decimal _usu, decimal _idCust, string _reference, decimal _discCommPctg,
+        public string[] Gua_Mod_Liquidacion(string tipo_des, string agencia, string destino, string direccion_agencia, string direccion, string referencia,
+                                           string liq_tipo_prov, string liq_provincia, decimal _usu, decimal _idCust, string _reference, decimal _discCommPctg,
                                                decimal _discCommValue, string _shipTo, string _specialInstr, List<Ent_Order_Dtl> _itemsDetail,
                                                decimal _varpercepcion, Int32 _estado, string _ped_id = "", string _liq = "", Int32 _liq_dir = 0,
                                                Int32 _PagPos = 0, string _PagoPostarjeta = "", string _PagoNumConsignacion = "", decimal _PagoTotal = 0,
@@ -421,6 +422,19 @@ namespace CapaDato.Pedido
 
                 //porcentaje percepcion
                 cmd.Parameters.AddWithValue("@Ped_Por_Perc", _porc_percepcion);
+
+                //clientes tipo de despacho
+                cmd.Parameters.AddWithValue("@Liq_Tipo_Prov", liq_tipo_prov);
+                cmd.Parameters.AddWithValue("@Liq_TipoDes", tipo_des);
+                cmd.Parameters.AddWithValue("@Liq_Agencia", agencia);
+                cmd.Parameters.AddWithValue("@Liq_Agencia_Direccion", direccion_agencia);
+                cmd.Parameters.AddWithValue("@Liq_Destino", destino);
+                cmd.Parameters.AddWithValue("@Liq_Provincia", liq_provincia);
+                cmd.Parameters.AddWithValue("@Liq_Direccion", direccion);
+                cmd.Parameters.AddWithValue("@Liq_Referencia", referencia);
+
+
+
                 //da = new SqlDataAdapter(cmd);
                 //da.Fill(ds);
 
@@ -543,6 +557,15 @@ namespace CapaDato.Pedido
                                    N_C = Convert.ToDecimal(dr["PagoNcSf"]),
                                    Percepcion = Convert.ToDecimal(dr["Percepcion"]),
                                    liq_opg= dr["Liq_opg"].ToString(),
+
+                                   liq_tipo_prov= dr["liq_tipo_prov"].ToString(),
+                                   liq_tipo_des = dr["liq_tipodes"].ToString(),
+                                   liq_agencia = dr["liq_agencia"].ToString(),
+                                   liq_agencia_direccion = dr["liq_agencia_direccion"].ToString(),
+                                   liq_destino = dr["liq_destino"].ToString(),
+                                   liq_direccion = dr["liq_direccion"].ToString(),
+                                   liq_referencia = dr["liq_referencia"].ToString(),
+
                                }).ToList();
 
 

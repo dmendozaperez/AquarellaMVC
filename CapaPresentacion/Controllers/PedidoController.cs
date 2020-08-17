@@ -19,6 +19,8 @@ using Newtonsoft.Json;
 using System.Web.SessionState;
 using CapaPresentacion.Models.Crystal;
 using CapaPresentacion.Data.RptsCrystal;
+using CapaDato.Cliente;
+using CapaEntidad.Cliente;
 
 namespace CapaPresentacion.Controllers
 {
@@ -37,8 +39,11 @@ namespace CapaPresentacion.Controllers
         private string _session_customer = "_session_customer";
         private string _session_lnfo_liquidacion = "_session_lnfo_liquidacion";
         private string _session_notas_persona = "_session_notas_persona";
+        private Dat_Cliente dat_cliente = new Dat_Cliente();
 
-        public ActionResult CrearEditar(string custId = "" , string liqId = "" , string pedId = "")
+        public ActionResult CrearEditar(string custId = "" , string liqId = "" , string pedId = "", string liq_tipo_prov="",string liq_tipo_des="",
+                                       string liq_agencia="",string liq_agencia_direccion="",string liq_destino="",string liq_direccion="",
+                                       string liq_referencia="")
         {
             Session[_session_list_detalle_pedido] = null;
             Session[_session_Tran_Ofertas] = null;
@@ -100,15 +105,33 @@ namespace CapaPresentacion.Controllers
                     Ent_Pedido_Maestro maestros = datPedido.Listar_Maestros_Pedido(_usuario.usu_id, _usuario.usu_postPago, IdCustomer);
 
 
+                    List<Ent_Cliente_Despacho> lis_des = dat_cliente.lista_despacho();
+
+                    //var select = lis_des.Select(a => a.desp_cod == "0").ToList();
+
+                    //lis_des.RemoveAt(0);
+
                     ViewBag.listPromotor = maestros.combo_ListPromotor;
                     ViewBag.listFormaPago = maestros.combo_ListFormaPago;
                     ViewBag.IdLiquidacion = liqId;
+                    ViewBag.despacho = lis_des;// dat_cliente.lista_despacho();
 
                     Ent_Liquidacion oLiquidacion = new Ent_Liquidacion();                   
                                 
                     oLiquidacion.liq_Id = strLiqId;
                     oLiquidacion.ped_Id = IdPedido;
                     oLiquidacion.cust_Id = IdCustomer;
+
+                    oLiquidacion.liq_tipo_prov = liq_tipo_prov;
+                    oLiquidacion.liq_tipo_des = liq_tipo_des;
+                    oLiquidacion.liq_agencia = liq_agencia;
+                    oLiquidacion.liq_agencia_direccion = liq_agencia_direccion;
+                    oLiquidacion.liq_destino = liq_destino;
+                    oLiquidacion.liq_direccion = liq_direccion;
+                    oLiquidacion.liq_referencia = liq_referencia;
+
+
+                    ViewBag.Liqui = oLiquidacion;
 
                     Session[_session_lnfo_liquidacion] = oLiquidacion;
 
@@ -197,12 +220,14 @@ namespace CapaPresentacion.Controllers
             }
             return split;
         }
-        public ActionResult LiquidarPedido(decimal _usu = 0, decimal _idCust = 0, string _reference = "", decimal _discCommPctg = 0,
-                                       decimal _discCommValue = 0, string _shipTo = "", string _specialInstr = "", List<Ent_Order_Dtl> _itemsDetail = null,
-                                       decimal _varpercepcion = 0, Int32 _estado = 1, string _ped_id = "", string _liq = "", Int32 _liq_dir = 0,
-                                       Int32 _PagPos = 0, string _PagoPostarjeta = "", string _PagoNumConsignacion = "", decimal _PagoTotal = 0,
-                                       /*DataTable dtpago = null*/ List<Ent_Documents_Trans> ListPago=null, Boolean _pago_credito = false, Decimal _porc_percepcion = 0, List<Order_Dtl_Temp>
-                                        order_dtl_temp = null, string strTipoPago = "N")
+        public ActionResult LiquidarPedido(string tipo_des,string agencia,string destino,string direccion_agencia,string direccion,string referencia,
+                                           string liq_tipo_prov,string liq_provincia, decimal _usu = 0, 
+                                           decimal _idCust = 0, string _reference = "", decimal _discCommPctg = 0,
+                                           decimal _discCommValue = 0, string _shipTo = "", string _specialInstr = "", List<Ent_Order_Dtl> _itemsDetail = null,
+                                           decimal _varpercepcion = 0, Int32 _estado = 1, string _ped_id = "", string _liq = "", Int32 _liq_dir = 0,
+                                           Int32 _PagPos = 0, string _PagoPostarjeta = "", string _PagoNumConsignacion = "", decimal _PagoTotal = 0,
+                                           /*DataTable dtpago = null*/ List<Ent_Documents_Trans> ListPago=null, Boolean _pago_credito = false, Decimal _porc_percepcion = 0, List<Order_Dtl_Temp>
+                                           order_dtl_temp = null, string strTipoPago = "N")
         {
 
             string[] noOrder;
@@ -255,13 +280,15 @@ namespace CapaPresentacion.Controllers
             /*fin de los documentos de pago*/
             if (string.IsNullOrEmpty(liq.liq_Id))
             {
-                noOrder = datPedido.Gua_Mod_Liquidacion(_usuario.usu_id, Convert.ToDecimal(cust.Bas_id), string.Empty, cust._commission, 0, string.Empty, string.Empty, order, header._percepcion,
+                noOrder = datPedido.Gua_Mod_Liquidacion(tipo_des,agencia,destino,direccion_agencia,direccion,referencia,
+                                                     liq_tipo_prov,liq_provincia, _usuario.usu_id, Convert.ToDecimal(cust.Bas_id), string.Empty, cust._commission, 0, string.Empty, string.Empty, order, header._percepcion,
                                                     _estado, _ped_id, _liq, _liq_dir, _PagPos, _PagoPostarjeta, _PagoNumConsignacion, _PagoTotal, dtpago, _pago_credito,
                                                     cust._percepcion, order_dtl_temp, cust._vartipopago);
             }
             else
             {
-                noOrder = datPedido.Gua_Mod_Liquidacion(_usuario.usu_id, Convert.ToDecimal(cust.Bas_id), string.Empty, cust._commission, 0, string.Empty, string.Empty, order, header._percepcion,
+                noOrder = datPedido.Gua_Mod_Liquidacion(tipo_des,agencia,destino, direccion_agencia,direccion, referencia,
+                                           liq_tipo_prov,liq_provincia, _usuario.usu_id, Convert.ToDecimal(cust.Bas_id), string.Empty, cust._commission, 0, string.Empty, string.Empty, order, header._percepcion,
                                                     2, liq.ped_Id, liq.liq_Id, _liq_dir, _PagPos, _PagoPostarjeta, _PagoNumConsignacion, _PagoTotal, dtpago, _pago_credito,
                                                     cust._percepcion, order_dtl_temp, cust._vartipopago);
             }
@@ -659,6 +686,14 @@ namespace CapaPresentacion.Controllers
                              a.cust_Id,
                              a.estId,
                              a.liq_opg,
+                             a.liq_tipo_prov,
+                             a.liq_tipo_des,
+                             a.liq_agencia,
+                             a.liq_agencia_direccion,
+                             a.liq_destino,
+                             a.liq_direccion,
+                             a.liq_referencia,
+
                          };
             //Se devuelven los resultados por json
             return Json(new

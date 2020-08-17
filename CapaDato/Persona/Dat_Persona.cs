@@ -85,7 +85,24 @@ namespace CapaDato.Persona
                                         _percepcion = Convert.ToDecimal(dr["Con_Fig_Percepcion"]),
                                         Bas_Per_Tip_Id = Convert.ToString(dr["Bas_Per_Tip_Id"]),
                                         _aplica_percepcion = Convert.ToBoolean(dr["aplica_percepcion"]),
-                                        premio = Convert.ToString(dr["Premio"])                                       
+                                        premio = Convert.ToString(dr["Premio"]),
+                                        desp_cod = Convert.ToString(dr["desp_cod"]),
+                                        desp_des = Convert.ToString(dr["desp_des"]),
+                                        bas_agencia_direccion= Convert.ToString(dr["bas_agencia_direccion"]),
+                                        bas_referencia = Convert.ToString(dr["bas_referencia"]),
+                                        bas_distrito = Convert.ToString(dr["dis_descripcion"]),
+                                        bas_tipo_dis = Convert.ToString(dr["bas_tipo_dis"]),
+
+                                        lider_agencia = Convert.ToString(dr["lider_agencia"]),
+                                        lider_agencia_direccion = Convert.ToString(dr["lider_agencia_direccion"]),
+                                        lider_destino = Convert.ToString(dr["lider_destino"]),
+                                        lider_direccion = Convert.ToString(dr["lider_direccion"]),
+                                        lider_referencia = Convert.ToString(dr["lider_referencia"]),
+                                        lider_distrito = Convert.ToString(dr["lider_distrito"]),
+                                        bas_provincia = Convert.ToString(dr["bas_provincia"]),
+                                        lider_provincia = Convert.ToString(dr["lider_provincia"]),
+                                        lider_bas_tipo_dis = Convert.ToString(dr["lider_bas_tipo_dis"]),
+
                                     }).FirstOrDefault();
                         }
                     }
