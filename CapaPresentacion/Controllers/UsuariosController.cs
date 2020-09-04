@@ -343,5 +343,95 @@ namespace CapaPresentacion.Controllers
 
             return Json(new { estado = (_valida_agregar) ? "1" : "-1", desmsg = (_valida_agregar) ? "Se agrego correctamente." : "Hubo un error al agregar." });
         }
+
+        #region<SEGURIDAD DE USUARIO>
+        public ActionResult CambioClave()
+        {
+            Ent_Usuario _usuario = (Ent_Usuario)Session[Ent_Constantes.NameSessionUser];
+
+            string actionName = this.ControllerContext.RouteData.GetRequiredString("action");
+            string controllerName = this.ControllerContext.RouteData.GetRequiredString("controller");
+            string return_view = actionName + "|" + controllerName;
+
+            if (_usuario == null)
+            {
+                return RedirectToAction("Login", "Control", new { returnUrl = return_view });
+            }
+            else
+            {
+                ViewBag.DataUsu = _usuario;
+
+                return View();
+            }
+            
+        }
+        [HttpPost]
+        public ActionResult CambiarClave(string password)
+        {
+            Ent_Usuario _usuario = (Ent_Usuario)Session[Ent_Constantes.NameSessionUser];
+            Dat_Usuario usuario = new Dat_Usuario();
+            
+            Boolean _valida_editar = usuario.update_pass(_usuario.usu_id, password);
+            return Json(new { estado = (_valida_editar) ? "1" : "-1", desmsg = (_valida_editar) ? "Se actualizo satisfactoriamente." : "Hubo un error al actualizar." });
+        }
+
+        public ActionResult recoveryPassword()
+        {
+            return View();
+        }
+        [HttpPost]
+        public ActionResult EnviaRecoveryPass(string usuario)
+        {           
+            Dat_Recov_Pass dat_usuario = new Dat_Recov_Pass();
+
+            Ent_Recov_Pass _recov_pass = dat_usuario.get_recov_pass(usuario, "");
+         
+            if (_recov_pass == null)
+            {
+                _recov_pass = new Ent_Recov_Pass();
+                _recov_pass.COD_ERROR = "-2";
+                _recov_pass.DESCRIPCION_ERROR = "Error en el servidor";
+            }
+
+            return Json(new { estado = _recov_pass.COD_ERROR, desmsg =_recov_pass.DESCRIPCION_ERROR });
+        }
+
+        public ActionResult Set_recoveryPassword()
+        {
+
+            string codigo=Request.Params["codigo"];
+          
+            if (codigo == null)
+            {
+                return Redirect("~/Control/Login");              
+            }
+            else
+            {
+                ViewBag.str_codigo = codigo.ToString();
+                return View();
+            }
+        }
+        [HttpPost]
+        public ActionResult RecoveryPass(string codigo,string pass)
+        {
+            Dat_Recov_Pass dat_usuario = new Dat_Recov_Pass();
+
+            Ent_Recov_Pass _recov_pass = dat_usuario.recovery_pass(pass, codigo);
+            //_recov_pass = new Ent_Recov_Pass();
+            //_recov_pass.COD_ERROR = "0";
+            //_recov_pass.DESCRIPCION_ERROR = "Se generaro la nueva contraseña";
+
+            if (_recov_pass == null)
+            {
+                _recov_pass = new Ent_Recov_Pass();
+                _recov_pass.COD_ERROR = "-2";
+                _recov_pass.DESCRIPCION_ERROR = "Error en el servidor";
+            }
+
+            return Json(new { estado = _recov_pass.COD_ERROR, desmsg = _recov_pass.DESCRIPCION_ERROR });
+        }
+
+        #endregion
+
     }
 }

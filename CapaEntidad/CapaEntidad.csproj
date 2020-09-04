@@ -53,6 +53,7 @@
     <Compile Include="Cliente\Ent_Cliente_Lista.cs" />
     <Compile Include="Cliente\Ent_Combo_Lider.cs" />
     <Compile Include="Control\Ent_Aplicacion.cs" />
+    <Compile Include="Control\Ent_Recov_Pass.cs" />
     <Compile Include="Control\Ent_Tienda.cs" />
     <Compile Include="Devolucion\Ent_Documentos_Dev.cs" />
     <Compile Include="Financiera\Ent_Cruce.cs" />

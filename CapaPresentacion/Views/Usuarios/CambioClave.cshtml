@@ -1,0 +1,161 @@
+﻿
+@{
+    ViewBag.Title = "";
+}
+
+<section class="content">
+    <div class="row">
+        <div class="login-box">
+            <div class="login-logo">
+                <a href=""><b>Cambio de Clave</b></a>
+            </div>
+            <!-- /.login-logo -->
+            <div class="login-box-body">
+
+                @*@Html.AntiForgeryToken()*@
+                <p class="login-box-msg">Modificar su contraseña</p>
+                @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+                <div class="form-group has-feedback">
+                    <input id="txtusuario" type="text"  disabled="disabled" class="form-control"  name="txtusuario" >
+                    <span class="glyphicon glyphicon-user form-control-feedback"></span>
+                </div>             
+
+                <div class="form-group has-feedback">
+                    <input id="txtClave1" type="password" class="form-control" autofocus name="Constraseña" placeholder="Nueva Constraseña" required="required">
+                    <span class="glyphicon glyphicon-lock form-control-feedback"></span>
+                </div>
+                <div class="form-group has-feedback">
+                    <input id="txtClave2" type="password" class="form-control" name="Password" placeholder="Repetir Nueva Constraseña" required="required">
+                    <span class="glyphicon glyphicon-lock form-control-feedback"></span>
+                </div>
+                <div class="row">
+
+                    <div class="col-xs-12">
+                        <button type="submit" onclick="CambiarClave();" class="btn btn-primary btn-block btn-flat">Cambiar Clave</button>
+                    </div>
+
+                </div>
+
+            </div>
+            <!-- /.login-box-body -->
+        </div>
+    </div>
+</section>
+@section scripts
+{
+    <script>
+        var dataUsuario;
+        $(document).ready(function () {
+            dataUsuario = function () { return @Html.Raw(Json.Encode(ViewBag.DataUsu)); }();
+        
+            $('#txtusuario').val(dataUsuario.usu_login);
+        });
+
+        $("#txtClave2").keyup(function (event) {
+            if (event.keyCode === 13) {
+                event.preventDefault();
+                CambiarClave();
+            }
+        });
+        function validar_clave(contrasenna) {
+            if (contrasenna.length >= 8) {
+                var mayuscula = false;
+                var minuscula = false;
+                var numero = false;
+               // var caracter_raro = false;
+
+                for (var i = 0; i < contrasenna.length; i++) {
+                    if (contrasenna.charCodeAt(i) >= 65 && contrasenna.charCodeAt(i) <= 90) {
+                        mayuscula = true;
+                    }
+                    else if (contrasenna.charCodeAt(i) >= 97 && contrasenna.charCodeAt(i) <= 122) {
+                        minuscula = true;
+                    }
+                    else if (contrasenna.charCodeAt(i) >= 48 && contrasenna.charCodeAt(i) <= 57) {
+                        numero = true;
+                    }
+                    else {
+                        caracter_raro = true;
+                    }
+                }
+                if (mayuscula == true && minuscula == true /*&& caracter_raro == true*/ && numero == true) {
+                    return true;
+                }
+            }
+            return false;
+        }
+        function CambiarClave() {
+            var _password1 = $('#txtClave1').val();
+            var _password2 = $('#txtClave2').val();
+
+      
+            _password1 = _password1.replace(/^\s+|\s+$/g, "")
+            _password2 = _password2.replace(/^\s+|\s+$/g, "")
+     
+
+            if ((_password1 != _password2) || _password1 == '') {
+                if (_password1 == '')
+                    toastr.error("Debe ingresar una contraseña", "Error");
+                else
+                    toastr.error("Las contraseñas ingresadas no coinciden", "Error");
+            } else {
+
+
+                if (!validar_clave(_password2)) {
+
+                    var str_msg_con = ''
+                    str_msg_con = 'Los Criterios para ingresar el password son los siguientes:\n\n' +
+                        '1. Tiene ocho caracteres como mínimo.\n' +
+                        '2. Letras mayúsculas.\n' +
+                        '3. Letras minúsculas.\n' +
+                        '4. Números.',
+                       // '5. Símbolos del teclado (todos los caracteres del teclado que no se definen como letras o números) y espacios',
+
+
+                    swal({
+                        title: "Error",
+                        text: str_msg_con,
+                        icon: "error",
+                        dangerMode: true,
+                    });
+                    return;
+                }
+
+                waitingDialog.show("Espere por favor...")
+                $.ajax({
+                    type: "POST",
+                    url: '@Url.Action("CambiarClave", "Usuarios")',
+                    data: { password: _password2},
+                    success: function (data) {
+                        waitingDialog.hide();
+                        if (data.estado == 1) {
+                            toastr.success(data.desmsg, "Mensaje");
+                            $('#txtClave1').val('');
+                            $('#txtClave2').val('');
+                            waitingDialog.hide();
+
+                            swal({
+                                title: "Ok",
+                                text: "La contraseña del usuario se cambio satisfactoriamente.\nEl sistema cerrara session automaticamente.",
+                                icon: "success"
+                            }
+                                   ).then((value) => {
+                                       document.getElementById('logoutForm').submit()                                      
+                                   });
+
+                        }
+                        else {
+                            waitingDialog.hide();
+                            toastr.error(data.desmsg, "Alerta");
+                        }
+                    },
+                    error: function (XMLHttpRequest, textStatus, errorThrown) {
+                        waitingDialog.hide();
+                        toastr.error("Error al consultar.", "Alerta");
+                    }
+                });
+
+            }
+        }
+    </script>    
+}

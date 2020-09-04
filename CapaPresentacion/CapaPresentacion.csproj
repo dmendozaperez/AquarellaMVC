@@ -3066,6 +3066,9 @@
     <Content Include="Views\Clientes\Index.cshtml" />
     <Content Include="Views\Clientes\ClienteEditar.cshtml" />
     <Content Include="Views\Clientes\GeneracionFlete.cshtml" />
+    <Content Include="Views\Usuarios\CambioClave.cshtml" />
+    <Content Include="Views\Usuarios\recoveryPassword.cshtml" />
+    <Content Include="Views\Usuarios\Set_recoveryPassword.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

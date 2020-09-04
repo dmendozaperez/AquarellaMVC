@@ -49,6 +49,7 @@
     <Compile Include="Cliente\Dat_Combo_Lider.cs" />
     <Compile Include="Control\Dat_Aplicacion.cs" />
     <Compile Include="Control\Dat_Funcion.cs" />
+    <Compile Include="Control\Dat_Recov_Pass.cs" />
     <Compile Include="Control\Dat_Roles.cs" />
     <Compile Include="Control\Dat_Usuario.cs" />
     <Compile Include="Devolucion\Dat_Documentos_Dev.cs" />
