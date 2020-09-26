@@ -1,0 +1,314 @@
+﻿
+@{
+    ViewBag.Title = "Stock de Articulo por categoria detallado";
+}
+<style>
+    .table thead {
+        background-color: #5799bf;
+        color: #fff;
+    }
+
+    .boton-xs-td {
+        padding-top: 5px !important;
+        padding-bottom: 5px !important;
+    }
+    img:hover {
+    cursor: pointer;
+}
+</style>
+<p class="text-primary">Consulta de stock de articulo por categoria</p>
+<div class="box box-body box-primary">
+    <div class="row">
+        <div class="col-sm-3" style="padding-left: 25px; margin-right: inherit;">
+            <label for="dwcategoria" style="color: #3d566e;">Categoria</label>
+            <div class="form-group">
+                <div class="input-group">                  
+                    @Html.DropDownList("dwcategoria", new SelectList(ViewBag.Categoria, "Cat_Pri_Id", "Cat_Pri_Descripcion", "-1"), new { @class = "selectpicker", @data_live_search = "true", multiple = "multiple", @id = "dwcategoria", @name = "dwcategoria", @data_actions_box = "true", @data_selected_text_format = "count > 2" })                  
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-3" style="padding-left: 25px; margin-right: inherit;">
+            <label for="dwtemporada" style="color: #3d566e;">Temporada</label>
+            <div class="form-group">
+                <div class="input-group">                    
+                    @Html.DropDownList("dwtemporada", new SelectList(ViewBag.Temporada, "cod_tempo", "des_tempo", "-1"), new { @class = "selectpicker", @data_live_search = "true", multiple = "multiple", @id = "dwtemporada", @name = "dwtemporada",  @data_actions_box = "true", @data_selected_text_format = "count > 2" })
+                    
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-2" style="padding-left: 25px; width: 105px; margin-top: 23px; margin-bottom: 10px;">
+            <button id="btnSearch" onclick="buscar();" type="submit" title="Consultar" class="btn btn-primary">
+                <span class="glyphicon glyphicon-search"></span>&nbsp;&nbsp;Buscar
+            </button>
+        </div>
+        <div class="col-sm-2" style="padding-left: 25px; width: 105px; margin-top: 23px; margin-bottom: 10px;">
+            <button id="btnexportar" onclick="exportar_excel();" type="submit" title="Exportar a Excel" class="btn btn-success">
+                <span class="glyphicon glyphicon-export"></span>&nbsp;&nbsp;Exportar Lista
+            </button>
+            @*<a href="@Url.Action("ListaStockCategExcel","Articulo")" class="btn btn-success"><i class="glyphicon glyphicon-export"></i>&nbsp;&nbsp;Exportar Lista</a>*@
+        </div>
+    </div>
+    <div class="row">     
+            <div class="col-md-12">
+                <div class="table-responsive">
+                    <table id="tbstk_categoria" class="table table-hover table-bordered compact">
+                        <thead>
+                            <tr>
+                                <th>CATEGORIA</th>
+                                <th>FOTO
+                                    @*<div class="col-sm-1" style="width:10px;height:10px;text-align:center;">
+                                        <label for="disponible">FOTO</label>
+                                    </div>*@
+
+                                </th>               
+                                <th>CODIGO</th>
+                                <th>DESCRIPCION</th>
+                                <th>TEMPO.</th>
+                                <th>PRECIO</th>
+                                <th width="30%;">
+                                    <div class="col-sm-1" style="width:25%;text-align:center;margin-top:2px;margin-bottom:2px;">
+                                        <label for="disponible">TALLA/CANTIDAD</label>
+                                    </div>
+
+                                </th>                              
+                            </tr>
+                        </thead>
+                        <tbody data-bind="foreach:"></tbody>
+                        <tfoot>
+                            <tr>
+                                <th>CATEGORIA</th>
+                                <th>FOTO
+                                    @*<div class="col-sm-1" style="width:10px;height:10px;text-align:center;">
+                                        <label for="disponible">FOTO</label>
+                                    </div>*@
+
+                                </th>               
+                                <th>CODIGO</th>
+                                <th>DESCRIPCION</th>
+                                <th>TEMPO.</th>
+                                <th>PRECIO</th>
+                                <th width="30%;">
+                                    <div class="col-sm-1" style="width:25%;text-align:center;margin-top:2px;margin-bottom:2px;">
+                                        <label for="disponible">TALLA/CANTIDAD</label>
+                                    </div>
+
+                                </th>                    
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+            </div>
+
+      
+    </div>
+</div>
+<div class="modal fade" id="div_image" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header modal-header-primary">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <div class="row">
+                    <div class="col-md-10">
+                        <p style="font-size:medium" class="text-white modal-title" id="myModalLabel"><strong class="text-white" id="dcarticulo">1234567 - zapatillas de cuero</strong></p>                    
+                    </div>                   
+                </div>              
+            </div>
+            <div class="modal-body" style="text-align:center">
+                <img id="load_img" src="" style="height: 144px; width: 259px;" />
+            </div>
+            <div class="modal-footer">
+                <button data-dismiss="modal" class="btn btn-primary">Cerrar</button>
+            </div>
+        </div>
+    </div>
+</div>
+@section scripts{
+  
+    <script>
+
+        function exportar_excel() {
+            waitingDialog.show("Espere por favor...")
+            $.ajax({
+                type: "POST",
+                url: '@Url.Action("get_exporta_excel", "Articulo")',
+                data: {},
+                success: function (data) {
+                    waitingDialog.hide();
+                    if (data.estado == "1") {                        
+                        toastr.success(data.mensaje);
+                        window.location = '@Url.Action("ListaStockCategExcel")';
+                    }
+                    else {                        
+                        toastr.error(data.mensaje, "Alerta");
+                    }
+                },
+                error: function (XMLHttpRequest, textStatus, errorThrown) {
+                    waitingDialog.hide();
+                    toastr.error("Error al consultar.", "Alerta");
+                }
+            });
+        }
+
+        function image_zoom(image_url, codigo, descripcion) {
+            $("#dcarticulo").html(codigo + '-' + descripcion);
+            $("#load_img").show();
+            $("#load_img").attr("src", image_url);
+            $("#div_image").modal({ backdrop: 'static', keyboard: false });
+        }
+
+        function buscar() {
+            var categoria = $('#dwcategoria').val();
+            var tempo = $('#dwtemporada').val();
+
+            if (categoria == null && tempo == null) {
+                toastr.error('Seleccione al menos una opcion', 'Mensaje');
+                return;
+            }
+            if (categoria !== null) {
+                categoria = categoria.toString();
+            } else {
+                categoria = '';
+            }
+            if (tempo !== null) {
+                tempo = tempo.toString();
+            } else {
+                tempo = '';
+            }
+
+            waitingDialog.show("Espere por favor...")          
+            $.ajax({
+                type: "POST",
+                url: '@Url.Action("get_articulo_categoria", "Articulo")',
+                data: { categoria: categoria, tempo: tempo },
+                success: function (data) {
+                    waitingDialog.hide();
+                    if (data.estado == "1") {                      
+                        $('#tbstk_categoria').DataTable().ajax.reload();
+                    }
+                    else {                        
+                        $('#tbstk_categoria').DataTable().ajax.reload();
+                        toastr.error(data.mensaje, "Alerta");
+                    }
+                },
+                error: function (XMLHttpRequest, textStatus, errorThrown) {
+                    waitingDialog.hide();
+                    toastr.error("Error al consultar.", "Alerta");
+                }
+            });
+
+        }
+        function imgError(image) {
+            //$(image).hide();
+            //$(image).src
+            $(image).attr("src", "../Content/images/not-found.jpg");
+        }
+
+        $(document).ready(function () {
+
+            $('#tbstk_categoria').DataTable({
+                "language": {
+                    "url": "../Scripts/DataTables/Spanish.json"
+                },
+                "bServerSide": true,
+                "bProcessing": true,
+                "bAutoWidth": false,
+                "sAjaxSource": '@Url.Action("getTableStockCategoriaAjax", "Articulo")',
+                "fnServerParams": function (aoData) {
+                    aoData.push({ "name": "actualizar", "value": "" });
+                },
+                "bdestroy": true,
+                "start": 0,
+                "sort": false,
+                "bDeferRender": true,
+                "aoColumns": [
+                      { "sName": "categoria", "mData": "categoria" },
+
+                       {
+                           data: "Image",
+                           render: function (data, type, full) {                            
+                               var str_foto = full.foto;
+                               var codigo = full.codigo;
+                               var descripcion = full.descripcion;
+                               var imagen_html = '<img width="50px;" height="50px;" style="cursor:hand;" src="' + str_foto + '"onerror="imgError(this);" onclick="image_zoom(\'' + str_foto + '\',\'' + codigo + '\',\'' + descripcion + '\');" />';
+
+                               return imagen_html;
+
+
+                           },
+                       },
+
+                      //{ "sName": "foto", "mData": "foto" },
+
+                      { "sName": "codigo", "mData": "codigo" },
+                      { "sName": "descripcion", "mData": "descripcion" },
+                      { "sName": "tempo", "mData": "tempo" },
+                        {
+                            render: function (data, type, full) {
+                                return "S/ " + full.precio.toFixed(2);
+                            },
+                        },
+                          {
+                               "sWidth": "30%",
+                               "render": function (data, type, full) {
+                                   var botones_head = '';
+                                   var botones_cant = '';
+                                   var lista = full.list_talla;
+
+                                   botones_head = '<div class="col-sm-1" style="width:100%;margin-top:2px;margin-bottom:2px;text-align:center;">' +
+                                             '<table>' +
+                                             '<tbody>' +
+                                             '<tr>' +
+                                             '<td>' +
+                                             '<div style="margin-top:2px;margin-right:2px;">' +
+                                             '<button class="btn btn-white btn-xs" title="Tallas" style="width:100%;color:black;">T:</button>' +
+                                             '</div>' +
+                                             '</td>' +
+                                             '<td>' +
+                                             '<div style="margin-top:2px;margin-right:2px;">' +
+                                             '<button class="btn btn-success btn-xs" style="width:100%;">Total</button>' +
+                                             '</div>' +
+                                             '</td>';
+
+
+                                   botones_cant = '<tr>' +
+                                                 '<td>' +
+                                                 '<div style="margin-top:2px;margin-right:2px;">' +
+                                                 '<button title="Cantidad" class="btn btn-white btn-xs" style="width:100%;color:black;">C:</button>' +
+                                                 '</div>' +
+                                                 '</td>';
+                                   botones_cant += '<td>' +
+                                                  '<div style="margin-top:2px;margin-right:2px;">' +
+                                                  '<button class="btn btn-success btn-xs" style="width:100%;">' + full.total + '</button>' +
+                                                  '</div>' +
+                                                  '</td>';
+
+                                   lista.forEach(function (entry) {
+                                       botones_head += '<td>' +
+                                             '<div style="margin-top:2px;margin-right:2px;">' +
+                                             '<button class="btn btn-primary btn-xs" style="width:100%;" title="Talla" data-id="codTienda" data-tda="desTiendaS" data-modal="codTalla" data-art="codArticulo">' + entry.talla + '</button>' +
+                                             '</div>' +
+                                             '</td>';
+                                       botones_cant += '<td>' +
+                                                       '<div style="margin-top:2px;margin-right:2px;">' +
+                                                       '<button class="btn btn-info btn-xs" style="width:100%;text-align:center;">' + entry.cantidad + '</button>' +
+                                                       '</div>' +
+                                                       '</td>';
+
+                                   });
+
+                                   botones_head += botones_cant + '</tr></tr>' +
+                                            '</tbody>' +
+                                            '</table>' +
+                                            '</div>';
+
+
+                                   return botones_head;
+                               },
+                           },                                        
+                       
+                ]
+            });
+           
+        });
+    </script>
+}

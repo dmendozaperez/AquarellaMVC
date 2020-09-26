@@ -50,7 +50,7 @@ namespace CapaDato.Financiera
             }
             catch (Exception e) { throw new Exception(e.Message, e.InnerException); }
         }
-        public string setPreClear(string _list_liquidations, DataTable dt)
+        public string setPreClear(string _list_liquidations, DataTable dt,ref string str_mensaje)
         {
             //return "";
             string clearId = string.Empty;
@@ -69,9 +69,13 @@ namespace CapaDato.Financiera
                 cmd.Parameters.AddWithValue("@Tmp_Pago", dt);
                 //cmd.Parameters["@gru_id_devolver"].Direction = ParameterDirection.Output;
                 cmd.Parameters.Add("@gru_id_devolver", SqlDbType.VarChar, 80).Direction = ParameterDirection.Output;
+                cmd.Parameters.Add("@str_mensaje", SqlDbType.VarChar, 1000).Direction = ParameterDirection.Output;
+
+
                 cmd.ExecuteNonQuery();
 
                 clearId = Convert.ToString(cmd.Parameters["@gru_id_devolver"].Value);
+                str_mensaje= Convert.ToString(cmd.Parameters["@str_mensaje"].Value);
                 return clearId;
 
                 //Database db = DatabaseFactory.CreateDatabase(_conn);

@@ -45,6 +45,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Articulo\Dat_Articulo_Stock.cs" />
     <Compile Include="Cliente\Dat_Cliente.cs" />
     <Compile Include="Cliente\Dat_Combo_Lider.cs" />
     <Compile Include="Control\Dat_Aplicacion.cs" />
@@ -62,6 +63,7 @@
     <Compile Include="Maestros\Dat_Usuario_Tipo.cs" />
     <Compile Include="Menu\Dat_Menu.cs" />
     <Compile Include="Pedido\Dat_Pedido.cs" />
+    <Compile Include="Pedido\Dat_Pedido_Separado.cs" />
     <Compile Include="Persona\Dat_Persona.cs" />
     <Compile Include="Promotor\Dat_Promotor.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

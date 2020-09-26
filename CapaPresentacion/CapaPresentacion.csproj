@@ -217,6 +217,7 @@
     <Compile Include="Bll\ReportCredentials.cs" />
     <Compile Include="Controllers\AdminLteController.cs" />
     <Compile Include="Controllers\AplicacionController.cs" />
+    <Compile Include="Controllers\ArticuloController.cs" />
     <Compile Include="Controllers\ClearController.cs" />
     <Compile Include="Controllers\ClientesController.cs" />
     <Compile Include="Controllers\DevolucionController.cs" />
@@ -228,6 +229,7 @@
     <Compile Include="Controllers\FuncionController.cs" />
     <Compile Include="Controllers\HomeController.cs" />
     <Compile Include="Controllers\MenuController.cs" />
+    <Compile Include="Controllers\ReportePedidoController.cs" />
     <Compile Include="Controllers\RolesController.cs" />
     <Compile Include="Controllers\UsuariosController.cs" />
     <Compile Include="Global.asax.cs">
@@ -1945,6 +1947,7 @@
     <Content Include="Content\images\lista.png" />
     <Content Include="Content\images\logoaq.png" />
     <Content Include="Content\images\lupa.jpg" />
+    <Content Include="Content\images\not-found.jpg" />
     <Content Include="Content\images\placeholder-user.jpg" />
     <Content Include="Content\images\ubicacion.png" />
     <Content Include="Content\images\wall-calendar-with-lines.svg" />
@@ -3069,6 +3072,9 @@
     <Content Include="Views\Usuarios\CambioClave.cshtml" />
     <Content Include="Views\Usuarios\recoveryPassword.cshtml" />
     <Content Include="Views\Usuarios\Set_recoveryPassword.cshtml" />
+    <Content Include="Views\ReportePedido\PedidoSeparado.cshtml" />
+    <Content Include="Views\Articulo\StockArticulo.cshtml" />
+    <Content Include="Views\Articulo\StockCategoria.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

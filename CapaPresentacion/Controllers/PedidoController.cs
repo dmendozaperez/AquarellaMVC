@@ -41,6 +41,8 @@ namespace CapaPresentacion.Controllers
         private string _session_notas_persona = "_session_notas_persona";
         private Dat_Cliente dat_cliente = new Dat_Cliente();
 
+        private string _carga_inicial_editar = "_carga_inicial_editar";
+
         public ActionResult CrearEditar(string custId = "" , string liqId = "" , string pedId = "", string liq_tipo_prov="",string liq_tipo_des="",
                                        string liq_agencia="",string liq_agencia_direccion="",string liq_destino="",string liq_direccion="",
                                        string liq_referencia="")
@@ -50,6 +52,7 @@ namespace CapaPresentacion.Controllers
             Session[_session_nuevo_item_pedido] = null;
             Session[_session_customer] = null;
             Session[_session_notas_persona] = null;
+            Session[_carga_inicial_editar] = false;
             Ent_Usuario _usuario = (Ent_Usuario)Session[Ent_Constantes.NameSessionUser];
 
             string actionName = this.ControllerContext.RouteData.GetRequiredString("action");
@@ -80,6 +83,7 @@ namespace CapaPresentacion.Controllers
                     Ent_Persona customer = datPersona.GET_INFO_PERSONA(custId);
                     if (liqId != "")
                     {
+                        Session[_carga_inicial_editar] = true;
                         IdPedido = pedId;
                         IdCustomer = custId;
                         strLiqId = liqId;
@@ -2213,7 +2217,12 @@ namespace CapaPresentacion.Controllers
                 List<Ent_Order_Dtl> listPed = new List<Ent_Order_Dtl>();
                 Session[_session_list_detalle_pedido] = listPed;
             } else {
-                fupdateitemoferta();
+
+                Boolean inicial_editar =Convert.ToBoolean(Session[_carga_inicial_editar]);
+
+                if (!inicial_editar) fupdateitemoferta(); /*para cargar solo los articulos que se guardaron para editar */
+                if (inicial_editar) Session[_carga_inicial_editar] = false;
+
                 header = getTotals();
             }
             //Traer registros

@@ -1,0 +1,223 @@
+﻿
+@{
+    ViewBag.Title = "Consulta de Pedidos Separados";
+}
+<style>
+    .table thead {
+        background-color: #5799bf;
+        color: #fff;
+    }
+
+    .boton-xs-td {
+        padding-top: 5px !important;
+        padding-bottom: 5px !important;
+    }
+</style>
+<p class="text-primary">Lista de pedidos separados en bodega sin aun ser pagos por el cliente.</p>
+<div class="box box-body box-default">
+    <div class="row">
+        <div class="col-md-6">
+            @*<a href="@Url.Action("ClienteEditar", "Clientes",new {estado= "1"})" class="btn btn-success"><i class="glyphicon glyphicon-plus"></i>&nbsp;Crear nuevo Cliente</a>*@
+            <button id="btnSearch" onclick="actualizar();" type="submit" title="Actualizar" class="btn btn-success">
+                <span class="glyphicon glyphicon-refresh"></span>&nbsp;&nbsp;Actualizar
+            </button>
+        </div>
+        <div class="col-md-6 text-right">
+            <a href="@Url.Action("ListaPedSepExcel","ReportePedido")" class="btn btn-primary"><i class="glyphicon glyphicon-export"></i>&nbsp;&nbsp;Exportar Lista</a>
+        </div>
+
+    </div>
+    <br />
+    <div class="row">
+        <div class="col-md-12">
+            <div class="table-responsive">
+                <table id="tbped_separado" class="table table-hover table-bordered compact">
+                    <thead>
+                        <tr>
+                            <th>ASESOR</th>
+                            <th>LIDER</th>
+                            <th>PROMOTOR</th>
+                            <th>PEDIDO</th>
+                            <th>T.CANT</th>
+                            <th>SUBTOTAL</th>
+                            <th>FEC_PEDIDO</th>
+                            <th>FEC.CADUCE</th>
+                            <th>D.PEDIDO</th>
+                            @*<th>CELULAR</th>
+                            <th>TELEFONO</th>*@
+                            <th>UBICACION</th>
+                            <th>ACCIONES</th>
+                        </tr>
+                    </thead>
+                    <tbody data-bind="foreach:"></tbody>
+                    <tfoot>
+                        <tr>
+                            <th>ASESOR</th>
+                            <th>LIDER</th>
+                            <th>PROMOTOR</th>
+                            <th>PEDIDO</th>
+                            <th>T.CANT</th>
+                            <th>SUBTOTAL</th>
+                            <th>FEC_PEDIDO</th>
+                            <th>FEC.CADUCE</th>
+                            <th>D.PEDIDO</th>
+                            @*<th>CELULAR</th>
+                            <th>TELEFONO</th>*@
+                            <th>UBICACION</th>
+                            <th>ACCIONES</th>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+        </div>
+     
+    </div>
+    <div class="row">
+        <div class="col-md-12">
+            <div class="panel-footer panel-info">
+                <div class="row">
+                    <div class="col-sm-offset-5 col-sm-7 col col-md-offset-7 col-md-5">
+                        <div class="row row-no-gutter">
+                            <div class="col-xs-7 col-sm-5 col-md-6"><strong>Cantidades totales:</strong></div>
+                            <div class="col-xs-2 col-sm-3 col-md-2 text-right"></div>
+                            <div class="col-xs-3 col-sm-4 col-md-4 text-right"><span id="cantitdades">0</span></div>
+                        </div>
+                        <div class="row row-no-gutter">
+                            <div class="col-xs-7 col-sm-5 col-md-6"><strong>Valor Total: </strong></div>
+                            <div class="col-xs-2 col-sm-3 col-md-2 text-right">S/</div>
+                            <div class="col-xs-3 col-sm-4 col-md-4 text-right"><span id="totalList">0.00</span></div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+          
+        </div>
+</div>
+<div class="modal fade" id="CRLiquidacion" tabindex="-1" role="dialog" aria-labelledby="CRLiquidacion">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-12">
+                        <div id="ifrReporte" class="well" style="width: 100%; height: 100%; padding:0;">
+                            <iframe id="load" src="" frameborder="0" marginheight="1" marginwidth="1" scrolling="auto"
+                                    onload="javascript: waitingDialog.hide();" style="zoom:90%; width: 100%; height: calc(100vh - 100px);"></iframe>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button data-dismiss="modal" class="btn btn-primary">Cerrar</button>
+            </div>
+        </div>
+        
+    </div>
+</div>
+@section scripts{
+<script src="~/Scripts/Linkend/linq.min.js"></script>    
+    <script>
+
+        function actualizar(){
+            waitingDialog.show("Espere por favor...")
+            $('#tbped_separado').DataTable().ajax.reload(function () {
+                waitingDialog.hide();
+                totales();
+            });
+        }
+
+        function totales(){
+            var tcantidad= @ViewBag.tcantidad;
+            var tsoles= @ViewBag.tsoles;
+            $("#cantitdades").html(tcantidad);
+            $("#totalList").html(tsoles);
+
+        }
+
+
+        $(document).ready(function () {
+
+            totales();
+
+            $('#tbped_separado').DataTable({
+                "language": {
+                    "url": "../Scripts/DataTables/Spanish.json"
+                },
+                "bServerSide": true,
+                "bAutoWidth": false,
+                "sAjaxSource": '@Url.Action("getListPedSepAjax", "ReportePedido")',
+                "fnServerParams": function (aoData) {
+                    aoData.push({ "name": "actualizar", "value": "" });
+                },
+                "bdestroy": true,
+                "start": 0,
+                "columnDefs": [{
+                    "orderable": false,
+                    "targets": [3, 6,7, 9],
+                }],
+                "bDeferRender": true,
+                "aoColumns": [
+                      { "sName": "asesor", "mData": "asesor" },
+                      { "sName": "lider", "mData": "lider" },
+                      { "sName": "promotor", "mData": "promotor" },
+                      { "sName": "pedido", "mData": "pedido" },
+                      { "sName": "tcantidad", "mData": "tcantidad" },
+                      //{ "sName": "subtotal", "mData": "subtotal" },
+
+                       {
+                           render: function (data, type, full) {
+                               return "S/ " + full.subtotal.toFixed(2);
+                           },
+                       },
+
+                      { "sName": "fecha_ing", "mData": "fecha_ing" },
+                      { "sName": "fecha_cad", "mData": "fecha_cad" },
+                      { "sName": "dias_pedido", "mData": "dias_pedido" },
+                      //{ "sName": "telefono", "mData": "telefono" },
+                      //{ "sName": "celular", "mData": "celular" },
+                      { "sName": "ubicacion", "mData": "ubicacion" },
+
+                       {
+                           "render": function (data, type, full) {
+
+                               var pedido = full.pedido;
+
+                               var btnliq = '<button type="submit" title="Ver Liquidacion" onclick="ver_liq(\'' + pedido + '\');" class="btn btn-xs btn-default btn-tabla editar-fila"><span class="fa fa-print"></span></button>';
+
+                               //var btnflete = '';// (Usuario.usu_flete == '1') ? ("&nbsp;").repeat(3) + '<button type="submit" title="Generar flete del cliente" onclick="Editar(\'' + dni + '\');" class="btn btn-xs btn-default btn-tabla editar-fila"><span class="fa fa-truck text-success"></span></button>' : '';
+
+                               return btnliq;
+                           }, "class": "boton-xs-td"
+                       },
+                ],               
+            });
+        });
+
+        function ver_liq(pedido) {
+            var liqId =pedido;
+            waitingDialog.show("Espere por favor...");
+            $.ajax({
+                type: "Post",
+                url: '@Url.Action("VerLiquidacion", "Pedido")',
+                data: { liquidacion: liqId },
+                success: function (data) {
+                    if (data.estado == 0) {
+                        $("#load").show();
+                        $("#load").attr("src", "../AspNetForms/ReportLiquidation.aspx");
+                        $("#CRLiquidacion").modal({ backdrop: 'static', keyboard: false });
+                    } else {
+                        waitingDialog.hide()
+                    }
+                },
+                error: function (xhr) {
+                    waitingDialog.hide();
+                    toastr.error(xhr, 'Mensaje');
+                }
+            });
+        }
+
+    </script>
+
+
+}

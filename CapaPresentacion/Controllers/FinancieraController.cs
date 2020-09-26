@@ -310,34 +310,37 @@ namespace CapaPresentacion.Controllers
                     }
                     
                     string strIdPromotor = cust.Bas_id;
-                    string clear = datFinanciera.setPreClear(listLiq, dtpagos);
+
+                    string str_mensaje = "";
+
+                    string clear = datFinanciera.setPreClear(listLiq, dtpagos,ref str_mensaje);
 
                     if (!String.IsNullOrEmpty(clear))
                     {
                         string[] prems = clear.Split('|');
                         string strpremio = prems[1].ToString();
                         string strpremio2 = prems[2].ToString();
-                        string strmensaje = "";
+                        //string strmensaje = "";
                         string strmensajePremio = "";
 
                         if (strpremio != "N" && strpremio != "0")
                         {
-                            string strIdLiquidacion = datFinanciera.setCrearLiquidacionPremio(Convert.ToInt32(strIdPromotor), Convert.ToInt32(strpremio), "C");
-                            strmensajePremio = "Premio generado en el pedido:" + strIdLiquidacion + " ";
+                           // string strIdLiquidacion = datFinanciera.setCrearLiquidacionPremio(Convert.ToInt32(strIdPromotor), Convert.ToInt32(strpremio), "C");
+                           // strmensajePremio = "Premio generado en el pedido:" + strIdLiquidacion + " ";
                         }
 
                         if (strpremio2 != "N" && strpremio2 != "0")
                         {
-                            string strIdLiquidacion = datFinanciera.setCrearLiquidacionPremio(Convert.ToInt32(strIdPromotor), Convert.ToInt32(strpremio2), "P");
+                            //string strIdLiquidacion = datFinanciera.setCrearLiquidacionPremio(Convert.ToInt32(strIdPromotor), Convert.ToInt32(strpremio2), "P");
                             string cadena = "";
                             if (strmensajePremio != "") { cadena = "y"; }
 
-                            strmensajePremio = strmensajePremio + " " + cadena + " en el pedido:" + strIdLiquidacion + " ";
+                           // strmensajePremio = strmensajePremio + " " + cadena + " en el pedido:" + strIdLiquidacion + " ";
                         }
 
                         if (strmensajePremio != "") { strmensajePremio = " ( " + strmensajePremio + " ) "; }
 
-                        _mensaje = "El cruce de información fue grabado correctamente " + strmensajePremio + ", su pedido sera enviado  marcación y posterior facturación; número del cruce: " + prems[0].ToString() + strmensaje;
+                        _mensaje = str_mensaje; //"El cruce de información fue grabado correctamente " + strmensajePremio + ", su pedido sera enviado  marcación y posterior facturación; número del cruce: " + prems[0].ToString() + strmensaje;
                         estado = 0;
                     }
                 }
