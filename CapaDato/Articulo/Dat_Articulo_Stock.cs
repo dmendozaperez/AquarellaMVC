@@ -145,7 +145,7 @@ namespace CapaDato.Articulo
         #endregion
 
         #region<REGION DE STOCK DE ARTICULO X CATEGORIA>
-        public List<Ent_Articulo_Categoria_Stock> listar_stock_categoria(string categoria,string tempo)
+        public List<Ent_Articulo_Categoria_Stock> listar_stock_categoria(string categoria,string tempo,string articulo="")
         {
             string sqlquery = "[USP_MVC_LeerStk_CateDet]";
             List<Ent_Articulo_Categoria_Stock> listar = null;
@@ -159,6 +159,7 @@ namespace CapaDato.Articulo
                         cmd.CommandType = CommandType.StoredProcedure;
                         cmd.Parameters.AddWithValue("@cat_pri_id", categoria);
                         cmd.Parameters.AddWithValue("@tempo", tempo);
+                        cmd.Parameters.AddWithValue("@articulos", articulo);
                         using (SqlDataAdapter da = new SqlDataAdapter(cmd))
                         {
                             DataTable dt = new DataTable();

@@ -118,13 +118,15 @@
 @section scripts{
 <script src="~/Scripts/Linkend/linq.min.js"></script>    
     <script>
-
+        var actualiza_consulta = "";
         function actualizar(){
+            actualiza_consulta = "1";
             waitingDialog.show("Espere por favor...")
             $('#tbped_separado').DataTable().ajax.reload(function () {
                 waitingDialog.hide();
                 totales();
             });
+            actualiza_consulta = "";
         }
 
         function totales(){
@@ -135,7 +137,7 @@
 
         }
 
-
+      
         $(document).ready(function () {
 
             totales();
@@ -148,7 +150,7 @@
                 "bAutoWidth": false,
                 "sAjaxSource": '@Url.Action("getListPedSepAjax", "ReportePedido")',
                 "fnServerParams": function (aoData) {
-                    aoData.push({ "name": "actualizar", "value": "" });
+                    aoData.push({ "name": "actualizar", "value": actualiza_consulta });
                 },
                 "bdestroy": true,
                 "start": 0,

@@ -157,6 +157,8 @@
                 "url": "../Scripts/DataTables/Spanish.json",
             },
             "ordering": false,
+            "aLengthMenu": [100],
+            //"bFilter": false,            
             "fnServerData": function (sSource, aoData, fnCallback) {
                 $.getJSON(sSource, aoData, function (json) {
 

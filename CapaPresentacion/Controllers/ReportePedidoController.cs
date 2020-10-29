@@ -52,10 +52,18 @@ namespace CapaPresentacion.Controllers
             Session[_session_listPedidoSeparado_private] = listpedido;
             return listpedido;
         }
-        public ActionResult getListPedSepAjax(Ent_jQueryDataTableParams param)
+        public ActionResult getListPedSepAjax(Ent_jQueryDataTableParams param, string actualizar)
         {
 
             List<Ent_Pedido_Separado> listpedido = new List<Ent_Pedido_Separado>();
+
+            if (!String.IsNullOrEmpty(actualizar))
+            {
+                listpedido = lista();
+                //listAtributos = datOE.get_lista_atributos();
+                Session[_session_listPedidoSeparado_private] = listpedido;
+            }
+
             /*verificar si esta null*/
             if (Session[_session_listPedidoSeparado_private] == null)
             {

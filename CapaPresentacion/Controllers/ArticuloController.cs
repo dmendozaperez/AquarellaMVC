@@ -4,6 +4,7 @@ using CapaEntidad.Control;
 using CapaEntidad.General;
 using CapaEntidad.Util;
 using CapaPresentacion.Bll;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -267,7 +268,18 @@ namespace CapaPresentacion.Controllers
         #region<Stock por Categpria>
         public ActionResult StockCategoria()
         {
+            Ent_Usuario _usuario = (Ent_Usuario)Session[Ent_Constantes.NameSessionUser];
 
+            string actionName = this.ControllerContext.RouteData.GetRequiredString("action");
+            string controllerName = this.ControllerContext.RouteData.GetRequiredString("controller");
+            string return_view = actionName + "|" + controllerName;
+
+            if (_usuario == null)
+            {
+                return RedirectToAction("Login", "Control", new { returnUrl = return_view });
+            }
+            else
+            { 
             Dat_Articulo_Stock stk_articulo = new Dat_Articulo_Stock();
             ViewBag.Categoria=stk_articulo.listar_categoria_principal();
             ViewBag.Temporada=stk_articulo.listar_temporada();
@@ -276,6 +288,7 @@ namespace CapaPresentacion.Controllers
             Session[_session_stock_articulo_categoria_excel] = null;
 
             return View();
+            }
         }
         private string _session_stock_articulo_categoria = "_session_stock_articulo_categoria";
         private string _session_stock_articulo_categoria_excel = "_session_stock_articulo_categoria_excel";
@@ -532,6 +545,44 @@ namespace CapaPresentacion.Controllers
             Response.Write(Session[_session_stock_articulo_categoria_excel].ToString());
             Response.End();
             return Json(new { estado = 0, mensaje = 1 });          
+        }
+
+        public ActionResult JsonExcelArticulos(string articulos)
+        {
+            List<Ent_Articulo_Categoria_Stock> listArtExcel = null;
+            Dat_Articulo_Stock stk_articulo = new Dat_Articulo_Stock();
+            try
+            {
+                listArtExcel = new List<Ent_Articulo_Categoria_Stock>();
+                listArtExcel = JsonConvert.DeserializeObject<List<Ent_Articulo_Categoria_Stock>>(articulos.ToUpper());
+                if (listArtExcel.Where(w => String.IsNullOrEmpty(w.ARTICULO)).ToList().Count > 0)
+                {
+                    Session[_session_stock_articulo_categoria] = new List<Ent_Articulo_Categoria_Stock>();
+                    return Json(new { estado = 0, resultados = "El Archivo no tiene el formato correcto ó hay campos vacios.\nVerifique el archivo." });
+                }
+                else
+                {
+               
+
+                    string str_articulo_listar = "";
+                    decimal filas = 0;
+                    foreach (var item in listArtExcel)
+                    {
+                        filas += 1;
+                        str_articulo_listar +=(item.ARTICULO) + ((filas== listArtExcel.Count)?"":",");
+                    }
+
+
+                    Session[_session_stock_articulo_categoria] = stk_articulo.listar_stock_categoria("","", str_articulo_listar);
+                    return Json(new { estado = 1, resultados = "ok" });
+                  
+                }               
+            }
+            catch (Exception ex)
+            {
+                return Json(new { estado = 0, resultados = ex.Message });
+            }
+            
         }
 
         #endregion

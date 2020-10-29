@@ -222,6 +222,7 @@
     <Compile Include="Controllers\ClientesController.cs" />
     <Compile Include="Controllers\DevolucionController.cs" />
     <Compile Include="Controllers\FinancieraController.cs" />
+    <Compile Include="Controllers\LogisticaController.cs" />
     <Compile Include="Controllers\PedidoController.cs" />
     <Compile Include="Controllers\PermisosController.cs" />
     <Compile Include="Controllers\PromotorController.cs" />
@@ -2528,6 +2529,8 @@
     <Content Include="Scripts\bootbox.js" />
     <Content Include="Scripts\bootbox.min.js" />
     <Content Include="Scripts\bootstrap-datepicker.min.js" />
+    <Content Include="Scripts\bootstrap-filestyle.js" />
+    <Content Include="Scripts\bootstrap-filestyle.min.js" />
     <Content Include="Scripts\bootstrap-select.min.js" />
     <Content Include="Scripts\bootstrap.js" />
     <Content Include="Scripts\bootstrap.min.js" />
@@ -3075,6 +3078,8 @@
     <Content Include="Views\ReportePedido\PedidoSeparado.cshtml" />
     <Content Include="Views\Articulo\StockArticulo.cshtml" />
     <Content Include="Views\Articulo\StockCategoria.cshtml" />
+    <Content Include="Views\Logistica\ListaDespacho.cshtml" />
+    <Content Include="Views\Logistica\DespachoAlmacen.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

@@ -17,5 +17,8 @@ namespace CapaEntidad.Articulo
         public Decimal total { get; set; }
         public List<Ent_Articulo_Talla> list_talla { get; set; }
 
+        /*PARAMETRO AGREGADO PARA LA EXPORTACION DEL EXCEL*/
+        public string ARTICULO { get; set; }
+
     }
 }

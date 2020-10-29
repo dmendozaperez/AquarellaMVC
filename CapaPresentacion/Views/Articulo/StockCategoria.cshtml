@@ -46,6 +46,14 @@
                 <span class="glyphicon glyphicon-export"></span>&nbsp;&nbsp;Exportar Lista
             </button>
             @*<a href="@Url.Action("ListaStockCategExcel","Articulo")" class="btn btn-success"><i class="glyphicon glyphicon-export"></i>&nbsp;&nbsp;Exportar Lista</a>*@
+        </div>                   
+     </div>
+    <div class="row">
+        <div class="col-sm-2" style="padding-left: 25px; width: 205px; margin-top: 23px; margin-bottom: 10px;">
+            <label for="excelFile" style="color: #3d566e;">Cargar archivo Excel</label>
+            <div class="form-group">
+                <input type="file" id="excelFile" accept=".xlsx">
+            </div>
         </div>
     </div>
     <div class="row">     
@@ -123,7 +131,109 @@
     </div>
 </div>
 @section scripts{
-  
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.7.7/xlsx.core.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xls/0.7.4-a/xls.core.min.js"></script>
+    <script>
+        $('input[type="file"]').change(function () {
+            ExportToTable();
+        });
+        function ExportToTable() {
+            try {
+                var regex = /\.(xls[mx]?)$/;
+                /*Checks whether the file is a valid excel file*/
+                if (regex.test($("#excelFile").val().toLowerCase())) {
+                    var xlsxflag = false; /*Flag for checking whether excel is .xls format or .xlsx format*/
+                    if ($("#excelFile").val().toLowerCase().indexOf(".xlsx") > 0) {
+                        xlsxflag = true;
+                    }
+                    /*Checks whether the browser supports HTML5*/
+                    if (typeof (FileReader) != "undefined") {
+                        var reader = new FileReader();
+                        reader.onload = function (e) {
+                            var data = e.target.result;
+                            /*Converts the excel data in to object*/
+                            if (xlsxflag) {
+                                var workbook = XLSX.read(data, { type: 'binary' });
+                            }
+                            else {
+                                var workbook = XLS.read(data, { type: 'binary' });
+                            }
+                            /*Gets all the sheetnames of excel in to a variable*/
+                            var sheet_name_list = workbook.SheetNames;
+
+                            var cnt = 0; /*This is used for restricting the script to consider only first sheet of excel*/
+                            sheet_name_list.forEach(function (y) { /*Iterate through all sheets*/
+                                /*Convert the cell value to Json*/
+                                if (xlsxflag) {
+                                    var exceljson = XLSX.utils.sheet_to_json(workbook.Sheets[y]);
+                                }
+                                else {
+                                    var exceljson = XLS.utils.sheet_to_row_object_array(workbook.Sheets[y]);
+                                }
+                                if (exceljson.length > 0 && cnt == 0) {
+                                    EnviarArticulosExcel(exceljson);
+                                }
+                                //ret_exceljson = exceljson;
+                            });
+                            //$('#exceltable').show();
+                        }
+                        if (xlsxflag) {/*If excel file is .xlsx extension than creates a Array Buffer from excel*/
+                            reader.readAsArrayBuffer($("#excelFile")[0].files[0]);
+                        }
+                        else {
+                            reader.readAsBinaryString($("#excelFile")[0].files[0]);
+                        }
+                    }
+                    else {
+                        swal("Tu navegador no soporta HTML5");
+                    }
+                }
+                else {
+                    swal("Por favor selecciona un archivo excel *xlsx");
+                }
+            } catch (e) {
+                swal("Error al cargar archivo excel.");
+            }
+        }
+
+        function EnviarArticulosExcel(jsonExcel) {
+            waitingDialog.show('Espere un momento por favor');
+            $.ajax({
+                type: "POST",
+                url: '@Url.Action("JsonExcelArticulos", "Articulo")',
+                data: { articulos: JSON.stringify(jsonExcel) },
+                dataType: "json",
+                success: function (data) {
+                    if (data.estado == 1) {
+                        //ordenar = false;
+
+                        $('#tbstk_categoria').DataTable().ajax.reload(function () {waitingDialog.hide(); });
+                        $('#excelFile').val("");
+                        //$('.table').DataTable().ajax.reload(function () { Resumen(false); waitingDialog.hide(); });
+                    } else {
+                        waitingDialog.hide();
+                        swal({
+                            title: "Error",
+                            text: data.resultados,
+                            icon: "error",
+                            dangerMode: true,
+                        });
+                        $('#tbstk_categoria').DataTable().ajax.reload(function () { waitingDialog.hide(); });
+                        $('#excelFile').val("");
+                    }
+                },
+                error: function (XMLHttpRequest, textStatus, errorThrown) {
+                    waitingDialog.hide();
+                    var error = eval("(" + XMLHttpRequest.responseText + ")");
+                    swal(error.Message);
+                    $('#tbstk_categoria').DataTable().ajax.reload(function () { waitingDialog.hide(); });
+                    $('#excelFile').val("");
+                }
+            });
+        }
+
+    </script>
+
     <script>
 
         function exportar_excel() {

@@ -62,6 +62,8 @@
     <Compile Include="Devolucion\Ent_Documentos_Dev.cs" />
     <Compile Include="Financiera\Ent_Cruce.cs" />
     <Compile Include="Financiera\Ent_Documents_Trans.cs" />
+    <Compile Include="Logistica\Ent_Lista_Despacho.cs" />
+    <Compile Include="Logistica\Ent_Lista_Rotulo.cs" />
     <Compile Include="Maestros\Ent_Documento_Tipo.cs" />
     <Compile Include="Maestros\Ent_Lugar.cs" />
     <Compile Include="Maestros\Ent_Persona_Tipo.cs" />

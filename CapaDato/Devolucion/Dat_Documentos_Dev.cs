@@ -94,8 +94,7 @@ namespace CapaDato.Devolucion
                 _mensaje = exc.Message;
             }
             return listar;
-       }
-    
+       }    
     }
 }
 
