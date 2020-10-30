@@ -797,7 +797,7 @@ namespace CapaPresentacion.Controllers
                 aaData = result
             }, JsonRequestBehavior.AllowGet);
         }
-        private void ExportarExcel(Ent_Despacho_Almacen_Editar desp, string ColumnasOcultas, string ColumnasTexto, string NombreArchivo)
+        private void ExportarExcel(Ent_Despacho_Almacen_Editar desp,  string NombreArchivo)
         {
 
             StringBuilder sb = new StringBuilder();
@@ -811,9 +811,7 @@ namespace CapaPresentacion.Controllers
                 List<Ent_Despacho_Almacen_Det_Update> list_det = desp.Almacen_Det_Update;
 
                 String inicio;
-                ColumnasOcultas = ',' + ColumnasOcultas + ",";
-                ColumnasTexto = ',' + ColumnasTexto + ",";
-
+                
                 Style stylePrueba = new Style();
                 stylePrueba.Width = Unit.Pixel(200);
                 string strRows = "";
@@ -923,6 +921,93 @@ namespace CapaPresentacion.Controllers
 
            
         }
+        private void ExportarExcel_new(List<Ent_Despacho_Almacen_Cab> list_cab,  string NombreArchivo)
+        {
+
+            StringBuilder sb = new StringBuilder();
+            StringWriter sw = new StringWriter(sb);
+            HtmlTextWriter htw = new HtmlTextWriter(sw);
+            String style = style = @"<style> .textmode { mso-number-format:\@; } </script> ";
+            Page page = new Page();
+            try
+            {
+                //List<Ent_Despacho_Almacen_Cab_Update> list_cab = desp.Almacen_Cab_Update;
+                //List<Ent_Despacho_Almacen_Det_Update> list_det = desp.Almacen_Det_Update;
+
+                String inicio;
+              
+
+                Style stylePrueba = new Style();
+                stylePrueba.Width = Unit.Pixel(200);
+                string strRows = "";
+                string strRowsHead = "";
+                strRowsHead = strRowsHead + "<tr height=38 >";
+
+                var PropertyInfos = list_cab.First().GetType().GetProperties();
+                foreach (var col in PropertyInfos)
+                {
+
+                    switch (col.Name.ToUpper())
+                    {
+                        case "ASESOR":
+                        case "NOMBRELIDER":
+                        case "PROMOTOR":
+                        case "ROTULO":
+                        case "AGENCIA":
+                        case "DESTINO":
+                        case "PEDIDO":
+                        case "TOTALCANTIDAD":                     
+                        case "TOTALVENTA":
+                        case "FLETE":                     
+                            strRowsHead = strRowsHead + "<td height=38  bgcolor='#969696' width='38'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;" + col.Name + "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</ td > ";
+                            break;
+                    }
+                }
+
+                strRowsHead = strRowsHead + "</tr>";
+
+                foreach (var Item in list_cab)
+                {
+                    strRows = strRows + "<tr height='38' >";
+                    string strClass = "";
+
+                    strRows = strRows + "<td width='400' " + strClass + " >" + Item.Asesor + "</ td > ";
+                    strRows = strRows + "<td width='400' " + strClass + " >" + Item.NombreLider + "</ td > ";
+                    strRows = strRows + "<td width='400' " + strClass + " >" + Item.Promotor + "</ td > ";
+                    strRows = strRows + "<td width='400' " + strClass + " >" + Item.Rotulo + "</ td > ";
+                    strRows = strRows + "<td width='400' " + strClass + " >" + Item.Agencia + "</ td > ";
+                    strRows = strRows + "<td width='400' " + strClass + " >" + Item.Destino + "</ td > ";
+                    strRows = strRows + "<td width='400' " + strClass + " >" + Item.Pedido + "</ td > ";
+                    strRows = strRows + "<td width='400' " + strClass + " >" + Item.TotalCantidad.ToString() + "</ td > ";                    
+                    strRows = strRows + "<td width='400' " + strClass + " >" + Item.TotalVenta.ToString() + "</ td > ";
+                    strRows = strRows + "<td width='400' " + strClass + " >" + Item.Flete + "</ td > ";
+                    
+                    strRows = strRows + "</tr>";
+                }
+
+
+                inicio = "<div> " +
+                "<table <Table border='1' bgColor='#ffffff' " +
+                "borderColor='#000000' cellSpacing='2' cellPadding='2' " +
+                "style='font-size:10.0pt; font-family:Calibri; background:white;'>" +
+                strRowsHead +
+                strRows +
+                "</table>" +
+                "</div>";
+
+                sb.Append(inicio);
+
+                Session[_session_despacho_almacen_excel] = sb.ToString();
+
+            }
+            catch (Exception exc)
+            {
+
+                throw exc;
+            }
+
+
+        }
 
         private string _session_despacho_almacen_excel = "_session_stock_articulo_categoria_excel";
         public ActionResult ListaDespachoExcel()
@@ -956,11 +1041,34 @@ namespace CapaPresentacion.Controllers
             try
             {
                 Ent_Despacho_Almacen_Editar despacho_lista = get_consulta_despacho(id);
-                ExportarExcel(despacho_lista, "", "2", "Orden_Despacho");
+                ExportarExcel(despacho_lista, "Orden_Despacho");
 
                 mensaje = "Se genero el excel correctamente";
                 estado = "1";
                
+            }
+            catch (Exception exc)
+            {
+                estado = "0";
+                mensaje = exc.Message;
+            }
+
+            return Json(new { estado = estado, mensaje = mensaje });
+        }
+
+        public ActionResult get_exporta_excel_new(string id = "0")
+        {
+            string mensaje = "";
+            string estado = "0";
+            try
+            {
+                List<Ent_Despacho_Almacen_Cab> despacho_cab=(List<Ent_Despacho_Almacen_Cab>)Session[_session_listDespacho_almacen_cab_private];
+                
+                ExportarExcel_new(despacho_cab, "Despacho_Pendiente");
+
+                mensaje = "Se genero el excel correctamente";
+                estado = "1";
+
             }
             catch (Exception exc)
             {
