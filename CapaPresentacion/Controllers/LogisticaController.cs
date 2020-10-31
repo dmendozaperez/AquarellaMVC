@@ -21,6 +21,9 @@ namespace CapaPresentacion.Controllers
 
         #region<REGION DE CONSULTA DE DESPACHO>
         private string _session_listDespacho_private = "_session_listDespacho_private";
+
+       
+
         // GET: Logistica
         public ActionResult ListaDespacho()
         {
@@ -31,19 +34,19 @@ namespace CapaPresentacion.Controllers
             string controllerName = this.ControllerContext.RouteData.GetRequiredString("controller");
             string return_view = actionName + "|" + controllerName;
 
-            if (_usuario == null)
-            {
-                return RedirectToAction("Login", "Control", new { returnUrl = return_view });
-            }
-            else
-            {
+            //if (_usuario == null)
+            //{
+            //    return RedirectToAction("Login", "Control", new { returnUrl = return_view });
+            //}
+            //else
+            //{
                 List<Ent_Tipo_Despacho> lista_tipo = new List<Ent_Tipo_Despacho>();
                 Ent_Tipo_Despacho tip = new Ent_Tipo_Despacho();
-                //tip.tip_des_cod = "L";
-                //tip.tip_des_nom = "Lima-Callao";
-                //lista_tipo.Add(tip);
+                tip.tip_des_cod = "L";
+                tip.tip_des_nom = "Lima-Callao";
+                lista_tipo.Add(tip);
 
-                //tip = new Ent_Tipo_Despacho();
+                tip = new Ent_Tipo_Despacho();
                 tip.tip_des_cod = "P";
                 tip.tip_des_nom = "Provincia";
                 lista_tipo.Add(tip);
@@ -51,7 +54,7 @@ namespace CapaPresentacion.Controllers
                 ViewBag.Tipo = lista_tipo;
 
                 return View();
-            }
+            //}
           
         }      
         public List<Ent_Lista_Despacho> lista(string fecha_ini,string fecha_fin,string tipo_des)
@@ -92,7 +95,7 @@ namespace CapaPresentacion.Controllers
             if (!string.IsNullOrEmpty(param.sSearch))
             {
                 filteredMembers = membercol
-                    .Where(m => m.desp_nrodoc.ToUpper().Contains(param.sSearch.ToUpper()));
+                    .Where(m => m.desp_nrodoc.ToUpper().Contains(param.sSearch.ToUpper()) || m.desp_tipo_descripcion.ToUpper().Contains(param.sSearch.ToUpper()));
             }
             //Manejador de orden
             var sortIdx = Convert.ToInt32(Request["iSortCol_0"]);
@@ -104,7 +107,7 @@ namespace CapaPresentacion.Controllers
                     switch (sortIdx)
                     {
                         case 0: filteredMembers = filteredMembers.OrderBy(o => o.desp_nrodoc); break;
-                        case 1: filteredMembers = filteredMembers.OrderBy(o => o.desp_descripcion); break;
+                        case 1: filteredMembers = filteredMembers.OrderBy(o => o.desp_tipo_descripcion); break;
                         case 2: filteredMembers = filteredMembers.OrderBy(o => Convert.ToDateTime(o.desp_fechacre)); break;
                         case 3: filteredMembers = filteredMembers.OrderBy(o => o.totalparesenviado); break;
                         case 4: filteredMembers = filteredMembers.OrderBy(o => o.estado); break;
@@ -116,7 +119,7 @@ namespace CapaPresentacion.Controllers
                     switch (sortIdx)
                     {
                         case 0: filteredMembers = filteredMembers.OrderByDescending(o => o.desp_nrodoc); break;
-                        case 1: filteredMembers = filteredMembers.OrderByDescending(o => o.desp_descripcion); break;
+                        case 1: filteredMembers = filteredMembers.OrderByDescending(o => o.desp_tipo_descripcion); break;
                         case 2: filteredMembers = filteredMembers.OrderByDescending(o => Convert.ToDateTime(o.desp_fechacre)); break;
                         case 3: filteredMembers = filteredMembers.OrderByDescending(o => o.totalparesenviado); break;
                         case 4: filteredMembers = filteredMembers.OrderByDescending(o => o.estado); break;                        
@@ -136,7 +139,9 @@ namespace CapaPresentacion.Controllers
                              a.desp_fechacre,
                              a.totalparesenviado,
                              a.estado,  
-                             a.desp_id,                           
+                             a.desp_id,   
+                             a.desp_tipo_descripcion,
+                             a.desp_tipo                     
                          };
             //Se devuelven los resultados por json
             return Json(new
@@ -151,7 +156,9 @@ namespace CapaPresentacion.Controllers
         #region<REGION DE DESPACHO DE ALMACEN ACCION>
         private string _session_listDespacho_almacen_cab_private = "_session_listDespacho_almacen_cab_private";
         private string _session_listDespacho_almacen_liq_private = "_session_listDespacho_almacen_liq_private";
-        public ActionResult DespachoAlmacen(Int32 estado=0,Int32 estado_edicion=0/*si es 1 entonces no se puede editar*/ ,decimal desp_id=0)
+        private string _session_tipo_despacho = "_session_tipo_despacho"; /*session para verificar que tipo de despacho es P=PROVINCIA O L=LIMA- CALLAO*/
+        public ActionResult DespachoAlmacen(Int32 estado=0,Int32 estado_edicion=0/*si es 1 entonces no se puede editar*/ ,decimal desp_id=0,
+                                            string tipo_des=""/*P=PROVINCIA O L=LIMA - CALLAO*/)
         {
 
             if (estado==0)
@@ -159,9 +166,16 @@ namespace CapaPresentacion.Controllers
                 return RedirectToAction("ListaDespacho", "Logistica");
             }
 
-            ViewBag.TipoDes = "Provincia";
+            Session[_session_tipo_despacho] = tipo_des;
+            ViewBag.TipoDes =(tipo_des=="P")? "Provincia":"LIMA - CALLAO";
             Session[_session_listDespacho_almacen_cab_private] = null;
             Session[_session_listDespacho_almacen_liq_private] = null;
+
+            Session[_session_listDespacho_private] = null;
+            Session[_session_listDespacho_almacen_cab_editar_private] = null;
+            Session[_session_listDespacho_almacen_det_editar_private] = null;
+            Session[_session_listDespacho_almacen_det_get_private] = null;
+            Session[_session_despacho_almacen_excel] = null;
 
             List<Ent_Lista_Rotulo> lista_inicio_rotulo= new List<Ent_Lista_Rotulo>();
             Ent_Lista_Rotulo obj_rot = new Ent_Lista_Rotulo();        
@@ -181,6 +195,45 @@ namespace CapaPresentacion.Controllers
 
             return View();
         }
+        public ActionResult DespachoAlmacenLima(Int32 estado = 0, Int32 estado_edicion = 0/*si es 1 entonces no se puede editar*/ , decimal desp_id = 0,
+                                            string tipo_des = ""/*P=PROVINCIA O L=LIMA - CALLAO*/)
+        {
+
+            if (estado == 0)
+            {
+                return RedirectToAction("ListaDespacho", "Logistica");
+            }
+
+            Session[_session_tipo_despacho] = tipo_des;
+            ViewBag.TipoDes = (tipo_des == "P") ? "Provincia" : "LIMA - CALLAO";
+            Session[_session_listDespacho_almacen_cab_private] = null;
+            Session[_session_listDespacho_almacen_liq_private] = null;
+
+            Session[_session_listDespacho_private] = null;
+            Session[_session_listDespacho_almacen_cab_editar_private] = null;
+            Session[_session_listDespacho_almacen_det_editar_private] = null;
+            Session[_session_listDespacho_almacen_det_get_private] = null;
+            Session[_session_despacho_almacen_excel] = null;
+
+            List<Ent_Lista_Rotulo> lista_inicio_rotulo = new List<Ent_Lista_Rotulo>();
+            Ent_Lista_Rotulo obj_rot = new Ent_Lista_Rotulo();
+            lista_inicio_rotulo.Add(obj_rot);
+
+            ViewBag.Lista = lista_inicio_rotulo;
+
+            List<Ent_Despacho_Almacen_Update> desp_upd_lista = new List<Ent_Despacho_Almacen_Update>();
+
+            Ent_Despacho_Almacen_Update desp_upd = new Ent_Despacho_Almacen_Update();
+
+            ViewBag.ListaDespachoUpd = desp_upd_lista;
+            ViewBag.DespachoUpd = desp_upd;
+            ViewBag.estado = estado;
+            ViewBag.desp_id = desp_id;
+            ViewBag.estado_edicion = estado_edicion;
+
+            return View();
+        }
+
         public Ent_Despacho_Almacen lista_despacho_almacen(string tipo_des, string fecha_ini, string fecha_fin)
         {
             Ent_Despacho_Almacen listdespacho = dat_despacho.get_despacho_almacen(tipo_des, Convert.ToDateTime(fecha_ini), Convert.ToDateTime(fecha_fin));
@@ -292,7 +345,11 @@ namespace CapaPresentacion.Controllers
                              a.Flete,
                              a.Lid_Prom, 
                              a.observacion,
-                             a.detalle                            
+                             a.detalle,
+                             a.Distrito,
+                             a.Direccion,
+                             a.Referencia,
+                             a.Celular                            
                          };
             //Se devuelven los resultados por json
             return Json(new
@@ -375,9 +432,9 @@ namespace CapaPresentacion.Controllers
                         var str = desp_lista_upd.Where(u => u.strLid_Prom == fila.Lid_Prom).ToList();
 
                         obj_upd[0].Agencia = str[0].strAgencia;
-                        obj_upd[0].Destino = str[0].strDestino;
-                        obj_upd[0].observacion = str[0].strObs;
-                        obj_upd[0].detalle = str[0].strDetalle;
+                        obj_upd[0].Destino = str[0].strDestino;                        
+                        obj_upd[0].observacion = ((str[0].strObs == null) ? "" : str[0].strObs);
+                        obj_upd[0].detalle = ((str[0].strDetalle == null) ? "" : str[0].strDetalle);
                         obj_upd[0].Flete = str[0].strMcaFlete;
 
                    
@@ -424,8 +481,8 @@ namespace CapaPresentacion.Controllers
 
                         obj_upd[0].Agencia = str[0].strAgencia;
                         obj_upd[0].Destino = str[0].strDestino;
-                        obj_upd[0].Observacion = str[0].strObs;
-                        obj_upd[0].Detalle = str[0].strDetalle;
+                        obj_upd[0].Observacion = ((str[0].strObs== null)?"": str[0].strObs);
+                        obj_upd[0].Detalle = ((str[0].strDetalle== null)?"": str[0].strDetalle);
                         obj_upd[0].CobroFlete = str[0].strMcaFlete;
 
 
@@ -532,6 +589,12 @@ namespace CapaPresentacion.Controllers
                     strDataDetalle += " Pedidos=¿" + obj.strPedidos + "¿ ";
                     strDataDetalle += " LidProm=¿" + obj.strLid_Prom + "¿ ";
 
+                    strDataDetalle += " Distrito=¿" + obj.strDistrito + "¿ ";
+                    strDataDetalle += " Direccion=¿" + obj.strDireccion + "¿ ";
+                    strDataDetalle += " Referencia=¿" + obj.strReferencia + "¿ ";
+                    strDataDetalle += " Celular=¿" + obj.strCelular + "¿ ";
+
+
                     strDataDetalle += "/>";
 
                     strLiqLiderDespacho += devolverIdliquidacion(obj.strIdLider, obj.strLid_Prom, obj.strPedidos);
@@ -540,9 +603,12 @@ namespace CapaPresentacion.Controllers
 
                 Ent_Usuario _usuario = (Ent_Usuario)Session[Ent_Constantes.NameSessionUser];
                 string generar = "";
+
+                string tipo_despacho = Session[_session_tipo_despacho].ToString();
+
                 if (estado_accion == 1 || estado_accion == 3)
                 {
-                    generar = dat_despacho.insertar_despacho(_usuario.usu_id, ref id_despacho, strDataDetalle, strLiqLiderDespacho, "");
+                    generar = dat_despacho.insertar_despacho(_usuario.usu_id, ref id_despacho, strDataDetalle, strLiqLiderDespacho, "", tipo_despacho);
                 }
                 else
                 {
@@ -786,7 +852,11 @@ namespace CapaPresentacion.Controllers
                              a.Detalle,
                              a.Total_Cantidad_Envio,
                              a.Desp_IdDetalle,
-                             a.Desp_id
+                             a.Desp_id,
+                             a.Distrito,
+                             a.Referencia,
+                             a.Direccion,
+                             a.Celular
                          };
             //Se devuelven los resultados por json
             return Json(new
@@ -797,7 +867,7 @@ namespace CapaPresentacion.Controllers
                 aaData = result
             }, JsonRequestBehavior.AllowGet);
         }
-        private void ExportarExcel(Ent_Despacho_Almacen_Editar desp,  string NombreArchivo)
+        private void ExportarExcel(Ent_Despacho_Almacen_Editar desp,  string NombreArchivo, string tipo_des = "P" /*P=PROVINCIA ; L=LIMA-CALLAO*/)
         {
 
             StringBuilder sb = new StringBuilder();
@@ -819,27 +889,56 @@ namespace CapaPresentacion.Controllers
                 strRowsHead = strRowsHead + "<tr height=38 >";
                
                 var PropertyInfos = list_cab.First().GetType().GetProperties();
+
+
+
                 foreach (var col in PropertyInfos)
                 {               
-               
-                    switch(col.Name.ToUpper())
+                    if (tipo_des == "P")
+                    {
+                        switch (col.Name.ToUpper())
+                        {
+                            case "ASESOR":
+                            case "NOMBRELIDER":
+                            case "PROMOTOR":
+                            case "ROTULO":
+                            case "AGENCIA":
+                            case "DESTINO":
+                            case "PEDIDO":
+                            case "TOTAL_CANTIDAD":
+                            case "TOTAL_CANTIDAD_ENVIO":
+                            case "TOTALVENTA":
+                            case "COBROFLETE":
+                            case "OBSERVACION":
+                            case "DETALLE":
+                                strRowsHead = strRowsHead + "<td height=38  bgcolor='#969696' width='38'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;" + col.Name + "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</ td > ";
+                                break;
+                        }
+                    }
+                    else
+                    {
+                        switch (col.Name.ToUpper())
                     {
                         case "ASESOR":
                         case "NOMBRELIDER":
                         case "PROMOTOR":
                         case "ROTULO":
-                        case "AGENCIA":
-                        case "DESTINO":
+                        case "DISTRITO":
+                        case "DIRECCION":
+                        case "REFERENCIA":
+                        case "CELULAR":
                         case "PEDIDO":
                         case "TOTAL_CANTIDAD":
                         case "TOTAL_CANTIDAD_ENVIO":
                         case "TOTALVENTA":
                         case "COBROFLETE":
                         case "OBSERVACION":
-                        case "DETALLE":
+                        //case "DETALLE":
                             strRowsHead = strRowsHead + "<td height=38  bgcolor='#969696' width='38'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;" + col.Name + "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</ td > ";
                             break;
                     }                 
+                    }
+                    
                 }
 
                 strRowsHead = strRowsHead + "</tr>";
@@ -849,19 +948,41 @@ namespace CapaPresentacion.Controllers
                     strRows = strRows + "<tr height='38' >";                    
                     string strClass = "";
 
-                    strRows = strRows + "<td width='400' " + strClass + " >" + Item.asesor + "</ td > ";
-                    strRows = strRows + "<td width='400' " + strClass + " >" + Item.NombreLider + "</ td > ";
-                    strRows = strRows + "<td width='400' " + strClass + " >" + Item.Promotor + "</ td > ";
-                    strRows = strRows + "<td width='400' " + strClass + " >" + Item.Rotulo + "</ td > ";
-                    strRows = strRows + "<td width='400' " + strClass + " >" + Item.Agencia + "</ td > ";
-                    strRows = strRows + "<td width='400' " + strClass + " >" + Item.Destino + "</ td > ";
-                    strRows = strRows + "<td width='400' " + strClass + " >" + Item.Pedido + "</ td > ";
-                    strRows = strRows + "<td width='400' " + strClass + " >" + Item.Total_Cantidad.ToString() + "</ td > ";
-                    strRows = strRows + "<td width='400' " + strClass + " >" + Item.Total_Cantidad_Envio.ToString() + "</ td > ";
-                    strRows = strRows + "<td width='400' " + strClass + " >" + Item.TotalVenta.ToString() + "</ td > ";
-                    strRows = strRows + "<td width='400' " + strClass + " >" + Item.CobroFlete + "</ td > ";
-                    strRows = strRows + "<td width='400' " + strClass + " >" + Item.Observacion + "</ td > ";
-                    strRows = strRows + "<td width='400' " + strClass + " >" + Item.Detalle + "</ td > ";
+                    if (tipo_des == "P")
+                    {
+                        strRows = strRows + "<td width='400' " + strClass + " >" + Item.asesor + "</ td > ";
+                        strRows = strRows + "<td width='400' " + strClass + " >" + Item.NombreLider + "</ td > ";
+                        strRows = strRows + "<td width='400' " + strClass + " >" + Item.Promotor + "</ td > ";
+                        strRows = strRows + "<td width='400' " + strClass + " >" + Item.Rotulo + "</ td > ";
+                        strRows = strRows + "<td width='400' " + strClass + " >" + Item.Agencia + "</ td > ";
+                        strRows = strRows + "<td width='400' " + strClass + " >" + Item.Destino + "</ td > ";
+                        strRows = strRows + "<td width='400' " + strClass + " >" + Item.Pedido + "</ td > ";
+                        strRows = strRows + "<td width='400' " + strClass + " >" + Item.Total_Cantidad.ToString() + "</ td > ";
+                        strRows = strRows + "<td width='400' " + strClass + " >" + Item.Total_Cantidad_Envio.ToString() + "</ td > ";
+                        strRows = strRows + "<td width='400' " + strClass + " >" + Item.TotalVenta.ToString() + "</ td > ";
+                        strRows = strRows + "<td width='400' " + strClass + " >" + Item.CobroFlete + "</ td > ";
+                        strRows = strRows + "<td width='400' " + strClass + " >" + Item.Observacion + "</ td > ";
+                        strRows = strRows + "<td width='400' " + strClass + " >" + Item.Detalle + "</ td > ";
+                    }
+                    else
+                    {
+                        strRows = strRows + "<td width='400' " + strClass + " >" + Item.asesor + "</ td > ";
+                        strRows = strRows + "<td width='400' " + strClass + " >" + Item.NombreLider + "</ td > ";
+                        strRows = strRows + "<td width='400' " + strClass + " >" + Item.Promotor + "</ td > ";
+                        strRows = strRows + "<td width='400' " + strClass + " >" + Item.Rotulo + "</ td > ";
+                        strRows = strRows + "<td width='400' " + strClass + " >" + Item.Distrito + "</ td > ";
+                        strRows = strRows + "<td width='400' " + strClass + " >" + Item.Direccion + "</ td > ";
+                        strRows = strRows + "<td width='400' " + strClass + " >" + Item.Referencia + "</ td > ";
+                        strRows = strRows + "<td width='400' " + strClass + " >" + Item.Celular + "</ td > ";
+                        strRows = strRows + "<td width='400' " + strClass + " >" + Item.Pedido + "</ td > ";
+                        strRows = strRows + "<td width='400' " + strClass + " >" + Item.Total_Cantidad.ToString() + "</ td > ";
+                        strRows = strRows + "<td width='400' " + strClass + " >" + Item.Total_Cantidad_Envio.ToString() + "</ td > ";
+                        strRows = strRows + "<td width='400' " + strClass + " >" + Item.TotalVenta.ToString() + "</ td > ";
+                        strRows = strRows + "<td width='400' " + strClass + " >" + Item.CobroFlete + "</ td > ";
+                        strRows = strRows + "<td width='400' " + strClass + " >" + Item.Observacion + "</ td > ";
+                        //strRows = strRows + "<td width='400' " + strClass + " >" + Item.Detalle + "</ td > ";
+                    }
+                    
                     
                     strRows = strRows + "</tr>";
                 }
@@ -921,7 +1042,7 @@ namespace CapaPresentacion.Controllers
 
            
         }
-        private void ExportarExcel_new(List<Ent_Despacho_Almacen_Cab> list_cab,  string NombreArchivo)
+        private void ExportarExcel_new(List<Ent_Despacho_Almacen_Cab> list_cab,  string NombreArchivo, string tipo_des = "P" /*P=PROVINCIA ; L=LIMA-CALLAO*/)
         {
 
             StringBuilder sb = new StringBuilder();
@@ -946,22 +1067,45 @@ namespace CapaPresentacion.Controllers
                 var PropertyInfos = list_cab.First().GetType().GetProperties();
                 foreach (var col in PropertyInfos)
                 {
-
-                    switch (col.Name.ToUpper())
+                    if (tipo_des=="P")
                     {
-                        case "ASESOR":
-                        case "NOMBRELIDER":
-                        case "PROMOTOR":
-                        case "ROTULO":
-                        case "AGENCIA":
-                        case "DESTINO":
-                        case "PEDIDO":
-                        case "TOTALCANTIDAD":                     
-                        case "TOTALVENTA":
-                        case "FLETE":                     
-                            strRowsHead = strRowsHead + "<td height=38  bgcolor='#969696' width='38'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;" + col.Name + "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</ td > ";
-                            break;
+                        switch (col.Name.ToUpper())
+                        {
+                            case "ASESOR":
+                            case "NOMBRELIDER":
+                            case "PROMOTOR":
+                            case "ROTULO":
+                            case "AGENCIA":
+                            case "DESTINO":
+                            case "PEDIDO":
+                            case "TOTALCANTIDAD":
+                            case "TOTALVENTA":
+                            case "FLETE":
+                                strRowsHead = strRowsHead + "<td height=38  bgcolor='#969696' width='38'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;" + col.Name + "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</ td > ";
+                                break;
+                        }
                     }
+                    else
+                    {
+                        switch (col.Name.ToUpper())
+                        {
+                            case "ASESOR":
+                            case "NOMBRELIDER":
+                            case "PROMOTOR":
+                            case "ROTULO":
+                            case "DISTRITO":
+                            case "DIRECCION":
+                            case "REFERENCIA":
+                            case "CELULAR":
+                            case "PEDIDO":
+                            case "TOTALCANTIDAD":
+                            case "TOTALVENTA":
+                            case "FLETE":
+                                strRowsHead = strRowsHead + "<td height=38  bgcolor='#969696' width='38'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;" + col.Name + "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</ td > ";
+                                break;
+                        }
+                    }
+                    
                 }
 
                 strRowsHead = strRowsHead + "</tr>";
@@ -971,16 +1115,34 @@ namespace CapaPresentacion.Controllers
                     strRows = strRows + "<tr height='38' >";
                     string strClass = "";
 
-                    strRows = strRows + "<td width='400' " + strClass + " >" + Item.Asesor + "</ td > ";
-                    strRows = strRows + "<td width='400' " + strClass + " >" + Item.NombreLider + "</ td > ";
-                    strRows = strRows + "<td width='400' " + strClass + " >" + Item.Promotor + "</ td > ";
-                    strRows = strRows + "<td width='400' " + strClass + " >" + Item.Rotulo + "</ td > ";
-                    strRows = strRows + "<td width='400' " + strClass + " >" + Item.Agencia + "</ td > ";
-                    strRows = strRows + "<td width='400' " + strClass + " >" + Item.Destino + "</ td > ";
-                    strRows = strRows + "<td width='400' " + strClass + " >" + Item.Pedido + "</ td > ";
-                    strRows = strRows + "<td width='400' " + strClass + " >" + Item.TotalCantidad.ToString() + "</ td > ";                    
-                    strRows = strRows + "<td width='400' " + strClass + " >" + Item.TotalVenta.ToString() + "</ td > ";
-                    strRows = strRows + "<td width='400' " + strClass + " >" + Item.Flete + "</ td > ";
+                    if (tipo_des == "P")
+                    {
+                        strRows = strRows + "<td width='400' " + strClass + " >" + Item.Asesor + "</ td > ";
+                        strRows = strRows + "<td width='400' " + strClass + " >" + Item.NombreLider + "</ td > ";
+                        strRows = strRows + "<td width='400' " + strClass + " >" + Item.Promotor + "</ td > ";
+                        strRows = strRows + "<td width='400' " + strClass + " >" + Item.Rotulo + "</ td > ";
+                        strRows = strRows + "<td width='400' " + strClass + " >" + Item.Agencia + "</ td > ";
+                        strRows = strRows + "<td width='400' " + strClass + " >" + Item.Destino + "</ td > ";
+                        strRows = strRows + "<td width='400' " + strClass + " >" + Item.Pedido + "</ td > ";
+                        strRows = strRows + "<td width='400' " + strClass + " >" + Item.TotalCantidad.ToString() + "</ td > ";
+                        strRows = strRows + "<td width='400' " + strClass + " >" + Item.TotalVenta.ToString() + "</ td > ";
+                        strRows = strRows + "<td width='400' " + strClass + " >" + Item.Flete + "</ td > ";
+                    }
+                    else
+                    {
+                        strRows = strRows + "<td width='400' " + strClass + " >" + Item.Asesor + "</ td > ";
+                        strRows = strRows + "<td width='400' " + strClass + " >" + Item.NombreLider + "</ td > ";
+                        strRows = strRows + "<td width='400' " + strClass + " >" + Item.Promotor + "</ td > ";
+                        strRows = strRows + "<td width='400' " + strClass + " >" + Item.Rotulo + "</ td > ";
+                        strRows = strRows + "<td width='400' " + strClass + " >" + Item.Distrito + "</ td > ";
+                        strRows = strRows + "<td width='400' " + strClass + " >" + Item.Direccion + "</ td > ";
+                        strRows = strRows + "<td width='400' " + strClass + " >" + Item.Referencia + "</ td > ";
+                        strRows = strRows + "<td width='400' " + strClass + " >" + Item.Celular + "</ td > ";
+                        strRows = strRows + "<td width='400' " + strClass + " >" + Item.Pedido + "</ td > ";
+                        strRows = strRows + "<td width='400' " + strClass + " >" + Item.TotalCantidad.ToString() + "</ td > ";
+                        strRows = strRows + "<td width='400' " + strClass + " >" + Item.TotalVenta.ToString() + "</ td > ";
+                        strRows = strRows + "<td width='400' " + strClass + " >" + Item.Flete + "</ td > ";
+                    }
                     
                     strRows = strRows + "</tr>";
                 }
@@ -1034,14 +1196,14 @@ namespace CapaPresentacion.Controllers
                       
             return Json(new { estado = 0, mensaje = 1 });
         }
-        public ActionResult get_exporta_excel(string id="0")
+        public ActionResult get_exporta_excel(string id="0",string tipo_des="P" /*P=PROVINCIA ; L=LIMA-CALLAO*/)
         {
             string mensaje = "";
             string estado = "0";
             try
             {
                 Ent_Despacho_Almacen_Editar despacho_lista = get_consulta_despacho(id);
-                ExportarExcel(despacho_lista, "Orden_Despacho");
+                ExportarExcel(despacho_lista, "Orden_Despacho", tipo_des);
 
                 mensaje = "Se genero el excel correctamente";
                 estado = "1";
@@ -1056,7 +1218,7 @@ namespace CapaPresentacion.Controllers
             return Json(new { estado = estado, mensaje = mensaje });
         }
 
-        public ActionResult get_exporta_excel_new(string id = "0")
+        public ActionResult get_exporta_excel_new(string id = "0",string tipo_des="P")
         {
             string mensaje = "";
             string estado = "0";
@@ -1064,7 +1226,7 @@ namespace CapaPresentacion.Controllers
             {
                 List<Ent_Despacho_Almacen_Cab> despacho_cab=(List<Ent_Despacho_Almacen_Cab>)Session[_session_listDespacho_almacen_cab_private];
                 
-                ExportarExcel_new(despacho_cab, "Despacho_Pendiente");
+                ExportarExcel_new(despacho_cab, "Despacho_Pendiente",tipo_des);
 
                 mensaje = "Se genero el excel correctamente";
                 estado = "1";

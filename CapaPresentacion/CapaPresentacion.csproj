@@ -3080,6 +3080,7 @@
     <Content Include="Views\Articulo\StockCategoria.cshtml" />
     <Content Include="Views\Logistica\ListaDespacho.cshtml" />
     <Content Include="Views\Logistica\DespachoAlmacen.cshtml" />
+    <Content Include="Views\Logistica\DespachoAlmacenLima.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

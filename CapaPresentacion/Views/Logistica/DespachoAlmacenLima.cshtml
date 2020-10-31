@@ -4,7 +4,7 @@
 }
 
 <style>
-    .nav-tabs-custom>.nav-tabs>li.active>a, .nav-tabs-custom>.nav-tabs>li.active:hover>a {
+    .nav-tabs-custom > .nav-tabs > li.active > a, .nav-tabs-custom > .nav-tabs > li.active:hover > a {
         background-color: #e8e8e8;
         color: #444;
     }
@@ -12,16 +12,16 @@
 
 <p class="text-primary">Creando nuevo despacho, Busqueda de pedidos y exportar a excel </p>
 <div class="row">
-    <div class="col-md-12">       
+    <div class="col-md-12">
         <div class="nav-tabs-custom" id="tab_despacho">
             <ul class="nav nav-tabs">
                 <li class=""><a href="#tab_1" data-toggle="tab" id="tab_agregar" aria-expanded="false">Lista de despacho pendiente</a></li>
                 <li class="disabled disabledTab"><a href="#tab_2" data-toggle="tab" id="tab_editar" aria-expanded="false">Edicion del Despacho</a></li>
             </ul>
-            <div class="tab-content" id="tab_despacho1" >
+            <div class="tab-content" id="tab_despacho1">
                 <div class="tab-pane" id="tab_1">
                     <h5 class="text-bold">Consulta de Despacho para generar</h5>
-                    <p class="text-info">Seleccionar lista para agregar o generar un despacho.</p>   
+                    <p class="text-info">Seleccionar lista para agregar o generar un despacho.</p>
                     <div class="row">
                         <div class="col-md-10 text-right">
                             <span style="font-size:18px;" class="label label-danger" id="dc_tipo1"></span>
@@ -56,7 +56,7 @@
                                             <button id="btnbuscar" onclick="buscar();" type="submit" title="Consultar" class="btn btn-primary">
                                                 <span class="glyphicon glyphicon-search"></span>&nbsp;&nbsp;Buscar
                                             </button>
-                                        </div>                                    
+                                        </div>
                                         <div class="col-sm-8" style="padding-left: 35px; width: 568px; margin-top: 1px; margin-bottom: 1px;">
                                             <div class="panel panel-danger p-10">
                                                 <div class="panel-body" style="padding-top: 3px;padding-bottom: 2px;">
@@ -65,7 +65,7 @@
                                                         <div class="form-group">
                                                             <textarea class="form-control" id="txtdescripcion"></textarea>
                                                         </div>
-                                                    </div>                                                   
+                                                    </div>
                                                 </div>
                                             </div>
                                         </div>
@@ -76,7 +76,7 @@
 
                                             </div>
                                             <div class="col-md-6">
-                                             
+
                                             </div>
                                             <div class="col-md-6 text-right">
                                                 <button id="btn_exportar_new" onclick="exportar_new();" type="submit" title="Exportar a excel" class="btn btn-success">
@@ -84,8 +84,8 @@
                                                 </button>
                                                 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
                                                 @*<button id="btn_gcambios" onclick="generar_despacho();" type="submit" title="Guardar Cambios" class="btn btn-primary">
-                                                    <span class="glyphicon glyphicon-saved"></span>&nbsp;&nbsp;Guardar Cambios
-                                                </button>*@
+                                                        <span class="glyphicon glyphicon-saved"></span>&nbsp;&nbsp;Guardar Cambios
+                                                    </button>*@
                                                 <button id="btncrear" type="submit" onclick="generar_despacho();" title="Crear Despacho" class="btn btn-default">
                                                     <span class="glyphicon glyphicon-new-window"></span>&nbsp;&nbsp;Crear Despacho
                                                 </button>
@@ -98,71 +98,75 @@
                                         </div>
                                     </div>
                                 </div>
-                              </div>
-                         </div>
-                     </div>
-                      
-                      
-                        <div class="row">
-                            <div class="col-md-12">
-                                <div class="table-responsive">
-                                    <table id="tb_despacho" class="table table-hover table-bordered compact">
-                                        <thead>
-                                            <tr>
-                                                <th>Asesor</th>
-                                                <th>Lider</th>
-                                                <th>Promotor</th>
-                                                <th>Rotulo</th>
-                                                <th></th>
-                                                <th>Agencia</th>
-                                                <th>Destino</th>
-                                                <th>Pedidos</th>
-                                                <th>T.Cant</th>
-                                                <th>Monto</th>
-                                                <th valign="middle" style="text-align:center;width:2%">
-                                                    Flete
-                                                </th>
-                                                <th>Observacion</th>
-                                                <th>Detalle</th>
-                                                <th valign="middle" style="text-align:center;width:2%">Agregar</th>
-
-                                            </tr>
-                                        </thead>
-                                        <tbody data-bind="foreach:"></tbody>
-                                        <tfoot>
-                                            <tr>
-                                                <th>Asesor</th>
-                                                <th>Lider</th>
-                                                <th>Promotor</th>
-                                                <th>Rotulo</th>
-                                                <th></th>
-                                                <th>Agencia</th>
-                                                <th>Destino</th>
-                                                <th>Pedidos</th>
-                                                <th>T.Cant</th>
-                                                <th>Monto</th>
-                                                <th valign="middle" style="text-align:center;width:2%">
-                                                    Flete
-                                                </th>
-                                                <th>Observacion</th>
-                                                <th>Detalle</th>
-                                                <th valign="middle" style="text-align:center;width:2%">Agregar</th>
-                                            </tr>
-                                        </tfoot>
-                                    </table>
-                                </div>
                             </div>
                         </div>
                     </div>
-                <div class="tab-pane active" id="tab_2">                   
+
+
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="table-responsive">
+                                <table id="tb_despacho" class="table table-hover table-bordered compact">
+                                    <thead>
+                                        <tr>
+                                            <th>Asesor</th>
+                                            <th>Lider</th>
+                                            <th>Promotor</th>
+                                            <th>Rotulo</th>
+                                            <th></th>
+                                            <th>Distrito</th>
+                                            <th>Direccion</th>
+                                            <th>Referencia</th>
+                                            <th>Celular</th>
+                                            <th>Pedidos</th>
+                                            <th>T.Cant</th>
+                                            <th>Monto</th>
+                                            <th valign="middle" style="text-align:center;width:2%">
+                                                Flete
+                                            </th>
+                                            <th>Observacion</th>
+                                            @*<th>Detalle</th>*@
+                                            <th valign="middle" style="text-align:center;width:2%">Agregar</th>
+
+                                        </tr>
+                                    </thead>
+                                    <tbody data-bind="foreach:"></tbody>
+                                    <tfoot>
+                                        <tr>
+                                            <th>Asesor</th>
+                                            <th>Lider</th>
+                                            <th>Promotor</th>
+                                            <th>Rotulo</th>
+                                            <th></th>
+                                            <th>Distrito</th>
+                                            <th>Direccion</th>
+                                            <th>Referencia</th>
+                                            <th>Celular</th>
+                                            <th>Pedidos</th>
+                                            <th>T.Cant</th>
+                                            <th>Monto</th>
+                                            <th valign="middle" style="text-align:center;width:2%">
+                                                Flete
+                                            </th>
+                                            <th>Observacion</th>
+                                            @*<th>Detalle</th>*@
+                                            <th valign="middle" style="text-align:center;width:2%">Agregar</th>
+                                        </tr>
+                                    </tfoot>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="tab-pane active" id="tab_2">
                     <h5 class="text-bold">Datos de Despacho</h5>
-                    <p class="text-info">Agregar Lider ó editar despacho.</p>                      
+                    <p class="text-info">Agregar Lider ó editar despacho.</p>
                     <div class="row">
                         <div class="col-md-10 text-right">
                             <span style="font-size:18px;" class="label label-danger" id="dc_tipo2"></span>
                         </div>
-                        <div class="col-md-10" style="padding-left: 10px;padding-bottom:10px;">                                                       
-                                    <a href="@Url.Action("ListaDespacho" , "Logistica")" class="btn btn-default" title="Regresar al listado de despacho"><i class="fa fa-long-arrow-left"></i>&nbsp;&nbsp;Regresar al listado</a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;                                                 
+                        <div class="col-md-10" style="padding-left: 10px;padding-bottom:10px;">
+                            <a href="@Url.Action("ListaDespacho" , "Logistica")" class="btn btn-default" title="Regresar al listado de despacho"><i class="fa fa-long-arrow-left"></i>&nbsp;&nbsp;Regresar al listado</a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
                         </div>
                         <div class="col-md-10">
                             <div class="box box-primary">
@@ -263,14 +267,14 @@
                                 </div>
                             </div>
                         </div>
-                     </div>  
+                    </div>
                     <div class="row">
                         <div class="col-md-10">
                             <div class="box box-danger">
-                               
+
                             </div>
                             <div class="col-md-6">
-                                @*<a href="@Url.Action("ClienteEditar", "Clientes",new {estado= "1"})" class="btn btn-success"><i class="glyphicon glyphicon-plus"></i>&nbsp;Crear nuevo Cliente</a>*@       
+                                @*<a href="@Url.Action("ClienteEditar", "Clientes",new {estado= "1"})" class="btn btn-success"><i class="glyphicon glyphicon-plus"></i>&nbsp;Crear nuevo Cliente</a>*@
                                 <button id="btn_gcambios_agregar" onclick="agregar_lider();" type="submit" title="Agregar Lider" class="btn btn-success">
                                     <span class="glyphicon glyphicon-plus"></span>&nbsp;&nbsp;Agregar Lider
                                 </button>
@@ -286,10 +290,10 @@
 
                                 @*<a href="@Url.Action("ListaClienteExcel","Clientes")" class="btn btn-primary"><i class="glyphicon glyphicon-export"></i>&nbsp;&nbsp;Exportar Lista</a>*@
                             </div>
-                         </div>
-                     </div>
+                        </div>
+                    </div>
                     <br />
-                    <br />  
+                    <br />
                     <div class="row">
                         <div class="col-md-12">
                             <div class="table-responsive">
@@ -301,8 +305,10 @@
                                             <th>Promotor</th>
                                             <th>Rotulo</th>
                                             <th></th>
-                                            <th>Agencia</th>
-                                            <th>Destino</th>
+                                            <th>Distrito</th>
+                                            <th>Direccion</th>
+                                            <th>Referencia</th>
+                                            <th>Celular</th>
                                             <th>Pedidos</th>
                                             <th>T.Cant</th>
                                             <th>T.Cant.Env</th>
@@ -311,7 +317,7 @@
                                                 Flete
                                             </th>
                                             <th>Observacion</th>
-                                            <th>Detalle</th>
+                                            @*<th>Detalle</th>*@
                                             <th valign="middle" style="text-align:center;width:2%">Eliminar</th>
 
                                         </tr>
@@ -324,8 +330,10 @@
                                             <th>Promotor</th>
                                             <th>Rotulo</th>
                                             <th></th>
-                                            <th>Agencia</th>
-                                            <th>Destino</th>
+                                            <th>Distrito</th>
+                                            <th>Direccion</th>
+                                            <th>Referencia</th>
+                                            <th>Celular</th>
                                             <th>Pedidos</th>
                                             <th>T.Cant</th>
                                             <th>T.Cant.Env</th>
@@ -334,16 +342,16 @@
                                                 Flete
                                             </th>
                                             <th>Observacion</th>
-                                            <th>Detalle</th>
+                                            @*<th>Detalle</th>*@
                                             <th valign="middle" style="text-align:center;width:2%">Eliminar</th>
                                         </tr>
                                     </tfoot>
                                 </table>
                             </div>
                         </div>
-                    </div>                               
+                    </div>
                 </div>
-             </div>
+            </div>
         </div>
     </div>
 </div>
@@ -361,7 +369,7 @@
                 <input type="hidden" id="h_detalle" value="" />
 
                 <div class="modal-header modal-header-primary">
-                    <button type="button"  class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
                     <h4 class="modal-title" id="lbl_lider"></h4>
                 </div>
                 <div class="modal-body" id="myModalContent">
@@ -401,14 +409,14 @@
             $.ajax({
                 type: "POST",
                 url: '@Url.Action("get_exporta_excel_new", "Logistica")',
-                data: {id:iddespacho},
+                data: {id:iddespacho,tipo_des:'L'},
                 success: function (data) {
                     waitingDialog.hide();
-                    if (data.estado == "1") {                        
+                    if (data.estado == "1") {
                         toastr.success(data.mensaje);
                         window.location = '@Url.Action("ListaDespachoExcel")';
                     }
-                    else {                        
+                    else {
                         toastr.error(data.mensaje, "Alerta");
                     }
                 },
@@ -419,19 +427,19 @@
             });
         }
 
-        function exportar(){         
+        function exportar(){
             waitingDialog.show("Espere por favor...")
             $.ajax({
                 type: "POST",
                 url: '@Url.Action("get_exporta_excel", "Logistica")',
-                data: {id:iddespacho},
+                data: {id:iddespacho,tipo_des:'L'},
                 success: function (data) {
                     waitingDialog.hide();
-                    if (data.estado == "1") {                        
+                    if (data.estado == "1") {
                         toastr.success(data.mensaje);
                         window.location = '@Url.Action("ListaDespachoExcel")';
                     }
-                    else {                        
+                    else {
                         toastr.error(data.mensaje, "Alerta");
                     }
                 },
@@ -558,7 +566,7 @@
 
                     var row = table.rows(index).data();
 
-                    var cell = table.cell({ row: index, column: 13 }).node();
+                    var cell = table.cell({ row: index, column: 14 }).node();
 
                     var chk_agregar =$('input', cell).is(':checked');
 
@@ -566,16 +574,16 @@
                         /*solo los que estan seleccionados*/
                         cell = table.cell({ row: index, column: 5 }).node();
                         var strAgencia = $('textarea', cell).val();
-                        if (strAgencia.length == 0) {
-                            toastr.error('El campo agencia no puede estar vacio..', 'Mensaje');
-                            return;
-                        }
+                        //if (strAgencia.length == 0) {
+                        //    toastr.error('El campo agencia no puede estar vacio..', 'Mensaje');
+                        //    return;
+                        //}
                         cell = table.cell({ row: index, column: 6 }).node();
                         var strDestino = $('textarea', cell).val();
-                        if (strDestino.length == 0) {
-                            toastr.error('El campo destino no puede estar vacio..', 'Mensaje');
-                            return;
-                        }
+                        //if (strDestino.length == 0) {
+                        //    toastr.error('El campo destino no puede estar vacio..', 'Mensaje');
+                        //    return;
+                        //}
 
                         var strIdLider = data[index].area_id;
                         var strLider = data[index].NombreLider;
@@ -589,7 +597,13 @@
                         var strPremio = data[index].TotalPremio;
                         var strMonto = data[index].TotalVenta;
 
-                        cell = table.cell({ row: index, column: 11 }).node();
+                        var strDistrito=data[index].Distrito;
+                        var strDireccion=data[index].Direccion;
+                        var strReferencia=data[index].Referencia;
+                        var strCelular=data[index].Celular;
+
+
+                        cell = table.cell({ row: index, column: 13 }).node();
                         var strObs = $('textarea', cell).val();
 
                         cell = table.cell({ row: index, column: 12 }).node();
@@ -598,7 +612,7 @@
                         var strMcaCourier = 'N';
                         var strMcaFlete = 'N';
 
-                        var cell = table.cell({ row: index, column: 10 }).node();
+                        var cell = table.cell({ row: index, column: 12 }).node();
                         var chk_flete = $('input', cell).is(':checked');
                         if (chk_flete) strMcaFlete = 'S'
 
@@ -623,6 +637,12 @@
                         dataobj_despacho.strMcaCourier = strMcaCourier;
                         dataobj_despacho.strMcaFlete = strMcaFlete;
 
+                        dataobj_despacho.strDistrito = strDistrito;
+                        dataobj_despacho.strDireccion = strDireccion;
+                        dataobj_despacho.strReferencia = strReferencia;
+                        dataobj_despacho.strCelular = strCelular;
+
+
                         dataArray_despacho.push(dataobj_despacho);
 
                     }
@@ -644,16 +664,16 @@
 
                         cell = table.cell({ row: index, column: 5 }).node();
                         var strAgencia = $('textarea', cell).val();
-                        if (strAgencia.length == 0) {
-                            toastr.error('El campo agencia no puede estar vacio..', 'Mensaje');
-                            return;
-                        }
+                        //if (strAgencia.length == 0) {
+                        //    toastr.error('El campo agencia no puede estar vacio..', 'Mensaje');
+                        //    return;
+                        //}
                         cell = table.cell({ row: index, column: 6 }).node();
                         var strDestino = $('textarea', cell).val();
-                        if (strDestino.length == 0) {
-                            toastr.error('El campo destino no puede estar vacio..', 'Mensaje');
-                            return;
-                        }
+                        //if (strDestino.length == 0) {
+                        //    toastr.error('El campo destino no puede estar vacio..', 'Mensaje');
+                        //    return;
+                        //}
 
                         var strIdLider = data[index].IdLider;
                         var strIdDetalle = data[index].Desp_IdDetalle;
@@ -668,16 +688,21 @@
                         var strPremio = data[index].TotalPremio;
                         var strMonto = data[index].TotalVenta;
 
-                        cell = table.cell({ row: index, column: 12 }).node();
+                        var strDistrito=data[index].Distrito;
+                        var strDireccion=data[index].Direccion;
+                        var strReferencia=data[index].Referencia;
+                        var strCelular=data[index].Celular;
+
+                        cell = table.cell({ row: index, column: 14 }).node();
                         var strObs = $('textarea', cell).val();
 
-                        cell = table.cell({ row: index, column: 13 }).node();
-                        var strDetalle = $('textarea', cell).val();
+                        //cell = table.cell({ row: index, column: 13 }).node();
+                        var strDetalle ='';// $('textarea', cell).val();
 
                         var strMcaCourier = 'N';
                         var strMcaFlete = 'N';
 
-                        var cell = table.cell({ row: index, column: 11 }).node();
+                        var cell = table.cell({ row: index, column: 13 }).node();
                         var chk_flete = $('input', cell).is(':checked');
                         if (chk_flete) strMcaFlete = 'S'
 
@@ -699,6 +724,11 @@
 
                         dataobj_despacho.strDestino = strDestino;
                         dataobj_despacho.strAgencia = strAgencia;
+
+                        dataobj_despacho.strDistrito = strDistrito;
+                        dataobj_despacho.strDireccion = strDireccion;
+                        dataobj_despacho.strReferencia = strReferencia;
+                        dataobj_despacho.strCelular = strCelular;
 
                         dataobj_despacho.strMonto = strMonto;
                         dataobj_despacho.strObs = strObs;
@@ -799,7 +829,7 @@
             actualizar_data = "1";
             fecha_ini = $("#fecini").val();
             fecha_fin = $("#fecfin").val();
-            tipo_des = "P";
+            tipo_des = "L";
             waitingDialog.show("Espere por favor...");
             $('#tb_despacho').DataTable().ajax.reload(function () {
                 waitingDialog.hide();
@@ -829,7 +859,7 @@
                     cell = table.cell({ row: index, column: 6 }).node();
                     var strDestino = $('textarea', cell).val();
 
-                    cell = table.cell({ row: index, column: 11 }).node();
+                    cell = table.cell({ row: index, column: 13 }).node();
                     var strObs = $('textarea', cell).val();
 
                     cell = table.cell({ row: index, column: 12 }).node();
@@ -837,7 +867,7 @@
 
                     var strMcaFlete = 'N';
 
-                    var cell = table.cell({ row: index, column: 10 }).node();
+                    var cell = table.cell({ row: index, column: 12 }).node();
                     var chk_flete = $('input', cell).is(':checked');
                     if (chk_flete) strMcaFlete = 'Si'
 
@@ -845,9 +875,9 @@
 
                     dataobj_despacho = function () { return @Html.Raw(Json.Encode(ViewBag.DespachoUpd)); }();
                     dataobj_despacho.strDestino = strDestino;
-                    dataobj_despacho.strAgencia = strAgencia;                
+                    dataobj_despacho.strAgencia = strAgencia;
                     dataobj_despacho.strObs = strObs;
-                    dataobj_despacho.strDetalle = strDetalle;                
+                    dataobj_despacho.strDetalle = strDetalle;
                     dataobj_despacho.strMcaFlete = strMcaFlete;
                     dataobj_despacho.strLid_Prom=strLid_Prom;
                     dataArray_despacho.push(dataobj_despacho);
@@ -866,15 +896,15 @@
                     cell = table.cell({ row: index, column: 6 }).node();
                     var strDestino = $('textarea', cell).val();
 
-                    cell = table.cell({ row: index, column: 12 }).node();
+                    cell = table.cell({ row: index, column: 14 }).node();
                     var strObs = $('textarea', cell).val();
 
-                    cell = table.cell({ row: index, column: 13 }).node();
-                    var strDetalle = $('textarea', cell).val();
+                    cell = table.cell({ row: index, column: 14 }).node();
+                    var strDetalle ='';// $('textarea', cell).val();
 
                     var strMcaFlete = 'N';
 
-                    var cell = table.cell({ row: index, column: 11 }).node();
+                    var cell = table.cell({ row: index, column: 13 }).node();
                     var chk_flete = $('input', cell).is(':checked');
                     if (chk_flete) strMcaFlete = 'Si'
 
@@ -882,9 +912,9 @@
 
                     dataobj_despacho = function () { return @Html.Raw(Json.Encode(ViewBag.DespachoUpd)); }();
                     dataobj_despacho.strDestino = strDestino;
-                    dataobj_despacho.strAgencia = strAgencia;                
+                    dataobj_despacho.strAgencia = strAgencia;
                     dataobj_despacho.strObs = strObs;
-                    dataobj_despacho.strDetalle = strDetalle;                
+                    dataobj_despacho.strDetalle = strDetalle;
                     dataobj_despacho.strMcaFlete = strMcaFlete;
                     dataobj_despacho.strLid_Prom=strLid_Prom;
                     dataArray_despacho.push(dataobj_despacho);
@@ -1119,7 +1149,7 @@
         var actualizar_data = "";
         var fecha_ini = "";
         var fecha_fin = "";
-        var tipo_des = "";
+        var tipo_des = "L";
 
         var rows_selected = [];
         var table;
@@ -1185,7 +1215,7 @@
 
             fecha_ini = $("#fecini").val();
             fecha_fin = $("#fecfin").val();
-            tipo_des = "P";
+            tipo_des = "L";
 
             inicio_pag();
             if (iddespacho!=0)obtener_despacho(iddespacho);
@@ -1275,42 +1305,48 @@
                                return btn_edit_rotulo;
                            }, "class": "boton-xs-td"
                        },
-                        {
-                            "render": function (data, type, full) {
 
-                                var agencia = full.Agencia;
+                        //{
+                        //    "render": function (data, type, full) {
 
-                                var text_agencia='';
-                                if (desactivar==0){
-                                    text_agencia = ' <div class="form-group"><textarea style="width:100px; height:80px;" class="form-control" id="txtagencia">' + agencia + '</textarea></div>';
-                                }else{
-                                    text_agencia = ' <div class="form-group"><textarea disabled style="width:100px; height:80px;" class="form-control" id="txtagencia">' + agencia + '</textarea></div>';
-                                }
+                        //        var agencia = full.Agencia;
 
-
-
-
-                                return text_agencia;
-                            },
-                        },
-                         {
-                             "render": function (data, type, full) {
-
-                                 var destino = full.Destino;
-
-                                 var text_destino='';
-
-                                 if (desactivar==0){
-                                     text_destino = ' <div class="form-group"><textarea style="width:100px; height:80px;" class="form-control" id="txtdestino">' + destino + '</textarea></div>';
-                                 }else{
-                                     text_destino = ' <div class="form-group"><textarea disabled style="width:100px; height:80px;" class="form-control" id="txtdestino">' + destino + '</textarea></div>';
-                                 }
+                        //        var text_agencia='';
+                        //        if (desactivar==0){
+                        //            text_agencia = ' <div class="form-group"><textarea style="width:100px; height:80px;" class="form-control" id="txtagencia">' + agencia + '</textarea></div>';
+                        //        }else{
+                        //            text_agencia = ' <div class="form-group"><textarea disabled style="width:100px; height:80px;" class="form-control" id="txtagencia">' + agencia + '</textarea></div>';
+                        //        }
 
 
 
-                                 return text_destino;
-                             },
-                         },
+
+                        //        return text_agencia;
+                        //    },
+                        //},
+                         //{
+                         //    "render": function (data, type, full) {
+
+                         //        var destino = full.Destino;
+
+                         //        var text_destino='';
+
+                         //        if (desactivar==0){
+                         //            text_destino = ' <div class="form-group"><textarea style="width:100px; height:80px;" class="form-control" id="txtdestino">' + destino + '</textarea></div>';
+                         //        }else{
+                         //            text_destino = ' <div class="form-group"><textarea disabled style="width:100px; height:80px;" class="form-control" id="txtdestino">' + destino + '</textarea></div>';
+                         //        }
+
+
+
+                         //        return text_destino;
+                         //    },
+                         //},
+                         { "sName": "Distrito", "mData": "Distrito" },
+                         { "sName": "Direccion", "mData": "Direccion" },
+                         { "sName": "Referencia", "mData": "Referencia" },
+                         { "sName": "Celular", "mData": "Celular" },
+
                       { "sName": "Pedido", "mData": "Pedido" },
                       { "sName": "Total_Cantidad", "mData": "Total_Cantidad" },
                        { "sName": "Total_Cantidad_Envio", "mData": "Total_Cantidad_Envio" },
@@ -1356,24 +1392,24 @@
                                 return text_observacion;
                             },
                         },
-                          {
-                              "render": function (data, type, full) {
+                          //{
+                          //    "render": function (data, type, full) {
 
-                                  var detalle = full.Detalle;
+                          //        var detalle = full.Detalle;
 
-                                  var text_detalle='';
+                          //        var text_detalle='';
 
-                                  if (desactivar==0){
-                                      text_detalle = ' <div class="form-group"><textarea style="width:100px; height:80px;" class="form-control" id="txtdet">' + detalle + '</textarea></div>';
-                                  }else{
-                                      text_detalle = ' <div class="form-group"><textarea disabled style="width:100px; height:80px;" class="form-control" id="txtdet">' + detalle + '</textarea></div>';
-                                  }
+                          //        if (desactivar==0){
+                          //            text_detalle = ' <div class="form-group"><textarea style="width:100px; height:80px;" class="form-control" id="txtdet">' + detalle + '</textarea></div>';
+                          //        }else{
+                          //            text_detalle = ' <div class="form-group"><textarea disabled style="width:100px; height:80px;" class="form-control" id="txtdet">' + detalle + '</textarea></div>';
+                          //        }
 
 
 
-                                  return text_detalle;
-                              },
-                          },
+                          //        return text_detalle;
+                          //    },
+                          //},
 
                             {
                                 "render": function (data, type, full) {
@@ -1476,26 +1512,30 @@
                                return btn_edit_rotulo;
                            }, "class": "boton-xs-td"
                        },
-                        {
-                            "render": function (data, type, full) {
+                       { "sName": "Distrito", "mData": "Distrito" },
+                       { "sName": "Direccion", "mData": "Direccion" },
+                       { "sName": "Referencia", "mData": "Referencia" },
+                       { "sName": "Celular", "mData": "Celular" },
+                        //{
+                        //    "render": function (data, type, full) {
 
-                                var agencia = full.Agencia;
+                        //        var agencia = full.Agencia;
 
-                                var text_agencia = ' <div class="form-group"><textarea style="width:100px; height:80px;" class="form-control" id="txtagencia">' + agencia + '</textarea></div>';
+                        //        var text_agencia = ' <div class="form-group"><textarea style="width:100px; height:80px;" class="form-control" id="txtagencia">' + agencia + '</textarea></div>';
 
-                                return text_agencia;
-                            },
-                        },
-                         {
-                             "render": function (data, type, full) {
+                        //        return text_agencia;
+                        //    },
+                        //},
+                         //{
+                         //    "render": function (data, type, full) {
 
-                                 var destino = full.Destino;
+                         //        var destino = full.Destino;
 
-                                 var text_destino = ' <div class="form-group"><textarea style="width:100px; height:80px;" class="form-control" id="txtdestino">' + destino + '</textarea></div>';
+                         //        var text_destino = ' <div class="form-group"><textarea style="width:100px; height:80px;" class="form-control" id="txtdestino">' + destino + '</textarea></div>';
 
-                                 return text_destino;
-                             },
-                         },
+                         //        return text_destino;
+                         //    },
+                         //},
                       { "sName": "Pedido", "mData": "Pedido" },
                       { "sName": "TotalCantidad", "mData": "TotalCantidad" },
 
@@ -1526,18 +1566,18 @@
                                 return text_observacion;
                             },
                         },
-                          {
-                              "render": function (data, type, full) {
+                          //{
+                          //    "render": function (data, type, full) {
 
-                                  var detalle =full.detalle;
+                          //        var detalle =full.detalle;
 
-                                  if (detalle==null)  detalle='';
+                          //        if (detalle==null)  detalle='';
 
-                                  var text_detalle = ' <div class="form-group"><textarea style="width:100px; height:80px;" class="form-control" id="txtdet">' + detalle +'</textarea></div>';
+                          //        var text_detalle = ' <div class="form-group"><textarea style="width:100px; height:80px;" class="form-control" id="txtdet">' + detalle +'</textarea></div>';
 
-                                  return text_detalle;
-                              },
-                          },
+                          //        return text_detalle;
+                          //    },
+                          //},
 
                             {
                                 "render": function (data, type, full) {

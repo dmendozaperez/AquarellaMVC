@@ -15,6 +15,7 @@ namespace CapaEntidad.Logistica
         public string estado { get; set; }
         public string desp_fechacre { get; set; }
         public string desp_tipo { get; set; } /*L=LIMA; P=PROVINCIA*/
+        public string desp_tipo_descripcion { get; set; } /*L=LIMA; P=PROVINCIA*/
 
     }
     public class Ent_Tipo_Despacho
@@ -36,6 +37,10 @@ namespace CapaEntidad.Logistica
         public string NombreLider { get; set; }
         public string Promotor { get; set; }
         public string Rotulo { get; set; }
+        public string Distrito { get; set; }
+        public string Direccion { get; set; }
+        public string Referencia { get; set; }
+        public string Celular { get; set; }
         public string rotulo_courier { get; set; }
         public string Agencia { get; set; }
         public string Destino { get; set; }
@@ -51,7 +56,10 @@ namespace CapaEntidad.Logistica
         public string Lid_Prom { get; set; }   
         public string observacion { get; set; }
         public string detalle { get; set; }
-             
+
+      
+
+
     }
     public class Ent_Despacho_Almacen_Liquidacion
     {
@@ -81,6 +89,12 @@ namespace CapaEntidad.Logistica
         public string strMcaCourier { get; set; }
         public string strMcaFlete { get; set; }
 
+        public string strDistrito { get; set; }
+        public string strDireccion { get; set; }
+        public string strReferencia { get; set; }
+        public string strCelular { get; set; }
+
+
     }
 
 
@@ -101,6 +115,11 @@ namespace CapaEntidad.Logistica
         public string Promotor { get; set; }
         public string Rotulo { get; set; }
         public string Rotulo_Courier { get; set; }
+        public string Distrito { get; set; }
+        public string Direccion { get; set; }
+        public string Referencia { get; set; }
+        public string Celular { get; set; }
+
         public string Agencia { get; set; }
         public string Destino { get; set; }
         public string Pedido { get; set; }
@@ -130,7 +149,7 @@ namespace CapaEntidad.Logistica
         public string IdLider { get; set; }
         public string Lid_Prom { get; set; }
 
-
+       
 
 
 

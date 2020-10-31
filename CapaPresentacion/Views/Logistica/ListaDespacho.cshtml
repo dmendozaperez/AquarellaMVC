@@ -87,7 +87,7 @@
                         <thead>
                             <tr>
                                 <th>N° DE DESPACHO</th>
-                                @*<th>DESCRIPCION</th>*@
+                                <th>TIPODES</th>
                                 <th>FECHA</th>
                                 <th>PARES ENVIADO</th>
                                 <th>ESTADO</th>
@@ -98,7 +98,7 @@
                         <tfoot>
                             <tr>
                                 <th>N° DE DESPACHO</th>
-                                @*<th>DESCRIPCION</th>*@
+                                <th>TIPODES</th>
                                 <th>FECHA</th>
                                 <th>PARES ENVIADO</th>
                                 <th>ESTADO</th>
@@ -113,12 +113,12 @@
     @section scripts{
 
         <script>
-            function exportar(id) {             
+            function exportar(id, tipo_des) {
             waitingDialog.show("Espere por favor...")
             $.ajax({
                 type: "POST",
                 url: '@Url.Action("get_exporta_excel", "Logistica")',
-                data: { id: id },
+                data: { id: id, tipo_des: tipo_des },
                 success: function (data) {
                     waitingDialog.hide();
                     if (data.estado == "1") {
@@ -153,17 +153,34 @@
             });
         </script>
         <script>
-    
-            function nuevo(){
-                window.location.href = '@Url.Action("DespachoAlmacen", "Logistica", new { estado = 1 })';
+
+            function nuevo() {
+
+                var tipo_des = $('#dwtipo_n').val();
+
+                if (tipo_des == 'P') {
+                    window.location.href = '@Url.Action("DespachoAlmacen", "Logistica")?estado=1&tipo_des=' + tipo_des;
+                } else {
+                    window.location.href = '@Url.Action("DespachoAlmacenLima", "Logistica")?estado=1&tipo_des=' + tipo_des;
+                }
+
+
+
             }
-            function editar(editar_edicion,desp_id) {
-                window.location.href = '@Url.Action("DespachoAlmacen", "Logistica")?estado=2&estado_edicion=' + editar_edicion + '&desp_id=' + desp_id;
+            function editar(editar_edicion, desp_id, des_tipo) {
+
+                if (des_tipo == 'P') {
+                    window.location.href = '@Url.Action("DespachoAlmacen", "Logistica")?estado=2&estado_edicion=' + editar_edicion + '&desp_id=' + desp_id + '&tipo_des=' + des_tipo;
+                } else {
+                    window.location.href = '@Url.Action("DespachoAlmacenLima", "Logistica")?estado=2&estado_edicion=' + editar_edicion + '&desp_id=' + desp_id + '&tipo_des=' + des_tipo;
+                }
+
+
             }
 
             function buscar() {
                 tipo_des = $('#dwtipo_b').val();
-                
+
 
                 if (tipo_des == null) {
                     toastr.error("Ingrese un tipo de Despacho", "Alerta");
@@ -235,7 +252,7 @@
                     "bDeferRender": true,
                     "aoColumns": [
                           { "sName": "desp_nrodoc", "mData": "desp_nrodoc" },
-                          //{ "sName": "desp_descripcion", "mData": "desp_descripcion" },
+                          { "sName": "desp_tipo_descripcion", "mData": "desp_tipo_descripcion" },
                           { "sName": "desp_fechacre", "mData": "desp_fechacre" },
                           { "sName": "totalparesenviado", "mData": "totalparesenviado" },
                           { "sName": "estado", "mData": "estado" },
@@ -245,11 +262,13 @@
                                    var desp_id = full.desp_id;
 
                                    /*si es 1 entonces ya no se puede modificar*/
-                                   var estado_edicion = (full.estado=='Despachado')?1:0;
+                                   var estado_edicion = (full.estado == 'Despachado') ? 1 : 0;
+
+                                   var tipo_des = full.desp_tipo;
 
 
-                                   var btn_despacho_edit = '<button type="submit" title="Ver y/o Editar Despacho" onclick="editar(' + estado_edicion + ',' + desp_id + ');" class="btn btn-xs btn-default btn-tabla editar-fila"><span class="fa fa-pencil text-primary"></span></button>';
-                                   var btn_despacho_excel = '<button title="Exportar a excel" onclick="exportar(' + desp_id + ');" class="btn btn-xs btn-default btn-tabla ver-fac"  data-liqId="' + desp_id + '" data-venId="' + desp_id + '" style="margin-left: 3.5px;"><span class="fa fa-file-excel-o text-success"></span></button>';
+                                   var btn_despacho_edit = '<button type="submit" title="Ver y/o Editar Despacho" onclick="editar(' + estado_edicion + ',' + desp_id + ',\'' + tipo_des + '\' );" class="btn btn-xs btn-default btn-tabla editar-fila"><span class="fa fa-pencil text-primary"></span></button>';
+                                   var btn_despacho_excel = '<button title="Exportar a excel" onclick="exportar(' + desp_id + ',\'' + tipo_des + '\' );" class="btn btn-xs btn-default btn-tabla ver-fac"  data-liqId="' + desp_id + '" data-venId="' + desp_id + '" style="margin-left: 3.5px;"><span class="fa fa-file-excel-o text-success"></span></button>';
 
                                    //var btnflete = '';// (Usuario.usu_flete == '1') ? ("&nbsp;").repeat(3) + '<button type="submit" title="Generar flete del cliente" onclick="Editar(\'' + dni + '\');" class="btn btn-xs btn-default btn-tabla editar-fila"><span class="fa fa-truck text-success"></span></button>' : '';
 

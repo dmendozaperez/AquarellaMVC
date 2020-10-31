@@ -41,7 +41,8 @@ namespace CapaDato.Logistica
                                           totalparesenviado = fila["totalparesenviado"].ToString(),
                                           estado = fila["estado"].ToString(),
                                           desp_fechacre = fila["desp_fechacre"].ToString(),
-                                          desp_tipo = fila["desp_tipo"].ToString(),                                          
+                                          desp_tipo = fila["desp_tipo"].ToString(),    
+                                          desp_tipo_descripcion= fila["Desp_Tipo_Descripcion"].ToString(),
                                       }
                                     ).ToList();
                         }
@@ -96,7 +97,11 @@ namespace CapaDato.Logistica
                                              Igv = Convert.ToDecimal(fila["Igv"]),
                                              McaFlete = fila["McaFlete"].ToString(),
                                              Flete = fila["Flete"].ToString(),
-                                             Lid_Prom = fila["Lid_Prom"].ToString()                                             
+                                             Lid_Prom = fila["Lid_Prom"].ToString(),    
+                                             Distrito= fila["Distrito"].ToString(),
+                                             Direccion = fila["Direccion"].ToString(),
+                                             Referencia = fila["Referencia"].ToString(),
+                                             Celular = fila["Celular"].ToString(),
                                          }
                                        ).ToList();
 
@@ -171,7 +176,7 @@ namespace CapaDato.Logistica
             }
             return listar;
         }
-        public string insertar_despacho(Decimal _usu, ref int IdDespacho, string strListDetalle, string strListLiderDespachoLiquidacion, string Descripcion)
+        public string insertar_despacho(Decimal _usu, ref int IdDespacho, string strListDetalle, string strListLiderDespachoLiquidacion, string Descripcion,string tipo_des)
         {
             string sqlquery = "[USP_MVC_Insertar_Despacho]";
             string valida = "";
@@ -191,6 +196,8 @@ namespace CapaDato.Logistica
                             cmd.Parameters.AddWithValue("@strListLiqui", strListLiderDespachoLiquidacion);
                             cmd.Parameters.AddWithValue("@strDescripcion", Descripcion);
                             cmd.Parameters.AddWithValue("@UsuCrea", _usu);
+
+                            cmd.Parameters.AddWithValue("@desp_tipo", tipo_des);
 
                             cmd.Parameters.Add("@IdDespacho", SqlDbType.Int);
                             cmd.Parameters["@IdDespacho"].SqlValue = IdDespacho;
@@ -360,6 +367,12 @@ namespace CapaDato.Logistica
                                              atendido = fila["atendido"].ToString(),
                                              IdLider = fila["IdLider"].ToString(),
                                              Lid_Prom = fila["Lid_Prom"].ToString(),
+
+                                             Distrito= fila["Distrito"].ToString(),
+                                             Direccion = fila["Direccion"].ToString(),
+                                             Referencia = fila["Referencia"].ToString(),
+                                             Celular = fila["Celular"].ToString(),
+
                                          }
                                        ).ToList();
 
