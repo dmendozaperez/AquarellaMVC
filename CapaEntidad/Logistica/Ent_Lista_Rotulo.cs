@@ -16,6 +16,6 @@ namespace CapaEntidad.Logistica
         public string destino { get; set; }
         public string telefono { get; set; }
         public string lid_prom { get; set; }
-
+        public string distrito { get; set; }
     }
 }

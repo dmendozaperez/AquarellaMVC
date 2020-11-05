@@ -34,12 +34,12 @@ namespace CapaPresentacion.Controllers
             string controllerName = this.ControllerContext.RouteData.GetRequiredString("controller");
             string return_view = actionName + "|" + controllerName;
 
-            //if (_usuario == null)
-            //{
-            //    return RedirectToAction("Login", "Control", new { returnUrl = return_view });
-            //}
-            //else
-            //{
+            if (_usuario == null)
+            {
+                return RedirectToAction("Login", "Control", new { returnUrl = return_view });
+            }
+            else
+            {
                 List<Ent_Tipo_Despacho> lista_tipo = new List<Ent_Tipo_Despacho>();
                 Ent_Tipo_Despacho tip = new Ent_Tipo_Despacho();
                 tip.tip_des_cod = "L";
@@ -54,8 +54,8 @@ namespace CapaPresentacion.Controllers
                 ViewBag.Tipo = lista_tipo;
 
                 return View();
-            //}
-          
+            }
+
         }      
         public List<Ent_Lista_Despacho> lista(string fecha_ini,string fecha_fin,string tipo_des)
         {            
@@ -242,7 +242,7 @@ namespace CapaPresentacion.Controllers
             return listdespacho;
         }
 
-        public ActionResult getListDespachoAlmacenAjax(Ent_jQueryDataTableParams param, string actualizar, string fecha_ini, string fecha_fin, string tipo_des)
+        public ActionResult getListDespachoAlmacenAjax(Ent_jQueryDataTableParams param, string actualizar, string fecha_ini, string fecha_fin, string tipo_des,Boolean agregar=false)
         {
 
             //List<Ent_Lista_Despacho> listdespacho = new List<Ent_Lista_Despacho>();
@@ -280,45 +280,56 @@ namespace CapaPresentacion.Controllers
             int totalCount = membercol.Count();
             IEnumerable<Ent_Despacho_Almacen_Cab> filteredMembers = membercol;
 
-            if (!string.IsNullOrEmpty(param.sSearch))
+            if (!agregar)
+            {
+                if (!string.IsNullOrEmpty(param.sSearch))
+                {
+                    filteredMembers = membercol
+                        .Where(m => m.Asesor.ToUpper().Contains(param.sSearch.ToUpper()) ||
+                            m.Asesor.ToUpper().Contains(param.sSearch.ToUpper()) ||
+                            m.NombreLider.ToUpper().Contains(param.sSearch.ToUpper()) ||
+                            m.Promotor.ToUpper().Contains(param.sSearch.ToUpper())
+                        );
+                }
+            }
+
+           
+            if (agregar)
             {
                 filteredMembers = membercol
-                    .Where(m => m.Asesor.ToUpper().Contains(param.sSearch.ToUpper()) ||
-                        m.Asesor.ToUpper().Contains(param.sSearch.ToUpper()) ||
-                        m.NombreLider.ToUpper().Contains(param.sSearch.ToUpper()) ||
-                        m.Promotor.ToUpper().Contains(param.sSearch.ToUpper()) 
+                    .Where(m => m.agregar==true
                     );
             }
             //Manejador de orden
             //var sortIdx = Convert.ToInt32(Request["iSortCol_0"]);
 
-            //if (param.iSortingCols > 0)
-            //{
-            //    if (Request["sSortDir_0"].ToString() == "asc")
-            //    {
-            //        switch (sortIdx)
-            //        {
-            //            case 0: filteredMembers = filteredMembers.OrderBy(o => o.desp_nrodoc); break;
-            //            case 1: filteredMembers = filteredMembers.OrderBy(o => o.desp_descripcion); break;
-            //            case 2: filteredMembers = filteredMembers.OrderBy(o => Convert.ToDateTime(o.desp_fechacre)); break;
-            //            case 3: filteredMembers = filteredMembers.OrderBy(o => o.totalparesenviado); break;
-            //            case 4: filteredMembers = filteredMembers.OrderBy(o => o.estado); break;
+                //if (param.iSortingCols > 0)
+                //{
+                //    if (Request["sSortDir_0"].ToString() == "asc")
+                //    {
+                //        switch (sortIdx)
+                //        {
+                //            case 0: filteredMembers = filteredMembers.OrderBy(o => o.desp_nrodoc); break;
+                //            case 1: filteredMembers = filteredMembers.OrderBy(o => o.desp_descripcion); break;
+                //            case 2: filteredMembers = filteredMembers.OrderBy(o => Convert.ToDateTime(o.desp_fechacre)); break;
+                //            case 3: filteredMembers = filteredMembers.OrderBy(o => o.totalparesenviado); break;
+                //            case 4: filteredMembers = filteredMembers.OrderBy(o => o.estado); break;
 
-            //        }
-            //    }
-            //    else
-            //    {
-            //        switch (sortIdx)
-            //        {
-            //            case 0: filteredMembers = filteredMembers.OrderByDescending(o => o.desp_nrodoc); break;
-            //            case 1: filteredMembers = filteredMembers.OrderByDescending(o => o.desp_descripcion); break;
-            //            case 2: filteredMembers = filteredMembers.OrderByDescending(o => Convert.ToDateTime(o.desp_fechacre)); break;
-            //            case 3: filteredMembers = filteredMembers.OrderByDescending(o => o.totalparesenviado); break;
-            //            case 4: filteredMembers = filteredMembers.OrderByDescending(o => o.estado); break;
-            //        }
-            //    }
-            //}
-            var displayMembers = filteredMembers
+                //        }
+                //    }
+                //    else
+                //    {
+                //        switch (sortIdx)
+                //        {
+                //            case 0: filteredMembers = filteredMembers.OrderByDescending(o => o.desp_nrodoc); break;
+                //            case 1: filteredMembers = filteredMembers.OrderByDescending(o => o.desp_descripcion); break;
+                //            case 2: filteredMembers = filteredMembers.OrderByDescending(o => Convert.ToDateTime(o.desp_fechacre)); break;
+                //            case 3: filteredMembers = filteredMembers.OrderByDescending(o => o.totalparesenviado); break;
+                //            case 4: filteredMembers = filteredMembers.OrderByDescending(o => o.estado); break;
+                //        }
+                //    }
+                //}
+                var displayMembers = filteredMembers
                 .Skip(param.iDisplayStart)
                 .Take(param.iDisplayLength);
 
@@ -389,6 +400,57 @@ namespace CapaPresentacion.Controllers
             }
             return Json(new { estado = estado, mensaje = mensaje, info = lista_rotulo });
         }
+
+
+        public ActionResult UpdateAgregarChk(Int32 estado_accion/*Esta de accion 1 o 2 1=nuevo,2=edicion*/,
+                                       List<Ent_Despacho_Almacen_Update> desp_lista_upd)
+        {
+            string mensaje = "";
+            string estado = "0";
+            try
+            {
+
+                if (estado_accion == 1 || estado_accion == 3)
+                {
+                    List<Ent_Despacho_Almacen_Cab> despacho_edit_lista = (List<Ent_Despacho_Almacen_Cab>)Session[_session_listDespacho_almacen_cab_private];
+                    
+                    List<Ent_Despacho_Almacen_Cab> lista_despa = new List<Ent_Despacho_Almacen_Cab>();
+
+                    foreach (var it in despacho_edit_lista)
+                    {
+                        lista_despa.Add(it);
+                    }
+
+                    foreach (var fila in lista_despa)
+                    {
+                        var index_upd = despacho_edit_lista.FindIndex(item => item.Lid_Prom == fila.Lid_Prom);
+                        var obj_upd = despacho_edit_lista.Where(e => e.Lid_Prom == fila.Lid_Prom).ToList();
+
+                        var str = desp_lista_upd.Where(u => u.strLid_Prom == fila.Lid_Prom).ToList();
+
+                        if (str.Count > 0)
+                        {
+                            obj_upd[0].agregar = str[0].BolAgregar;                            
+                            despacho_edit_lista[index_upd] = obj_upd[0];// despacho_edit;
+                        }
+                    }
+
+                    Session[_session_listDespacho_almacen_cab_private] = despacho_edit_lista;
+
+                    estado = "0";
+                }
+                
+            }
+            catch (Exception exc)
+            {
+
+                estado = "1";
+                mensaje = exc.Message;
+            }
+            return Json(new { estado = estado, mensaje = mensaje });
+        }
+
+
         public ActionResult UpdateRotulo(string lid_prom,string rotulo,Int32 estado_accion/*Esta de accion 1 o 2 1=nuevo,2=edicion*/,
                                         List<Ent_Despacho_Almacen_Update> desp_lista_upd /*string agencia,string destino,string observacion,string detalle,string flete*/)
         {
@@ -431,15 +493,15 @@ namespace CapaPresentacion.Controllers
 
                         var str = desp_lista_upd.Where(u => u.strLid_Prom == fila.Lid_Prom).ToList();
 
-                        obj_upd[0].Agencia = str[0].strAgencia;
-                        obj_upd[0].Destino = str[0].strDestino;                        
-                        obj_upd[0].observacion = ((str[0].strObs == null) ? "" : str[0].strObs);
-                        obj_upd[0].detalle = ((str[0].strDetalle == null) ? "" : str[0].strDetalle);
-                        obj_upd[0].Flete = str[0].strMcaFlete;
-
-                   
-                        despacho_edit_lista[index_upd] = obj_upd[0];// despacho_edit;
-
+                        if (str.Count>0)
+                        { 
+                            obj_upd[0].Agencia = str[0].strAgencia;
+                            obj_upd[0].Destino = str[0].strDestino;                        
+                            obj_upd[0].observacion = ((str[0].strObs == null) ? "" : str[0].strObs);
+                            obj_upd[0].detalle = ((str[0].strDetalle == null) ? "" : str[0].strDetalle);
+                            obj_upd[0].Flete = str[0].strMcaFlete;                   
+                            despacho_edit_lista[index_upd] = obj_upd[0];// despacho_edit;
+                        }
                     }
 
                     Session[_session_listDespacho_almacen_cab_private] = despacho_edit_lista;
@@ -478,15 +540,18 @@ namespace CapaPresentacion.Controllers
                         var obj_upd = despacho_edit_lista.Where(e => e.Lid_Prom == fila.Lid_Prom).ToList();
 
                         var str = desp_lista_upd.Where(u => u.strLid_Prom == fila.Lid_Prom).ToList();
+                        if (str.Count > 0)
+                        {
+                            obj_upd[0].Agencia = str[0].strAgencia;
+                            obj_upd[0].Destino = str[0].strDestino;
+                            obj_upd[0].Observacion = ((str[0].strObs == null) ? "" : str[0].strObs);
+                            obj_upd[0].Detalle = ((str[0].strDetalle == null) ? "" : str[0].strDetalle);
+                            obj_upd[0].CobroFlete = str[0].strMcaFlete;
 
-                        obj_upd[0].Agencia = str[0].strAgencia;
-                        obj_upd[0].Destino = str[0].strDestino;
-                        obj_upd[0].Observacion = ((str[0].strObs== null)?"": str[0].strObs);
-                        obj_upd[0].Detalle = ((str[0].strDetalle== null)?"": str[0].strDetalle);
-                        obj_upd[0].CobroFlete = str[0].strMcaFlete;
 
-
-                        despacho_edit_lista[index_upd] = obj_upd[0];// despacho_edit;
+                            despacho_edit_lista[index_upd] = obj_upd[0];// despacho_edit;
+                        }
+                            
 
                     }
 

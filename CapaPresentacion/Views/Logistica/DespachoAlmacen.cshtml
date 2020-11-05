@@ -76,7 +76,11 @@
 
                                             </div>
                                             <div class="col-md-6">
-                                             
+                                                <div class="col-sm-12 checkbox text-red text-bold">
+                                                    <label>
+                                                        <input type="checkbox" onchange="mostrar();" name="chkmostrar" id="chkmostrar" value="1" /> Mostrar solo los que se van agregar
+                                                    </label>
+                                                </div>
                                             </div>
                                             <div class="col-md-6 text-right">
                                                 <button id="btn_exportar_new" onclick="exportar_new();" type="submit" title="Exportar a excel" class="btn btn-success">
@@ -394,6 +398,73 @@
     <script src="~/Scripts/Linkend/linq.min.js"></script>
 
     <script>
+        function mostrar(){
+            if ($('#chkmostrar').is(':checked')) {
+
+                var table= $('#tb_despacho').DataTable();
+                var data = table.rows().data();
+                var dataArray_despacho = function () { return @Html.Raw(Json.Encode(ViewBag.ListaDespachoUpd)); }();
+
+                data.each(function (value, index) {
+
+                    var row = table.rows(index).data();
+
+                    var strLid_Prom = data[index].Lid_Prom;
+
+                    var cell = table.cell({ row: index, column: 13 }).node();
+
+                    var chk_agregar =$('input', cell).is(':checked');
+
+                    dataobj_despacho = function () { return @Html.Raw(Json.Encode(ViewBag.DespachoUpd)); }();                        
+                    dataobj_despacho.strLid_Prom = strLid_Prom;
+
+                    var ag=false;
+
+                    if (chk_agregar){
+                        ag=true;
+                    }
+                    dataobj_despacho.BolAgregar=ag;
+                    dataArray_despacho.push(dataobj_despacho);
+
+                });
+
+                waitingDialog.show("Espere por favor...");
+                $.ajax({
+                    type: "Post",
+                    url: '@Url.Action("UpdateAgregarChk", "Logistica")',
+                    data: { estado_accion: estado_accion,desp_lista_upd:dataArray_despacho/*agencia:h_agencia,destino:h_destino,observacion:h_observacion,detalle:h_detalle,flete:h_flete*/},
+                    success: function (data) {
+                        if (data.estado == 0) {
+                            //      waitingDialog.hide()
+                           
+                            if (estado_accion == 1 || estado_accion == 3) {                               
+                                agregar_chk=true;
+                                $('#tb_despacho').DataTable().ajax.reload(function () {
+                                    waitingDialog.hide();
+                                });
+
+                            } 
+
+
+                        } else {
+                            toastr.error(data.mensaje, 'Mensaje');
+                            waitingDialog.hide()
+                        }
+                    },
+                    error: function (xhr) {
+                        waitingDialog.hide();
+                        toastr.error(xhr, 'Mensaje');
+                    }
+                });
+            
+            } else{
+                agregar_chk=false;
+                waitingDialog.show("Espere por favor...");
+                $('#tb_despacho').DataTable().ajax.reload(function () {
+                    waitingDialog.hide();
+                });
+            }
+        }
         function exportar_new(){
             //alert('ok');
             //return;
@@ -788,7 +859,7 @@
                 autoclose: true,
                 todayHighlight: true
 
-            }).datepicker("setDate", sumarDias(d, -60));
+            }).datepicker("setDate", sumarDias(d, -15));
 
 
             $("#datepickerfin").datepicker({
@@ -1130,6 +1201,8 @@
 
         var desactivar=0;
 
+        var agregar_chk=false;
+
         //var dataArray_despacho;
         //var dataobj_despacho;
 
@@ -1159,7 +1232,7 @@
                 autoclose: true,
                 todayHighlight: true
 
-            }).datepicker("setDate", sumarDias(d, -60));
+            }).datepicker("setDate", sumarDias(d, -15));
 
 
             $("#datepickerfin").datepicker({
@@ -1418,6 +1491,8 @@
                     aoData.push({ "name": "fecha_ini", "value": fecha_ini });
                     aoData.push({ "name": "fecha_fin", "value": fecha_fin });
                     aoData.push({ "name": "tipo_des", "value": tipo_des });
+                    aoData.push({ "name": "agregar", "value": agregar_chk });
+                    agregar_chk=false;
                     actualizar_data = "";
 
                 },

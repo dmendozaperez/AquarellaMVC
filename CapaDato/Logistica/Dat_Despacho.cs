@@ -102,6 +102,7 @@ namespace CapaDato.Logistica
                                              Direccion = fila["Direccion"].ToString(),
                                              Referencia = fila["Referencia"].ToString(),
                                              Celular = fila["Celular"].ToString(),
+                                             agregar=Convert.ToBoolean(fila["agregar"]),
                                          }
                                        ).ToList();
 
@@ -162,6 +163,7 @@ namespace CapaDato.Logistica
                                           destino = fila["destino"].ToString(),
                                           telefono = fila["telefono"].ToString(),
                                           lid_prom= fila["LidProm"].ToString(),
+                                          distrito= fila["distrito"].ToString(),
                                       }
                                     ).ToList();
 

@@ -57,6 +57,8 @@ namespace CapaEntidad.Logistica
         public string observacion { get; set; }
         public string detalle { get; set; }
 
+        public Boolean agregar { get; set; }
+
       
 
 
@@ -94,6 +96,7 @@ namespace CapaEntidad.Logistica
         public string strReferencia { get; set; }
         public string strCelular { get; set; }
 
+        public Boolean BolAgregar { get; set; }
 
     }
 
