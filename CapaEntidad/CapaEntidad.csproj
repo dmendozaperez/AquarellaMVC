@@ -49,6 +49,7 @@
     <Compile Include="ArticuloStock\Articulo_Tienda.cs" />
     <Compile Include="ArticuloSustituto\Articulo_Sustituto_Tienda.cs" />
     <Compile Include="Articulo\Ent_Articulo_Categoria_Stock.cs" />
+    <Compile Include="Articulo\Ent_Articulo_Precio.cs" />
     <Compile Include="Articulo\Ent_Articulo_Stock.cs" />
     <Compile Include="Articulo\Ent_CategoriaPrincipal.cs" />
     <Compile Include="Articulo\Ent_Temporada.cs" />

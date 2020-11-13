@@ -721,7 +721,7 @@ namespace CapaPresentacion.Controllers
                 }else
                 {
                     estado = "1";
-                    mensaje = "Hubo un problema en el despacho...";
+                    mensaje = generar;
                 }
 
                 

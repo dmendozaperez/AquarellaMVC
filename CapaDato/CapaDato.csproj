@@ -45,6 +45,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Articulo\Dat_Articulo_Precio.cs" />
     <Compile Include="Articulo\Dat_Articulo_Stock.cs" />
     <Compile Include="Cliente\Dat_Cliente.cs" />
     <Compile Include="Cliente\Dat_Combo_Lider.cs" />

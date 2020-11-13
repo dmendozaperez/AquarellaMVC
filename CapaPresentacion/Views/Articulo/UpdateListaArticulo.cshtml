@@ -1,0 +1,430 @@
+﻿
+@{
+    ViewBag.Title = "Actualizar Precio de Articulos";
+}
+
+<style>
+    .table thead {
+        background-color: #5799bf;
+        color: #fff;
+    }
+
+    .boton-xs-td {
+        padding-top: 5px !important;
+        padding-bottom: 5px !important;
+    }
+</style>    
+
+<p class="text-primary">Actualizacion de precios por articulo ó por carga de excel</p>
+<div class="box box-body box-primary">
+    <div class="row">
+        <div class="col-sm-2" style="padding-left: 25px; margin-right: inherit;">
+            <label for="dwtipo" style="color: #3d566e;">Tipo de precio</label>
+            <div class="form-group">
+                <div class="input-group">
+                    @Html.DropDownList("dwtipo", new SelectList(ViewBag.Tipo, "idtipoprecio", "descripcion", "02"), new { @class = "selectpicker",  @id = "dwtipo", @name = "dwtipo", @data_actions_box = "true", @data_selected_text_format = "count > 2" })
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-2" style="padding-left: 15px; margin-right: inherit;">
+            <label for="txtArticulo" style="color: #3d566e;">Articulo</label>
+            <div class="form-group">
+                <div class="input-group">                   
+                    <input id="txtarticulo" name="txtarticulo" type="number" min="0" step="1" maxlength="7" focus="true" placeholder="Ingrese articulo" class="form-control" />
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-2" style="padding-left: 15px; width: 105px; margin-top: 23px; margin-bottom: 10px;">
+            <button id="btnSearch" onclick="buscar();" type="submit" title="Consultar" class="btn btn-primary">
+                <span class="glyphicon glyphicon-search"></span>&nbsp;&nbsp;Buscar
+            </button>
+        </div>
+        <div class="col-md-9" style="padding-left: 120px; width: 280px; margin-top: 10px; margin-bottom: 10px;" >
+            <label for="excelFile" style="color: #3d566e;">Cargar archivo Excel</label>
+            <div class="form-group">
+                <input type="file" id="excelFile" accept=".xlsx">
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-12">
+            @*<h4 class="text-bold">Resultados</h4>*@
+
+            <button id="btnSearch" onclick="guardar();" style="margin-bottom:10px" type="submit" title="Consultar" class="btn btn-success">
+                <span class="glyphicon glyphicon-save-file"></span>&nbsp;&nbsp;Guardar Lista
+            </button>
+
+            @*<a id="EXCEL" name="excel" class="btn btn-success btn-sm" href="@Url.Action("ConsultaMovimientoExcel","Inventario")" style="margin-bottom:10px"><span class="glyphicon glyphicon-export"></span>&nbsp;Excel</a>*@
+            <div class="table-responsive">
+                <table id="tbarticulo_precio" class="table table-hover table-bordered compact">
+                    <thead>
+                        <tr>
+                            <th>TIPO DE PRECIO</th>
+                            <th>CODIGO</th>
+                            <th>DESCRIPCION</th>
+                            <th>PRECIO</th>
+                            <th>INGRESE PRECIO</th>
+                            <th>TEMPORADA</th>
+                            <th>ACCIONES</th>
+                        </tr>
+                    </thead>
+                    <tbody data-bind="foreach:"></tbody>
+                    <tfoot>
+                        <tr>
+                            <th>TIPO DE PRECIO</th>
+                            <th>CODIGO</th>
+                            <th>DESCRIPCION</th>
+                            <th>PRECIO</th>
+                            <th>INGRESE PRECIO</th>
+                            <th>TEMPORADA</th>
+                            <th>ACCIONES</th>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+        </div>
+</div>
+</div>
+@section scripts{
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.7.7/xlsx.core.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xls/0.7.4-a/xls.core.min.js"></script>
+    <script>
+        $('input[type="file"]').change(function () {
+            ExportToTable();
+        });
+        function ExportToTable() {
+            try {
+                var regex = /\.(xls[mx]?)$/;
+                /*Checks whether the file is a valid excel file*/
+                if (regex.test($("#excelFile").val().toLowerCase())) {
+                    var xlsxflag = false; /*Flag for checking whether excel is .xls format or .xlsx format*/
+                    if ($("#excelFile").val().toLowerCase().indexOf(".xlsx") > 0) {
+                        xlsxflag = true;
+                    }
+                    /*Checks whether the browser supports HTML5*/
+                    if (typeof (FileReader) != "undefined") {
+                        var reader = new FileReader();
+                        reader.onload = function (e) {
+                            var data = e.target.result;
+                            /*Converts the excel data in to object*/
+                            if (xlsxflag) {
+                                var workbook = XLSX.read(data, { type: 'binary' });
+                            }
+                            else {
+                                var workbook = XLS.read(data, { type: 'binary' });
+                            }
+                            /*Gets all the sheetnames of excel in to a variable*/
+                            var sheet_name_list = workbook.SheetNames;
+
+                            var cnt = 0; /*This is used for restricting the script to consider only first sheet of excel*/
+                            sheet_name_list.forEach(function (y) { /*Iterate through all sheets*/
+                                /*Convert the cell value to Json*/
+                                if (xlsxflag) {
+                                    var exceljson = XLSX.utils.sheet_to_json(workbook.Sheets[y]);
+                                }
+                                else {
+                                    var exceljson = XLS.utils.sheet_to_row_object_array(workbook.Sheets[y]);
+                                }
+                                if (exceljson.length > 0 && cnt == 0) {
+                                    EnviarArticulosExcel(exceljson);
+                                }
+                                //ret_exceljson = exceljson;
+                            });
+                            //$('#exceltable').show();
+                        }
+                        if (xlsxflag) {/*If excel file is .xlsx extension than creates a Array Buffer from excel*/
+                            reader.readAsArrayBuffer($("#excelFile")[0].files[0]);
+                        }
+                        else {
+                            reader.readAsBinaryString($("#excelFile")[0].files[0]);
+                        }
+                    }
+                    else {
+                        swal("Tu navegador no soporta HTML5");
+                    }
+                }
+                else {
+                    swal("Por favor selecciona un archivo excel *xlsx");
+                }
+            } catch (e) {
+                swal("Error al cargar archivo excel.");
+            }
+        }
+        function EnviarArticulosExcel(jsonExcel) {
+            waitingDialog.show('Espere un momento por favor');
+            $.ajax({
+                type: "POST",
+                url: '@Url.Action("JsonExcelArticulos_Precio", "Articulo")',
+                data: { articulos: JSON.stringify(jsonExcel) },
+                dataType: "json",
+                success: function (data) {
+                    if (data.estado == 1) {
+                        //ordenar = false;
+
+                        $('#tbarticulo_precio').DataTable().ajax.reload(function () { waitingDialog.hide(); });
+                        $('#excelFile').val("");
+                        //$('.table').DataTable().ajax.reload(function () { Resumen(false); waitingDialog.hide(); });
+                    } else {
+                        waitingDialog.hide();
+                        swal({
+                            title: "Error",
+                            text: data.resultados,
+                            icon: "error",
+                            dangerMode: true,
+                        });
+                        $('#tbarticulo_precio').DataTable().ajax.reload(function () { waitingDialog.hide(); });
+                        $('#excelFile').val("");
+                    }
+                },
+                error: function (XMLHttpRequest, textStatus, errorThrown) {
+                    waitingDialog.hide();
+                    var error = eval("(" + XMLHttpRequest.responseText + ")");
+                    swal(error.Message);
+                    $('#tbarticulo_precio').DataTable().ajax.reload(function () { waitingDialog.hide(); });
+                    $('#excelFile').val("");
+                }
+            });
+        }
+    </script>
+
+    <script>
+
+        function guardar() {          
+
+            var table = $('#tbarticulo_precio').DataTable();
+
+            var data = table.rows().data();
+
+            var valida = false;
+
+            if (data.length == 0) {
+                toastr.warning('No hay Registros para guardar', "Mensaje");
+            } else {
+
+                var dataArray_articulo_precio = function () { return @Html.Raw(Json.Encode(ViewBag.ListaPrecio)); }();
+
+                data.each(function (value, index) {
+
+                    dataobj_articulo_precio = function () { return @Html.Raw(Json.Encode(ViewBag.ArticuloPrecio)); }();
+
+                    var row = table.rows(index).data();
+
+                    var cell = table.cell({ row: index, column: 4 }).node();
+                    var precion = Number.parseFloat($('input', cell).val());
+
+                    cell = table.cell({ row: index, column: 5 }).node();
+                    var temporada = $('input', cell).val();
+
+                    if (!valida) {
+                        if (precion == 0 || isNaN(precion)) {
+                            toastr.warning('No se puede grabar articulo con precio cero Tipo: ' + data[index].tipodes + 'Y Articulo: ' + data[index].articulo, "Mensaje");
+                            valida = true;
+                            return;
+                        }
+                    }
+
+                    
+
+                    dataobj_articulo_precio.tipo = data[index].tipo;
+                    dataobj_articulo_precio.tipodes = data[index].tipodes;
+                    dataobj_articulo_precio.articulo = data[index].articulo;
+                    dataobj_articulo_precio.descripcion = data[index].descripcion;
+                    dataobj_articulo_precio.precioigv = data[index].precioigv;
+
+                    dataobj_articulo_precio.precion = precion
+
+                    dataobj_articulo_precio.Art_Temporada = temporada;
+                    
+                    dataArray_articulo_precio.push(dataobj_articulo_precio);
+
+                });
+
+                if (valida) return;
+
+                /*grabar data*/
+                var mensaje = "¿Está seguro Guardar la lista de precios?"
+
+                swal({
+                    title: "Actualizacion de Precio de Articulos",
+                    text: mensaje,
+                    icon: "warning",
+                    buttons: ["No", "Si"],
+                    dangerMode: true,
+                }).then((cambiar) => {
+                    if (cambiar) {
+                        waitingDialog.show("Espere un momento por favor.")
+                        $.ajax({
+                            type: "POST",
+                            url: '@Url.Action("guardar_articulo_precio", "Articulo")',
+                            data: { listarticulo_precio: dataArray_articulo_precio },
+                            success: function (data) {
+                                if (data.estado == 1) {
+                                    $('#tbarticulo_precio').DataTable().ajax.reload();
+                                    toastr.success(data.mensaje, "Mensaje");
+                                    waitingDialog.hide();
+
+                                } else {
+                                    toastr.error(data.mensaje);
+                                    waitingDialog.hide();
+                                }
+                            },
+                            error: function (XMLHttpRequest, textStatus, errorThrown) {
+                                waitingDialog.hide();
+                                toastr.error("Error al consultar.", "Alerta");
+                            }
+                        });
+                    }
+                });
+
+            }
+
+            
+        };
+        $("#txtarticulo").keyup(function (event) {
+            if (event.keyCode === 13) {
+                event.preventDefault();
+                buscar();
+            }
+        });
+
+        function eliminar_item(tipo,articulo) {
+
+            waitingDialog.show("Espere por favor...")
+            $.ajax({
+                type: "POST",
+                url: '@Url.Action("del_articulo_precio", "Articulo")',
+                data: { tipo: tipo, articulo: articulo },
+                success: function (data) {
+
+                    if (data.estado == "1") {
+                        $('#tbarticulo_precio').DataTable().ajax.reload();
+                        toastr.success(data.mensaje, "Mensaje");
+                    }
+                    else {
+                        waitingDialog.hide();
+                        toastr.warning(data.mensaje, "Alerta");
+                    }
+                },
+                error: function (XMLHttpRequest, textStatus, errorThrown) {
+                    waitingDialog.hide();
+                    toastr.error("Error al consultar.", "Alerta");
+                }
+            });
+
+        }
+
+        function buscar() {
+
+            var articulo = $("#txtarticulo").val().toString().trimLeft().trimRight().trim();
+
+            if (articulo.length == 0) {
+                toastr.warning('Ingrese el codigo de articulo', "Mensaje");
+                return;
+            }
+            if (articulo.length != 7) {
+                toastr.warning('El codigo debe de tener 7 caracteres', "Mensaje");
+                return;
+            }
+
+            var tipo=$("#dwtipo").val().toString();
+
+            waitingDialog.show("Espere por favor...")
+            $.ajax({
+                type: "POST",
+                url: '@Url.Action("add_articulo_precio", "Articulo")',
+                data: { tipo: tipo, articulo: articulo },
+                success: function (data) {
+                  
+                    if (data.estado == "1") {
+                        $('#tbarticulo_precio').DataTable().ajax.reload();
+                        toastr.success(data.mensaje, "Mensaje");
+                    }
+                    else {
+                        waitingDialog.hide();
+                        toastr.warning(data.mensaje, "Alerta");
+                    }
+                },
+                error: function (XMLHttpRequest, textStatus, errorThrown) {
+                    waitingDialog.hide();
+                    toastr.error("Error al consultar.", "Alerta");
+                }
+            });
+        }
+    </script>
+
+    <script>
+        $(document).ready(function () {
+        
+            
+
+            $('#tbarticulo_precio').DataTable({
+                "iDisplayLength": 5000,
+                "scrollX": true,
+                "scrollY": 300,
+                "language": {
+                    "url": "../Scripts/DataTables/Spanish.json"
+                },
+                "bServerSide": true,
+                "bProcessing": true,
+                "bAutoWidth": false,
+                "sAjaxSource": '@Url.Action("getTableArticuloPrecioAjax", "Articulo")',
+                "fnServerParams": function (aoData) {
+                    aoData.push({ "name": "actualizar", "value": "" });
+                },
+                "drawCallback": function (settings) {
+                  waitingDialog.hide();
+                },
+                "bdestroy": true,
+                "start": 0,
+                "sort": false,
+                "bDeferRender": true,
+                "aoColumns": [
+                      { "sName": "tipodes", "mData": "tipodes" },
+                      { "sName": "articulo", "mData": "articulo" },
+                      { "sName": "descripcion", "mData": "descripcion" },                      
+                      {
+                        render: function (data, type, full) {
+                            return "S/ " + full.precioigv.toFixed(2);
+                        },
+                      },
+                      {
+                           "render": function (data, type, full) {
+                               var text_precion = '';
+                               var precion = full.precion.toFixed(2);
+                               text_precion = ' <div class="form-group"><input type="text" placeholder="Ingrese precio" style="width:100px;height:25px; " class="form-control" id="txtprecion" value=' + precion + '></input></div>';
+
+                               return text_precion;
+                           }
+                      },
+
+                      {
+                          "render": function (data, type, full) {
+                              var text_temporada = '';
+                              var temporada = full.Art_Temporada;
+                              text_temporada = ' <div class="form-group"><input type="text" placeholder="" style="width:220px;height:25px; " class="form-control" id="txtprecion" value="' + temporada + '"></input></div>';
+
+                              return text_temporada;
+                          }
+                      },
+                      
+
+                       {
+                           "render": function (data, type, full) {
+
+                               var tipo = full.tipo;
+                               var articulo = full.articulo;
+                               
+
+                               var btn_borrar = '';                             
+                               btn_borrar = '<button title="Borrar registro" onclick="eliminar_item(\'' + tipo + '\',\'' + articulo  + '\')" class="btn btn-xs btn-default btn-tabla anular" data-liqId="" data-pedId="" data-custId="" ><span class="fa fa-trash text-danger"></span></button>'
+                               return btn_borrar;
+                           },
+                       },
+
+                ]
+            });
+
+            $('#txtarticulo').focus();
+        });
+    </script>
+}

@@ -585,6 +585,258 @@ namespace CapaPresentacion.Controllers
             
         }
 
+
+
+        #endregion
+
+        #region<Actualizar Precios>
+
+        Dat_Articulo_Precio dat_precio = new Dat_Articulo_Precio();
+        private string _session_lista_articulo_precio = "_session_lista_articulo_precio";
+
+        public ActionResult JsonExcelArticulos_Precio(string articulos)
+        {
+            List<Ent_Articulo_Precio> listArtExcel = null;
+            //Dat_Articulo_Stock stk_articulo = new Dat_Articulo_Stock();
+            try
+            {
+                listArtExcel = new List<Ent_Articulo_Precio>();
+                listArtExcel = JsonConvert.DeserializeObject<List<Ent_Articulo_Precio>>(articulos.ToUpper());
+                if (listArtExcel.Where(w => String.IsNullOrEmpty(w.articulo)).ToList().Count > 0)
+                {
+                    Session[_session_lista_articulo_precio] = new List<Ent_Articulo_Precio>();
+                    return Json(new { estado = 0, resultados = "El Archivo no tiene el formato correcto ó hay campos vacios.\nVerifique el archivo." });
+                }
+                else
+                {
+
+
+                 
+                    Session[_session_lista_articulo_precio] = dat_precio.lista_articulo_precio(listArtExcel);
+                    return Json(new { estado = 1, resultados = "ok" });
+
+                }
+            }
+            catch (Exception ex)
+            {
+                return Json(new { estado = 0, resultados = ex.Message });
+            }
+
+        }
+
+        public ActionResult UpdateListaArticulo()
+        {
+
+
+            Ent_Usuario _usuario = (Ent_Usuario)Session[Ent_Constantes.NameSessionUser];
+
+            string actionName = this.ControllerContext.RouteData.GetRequiredString("action");
+            string controllerName = this.ControllerContext.RouteData.GetRequiredString("controller");
+            string return_view = actionName + "|" + controllerName;
+
+            if (_usuario == null)
+            {
+                return RedirectToAction("Login", "Control", new { returnUrl = return_view });
+            }
+            else
+            {
+
+                Session[_session_lista_articulo_precio] = null;
+                ViewBag.Tipo = dat_precio.tipo_precio();
+
+                List<Ent_Articulo_Precio> lista_precio = new List<Ent_Articulo_Precio>();
+
+                Ent_Articulo_Precio articulo_precio = new Ent_Articulo_Precio();
+
+                ViewBag.ListaPrecio = lista_precio;
+                ViewBag.ArticuloPrecio = articulo_precio;
+
+                return View();
+            }
+        }
+
+
+        public ActionResult guardar_articulo_precio(List<Ent_Articulo_Precio> listarticulo_precio)
+        {
+
+
+            string mensaje = "";
+            string estado = "0";
+            try
+            {
+                Ent_Usuario _usuario = (Ent_Usuario)Session[Ent_Constantes.NameSessionUser];
+
+                string grabar = dat_precio.update_lista_precio(listarticulo_precio, _usuario.usu_id,_usuario.usu_nom_ape);
+
+                if (grabar.Length==0)
+                {
+                    estado = "1";
+                    mensaje = "Lista actualizado correctamente..";
+                    Session[_session_lista_articulo_precio] = null;
+
+                }
+                else
+                {
+                    estado = "0";
+                    mensaje = grabar;
+                }
+
+
+            }
+            catch (Exception exc)
+            {
+                estado = "0";
+                mensaje = exc.Message;
+            }
+
+            return Json(new { estado = estado, mensaje = mensaje });
+        }
+
+        public ActionResult del_articulo_precio(string tipo, string articulo)
+        {
+
+
+            string mensaje = "";
+            string estado = "0";
+            try
+            {
+
+                List<Ent_Articulo_Precio> listarticulo_precio = (List<Ent_Articulo_Precio>)Session[_session_lista_articulo_precio];
+
+
+                var existe_data = listarticulo_precio.Where(b => b.tipo == tipo && b.articulo == articulo).ToList();
+
+                if (existe_data.Count>0)
+                {
+                    listarticulo_precio.Remove(existe_data[0]);
+                    Session[_session_lista_articulo_precio] = listarticulo_precio;
+                    estado = "1";
+                    mensaje = "Registro eliminado..";
+                }
+
+               
+
+            }
+            catch (Exception exc)
+            {
+                estado = "0";
+                mensaje = exc.Message;
+            }
+
+            return Json(new { estado = estado, mensaje = mensaje });
+        }
+
+        public ActionResult add_articulo_precio(string tipo, string articulo)
+        {
+          
+
+            string mensaje = "";
+            string estado = "0";
+            try
+            {               
+
+                List<Ent_Articulo_Precio> listar_buscar = dat_precio.buscar_lista(articulo, tipo);             
+
+                if (listar_buscar.Count == 0)
+                {
+                    estado = "0";
+                    mensaje = "El Articulo Ingresado no existe..";
+                }
+                else
+                {
+                    List<Ent_Articulo_Precio> listarticulo_precio = (List<Ent_Articulo_Precio>)Session[_session_lista_articulo_precio];
+
+
+                    var existe_lista = listarticulo_precio.Where(b => b.tipo == tipo && b.articulo == articulo).ToList();
+
+                    if (existe_lista.Count>0)
+                    {
+                        estado = "0";
+                        mensaje = "El Tipo y Codigo de articulo existe en la lista..";
+                    }
+                    else
+                    {
+                        Ent_Articulo_Precio obj = new Ent_Articulo_Precio();
+                        obj.tipo = listar_buscar[0].tipo;
+                        obj.tipodes = listar_buscar[0].tipodes;
+                        obj.articulo = listar_buscar[0].articulo;
+                        obj.descripcion = listar_buscar[0].descripcion;
+                        obj.precioigv = listar_buscar[0].precioigv;
+                        obj.precion = listar_buscar[0].precion;
+                        obj.Art_Temporada = listar_buscar[0].Art_Temporada;
+                        listarticulo_precio.Add(obj);
+                        Session[_session_lista_articulo_precio] = listarticulo_precio;
+                        estado = "1";
+                        mensaje = "El codigo articulo se agrego..";
+                    }
+                    
+                }
+                
+            }
+            catch(Exception exc)
+            {
+                estado = "0";
+                mensaje = exc.Message;
+            }
+
+            return Json(new { estado = estado, mensaje = mensaje });
+        }
+
+        public ActionResult getTableArticuloPrecioAjax(Ent_jQueryDataTableParams param)
+        {
+            /*verificar si esta null*/
+            if (Session[_session_lista_articulo_precio] == null)
+            {
+                List<Ent_Articulo_Precio> listarticulo_precio = new List<Ent_Articulo_Precio>();
+                Session[_session_lista_articulo_precio] = listarticulo_precio;
+            }
+
+            //}
+            //Traer registros
+            IQueryable<Ent_Articulo_Precio> membercol = ((List<Ent_Articulo_Precio>)(Session[_session_lista_articulo_precio])).AsQueryable();
+
+            //Manejador de filtros
+            int totalCount = membercol.Count();
+
+
+
+            IEnumerable<Ent_Articulo_Precio> filteredMembers = membercol;
+
+            if (!string.IsNullOrEmpty(param.sSearch))
+            {
+                filteredMembers = membercol
+                    .Where(m => m.articulo.ToUpper().Contains(param.sSearch.ToUpper()) ||
+                     m.Art_Temporada.ToUpper().Contains(param.sSearch.ToUpper()) 
+                     );
+            }
+
+
+            //Manejador de orden
+            var displayMembers = filteredMembers
+                .Skip(param.iDisplayStart)
+                .Take(param.iDisplayLength);
+
+            var result = from a in displayMembers
+                         select new
+                         {
+                             a.tipo,
+                             a.tipodes,
+                             a.articulo,
+                             a.descripcion,
+                             a.precioigv,
+                             a.precion,
+                             a.Art_Temporada,
+                             
+                         };
+            //Se devuelven los resultados por json
+            return Json(new
+            {
+                sEcho = param.sEcho,
+                iTotalRecords = totalCount,
+                iTotalDisplayRecords = filteredMembers.Count(),
+                aaData = result
+            }, JsonRequestBehavior.AllowGet);
+        }
         #endregion
     }
 }
