@@ -1,0 +1,102 @@
+﻿<style>
+    .GFG {
+        border-radius: 30px;
+        background: #e9e4e4;
+        padding: 25px;
+        text-align:justify;
+        /*width: 300px;*/
+        height: 280px;
+    }
+
+    /*img.zoom {
+        /*width: 350px;
+    height: 200px;*/
+        /*-webkit-transition: all .2s ease-in-out;
+        -moz-transition: all .2s ease-in-out;
+        -o-transition: all .2s ease-in-out;
+        -ms-transition: all .2s ease-in-out;
+    }*/*/
+
+    .transition {
+        -webkit-transform: scale(1.8);
+        -moz-transform: scale(1.8);
+        -o-transform: scale(1.8);
+        transform: scale(1.8);
+    }
+
+    .sidebarContent {
+        background-color: silver;
+        /*text-align:center;
+    font-size:large;*/
+        /*min-height:150px;*/
+        /*margin-bottom:5px;*/
+    }
+
+    .mainContent {
+        background-color: silver;
+        /*text-align:center;*/
+        /*font-size:large;*/
+        /*min-height:310px;*/
+    }
+</style>
+
+<div class="row">
+    <div class="col-xs-3">
+
+        <div class="row">
+            <div class="col-xs-12">
+
+                <div class="box box-body box-primary GFG">
+                    <h4>Imagen del Articulo:</h4>
+                    <img id="imagenCatalogo" style="border-top:2px solid #ffffff;border-right:1px solid ;border-bottom:2px solid #ffffff;border-left:1px solid #ffffff;" src="~/Content/images/lupa.jpg" class="img-responsive center-block d-block mx-auto zoom rounded" width="180" height="50" />                                    
+                </div>
+
+            </div>
+        </div>      
+    </div>
+    <div class="col-xs-5">
+        <div class="box box-body box-primary GFG">
+            <h4>Detalles del Articulo:</h4>
+            <ul>
+                <li>
+                    <label>Cod Articulo: <b></b></label> <label id="lblcodigo"  class="text-primary"></label>
+                </li>
+                <li>
+                    <label>Nombre Articulo: </label> <label id="lblnombre" class="text-primary"></label>
+                </li>
+                <li>
+                    <label>Marca Articulo: </label> <label id="lblmarca" class="text-primary"></label>
+                </li>
+                <li>
+                    <label>Color : </label> <label id="lblcolor" class="text-primary"></label>
+                </li>
+                <li>
+                    <label>Categorizacion: </label> <label id="lblcategoria" class="text-primary"></label>
+                </li>  
+                
+                <li>
+                    <label style="font-size:18px;font-weight:bold">Precio: </label> <label style="font-size:20px;font-weight:bold" id="lblprecio" class="text-red"></label>
+                </li>        
+                            
+               
+            </ul>
+
+        </div>
+       
+    </div>
+</div>
+@section scripts{
+    <script>
+        $(document).ready(function () {
+            var dataArray = function () { return @Html.Raw(Json.Encode(ViewBag.DataArticulo)); }();
+            $('#lblcodigo').html(dataArray.Art_id);
+            $('#lblnombre').html(dataArray.Art_Descripcion);
+            $('#lblmarca').html(dataArray.Mar_Descripcion);
+            $('#lblcolor').html(dataArray.Col_Descripcion);
+            $('#lblcategoria').html(dataArray.Cat_Pri_Descripcion);
+            $('#lblprecio').html("S/ " + dataArray.Art_Pre_Sin_Igv.toFixed(2));
+
+            document.getElementById('imagenCatalogo').src = dataArray.Art_Foto;
+        });
+    </script>
+}

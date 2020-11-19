@@ -1,0 +1,302 @@
+﻿
+@{
+    ViewBag.Title = "Editar Premios";
+}
+<style>
+    /*.table thead {
+        background-color: #5799bf;
+        color: #fff;
+    }
+
+    .boton-xs-td {
+        padding-top: 5px !important;
+        padding-bottom: 5px !important;
+    }*/
+</style>  
+<p class="text-primary">Busque Articulos para agregar al premio.</p>
+<div class="box box-body box-primary">
+    <div class="row">
+        <div class="col-md-10" style="padding-left: 10px;padding-bottom:10px;">
+            <a href="@Url.Action("Premios_Articulos" , "Articulo")" class="btn btn-default" title="Regresar al listado de despacho"><i class="fa fa-long-arrow-left"></i>&nbsp;&nbsp;Regresar al listado</a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        </div>
+        <div class="col-sm-3" style="padding-left: 25px; margin-right: inherit;">
+            <label for="txtarticulo" style="color: #3d566e;">CODIGO DE ARTICULO</label>
+            <div class="form-group">
+                <div class="input-group">
+                    <span class="input-group-addon" style="color: #3d566e;"><i class="glyphicon glyphicon-th-list"></i></span>
+                    <input id="txtarticulo" type="number" focus="true" maxlength="7" autofocus class="form-control" name="txtarticulo" placeholder="Ingresar el Articulo">
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-2" style="padding-left: 25px; width: 105px; margin-top: 23px; margin-bottom: 10px;">
+            <button id="btnSearch" onclick="buscar();" type="submit" title="Consultar" class="btn btn-primary">
+                <span class="glyphicon glyphicon-search"></span>&nbsp;&nbsp;Buscar
+            </button>
+        </div>
+
+    </div>
+</div>
+<div class="row">
+    <div class="col-xs-6">      
+        <div class="row">
+            <div class="col-xs-12">
+
+                <div class="box box-body box-primary">
+                        <h4>Lista de Busqueda:</h4>
+
+                    <div class="box-tools pull-left" style="margin-bottom: 10px;">
+                        <button type="button" class="btn btn-primary btn-sm" onclick="verfoto();" title="Ver Foto" id="btnconsultar_pedidos"><i class="fa fa-picture-o"></i>&nbsp;&nbsp;Ver Foto</button>
+
+                    </div>   
+                    <div class="box-tools pull-right" style="margin-bottom: 10px;">
+                        <button type="button" class="btn btn-success btn-sm" onclick="consulta_pedidos();" title="Mostrar" id="btnconsultar_pedidos"><i class="fa fa-plus"></i>&nbsp;&nbsp;Agregar</button>                        
+
+                    </div>   
+                    <div class="row">
+                        <div class="col-md-12">
+                            <table id="tablista" class="table table-bordered">
+                                <thead>
+                                    <tr>
+                                        @*<th>FOTO</th>*@
+                                        <th>ARTICULO</th>
+                                        <th>TALLA</th>
+                                        <th>STOCK</th>
+                                        <th>CANTIDAD</th>
+                                        <th>AGREGAR</th>
+                                    </tr>
+                                </thead>
+                                <tbody data-bind="foreach:">                                  
+                                </tbody>
+                                <tfoot>
+                                    <tr style="background-color:gainsboro">
+                                        <th colspan="3" class="text-right" style="font-size:16px;">Total</th>
+                                        <th colspan="1"><span class="pull-center text-bold" style="font-size:16px;" id="totalcan">0</span></th>
+                                        <th colspan="1"><span class="pull-left text-bold"></span></th>                                
+                                    </tr>
+                                </tfoot>
+                            </table>
+                        </div>
+                           
+                        </div>
+        
+                    </div>
+
+            </div>
+        </div>
+    </div>
+    <div class="col-xs-6">
+        <div class="box box-body box-success">
+            <h4>Lista de Articulos Agregados:</h4>          
+            <table id="tabagregado" class="table table-hover table-striped table-responsive">
+                <thead>
+                    <tr>
+                        <th>FOTO</th>
+                        <th>ARTICULO</th>
+                        <th>TALLA</th>
+                        <th>CANTIDAD</th>
+                        <th>ENTREGADO</th>
+                        <th>STOCK</th>
+                        <th>ELIMINAR</th>
+                    </tr>
+                </thead>
+                <tbody data-bind="foreach:">
+                    <tr>
+                        <th>FOTO</th>
+                        <th>ARTICULO</th>
+                        <th>TALLA</th>
+                        <th>CANTIDAD</th>
+                        <th>ENTREGADO</th>
+                        <th>STOCK</th>
+                        <th>ELIMINAR</th>
+                    </tr>
+                </tbody>
+            </table>
+        </div>     
+    </div>
+</div>
+
+<div class="modal fade" id="modalimagen" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+    <div class="modal-dialog  modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="row">
+                    <div class="col-md-6">
+                        <p style="font-size:medium" class="text-primary modal-title" id="myModalLabel"><strong class="text-danger" id="descPromocionLista"></strong></p>
+                        <p style="font-size:medium" class="text-primary modal-title" id="myModalLabel"><b>Lista de Cupones generados: &nbsp;</b></p>
+                    </div>
+                    <div class="col-md-6 text-right">
+                        @*<a href="@Url.Action("ListaCuponesExcel","BataClub")" class="btn btn-success btn-sm"><i class="glyphicon glyphicon-export"></i>&nbsp;&nbsp;Exportar Lista</a>*@
+                    </div>
+                </div>
+            </div>
+            <div style="font-size:small" class="modal-body" id="divListaCupones">
+
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal" onclick="">Cerrar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section scripts{
+    <script>
+
+        function verfoto() {
+            
+
+            var table = $('#tablista').DataTable();
+            var data = table.rows().data();
+            
+            if (data.length == 0) {
+                toastr.warning('No hay articulos en la lista para mostrar la imagen..', 'Mensaje');
+                return;
+            } else {
+                var arti_bus = data[0].articulo;
+
+
+
+                alert(arti_bus);
+                $("#modalimagen").modal({ backdrop: 'static', keyboard: false });
+            }
+            
+
+
+        }
+
+        var actualizar_data = "";
+        var articulo = "";
+
+        $("#txtarticulo").keyup(function (event) {
+            if (event.keyCode === 13) {
+                event.preventDefault();
+                buscar();
+            }
+        });
+
+        function agregar() {
+            //if ($('#chka').is(':checked')) {
+            //    alert('si');
+            //} else {
+            //    alert('no');
+            //}
+
+            var valor = 0;
+
+            var table = $('#tablista').DataTable();
+            var data = table.rows().data();
+            data.each(function (value, index) {
+
+                var cell = table.cell({ row: index, column: 4 }).node();
+
+                var chk_agregar = $('input', cell).is(':checked');
+
+                if (chk_agregar) {
+                    cell = table.cell({ row: index, column: 3 }).node();                    
+                    var cantidad = Number.parseFloat($('input', cell).val());
+                    if (!isNaN(cantidad)) {
+                        valor += cantidad;
+                    }
+                }
+
+
+            });
+            $("#totalcan").html(valor);
+
+        }
+
+        function buscar() {
+            var strArticulo = $('#txtarticulo').val().trim().trimLeft().trimRight().toString();
+
+            if (strArticulo.length != 7) {
+                toastr.warning('Ingrese el codigo debe de tener minimo 7 caracteres', 'Mensaje');
+                $('#txtarticulo').focus();
+                return;
+            }
+            waitingDialog.show("Espere por favor...");
+            actualizar_data = "1";
+            articulo = strArticulo;
+            $('#tablista').DataTable().ajax.reload(function () {
+                waitingDialog.hide();               
+            });
+
+        }
+
+        $(document).ready(function () {
+            $('#tablista').DataTable({
+                "dom": 't',
+                "language": {
+                    "url": "../Scripts/DataTables/Spanish.json"
+                },
+                "bServerSide": true,
+                "bAutoWidth": false,
+                "sAjaxSource": '@Url.Action("getTablePremioArticuloBusquedaAjax", "Articulo")',
+                "fnServerParams": function (aoData) {
+                    aoData.push({ "name": "actualizar", "value": actualizar_data });
+                    aoData.push({ "name": "articulo", "value": articulo });
+                    //actualizar_data = "";
+                    articulo = "";
+                },
+                "drawCallback": function (settings) {
+                    if (actualizar_data == "1") {
+                        actualizar_data = "";
+                        if (settings.aoData.length == 0) toastr.warning('No hay stock del articulo ingresado:', "Mensaje");
+                        waitingDialog.hide();
+                    }
+                    
+                },
+                "fnFooterCallback": function(nRow, aaData, iStart, iEnd, aiDisplay) {
+                    var api = this.api();
+                    var size = 0;
+                    //aaData.forEach(function(x) {
+                    //    size += (x['size']);
+                    //});
+                    //$(api.column(1).footer()).html(size);       
+
+                    //$("#totalcan").html('120');
+
+                },
+                "bdestroy": true,
+                "start": 0,
+                "bDeferRender": true,
+                "searching": false,
+                "sort": false,
+                "aoColumns": [
+                    //{
+                    //    "render": function (data, type, full) {
+
+                    //        var articulo = full.articulo;
+                    //        var btnver = '<button type="submit" title="Ver Foto" onclick="verarticulos(\'' + articulo + '\');" class="btn btn-xs btn-default"><span class="fa fa-picture-o text-primary"></span></button>';
+
+
+
+                    //        return btnver
+                    //    }, "class": "boton-xs-td"
+                    //},
+                      { "sName": "articulo", "mData": "articulo" },
+                      { "sName": "talla", "mData": "talla" },                      
+                      { "sName": "stock", "mData": "stock" },                   
+                          {
+                              "render": function (data, type, full) {
+                                  var text_cantidad = '';
+                                  var stock = full.stock;
+                                  text_cantidad = ' <div class="form-group"><input type="number" min="0" step="1" maxlength="3" placeholder="" style="width:70px;height:25px; " class="form-control" id="txtprecion" value=' + stock + '></input></div>';
+
+                                  return text_cantidad;
+                              }
+                          },
+                       {
+                           "render": function (data, type, full) {
+
+                               //var flete = full.Flete;
+
+                               var chk_agregar = '<div class="form-group"><div class="col-sm-5 checkbox text-primary text-bold"><input style="cursor:pointer" type="checkbox" name="chka" onchange="agregar()"  id="chka" value="0" class="chkag" /></div></div>';
+
+                               return chk_agregar;
+                           },
+                       },
+                ]
+            });
+        });
+    </script>
+}

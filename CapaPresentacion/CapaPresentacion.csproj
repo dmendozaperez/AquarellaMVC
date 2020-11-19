@@ -3082,6 +3082,9 @@
     <Content Include="Views\Logistica\DespachoAlmacen.cshtml" />
     <Content Include="Views\Logistica\DespachoAlmacenLima.cshtml" />
     <Content Include="Views\Articulo\UpdateListaArticulo.cshtml" />
+    <Content Include="Views\Articulo\Articulo_View.cshtml" />
+    <Content Include="Views\Articulo\Premios_Articulos.cshtml" />
+    <Content Include="Views\Articulo\Premios_Articulos_Lista.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

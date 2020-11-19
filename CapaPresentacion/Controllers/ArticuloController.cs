@@ -1,7 +1,9 @@
 ﻿using CapaDato.Articulo;
+using CapaDato.Pedido;
 using CapaEntidad.Articulo;
 using CapaEntidad.Control;
 using CapaEntidad.General;
+using CapaEntidad.Pedido;
 using CapaEntidad.Util;
 using CapaPresentacion.Bll;
 using Newtonsoft.Json;
@@ -602,7 +604,7 @@ namespace CapaPresentacion.Controllers
             {
                 listArtExcel = new List<Ent_Articulo_Precio>();
                 listArtExcel = JsonConvert.DeserializeObject<List<Ent_Articulo_Precio>>(articulos.ToUpper());
-                if (listArtExcel.Where(w => String.IsNullOrEmpty(w.articulo)).ToList().Count > 0)
+                if (listArtExcel.Where(w => String.IsNullOrEmpty(w.articulo) || w.precio == 0).ToList().Count > 0)
                 {
                     Session[_session_lista_articulo_precio] = new List<Ent_Articulo_Precio>();
                     return Json(new { estado = 0, resultados = "El Archivo no tiene el formato correcto ó hay campos vacios.\nVerifique el archivo." });
@@ -838,5 +840,203 @@ namespace CapaPresentacion.Controllers
             }, JsonRequestBehavior.AllowGet);
         }
         #endregion
+
+        #region<Vista de Articulo - Foto - Popup>
+
+        public ActionResult Articulo_View()
+        {
+            Dat_Pedido datPedido = new Dat_Pedido();
+            Ent_Articulo_pedido articulo = new Ent_Articulo_pedido();
+            List<Ent_Articulo_Tallas> tallas = new List<Ent_Articulo_Tallas>();
+
+            string codArticulo = "7016678";
+
+            datPedido.listarStr_ArticuloTalla(codArticulo, 0, ref articulo, ref tallas);
+
+            ViewBag.DataArticulo = articulo;
+
+            return View();
+        }
+
+        #endregion
+
+        #region<REGION DE PREMIOS DE ARTICULOS>
+
+        private string _session_lista_premios = "_session_lista_premios";
+        private string _session_lista_premios_articulos = "_session_lista_premios_articulos";
+        private string _session_lista_premios_busqueda_articulos = "_session_lista_premios_busqueda_articulos";
+
+        private Dat_Premios premio = new Dat_Premios();
+        public ActionResult Premios_Articulos()
+        {
+            return View();
+        }
+
+        public ActionResult getTablePremioArticuloAjax(Ent_jQueryDataTableParams param, string actualizar,string IdPremio)
+        {
+
+            List<Ent_Premios_Articulo> liststock = new List<Ent_Premios_Articulo>();
+
+            if (!String.IsNullOrEmpty(actualizar))
+            {
+                liststock = premio.lista_premios_articulo(Convert.ToInt32(IdPremio));
+                //listAtributos = datOE.get_lista_atributos();
+                Session[_session_lista_premios_articulos] = liststock;
+               
+            }
+
+            /*verificar si esta null*/
+            if (Session[_session_lista_premios_articulos] == null)
+            {
+                 liststock = new List<Ent_Premios_Articulo>();
+                 Session[_session_lista_premios_articulos] = liststock;
+            }
+
+            //}
+            //Traer registros
+            IQueryable<Ent_Premios_Articulo> membercol = ((List<Ent_Premios_Articulo>)(Session[_session_lista_premios_articulos])).AsQueryable();
+
+            //Manejador de filtros
+            int totalCount = membercol.Count();
+
+            IEnumerable<Ent_Premios_Articulo> filteredMembers = membercol;
+
+
+            //Manejador de orden
+            var displayMembers = filteredMembers
+                .Skip(param.iDisplayStart)
+                .Take(param.iDisplayLength);
+
+            var result = from a in displayMembers
+                         select new
+                         {
+                           
+                             a.total,
+                             a.articulo,
+                             a.list_talla,                           
+                         };
+            //Se devuelven los resultados por json
+            return Json(new
+            {
+                sEcho = param.sEcho,
+                iTotalRecords = totalCount,
+                iTotalDisplayRecords = filteredMembers.Count(),
+                aaData = result
+            }, JsonRequestBehavior.AllowGet);
+        }
+
+        public ActionResult getTablePremiosListaAjax(Ent_jQueryDataTableParams param)
+        {
+            /*verificar si esta null*/
+            if (Session[_session_lista_premios] == null)
+            {
+                List<Ent_Premios> listpremios = new List<Ent_Premios>();
+                Session[_session_lista_premios] = premio.lista_premios();
+            }
+
+            //}
+            //Traer registros
+            IQueryable<Ent_Premios> membercol = ((List<Ent_Premios>)(Session[_session_lista_premios])).AsQueryable();
+
+            //Manejador de filtros
+            int totalCount = membercol.Count();
+
+
+
+            IEnumerable<Ent_Premios> filteredMembers = membercol;
+
+            if (!string.IsNullOrEmpty(param.sSearch))
+            {
+                filteredMembers = membercol
+                    .Where(m => m.descripcion.ToUpper().Contains(param.sSearch.ToUpper())
+                     );
+            }
+
+
+            //Manejador de orden
+            var displayMembers = filteredMembers
+                .Skip(param.iDisplayStart)
+                .Take(param.iDisplayLength);
+
+            var result = from a in displayMembers
+                         select new
+                         {
+                             a.id,
+                             a.descripcion,
+                             a.monto,
+                             a.stock,
+                             a.stockingresado,                             
+                         };
+            //Se devuelven los resultados por json
+            return Json(new
+            {
+                sEcho = param.sEcho,
+                iTotalRecords = totalCount,
+                iTotalDisplayRecords = filteredMembers.Count(),
+                aaData = result
+            }, JsonRequestBehavior.AllowGet);
+        }
+
+
+        public ActionResult Premios_Articulos_Lista()
+        {
+            return View();
+        }
+
+        public ActionResult getTablePremioArticuloBusquedaAjax(Ent_jQueryDataTableParams param, string actualizar, string articulo)
+        {
+
+            List<Ent_Premios_Articulo_Stock> liststock = new List<Ent_Premios_Articulo_Stock>();
+
+            if (!String.IsNullOrEmpty(actualizar))
+            {
+                liststock = premio.lista_premios_articulo_stock(articulo);
+                //listAtributos = datOE.get_lista_atributos();
+                Session[_session_lista_premios_busqueda_articulos] = liststock;
+
+            }
+
+            /*verificar si esta null*/
+            if (Session[_session_lista_premios_busqueda_articulos] == null)
+            {
+                liststock = new List<Ent_Premios_Articulo_Stock>();
+                Session[_session_lista_premios_busqueda_articulos] = liststock;
+            }
+
+            //}
+            //Traer registros
+            IQueryable<Ent_Premios_Articulo_Stock> membercol = ((List<Ent_Premios_Articulo_Stock>)(Session[_session_lista_premios_busqueda_articulos])).AsQueryable();
+
+            //Manejador de filtros
+            int totalCount = membercol.Count();
+
+            IEnumerable<Ent_Premios_Articulo_Stock> filteredMembers = membercol;
+
+
+            //Manejador de orden
+            var displayMembers = filteredMembers
+                .Skip(param.iDisplayStart)
+                .Take(param.iDisplayLength);
+
+            var result = from a in displayMembers
+                         select new
+                         {
+
+                             a.articulo,
+                             a.talla,
+                             a.stock,
+                         };
+            //Se devuelven los resultados por json
+            return Json(new
+            {
+                sEcho = param.sEcho,
+                iTotalRecords = totalCount,
+                iTotalDisplayRecords = filteredMembers.Count(),
+                aaData = result
+            }, JsonRequestBehavior.AllowGet);
+        }
+
+        #endregion
+
     }
 }

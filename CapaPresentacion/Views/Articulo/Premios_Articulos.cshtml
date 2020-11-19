@@ -1,0 +1,248 @@
+﻿
+@{
+    ViewBag.Title = "Control de Premios";
+}
+<style>
+    .table thead {
+        background-color: #5799bf;
+        color: #fff;
+    }
+
+    .boton-xs-td {
+        padding-top: 5px !important;
+        padding-bottom: 5px !important;
+    }
+</style>    
+<p class="text-primary">Muestra la lista de Premios creadas. Permite ver los articulos asociados al premio y editar el listado.</p>
+<div class="box box-body box-default">
+    <div class="row">
+        <div class="col-md-12">
+            <div class="table-responsive">
+                <table id="tbpremio" class="table table-hover table-bordered compact">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>DESCRIPCION</th>
+                            <th>MONTO.MIN.</th>
+                            <th>STOCK</th>
+                            <th>STOCK INGRESADO</th>                            
+                            <th>ACCIONES</th>                           
+                        </tr>
+                    </thead>
+                    <tbody data-bind="foreach:"></tbody>
+                    <tfoot>
+                        <tr>
+                            <th>ID</th>
+                            <th>DESCRIPCION</th>
+                            <th>MONTO.MIN.</th>
+                            <th>STOCK</th>
+                            <th>STOCK INGRESADO</th>
+                            <th>ACCIONES</th>        
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="modalVerArticulos" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header modal-header-primary">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <div class="row">
+                    <div class="col-md-10">
+                        <p style="font-size:medium" class="text-white modal-title" id="myModalLabel"><strong class="text-white" id="dcarticulo">Lista de Articulos</strong></p>
+                    </div>
+                </div>       
+            </div>
+            <div style="font-size:small" class="modal-body" id="listaDetProms">
+                <table id="tabarticulos" class="table table-hover table-bordered compact">
+                    <thead>
+                        <tr>                         
+                            <th>ARTICULO</th>
+                            <th width="50%;">
+                                <div class="col-sm-1" style="width:100%;text-align:center;margin-top:2px;margin-bottom:2px;">
+                                    <label for="disponible">TALLA/CANTIDAD</label>
+                                </div>
+
+                            </th>                          
+                        </tr>
+                    </thead>
+                    <tbody data-bind="foreach:">
+                        <tr>                           
+                            <th>ARTICULO</th>
+                            <th width="50%;">
+                                <div class="col-sm-1" style="width:100%;text-align:center;margin-top:2px;margin-bottom:2px;">
+                                    <label for="disponible">TALLA/CANTIDAD</label>
+                                </div>
+                            </th>                            
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="modal-footer" id="footer_modal">
+                <button data-dismiss="modal" class="btn btn-primary">Cerrar</button>
+            </div>
+        </div>
+    </div>
+</div>
+@section scripts{
+    <script>
+        var actualizar_data = "";
+        var IdPremio = "";
+
+        function Editar(id, des) {
+           
+        }
+
+        function verarticulos(id,des) {
+            $('#dcarticulo').html('LISTA DE ARTICULOS: '  + des);
+            actualizar_data = "1";
+            IdPremio = id;
+            waitingDialog.show("Espere por favor...");
+            $('#tabarticulos').DataTable().ajax.reload(function () {
+                waitingDialog.hide();
+                $("#modalVerArticulos").modal({ backdrop: 'static', keyboard: false });
+            });
+           
+        }
+
+        $(document).ready(function () {
+            $('#tbpremio').DataTable({
+                "language": {
+                    "url": "../Scripts/DataTables/Spanish.json"
+                },
+                "bServerSide": true,
+                "bAutoWidth": false,
+                "sAjaxSource": '@Url.Action("getTablePremiosListaAjax", "Articulo")',
+                "fnServerParams": function (aoData) {
+                    aoData.push({ "name": "actualizar", "value": "" });
+                },
+                "bdestroy": true,
+                "start": 0,               
+                "bDeferRender": true,
+                "sort": false,
+                "aoColumns": [
+                      { "sName": "id", "mData": "id" },
+                      { "sName": "descripcion", "mData": "descripcion" },                   
+                        {
+                            render: function (data, type, full) {
+                                return "S/ " + full.monto.toFixed(2);
+                            },
+                        },
+                      { "sName": "stock", "mData": "stock" },
+                      { "sName": "stockingresado", "mData": "stockingresado" },       
+
+                       {
+                           "render": function (data, type, full) {
+
+                               var id = full.id;
+                               var des = full.descripcion;
+                               var btnver = '<button type="submit" title="Ver Articulos" onclick="verarticulos(\'' + id + '\',\'' + des + '\');" class="btn btn-xs btn-default btn-tabla editar-fila"><span class="fa fa-list text-primary"></span></button>';
+
+                               var btneditar = ("&nbsp;").repeat(3) + '<button type="submit" title="Editar Articulos" onclick="Editar(\'' + id + '\',\'' + des + '\');" class="btn btn-xs btn-default btn-tabla editar-fila"><span class="fa fa-pencil text-success"></span></button>';
+
+                               return btnver + btneditar ;
+                           }, "class": "boton-xs-td"
+                       },
+                ]
+            });
+
+            $('#tabarticulos').dataTable({
+                "dom": 't',
+                "language": {
+                    "url": "../Scripts/DataTables/Spanish.json"
+                },
+                "bProcessing": true,
+                "bServerSide": true,
+                "bAutoWidth": false,
+                "sAjaxSource": '@Url.Action("getTablePremioArticuloAjax", "Articulo")',
+                "fnServerParams": function (aoData) {
+                    aoData.push({ "name": "actualizar", "value": actualizar_data });                    
+                    aoData.push({ "name": "IdPremio", "value": IdPremio });
+
+                    actualizar_data = "";
+                    IdPremio="";
+
+                },
+                "drawCallback": function (settings) {
+                   waitingDialog.hide();
+                },
+                "bdestroy": true,
+                "start": 0,
+                "searching": false,
+                "sort": false,
+                "order": [],
+                "bDeferRender": true,
+                "aoColumns": [                      
+                         { "sName": "articulo", "mData": "articulo" },                                  
+                           {
+                               "sWidth": "30%",
+                               "render": function (data, type, full) {
+                                   var botones_head = '';
+                                   var botones_cant = '';
+                                   var lista = full.list_talla;
+
+                                   botones_head = '<div class="col-sm-1" style="width:100%;margin-top:2px;margin-bottom:2px;text-align:center;">' +
+                                             '<table>' +
+                                             '<tbody>' +
+                                             '<tr>' +
+                                             '<td>' +
+                                             '<div style="margin-top:2px;margin-right:2px;">' +
+                                             '<button class="btn btn-white btn-xs" title="Tallas" style="width:100%;color:black;">T:</button>' +
+                                             '</div>' +
+                                             '</td>' +
+                                             '<td>' +
+                                             '<div style="margin-top:2px;margin-right:2px;">' +
+                                             '<button class="btn btn-success btn-xs" style="width:100%;">Total</button>' +
+                                             '</div>' +
+                                             '</td>';
+
+
+                                   botones_cant = '<tr>' +
+                                                 '<td>' +
+                                                 '<div style="margin-top:2px;margin-right:2px;">' +
+                                                 '<button title="Cantidad" class="btn btn-white btn-xs" style="width:100%;color:black;">C:</button>' +
+                                                 '</div>' +
+                                                 '</td>';
+                                   botones_cant += '<td>' +
+                                                  '<div style="margin-top:2px;margin-right:2px;">' +
+                                                  '<button class="btn btn-success btn-xs" style="width:100%;">' + full.total + '</button>' +
+                                                  '</div>' +
+                                                  '</td>';
+
+                                   lista.forEach(function (entry) {
+                                       botones_head += '<td>' +
+                                             '<div style="margin-top:2px;margin-right:2px;">' +
+                                             '<button class="btn btn-primary btn-xs" style="width:100%;" title="Talla" data-id="codTienda" data-tda="desTiendaS" data-modal="codTalla" data-art="codArticulo">' + entry.talla + '</button>' +
+                                             '</div>' +
+                                             '</td>';
+                                       botones_cant += '<td>' +
+                                                       '<div style="margin-top:2px;margin-right:2px;">' +
+                                                       '<button class="btn btn-info btn-xs" style="width:100%;text-align:center;">' + entry.cantidad + '</button>' +
+                                                       '</div>' +
+                                                       '</td>';
+
+                                   });
+
+                                   botones_head += botones_cant + '</tr></tr>' +
+                                            '</tbody>' +
+                                            '</table>' +
+                                            '</div>';
+
+
+                                   return botones_head;
+                               },
+                           },
+                ],
+                dom: 'Bfrtip',
+                buttons:
+                    [
+                    ]
+            });
+
+
+        });
+    </script>
+}
