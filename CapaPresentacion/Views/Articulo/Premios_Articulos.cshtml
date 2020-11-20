@@ -93,7 +93,7 @@
         var IdPremio = "";
 
         function Editar(id, des) {
-           
+            window.location = "@Url.Action("Premios_Articulos_Lista", "Articulo")" + "?idpremio=" +id + "&des_premio=" + des;
         }
 
         function verarticulos(id,des) {
@@ -105,7 +105,7 @@
                 waitingDialog.hide();
                 $("#modalVerArticulos").modal({ backdrop: 'static', keyboard: false });
             });
-           
+
         }
 
         $(document).ready(function () {
@@ -120,19 +120,19 @@
                     aoData.push({ "name": "actualizar", "value": "" });
                 },
                 "bdestroy": true,
-                "start": 0,               
+                "start": 0,
                 "bDeferRender": true,
                 "sort": false,
                 "aoColumns": [
                       { "sName": "id", "mData": "id" },
-                      { "sName": "descripcion", "mData": "descripcion" },                   
+                      { "sName": "descripcion", "mData": "descripcion" },
                         {
                             render: function (data, type, full) {
                                 return "S/ " + full.monto.toFixed(2);
                             },
                         },
                       { "sName": "stock", "mData": "stock" },
-                      { "sName": "stockingresado", "mData": "stockingresado" },       
+                      { "sName": "stockingresado", "mData": "stockingresado" },
 
                        {
                            "render": function (data, type, full) {
@@ -159,7 +159,7 @@
                 "bAutoWidth": false,
                 "sAjaxSource": '@Url.Action("getTablePremioArticuloAjax", "Articulo")',
                 "fnServerParams": function (aoData) {
-                    aoData.push({ "name": "actualizar", "value": actualizar_data });                    
+                    aoData.push({ "name": "actualizar", "value": actualizar_data });
                     aoData.push({ "name": "IdPremio", "value": IdPremio });
 
                     actualizar_data = "";
@@ -175,8 +175,8 @@
                 "sort": false,
                 "order": [],
                 "bDeferRender": true,
-                "aoColumns": [                      
-                         { "sName": "articulo", "mData": "articulo" },                                  
+                "aoColumns": [
+                         { "sName": "articulo", "mData": "articulo" },
                            {
                                "sWidth": "30%",
                                "render": function (data, type, full) {

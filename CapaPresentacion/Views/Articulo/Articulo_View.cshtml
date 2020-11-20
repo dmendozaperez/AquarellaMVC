@@ -1,11 +1,14 @@
-﻿<style>
+﻿@{
+    Layout = null;
+}
+<style>
     .GFG {
         border-radius: 30px;
-        background: #e9e4e4;
+        /*background: #ffffff;*/
         padding: 25px;
         text-align:justify;
         /*width: 300px;*/
-        height: 280px;
+        /*height: 280px;*/
     }
 
     /*img.zoom {
@@ -41,41 +44,43 @@
 </style>
 
 <div class="row">
-    <div class="col-xs-3">
+    <div class="col-xs-4">
 
         <div class="row">
             <div class="col-xs-12">
 
-                <div class="box box-body box-primary GFG">
-                    <h4>Imagen del Articulo:</h4>
-                    <img id="imagenCatalogo" style="border-top:2px solid #ffffff;border-right:1px solid ;border-bottom:2px solid #ffffff;border-left:1px solid #ffffff;" src="~/Content/images/lupa.jpg" class="img-responsive center-block d-block mx-auto zoom rounded" width="180" height="50" />                                    
+                <div class="box-body GFG">
+                    <h4>Imagen:</h4>
+                    <br />
+                    <br />                                  
+                    <img id="imagenCatalogo" style="border-top:2px solid #ffffff;border-right:1px solid ;border-bottom:2px solid #ffffff;border-left:1px solid #ffffff;" src="~/Content/images/lupa.jpg" class="img-responsive center-block d-block mx-auto zoom rounded" width="240" height="160" />                                    
                 </div>
 
             </div>
         </div>      
     </div>
-    <div class="col-xs-5">
-        <div class="box box-body box-primary GFG">
-            <h4>Detalles del Articulo:</h4>
+    <div class="col-xs-8">
+        <div class="box-body GFG">
+            <h4>Detalles:</h4>
             <ul>
-                <li>
-                    <label>Cod Articulo: <b></b></label> <label id="lblcodigo"  class="text-primary"></label>
+                <li style="margin-top: 10px;">
+                    <label>Cod Articulo: <b></b></label> <label id="lblcodigo" style="font-size:13px"  class="label label-default"></label>
                 </li>
-                <li>
-                    <label>Nombre Articulo: </label> <label id="lblnombre" class="text-primary"></label>
+                <li style="margin-top: 10px;">
+                    <label>Nombre Articulo: </label> <label id="lblnombre" style="font-size:13px" class="label label-default"></label>
                 </li>
-                <li>
-                    <label>Marca Articulo: </label> <label id="lblmarca" class="text-primary"></label>
+                <li style="margin-top: 10px;">
+                    <label>Marca Articulo: </label> <label id="lblmarca" style="font-size:13px" class="label label-default"></label>
                 </li>
-                <li>
-                    <label>Color : </label> <label id="lblcolor" class="text-primary"></label>
+                <li style="margin-top: 10px;">
+                    <label>Color : </label> <label id="lblcolor" style="font-size:13px" class="label label-default"></label>
                 </li>
-                <li>
-                    <label>Categorizacion: </label> <label id="lblcategoria" class="text-primary"></label>
+                <li style="margin-top: 10px;">
+                    <label>Categorizacion: </label> <label id="lblcategoria" style="font-size:13px" class="label label-default"></label>
                 </li>  
                 
-                <li>
-                    <label style="font-size:18px;font-weight:bold">Precio: </label> <label style="font-size:20px;font-weight:bold" id="lblprecio" class="text-red"></label>
+                <li style="margin-top: 10px;">
+                    <label style="font-size:18px;font-weight:bold">Precio: </label> <label style="font-size:17px;font-weight:bold" id="lblprecio" class="label label-danger"></label>
                 </li>        
                             
                
@@ -85,7 +90,6 @@
        
     </div>
 </div>
-@section scripts{
     <script>
         $(document).ready(function () {
             var dataArray = function () { return @Html.Raw(Json.Encode(ViewBag.DataArticulo)); }();
@@ -99,4 +103,3 @@
             document.getElementById('imagenCatalogo').src = dataArray.Art_Foto;
         });
     </script>
-}

@@ -16,9 +16,15 @@
 <p class="text-primary">Busque Articulos para agregar al premio.</p>
 <div class="box box-body box-primary">
     <div class="row">
-        <div class="col-md-10" style="padding-left: 10px;padding-bottom:10px;">
-            <a href="@Url.Action("Premios_Articulos" , "Articulo")" class="btn btn-default" title="Regresar al listado de despacho"><i class="fa fa-long-arrow-left"></i>&nbsp;&nbsp;Regresar al listado</a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        <div class="col-md-6" >
+            <a href="@Url.Action("Premios_Articulos" , "Articulo")" class="btn btn-default" title="Regresar al listado de despacho"><i class="fa fa-long-arrow-left"></i>&nbsp;&nbsp;Regresar al listado</a>
         </div>
+        <div class="col-md-6 text-righ">
+            <span style="font-size:18px;" class="label label-danger" id="dcpremio_des">@ViewBag.des_premio</span>
+            
+        </div>
+        <br />
+        <br />       
         <div class="col-sm-3" style="padding-left: 25px; margin-right: inherit;">
             <label for="txtarticulo" style="color: #3d566e;">CODIGO DE ARTICULO</label>
             <div class="form-group">
@@ -45,11 +51,11 @@
                         <h4>Lista de Busqueda:</h4>
 
                     <div class="box-tools pull-left" style="margin-bottom: 10px;">
-                        <button type="button" class="btn btn-primary btn-sm" onclick="verfoto();" title="Ver Foto" id="btnconsultar_pedidos"><i class="fa fa-picture-o"></i>&nbsp;&nbsp;Ver Foto</button>
+                        <button type="button" class="btn btn-primary btn-sm" onclick="verfoto('');" title="Ver Foto" id="btnconsultar_pedidos"><i class="fa fa-picture-o"></i>&nbsp;&nbsp;Ver Foto</button>
 
                     </div>   
                     <div class="box-tools pull-right" style="margin-bottom: 10px;">
-                        <button type="button" class="btn btn-success btn-sm" onclick="consulta_pedidos();" title="Mostrar" id="btnconsultar_pedidos"><i class="fa fa-plus"></i>&nbsp;&nbsp;Agregar</button>                        
+                        <button type="button" class="btn btn-success btn-sm" onclick="agregar_articulo();" title="Agregar Articulo" id="btnagregar"><i class="fa fa-plus"></i>&nbsp;&nbsp;Agregar</button>                        
 
                     </div>   
                     <div class="row">
@@ -115,25 +121,20 @@
     </div>
 </div>
 
-<div class="modal fade" id="modalimagen" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
-    <div class="modal-dialog  modal-lg" role="document">
+<div class="modal modal-primary fade" id="modalimagen" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+    <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
-                <div class="row">
-                    <div class="col-md-6">
-                        <p style="font-size:medium" class="text-primary modal-title" id="myModalLabel"><strong class="text-danger" id="descPromocionLista"></strong></p>
-                        <p style="font-size:medium" class="text-primary modal-title" id="myModalLabel"><b>Lista de Cupones generados: &nbsp;</b></p>
-                    </div>
-                    <div class="col-md-6 text-right">
-                        @*<a href="@Url.Action("ListaCuponesExcel","BataClub")" class="btn btn-success btn-sm"><i class="glyphicon glyphicon-export"></i>&nbsp;&nbsp;Exportar Lista</a>*@
-                    </div>
-                </div>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+                <h4 class="modal-title">Detalle de Articulo</h4>
             </div>
-            <div style="font-size:small" class="modal-body" id="divListaCupones">
+            <div  class="modal-body" id="divdetallearticulo">
 
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-default" data-dismiss="modal" onclick="">Cerrar</button>
+                <button type="button" class="btn btn-outline pull-right" data-dismiss="modal">Cerrar</button>
             </div>
         </div>
     </div>
@@ -142,37 +143,220 @@
 @section scripts{
     <script>
 
-        function verfoto() {
-            
+        function agregar_articulo() {
+
+            var result = false;
+
 
             var table = $('#tablista').DataTable();
             var data = table.rows().data();
-            
+
             if (data.length == 0) {
-                toastr.warning('No hay articulos en la lista para mostrar la imagen..', 'Mensaje');
+                toastr.warning('No hay registros en la lista para agregar..', 'Mensaje');
                 return;
-            } else {
-                var arti_bus = data[0].articulo;
-
-
-
-                alert(arti_bus);
-                $("#modalimagen").modal({ backdrop: 'static', keyboard: false });
             }
-            
+
+            var cell;
+            var valida_agrega = false;
+            var stk=0;
+
+            data.each(function (value, index) {
+
+                if (!result) {
+                    cell = table.cell({ row: index, column: 4 }).node();
+
+                    var chk_agregar = $('input', cell).is(':checked');
+
+                    if (chk_agregar) {
+                        stk=data[index].stock;
+                        cell = table.cell({ row: index, column: 3 }).node();
+                        var cantidad = Number.parseFloat($('input', cell).val());
+                        if (isNaN(cantidad)) {
+                            valida_agrega = false;
+                            result = true;
+                            return false;
+                        } else {
+
+                            if (cantidad <= 0) {
+                                result = true;
+                                valida_agrega = false;
+                                return false;
+                            } else {
+
+                                if (stk<cantidad){
+                                    result = true;
+                                    valida_agrega = false;
+                                    return false;
+                                }else{
+                                    result = true;
+                                    valida_agrega = true;
+                                    return false;
+                                }
+
+                                
+                            }
+                        }
+                    }
+                }
+            });
+
+            if (!valida_agrega) {
+                toastr.warning('No se puede agregar por los siguientes:\n 1.No hay seleccionado ningun Item.\n 2.El formato es incorrecto\n 3.la cantidad es mayor al stock', 'Mensaje');
+                return;
+            }
+
+            var dataArray_articulo_premio = function () { return @Html.Raw(Json.Encode(ViewBag.ListaArticulos)); }();
+
+            data.each(function (value, index) {
+                cell = table.cell({ row: index, column: 4 }).node();
+                dataobj_articulo_premio = function () { return @Html.Raw(Json.Encode(ViewBag.ArticuloObj)); }();
+                var chk_agregar = $('input', cell).is(':checked');
+
+                if (chk_agregar) {
+                    cell = table.cell({ row: index, column: 3 }).node();
+                    var cantidad = Number.parseFloat($('input', cell).val());
+
+                    dataobj_articulo_premio.articulo = data[index].articulo;
+                    dataobj_articulo_premio.talla = data[index].talla;
+                    dataobj_articulo_premio.cantidad = cantidad;
+                    dataArray_articulo_premio.push(dataobj_articulo_premio);
+
+
+                }
+            });
+
+            var mensaje = "¿Está seguro de agregar los articulos seleccionados?"
+
+            swal({
+                title: "Agregar Articulo",
+                text: mensaje,
+                icon: "warning",
+                buttons: ["No", "Si"],
+                dangerMode: true,
+            }).then((cambiar) => {
+                if (cambiar) {
+                    waitingDialog.show("Espere un momento por favor.")
+                    $.ajax({
+                        type: "POST",
+                        url: '@Url.Action("agregar_articulo_premio", "Articulo")',
+                        data: { idpremio: idpremio, lista_seleccion_articulos: dataArray_articulo_premio },
+                        success: function (data) {
+                            if (data.estado == 1) {
+                                actualizar_data_lista = "1";
+                                $('#tabagregado').DataTable().ajax.reload(function () {
+                                    toastr.success(data.mensaje, 'Mensaje');
+                                    //waitingDialog.hide();
+                                    $('#txtarticulo').val('');
+                                });                             
+                                $('#tablista').DataTable().ajax.reload(function () {
+                                    waitingDialog.hide();
+                                });
+
+                            } else {
+                                toastr.error(data.mensaje);
+                                waitingDialog.hide();
+                            }
+                        },
+                        error: function (XMLHttpRequest, textStatus, errorThrown) {
+                            waitingDialog.hide();
+                            toastr.error("Error al consultar.", "Alerta");
+                        }
+                    });
+                }
+            });
+
+
+        }
+
+        function verfoto(strarticulo) {
+
+            if (strarticulo.length == 0) {
+                var table = $('#tablista').DataTable();
+                var data = table.rows().data();
+
+                if (data.length == 0) {
+                    toastr.warning('No hay articulos en la lista para mostrar la imagen..', 'Mensaje');
+                    return;
+                }
+                strarticulo = data[0].articulo;
+            }
+
+
+            //var table = $('#tablista').DataTable();
+            //var data = table.rows().data();
+
+            //if (data.length == 0) {
+            //    toastr.warning('No hay articulos en la lista para mostrar la imagen..', 'Mensaje');
+            //    return;
+            //} else {
+            //    var arti_bus = data[0].articulo;
+                waitingDialog.show("Cargando...");
+                $.ajax({
+                    type: "Post",
+                    url: '@Url.Action("Articulo_View", "Articulo")',
+                    data: { codArticulo: strarticulo },
+                    success: function (data) {
+                        $("#divdetallearticulo").html(data);
+                        $("#modalimagen").modal({ backdrop: 'static', keyboard: false });
+                        waitingDialog.hide();
+                    },
+                    error: function (xhr) {
+                        waitingDialog.hide();
+                        toastr.error(xhr, 'Mensaje');
+                    }
+                });
+            //}
+
 
 
         }
 
         var actualizar_data = "";
+        var actualizar_data_lista = "";
         var articulo = "";
-
+        var idpremio = @ViewBag.idpremio;
         $("#txtarticulo").keyup(function (event) {
             if (event.keyCode === 13) {
                 event.preventDefault();
                 buscar();
             }
         });
+
+        function eliminar(id) {
+            swal({
+                title: "Eliminar articulo de premio..",
+                text: '¿Esta seguro de eliminar el Articulo?',
+                icon: "warning",
+                buttons: ["No", "Si"],
+                dangerMode: true,
+            }).then((cambiar) => {
+                if (cambiar) {
+                    waitingDialog.show("Espere por favor...");
+                    $.ajax({
+                        type: "Post",
+                        url: '@Url.Action("borrar_articulo_premio", "Articulo")',
+                        data: { id: id},
+                        success: function (data) {
+                            if (data.estado == 1) {
+                                actualizar_data_lista = "1";
+                                $('#tabagregado').DataTable().ajax.reload(function () {
+                                    toastr.success(data.mensaje, 'Mensaje');
+                                    waitingDialog.hide();
+                                });
+
+                            } else {
+                                toastr.error(data.mensaje, 'Mensaje');
+                                waitingDialog.hide()
+                            }
+                        },
+                        error: function (xhr) {
+                            waitingDialog.hide();
+                            toastr.error(xhr, 'Mensaje');
+                        }
+                    });
+                }
+            });
+        }
 
         function agregar() {
             //if ($('#chka').is(':checked')) {
@@ -192,7 +376,7 @@
                 var chk_agregar = $('input', cell).is(':checked');
 
                 if (chk_agregar) {
-                    cell = table.cell({ row: index, column: 3 }).node();                    
+                    cell = table.cell({ row: index, column: 3 }).node();
                     var cantidad = Number.parseFloat($('input', cell).val());
                     if (!isNaN(cantidad)) {
                         valor += cantidad;
@@ -217,7 +401,7 @@
             actualizar_data = "1";
             articulo = strArticulo;
             $('#tablista').DataTable().ajax.reload(function () {
-                waitingDialog.hide();               
+                waitingDialog.hide();
             });
 
         }
@@ -243,7 +427,7 @@
                         if (settings.aoData.length == 0) toastr.warning('No hay stock del articulo ingresado:', "Mensaje");
                         waitingDialog.hide();
                     }
-                    
+
                 },
                 "fnFooterCallback": function(nRow, aaData, iStart, iEnd, aiDisplay) {
                     var api = this.api();
@@ -251,7 +435,7 @@
                     //aaData.forEach(function(x) {
                     //    size += (x['size']);
                     //});
-                    //$(api.column(1).footer()).html(size);       
+                    //$(api.column(1).footer()).html(size);
 
                     //$("#totalcan").html('120');
 
@@ -261,6 +445,7 @@
                 "bDeferRender": true,
                 "searching": false,
                 "sort": false,
+                "bProcessing": true,
                 "aoColumns": [
                     //{
                     //    "render": function (data, type, full) {
@@ -274,13 +459,13 @@
                     //    }, "class": "boton-xs-td"
                     //},
                       { "sName": "articulo", "mData": "articulo" },
-                      { "sName": "talla", "mData": "talla" },                      
-                      { "sName": "stock", "mData": "stock" },                   
+                      { "sName": "talla", "mData": "talla" },
+                      { "sName": "stock", "mData": "stock" },
                           {
                               "render": function (data, type, full) {
                                   var text_cantidad = '';
                                   var stock = full.stock;
-                                  text_cantidad = ' <div class="form-group"><input type="number" min="0" step="1" maxlength="3" placeholder="" style="width:70px;height:25px; " class="form-control" id="txtprecion" value=' + stock + '></input></div>';
+                                  text_cantidad = ' <div class="form-group"><input type="number" min="1" step="1" maxlength="3" placeholder="" style="width:70px;height:25px; " class="form-control" id="txtprecion" value=' + stock + '></input></div>';
 
                                   return text_cantidad;
                               }
@@ -297,6 +482,91 @@
                        },
                 ]
             });
+
+            actualizar_data_lista = "1";
+
+
+            $('#tabagregado').DataTable({
+                //"dom": 't',
+                "language": {
+                    "url": "../Scripts/DataTables/Spanish.json"
+                },
+                "bServerSide": true,
+                "bAutoWidth": false,
+                "sAjaxSource": '@Url.Action("getTablePremioArticuloListaAjax", "Articulo")',
+                "fnServerParams": function (aoData) {
+                    aoData.push({ "name": "actualizar", "value": actualizar_data_lista });
+                    aoData.push({ "name": "idpremio", "value": idpremio });
+                    actualizar_data_lista = "";
+                    //articulo = "";
+                },
+                "drawCallback": function (settings) {
+                    //if (actualizar_data == "1") {
+                    //    actualizar_data = "";
+                    //    if (settings.aoData.length == 0) toastr.warning('No hay stock del articulo ingresado:', "Mensaje");
+                    //    waitingDialog.hide();
+                    //}
+
+                },
+                "fnFooterCallback": function (nRow, aaData, iStart, iEnd, aiDisplay) {
+                    var api = this.api();
+                    var size = 0;
+                    //aaData.forEach(function(x) {
+                    //    size += (x['size']);
+                    //});
+                    //$(api.column(1).footer()).html(size);
+
+                    //$("#totalcan").html('120');
+
+                },
+                "bdestroy": true,
+                "start": 0,
+                "bDeferRender": true,
+                "bProcessing": true,
+                //"searching": false,
+                "sort": false,
+                "aoColumns": [
+                    {
+                        "render": function (data, type, full) {
+
+                            var articulo = full.articulo;
+                            var btnver = '<button type="submit" title="Ver Foto" onclick="verfoto(\'' + articulo + '\');" class="btn btn-xs btn-default"><span class="fa fa-picture-o text-primary"></span></button>';
+
+
+
+                            return btnver
+                        }, "class": "boton-xs-td"
+                    },
+                      { "sName": "articulo", "mData": "articulo" },
+                      { "sName": "talla", "mData": "talla" },
+                      { "sName": "cantidad", "mData": "cantidad" },
+                      { "sName": "entregado", "mData": "entregado" },
+                      { "sName": "stock", "mData": "stock" },
+                          //{
+                          //    "render": function (data, type, full) {
+                          //        var text_cantidad = '';
+                          //        var stock = full.stock;
+                          //        text_cantidad = ' <div class="form-group"><input type="number" min="0" step="1" maxlength="3" placeholder="" style="width:70px;height:25px; " class="form-control" id="txtprecion" value=' + stock + '></input></div>';
+
+                          //        return text_cantidad;
+                          //    }
+                          //},
+                       {
+                           "render": function (data, type, full) {
+
+                               //var flete = full.Flete;
+
+                               var id = full.id;
+                               var btnborrar = '<button type="submit" title="Eliminar registro" onclick="eliminar(\'' + id + '\');" class="btn btn-xs btn-default"><span class="fa fa-trash text-danger"></span></button>';
+
+                               //var chk_agregar = '<div class="form-group"><div class="col-sm-5 checkbox text-primary text-bold"><input style="cursor:pointer" type="checkbox" name="chka" onchange="agregar()"  id="chka" value="0" class="chkag" /></div></div>';
+
+                               return btnborrar;
+                           }, "class": "boton-xs-td"
+                       },
+                ]
+            });
+
         });
     </script>
 }

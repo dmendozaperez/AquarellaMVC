@@ -843,13 +843,13 @@ namespace CapaPresentacion.Controllers
 
         #region<Vista de Articulo - Foto - Popup>
 
-        public ActionResult Articulo_View()
+        public ActionResult Articulo_View(string codArticulo)
         {
             Dat_Pedido datPedido = new Dat_Pedido();
             Ent_Articulo_pedido articulo = new Ent_Articulo_pedido();
             List<Ent_Articulo_Tallas> tallas = new List<Ent_Articulo_Tallas>();
 
-            string codArticulo = "7016678";
+            //string codArticulo = "7016678";
 
             datPedido.listarStr_ArticuloTalla(codArticulo, 0, ref articulo, ref tallas);
 
@@ -865,11 +865,27 @@ namespace CapaPresentacion.Controllers
         private string _session_lista_premios = "_session_lista_premios";
         private string _session_lista_premios_articulos = "_session_lista_premios_articulos";
         private string _session_lista_premios_busqueda_articulos = "_session_lista_premios_busqueda_articulos";
+        private string _session_lista_premios_lista_articulos = "_session_lista_premios_lista_articulos";
 
         private Dat_Premios premio = new Dat_Premios();
         public ActionResult Premios_Articulos()
         {
-            return View();
+
+            Ent_Usuario _usuario = (Ent_Usuario)Session[Ent_Constantes.NameSessionUser];
+
+            string actionName = this.ControllerContext.RouteData.GetRequiredString("action");
+            string controllerName = this.ControllerContext.RouteData.GetRequiredString("controller");
+            string return_view = actionName + "|" + controllerName;
+
+            if (_usuario == null)
+            {
+                return RedirectToAction("Login", "Control", new { returnUrl = return_view });
+            }
+            else
+            {
+                Session[_session_lista_premios] = null;
+                return View();
+            }
         }
 
         public ActionResult getTablePremioArticuloAjax(Ent_jQueryDataTableParams param, string actualizar,string IdPremio)
@@ -977,14 +993,107 @@ namespace CapaPresentacion.Controllers
             }, JsonRequestBehavior.AllowGet);
         }
 
-
-        public ActionResult Premios_Articulos_Lista()
+        public ActionResult borrar_articulo_premio(string id)
         {
-            return View();
+            string mensaje = "";
+            string estado = "0";
+         
+            try
+            {
+
+                Ent_Usuario _usuario = (Ent_Usuario)Session[Ent_Constantes.NameSessionUser];
+                mensaje = premio.eliminar_articulo_premio(Convert.ToInt32(id), _usuario.usu_id);
+                if (mensaje.Length != 0)
+                {
+                    estado = "0";                   
+                }
+                else
+                {
+                    estado = "1";
+                    mensaje = "Se elimino con exito el articulo";
+                }
+
+            }
+            catch(Exception exc)
+            {
+                estado = "0";
+                mensaje = exc.Message;
+            }       
+            return Json(new { estado = estado, mensaje = mensaje });
+        }
+        public ActionResult agregar_articulo_premio(string idpremio,List<Ent_Premios_Articulo_Stock> lista_seleccion_articulos)
+        {
+            string mensaje = "";
+            string estado = "0";
+
+            try
+            {
+                string strDataDetalle = "";
+                foreach (var obj in lista_seleccion_articulos)
+                {
+                    strDataDetalle += "<row  ";
+                    strDataDetalle += " Codigo=¿" + obj.articulo + "¿ ";
+                    strDataDetalle += " Talla=¿" + obj.talla + "¿ ";
+                    strDataDetalle += " Cantidad=¿" + obj.cantidad + "¿ ";
+                    strDataDetalle += " Precio=¿" + 0 + "¿ ";
+                    strDataDetalle += "/>";
+                }
+
+
+                Ent_Usuario _usuario = (Ent_Usuario)Session[Ent_Constantes.NameSessionUser];
+
+                mensaje = premio.insertar_articulo_premio(Convert.ToInt32(idpremio),strDataDetalle, _usuario.usu_id);
+                if (mensaje.Length != 0)
+                {
+                    estado = "0";
+                }
+                else
+                {
+                    estado = "1";
+                    mensaje = "Articulo agregado con exito..";
+                    Session[_session_lista_premios_busqueda_articulos] = null;
+                }
+
+            }
+            catch (Exception exc)
+            {
+                estado = "0";
+                mensaje = exc.Message;
+            }
+            return Json(new { estado = estado, mensaje = mensaje });
+        }
+
+        public ActionResult Premios_Articulos_Lista(string idpremio,string des_premio)
+        {
+
+            if (idpremio == null)
+            {
+                return RedirectToAction("Premios_Articulos", "Articulo");
+            }
+            else
+            {
+                List<Ent_Premios_Articulo_Stock> lista_seleccion_articulos = new List<Ent_Premios_Articulo_Stock>();
+
+                Ent_Premios_Articulo_Stock obj_articulo = new Ent_Premios_Articulo_Stock();
+
+                ViewBag.ListaArticulos = lista_seleccion_articulos;
+                ViewBag.ArticuloObj = obj_articulo;
+
+                ViewBag.idpremio = idpremio;
+
+                ViewBag.des_premio = des_premio;
+
+                Session[_session_lista_premios_busqueda_articulos] = null;
+                Session[_session_lista_premios_lista_articulos] = null;
+
+                return View();
+            }
+
+            
         }
 
         public ActionResult getTablePremioArticuloBusquedaAjax(Ent_jQueryDataTableParams param, string actualizar, string articulo)
-        {
+        {            
 
             List<Ent_Premios_Articulo_Stock> liststock = new List<Ent_Premios_Articulo_Stock>();
 
@@ -1035,6 +1144,63 @@ namespace CapaPresentacion.Controllers
                 aaData = result
             }, JsonRequestBehavior.AllowGet);
         }
+
+        public ActionResult getTablePremioArticuloListaAjax(Ent_jQueryDataTableParams param, string actualizar, string idpremio)
+        {
+
+            List<Ent_Lista_PremiosXArticulos> liststock = new List<Ent_Lista_PremiosXArticulos>();
+
+            if (!String.IsNullOrEmpty(actualizar))
+            {
+                liststock = premio.lista_premiosXarticulo(Convert.ToInt32(idpremio));
+                //listAtributos = datOE.get_lista_atributos();
+                Session[_session_lista_premios_lista_articulos] = liststock;
+
+            }
+
+            /*verificar si esta null*/
+            if (Session[_session_lista_premios_lista_articulos] == null)
+            {
+                liststock = new List<Ent_Lista_PremiosXArticulos>();
+                Session[_session_lista_premios_lista_articulos] = liststock;
+            }
+
+            //}
+            //Traer registros
+            IQueryable<Ent_Lista_PremiosXArticulos> membercol = ((List<Ent_Lista_PremiosXArticulos>)(Session[_session_lista_premios_lista_articulos])).AsQueryable();
+
+            //Manejador de filtros
+            int totalCount = membercol.Count();
+
+            IEnumerable<Ent_Lista_PremiosXArticulos> filteredMembers = membercol;
+
+
+            //Manejador de orden
+            var displayMembers = filteredMembers
+                .Skip(param.iDisplayStart)
+                .Take(param.iDisplayLength);
+
+            var result = from a in displayMembers
+                         select new
+                         {
+                             a.id,
+                             a.articulo,
+                             a.talla,
+                             a.cantidad,
+                             a.entregado,
+                             a.stock
+                         };
+            //Se devuelven los resultados por json
+            return Json(new
+            {
+                sEcho = param.sEcho,
+                iTotalRecords = totalCount,
+                iTotalDisplayRecords = filteredMembers.Count(),
+                aaData = result
+            }, JsonRequestBehavior.AllowGet);
+        }
+
+
 
         #endregion
 
