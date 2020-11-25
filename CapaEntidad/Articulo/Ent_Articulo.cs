@@ -32,7 +32,10 @@ namespace CapaEntidad.Articulo
         public Decimal costo { get; set; }
         //Campos relacionados
         public Ent_CategoriaPrincipal Ent_CategoriaPrincipal { get; set; }
-
+        /* 
+        public Ent_SubCategoria Ent_SubCategoria { get; set; }
+        public Ent_Marca Ent_Marca { get; set; }
+        */
         public Ent_Articulo_Precio Ent_Articulo_Precio { get; set; }
     }
 }
