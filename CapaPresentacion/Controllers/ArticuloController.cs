@@ -1204,5 +1204,12 @@ namespace CapaPresentacion.Controllers
 
         #endregion
 
+        #region<PROMOCIONES>
+        public ActionResult ListaPromo()
+        {
+            return View();
+        }
+        #endregion
+
     }
 }

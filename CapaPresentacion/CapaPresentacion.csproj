@@ -3085,6 +3085,7 @@
     <Content Include="Views\Articulo\Articulo_View.cshtml" />
     <Content Include="Views\Articulo\Premios_Articulos.cshtml" />
     <Content Include="Views\Articulo\Premios_Articulos_Lista.cshtml" />
+    <Content Include="Views\Articulo\ListaPromo.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
