@@ -1,0 +1,243 @@
+﻿@model CapaPresentacion.Models.Lista_Cuenta_ContablesViewModel
+
+@{
+    ViewBag.Title = "Titulo";
+    ViewBag.SubTitle = "";
+}
+<style>
+    .table thead {
+        background-color: #5799bf;
+        color: #fff;
+    }
+
+    .boton-xs-td {
+        padding-top: 5px !important;
+        padding-bottom: 5px !important;
+    }
+
+    .alignRight {
+        text-align: right;
+    }
+
+    .tdClassTot {
+        color: #000 !important;
+        background-color: #b1dbf3 !important;
+        font-weight: bold;
+    }
+
+    .table .rowspanClass {
+        color: #000 !important;
+        background-color: #83c5ea;
+        text-align: center;
+        font-weight: bold;
+        vertical-align: middle;
+    }
+</style>
+
+<div class="box box-header box-primary">
+    <h3 class="box-title danger" style="color:#9c9c9c;font-weight:bold">Parametro de Busqueda</h3>
+    <br />
+    <br />
+    <div class="row">
+        <div class="col-sm-3">
+            <label for="fecini">Seleccione cliente</label>
+
+            <div class="form-group">
+                @Html.DropDownListFor(m => m.IdCliente, new SelectList(ViewBag.listPromotor, "codigo", "descripcion", null), new { @class = "form-control selectpicker", @data_live_search = "true", @id = "IdCliente", @name = "IdCliente" })
+            </div>
+
+        </div>
+        <div class="col-sm-3">
+            <label for="fecini">Fec. Ini</label>
+            <div class="form-group">
+                <div id="datepickerini" class="input-group date" data-date-format="dd-mm-yyyy">
+                    @Html.TextBoxFor(m => m.FechaInicio, new { @class = "form-control custom-input", @placeholder = "dd-mm-yyyy", @disabled = "disabled" })
+                    <span class="input-group-addon  bg-white"><img src="~/Content/images/wall-calendar-with-lines.svg" height="20" width="20"></span>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-3">
+            <label for="fecfin">Fec. Fin</label>
+            <div class="form-group">
+                <div id="datepickerfin" class="input-group date" data-date-format="dd-mm-yyyy">
+                    @Html.TextBoxFor(m => m.FechaFin, new { @class = "form-control custom-input", @placeholder = "dd-mm-yyyy", @disabled = "disabled" })
+                    <span class="input-group-addon  bg-white"><img src="~/Content/images/wall-calendar-with-lines.svg" height="20" width="20"></span>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-2" style="padding-left: 25px; width: 105px; margin-top: 23px; margin-bottom: 10px;">
+            <button id="btnBuscar" type="submit" title="Consultar" class="btn btn-primary">
+                <span class="glyphicon glyphicon-search"></span>&nbsp;&nbsp;Buscar
+            </button>
+        </div>
+    </div>
+</div>
+<div class="box box-body box-primary">
+    <div class="row">
+        <div class="col-md-6">
+
+        </div>
+        <div class="col-md-6 text-right">
+            <a id="btnExportarExcel" href="@Url.Action("ListaCuentasExcel","Financiera")" class="btn btn-primary disabled"><i class="glyphicon glyphicon-export"></i>&nbsp;&nbsp;Exportar Lista</a>
+        </div>
+    </div>
+    <br />
+    <div class="row">
+        <div class="col-md-12">
+            <div class="table-responsive">
+                <table id="tbCtsContables" class="table table-hover table-bordered compact">
+                    <thead>
+                        <tr>
+                            <th colspan="6"></th>
+                            <th colspan="4" style="text-align: center;">Docummento</th>
+                            <th colspan="2"></th>
+
+                        </tr>
+                        <tr>
+                            <th style="text-align: center;">Clear ID</th>
+                            <th style="text-align: center;">Cuenta Contable</th>
+                            <th style="text-align: center;">Descripción Cuenta</th>
+                            <th style="text-align: center;">Tipo de Entidad</th>
+                            <th style="text-align: center;">Codigo entidad</th>
+                            <th style="text-align: center;">Descripción Entidad</th>
+                            <th style="text-align: center;">Tipo</th>
+                            <th style="text-align: center;">Serie</th>
+                            <th style="text-align: center;">Número</th>
+                            <th style="text-align: center;">Fecha</th>
+                            <th style="text-align: center;">Debe</th>
+                            <th style="text-align: center;">Haber</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td colspan='12'>No se encontraron resultados</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section scripts{
+    <script>
+        $(document).ready(function () {
+
+            function Validar() {
+                debugger;
+                var dwCliente = $('#IdCliente').val();
+                var FechaInicio = $("#FechaInicio").val();
+                var FechaFin = $("#FechaFin").val();
+                    dwCliente = dwCliente.toString();
+
+                if (dwCliente == null) {
+                    toastr.error("¡Ingrese un cliente!", "Alerta");
+                    $('#IdCliente').focus();
+                    return false;
+                }
+
+                if (FechaInicio == undefined || FechaInicio == null || FechaInicio.length == 0 || FechaInicio == '' ) {
+                    toastr.error("La fecha de Inicio no puede estar vacio", "Alerta");
+                    return false;
+                }
+                if (FechaFin == undefined || FechaFin == null || FechaFin.length == 0 || FechaFin == '') {
+                    toastr.error("La fecha de Fin no puede estar vacio", "Alerta");
+                    return false;
+                }
+                return true;
+            }
+
+            $("#btnBuscar").click(function(){
+
+                var data = {
+                    'FechaInicio' : $("#FechaInicio").val(),
+                    'FechaFin' :  $("#FechaFin").val(),
+                    'IdCliente' :  $("#IdCliente").val()
+                }
+                if(Validar()){
+                    waitingDialog.show("Espere por favor...")
+                    $.ajax({
+                        type: "GET",
+                        url: '@Url.Action("CuentaContable", "Financiera")',
+                        data : data,
+                        success: function (data) {
+                            waitingDialog.hide();
+                            debugger
+                            data = JSON.parse(data)
+                            cargaTabla(data.Data,data.Success);
+                        },
+                        error: function (XMLHttpRequest, textStatus, errorThrown) {
+                            waitingDialog.hide();
+                        }
+                    });
+                }
+            })
+
+            $(function () {
+                $("#datepickerini").datepicker({
+                    autoclose: true,
+                    todayHighlight: true
+                }).datepicker("setDate", "0");;
+            });
+            $(function () {
+                $("#datepickerfin").datepicker({
+                    autoclose: true,
+                    todayHighlight: true
+                }).datepicker("setDate", "0");;
+            });
+
+             function cargaTabla(Data,IsOk){
+                 debugger
+                    let newId = [];
+                    let Html = "";
+                    let counT = 0;;
+
+                    if(IsOk){
+                        $("#btnExportarExcel").removeClass("disabled")
+                        for (let i in Data)
+                        {
+                            for (let j in Data[i].Hijos)
+                            {
+                                debugger
+                                counT++;
+                                Html += "<tr>";
+                                if (j==0){
+                                    Html += "<td class='rowspanClass' rowspan=" + Data[i].Hijos.length +" >" + Data[i].Hijos[j].Clear_id  + "</td>";
+                                }
+                                Html += "<td style='text-align: center;' id = 'Id_" + counT + "' >" + Data[i].Hijos[j].Cuenta  + "</td>";
+                                Html += "<td id = 'Id_" + counT + "' >" + Data[i].Hijos[j].CuentaDes + "</td>";
+                                Html += "<td id = 'Id_" + counT + "' >" + Data[i].Hijos[j].TipoEntidad + "</td>";
+                                Html += "<td style='text-align: center;' id = 'Id_" + counT + "' >" + Data[i].Hijos[j].CodigoEntidad + "</td>";
+                                Html += "<td id = 'Id_" + counT + "' >" + Data[i].Hijos[j].DesEntidad	 + "</td>";
+                                Html += "<td style='text-align: center;' id = 'Id_" + counT + "' >" + Data[i].Hijos[j].Tipo  + "</td>";
+                                Html += "<td style='text-align: center;' id = 'Id_" + counT + "' >" + Data[i].Hijos[j].Serie  + "</td>";
+                                Html += "<td style='text-align: center;' id = 'Id_" + counT + "' >" + Data[i].Hijos[j].Numero + "</td>";
+                                debugger
+                                var Fecha = (Data[i].Hijos[j].Fecha == undefined || Data[i].Hijos[j].Fecha == null || Data[i].Hijos[j].Fecha == 0) ? ' ': new Date(Data[i].Hijos[j].Fecha);
+
+                                Html += "<td style='text-align: center;' id = 'Id_" + counT + "' >" + ((Fecha == undefined || Fecha == null || Fecha == 0) ? ' ': Fecha.toLocaleDateString()) + "</td>";
+                                var Debe= Data[i].Hijos[j].Debe;
+                                Html += "<td style='text-align: right;' id = 'Id_" + counT + "' >" +  ((Debe == undefined || Debe == null || Debe == 0) ? ' ': Debe.toFixed(2)) + "</td>";
+                                var Haber= Data[i].Hijos[j].Haber;
+                                Html += "<td style='text-align: right;' id = 'Id_" + counT + "' >" + ((Haber == undefined || Haber == null || Haber == 0) ? ' ': Haber.toFixed(2)) + "</td>"
+                                Html += "</tr>";
+                            }
+                            newId.push({Id : counT})
+                        }
+                        debugger
+                        $('#tbCtsContables tbody').html(Html);
+                        for (const key in newId)
+                        {
+                            $('#tbCtsContables tbody tr #Id_' + newId[key].Id).addClass("tdClassTot");
+                        }
+                    }else{
+                        $("#btnExportarExcel").addClass("disabled");
+                        Html += "<tr>";
+                        Html += "<td colspan ='12'>No se encontraron resultados</td>";
+                        Html += "</tr>";
+                        $('#tbCtsContables tbody').html(Html);
+                    }
+             }
+    })
+    </script>
+}

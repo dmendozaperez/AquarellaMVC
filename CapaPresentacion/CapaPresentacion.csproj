@@ -112,9 +112,9 @@
       <HintPath>..\packages\Microsoft.Report.Viewer.11.0.0.0\lib\net\Microsoft.ReportViewer.WebForms.DLL</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="Newtonsoft.Json, Version=11.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>Bin\Newtonsoft.Json.dll</HintPath>
+    <Reference Include="Newtonsoft.Json, Version=12.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <HintPath>..\packages\Newtonsoft.Json.12.0.3\lib\net45\Newtonsoft.Json.dll</HintPath>
+      <Private>True</Private>
     </Reference>
     <Reference Include="NReco.PdfGenerator, Version=1.1.12.0, Culture=neutral, PublicKeyToken=231663d50a41b451, processorArchitecture=MSIL">
       <HintPath>..\packages\NReco.PdfGenerator.1.1.12.0\lib\net20\NReco.PdfGenerator.dll</HintPath>
@@ -240,6 +240,7 @@
     <Compile Include="Models\Crystal\Invoice.cs" />
     <Compile Include="Models\Crystal\Liquidation.cs" />
     <Compile Include="Models\Crystal\ReporteFacturacion.cs" />
+    <Compile Include="Models\Documento_TransaccionViewModel.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="RptsCrystal\Data\Data_Cr_Aquarella.cs" />
     <Compile Include="RptsCrystal\InvoiceReport.cs">
@@ -260,6 +261,7 @@
       <DependentUpon>Reference.svcmap</DependentUpon>
     </Compile>
     <Compile Include="Startup.cs" />
+    <Compile Include="Models\ArticuloViewModel.cs" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="AspNetForms\ReportInvoice.aspx" />
@@ -3085,6 +3087,8 @@
     <Content Include="Views\Articulo\Articulo_View.cshtml" />
     <Content Include="Views\Articulo\Premios_Articulos.cshtml" />
     <Content Include="Views\Articulo\Premios_Articulos_Lista.cshtml" />
+    <Content Include="Views\Articulo\ListarArticulo.cshtml" />
+    <Content Include="Views\Financiera\MovPago.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
