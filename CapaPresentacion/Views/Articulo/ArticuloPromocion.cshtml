@@ -1,0 +1,664 @@
+﻿
+@{
+    ViewBag.Title = (ViewBag.estado == "1") ? "Crear una nueva Promocion": "Modificando la Promocion";
+}
+<style>
+
+      .table thead {
+        background-color: #5799bf;
+        color: #fff;
+    }
+
+    .boton-xs-td {
+        padding-top: 5px !important;
+        padding-bottom: 5px !important;
+    }
+
+    .boton-td {
+        padding-top: 3px !important;
+        padding-bottom: 3px !important;
+    }
+
+    .content-center-text {
+        text-align: center;
+    }
+
+    p.content {
+        min-height: 0 !important;
+        padding: 0 !important;
+        margin-right: auto !important;
+        margin-left: auto !important;
+        padding-left: 0 !important;
+        padding-right: 0 !important;
+        color: dodgerblue;
+    }
+</style>
+<p class="text-primary">Editar ó crear una nueva promocion</p>
+<div class="box box-body box-primary">
+    <div class="row">
+        <div class="col-sm-5" style="padding-left: 25px;">
+            <a href="@Url.Action("ListaPromo" , "Articulo")" class="btn btn-default" title="Salir"><i class="fa fa-long-arrow-left"></i>&nbsp;&nbsp;Salir</a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        </div>
+        <div class="col-sm-6 text-right">         
+            <span style="font-size:medium;padding-bottom:1px;" class="label label-danger" id="dcpromoid">ID: 1234</span>           
+        </div>
+    </div>
+    <br />
+    <div class="row">
+        <div class="col-md-4" style="padding-left: 25px;">
+            <div id="prm" class="form-group" disabled>
+                <label for="txtpromocion" style="color: #3d566e;">Promoción</label>
+                <div class="form-group">
+                    <input type="text" value="" autofocus class="form-control" name="txtpromocion" id="txtpromocion" />
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="form-group">
+                <label for="dwtipo_promo">Tipo de Promocion:</label>
+                @Html.DropDownList("dwtipo_promo", new SelectList(ViewBag.tipo_promo, "Prom_ID", "Prom_Des", null), new { @class = "selectpicker", @data_live_search = "false", @id = "dwtipo_promo", @name = "dwtipo_promo", onchange = "select_tipo_des();", @data_actions_box = "true", @data_selected_text_format = "count > 2" })                                
+            </div>
+        </div>
+    </div>
+        <div class="row">
+            <div class="col-sm-2" style="padding-left: 25px; margin-right: inherit;">
+                <label for="txtdescuento" style="color: #3d566e;">Descuento (%)</label>
+                <div class="form-group">
+                    <div class="input-group">
+                        <span class="input-group-addon"><i class="glyphicon glyphicon-tag"></i></span>
+                        <input id="txtdescuento" type="text" maxlength="2" value="" class="form-control" name="txtdescuento" placeholder="Descuento">                      
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-2" style="padding-left: 25px;">
+                <div class="form-group">
+                    <label for="fecini" style="color: #3d566e;">Fecha Inicio</label>
+                    <div id="datepickerini" class="input-group date" data-date-format="dd-mm-yyyy">
+                        <input id="fecini" name="fecini" value="" class="form-control custom-input" placeholder="dd-mm-yyyy" type="text" />
+                        <span class="input-group-addon  bg-white"><img src="~/Content/images/wall-calendar-with-lines.svg" height="20" width="20"></span>
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-2" style="padding-left: 25px;">
+                <div class="form-group">
+                    <label for="fecnac" style="color: #3d566e;">Fecha Final</label>
+                    <div class="form-group">
+                        <div id="datepickerfin" class="input-group date" data-date-format="dd-mm-yyyy">
+                            <input id="fecfin" name="fecfin" value="" class="form-control" placeholder="dd-mm-yyyy" type="text" />
+                            <span class="input-group-addon  bg-white"><img src="~/Content/images/wall-calendar-with-lines.svg" height="20" width="20"></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-2" style="padding-left: 25px; margin-right: inherit;">
+                <label for="txtprioridad" style="color: #3d566e;">Prioridad</label>
+                <div class="form-group">
+                    <div class="input-group">
+                        <span class="input-group-addon"><i class="glyphicon glyphicon-info-sign"></i></span>
+                        <input id="txtprioridad" type="number" min="0" maxlength="2" value="" class="form-control" name="txtprioridad" placeholder="Prioriad">
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4" style="padding-left: 25px;padding-top:20px">
+                <div class="col-sm-12 checkbox text-red text-bold">
+                    <label style="font-size:18px;font-weight:bold">
+                        <input type="checkbox" name="chkactivo" id="chkactivo" value="1" /> Activo
+                    </label>
+                </div>
+            </div>                                       
+    </div>
+</div>
+<div class="box box-body box-danger">
+    <h4 style="padding-left: 10px; margin-bottom:20px" class="text-bold">Parametros de filtro de articulos</h4>
+    <div class="row">
+        <div class="col-sm-3" style="padding-left: 25px;">
+            <div class="form-group">
+                <label for="dwcategoria">Categoria:</label>
+                @Html.DropDownList("dwcategoria", new SelectList(ViewBag.categoria, "Cat_Id", "Cat_Descripcion", "-1"), new { @class = "selectpicker", @data_live_search = "true", multiple = "multiple", @id = "dwcategoria", @name = "dwcategoria", @data_actions_box = "true", @data_selected_text_format = "count > 2" })                                
+            </div>
+        </div>
+        <div class="col-md-3" style="padding-left: 25px;">
+            <div class="form-group">
+                <label for="dwmarca">Marca:</label>
+                @Html.DropDownList("dwmarca", new SelectList(ViewBag.marca, "Mar_Id", "Mar_Descripcion", "-1"), new { @class = "selectpicker", @data_live_search = "true", multiple = "multiple", @id = "dwmarca", @name = "dwmarca", @data_actions_box = "true", @data_selected_text_format = "count > 2" })
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-sm-2" style="padding-left: 25px; margin-right: inherit;">
+            <label for="txtarticulo" style="color: #3d566e;">Articulo</label>
+            <div class="form-group">
+                <div class="input-group">
+                    <span class="input-group-addon"><i class="glyphicon glyphicon-th-list"></i></span>
+                    <input id="txtarticulo" type="number" maxlength="7" min="0" class="form-control" name="txtarticulo" >
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-3" style="padding-top: 23px; padding-right:15px">          
+                <button id="btnagregar" onclick="agregar();" type="submit"  name="btnagregar" title="Agregar" class="btn btn-success">
+                    <span class="glyphicon glyphicon-plus-sign"></span>&nbsp;&nbsp;Agregar
+                </button>
+                <button id="btnborrartodo" onclick="limpiar_todo();" type="submit" value="0" name="btnborrartodo" title="Borrar todo" class="btn btn-danger">
+                    <span class="glyphicon glyphicon-trash"></span>&nbsp;&nbsp;Limpiar Lista
+                </button>            
+           
+        </div>
+
+        <div class="col-sm-2" style="padding-left: 5px; margin-top: 10px; margin-bottom: 10px;" >
+            <label for="excelFile" style="color: #3d566e;">Cargar archivo Excel</label>
+            <div class="form-group">
+                <input type="file" id="excelFile" accept=".xlsx">
+            </div>
+        </div>
+
+        <div class="col-sm-5 text-right" style="padding-top: 23px; padding-right:15px">
+            <button id="btnGenerar" type="button" onclick="generar();" title="Generar" style="float:right" class="btn btn-primary">
+                <span class="glyphicon glyphicon-barcode"></span>&nbsp;&nbsp;<ins>GENERAR</ins>
+            </button>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-12">
+            <div class="table-responsive">
+                <table id="tbarticulo" class="table table-hover table-bordered compact">
+                    <thead>
+                        <tr>
+                            <th>ARTICULO</th>                           
+                            <th>BORRAR</th>                                          
+                        </tr>
+                    </thead>
+                    <tbody data-bind="foreach:"></tbody>
+                    <tfoot>
+                        <tr>
+                            <th>ARTICULO</th>
+                            <th>BORRAR</th>         
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+        </div>
+    </div>
+
+ </div>
+@section scripts{
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.7.7/xlsx.core.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xls/0.7.4-a/xls.core.min.js"></script>
+<script src="~/Scripts/Linkend/linq.min.js"></script>    
+    <script>
+        $('input[type="file"]').change(function () {
+            ExportToTable();
+        });
+        function ExportToTable() {
+            try {
+                var regex = /\.(xls[mx]?)$/;
+                /*Checks whether the file is a valid excel file*/
+                if (regex.test($("#excelFile").val().toLowerCase())) {
+                    var xlsxflag = false; /*Flag for checking whether excel is .xls format or .xlsx format*/
+                    if ($("#excelFile").val().toLowerCase().indexOf(".xlsx") > 0) {
+                        xlsxflag = true;
+                    }
+                    /*Checks whether the browser supports HTML5*/
+                    if (typeof (FileReader) != "undefined") {
+                        var reader = new FileReader();
+                        reader.onload = function (e) {
+                            var data = e.target.result;
+                            /*Converts the excel data in to object*/
+                            if (xlsxflag) {
+                                var workbook = XLSX.read(data, { type: 'binary' });
+                            }
+                            else {
+                                var workbook = XLS.read(data, { type: 'binary' });
+                            }
+                            /*Gets all the sheetnames of excel in to a variable*/
+                            var sheet_name_list = workbook.SheetNames;
+
+                            var cnt = 0; /*This is used for restricting the script to consider only first sheet of excel*/
+                            sheet_name_list.forEach(function (y) { /*Iterate through all sheets*/
+                                /*Convert the cell value to Json*/
+                                if (xlsxflag) {
+                                    var exceljson = XLSX.utils.sheet_to_json(workbook.Sheets[y]);
+                                }
+                                else {
+                                    var exceljson = XLS.utils.sheet_to_row_object_array(workbook.Sheets[y]);
+                                }
+                                if (exceljson.length > 0 && cnt == 0) {
+                                    EnviarArticulosExcel(exceljson);
+                                }
+                                //ret_exceljson = exceljson;
+                            });
+                            //$('#exceltable').show();
+                        }
+                        if (xlsxflag) {/*If excel file is .xlsx extension than creates a Array Buffer from excel*/
+                            reader.readAsArrayBuffer($("#excelFile")[0].files[0]);
+                        }
+                        else {
+                            reader.readAsBinaryString($("#excelFile")[0].files[0]);
+                        }
+                    }
+                    else {
+                        swal("Tu navegador no soporta HTML5");
+                    }
+                }
+                else {
+                    swal("Por favor selecciona un archivo excel *xlsx");
+                }
+            } catch (e) {
+                swal("Error al cargar archivo excel.");
+            }
+        }
+        function EnviarArticulosExcel(jsonExcel) {
+            waitingDialog.show('Espere un momento por favor');
+            $.ajax({
+                type: "POST",
+                url: '@Url.Action("JsonExcelArticulos_Promo", "Articulo")',
+                data: { articulos: JSON.stringify(jsonExcel) },
+                dataType: "json",
+                success: function (data) {
+                    if (data.estado == 1) {
+                        //ordenar = false;
+
+                        var data_array = data.lista_valida;
+
+                        if (data_array.length != 0) {
+                            var text_msg = 'Los siguientes articulo no se agrego a la lista.\nporque no existe en nuestra base de datos.\nArticulo:\n\n';
+
+                            $.each(data_array, function (index, item) {
+
+                                var id_articulo = data_array[index].Art_Id.toString();
+
+                                text_msg += "\n" + id_articulo;
+                            });
+                         
+                            swal({
+                                title: "Ok",
+                                text:text_msg,
+
+                              
+                                icon: "success"
+                            })
+                        }
+
+                        $('#tbarticulo').DataTable().ajax.reload(function () { waitingDialog.hide(); });
+                        $('#excelFile').val("");
+
+
+
+                        //$('.table').DataTable().ajax.reload(function () { Resumen(false); waitingDialog.hide(); });
+                    } else {
+                        waitingDialog.hide();
+                        swal({
+                            title: "Error",
+                            text: data.resultados,
+                            icon: "error",
+                            dangerMode: true,
+                        });
+                        $('#tbarticulo').DataTable().ajax.reload(function () { waitingDialog.hide(); });
+                        $('#excelFile').val("");
+                    }
+                },
+                error: function (XMLHttpRequest, textStatus, errorThrown) {
+                    waitingDialog.hide();
+                    var error = eval("(" + XMLHttpRequest.responseText + ")");
+                    swal(error.Message);
+                    $('#tbarticulo_precio').DataTable().ajax.reload(function () { waitingDialog.hide(); });
+                    $('#excelFile').val("");
+                }
+            });
+        }
+    </script>
+
+    <script>
+        var estado=@ViewBag.estado;
+        var ofe_id=@ViewBag.promid;
+        var tipo_promo_array=function () { return @Html.Raw(Json.Encode(ViewBag.tipo_promo)); }();
+
+        $("#txtarticulo").keyup(function (event) {
+            if (event.keyCode === 13) {
+                event.preventDefault();
+                agregar();
+            }
+        });
+
+        function generar(){
+            var promo_des= $("#txtpromocion").val().trimLeft().trimRight().trim();
+            var tipo_promo=$("#dwtipo_promo").val();
+            var fec_ini=$("#fecini").val();
+            var fec_fin=$("#fecfin").val();
+            var porc=0;
+            var prioridad=0;
+            var categoria = $('#dwcategoria').val();
+            var marca = $('#dwmarca').val();
+
+            if (categoria==null) categoria='';
+            if (marca==null) marca='';
+
+            categoria=categoria.toString();
+            marca=marca.toString();
+
+            var estado_promo=($('#chkactivo').is(':checked'))?'A':'I';
+            
+
+            if (promo_des.length==0){
+                toastr.warning('Ingrese la descripcion de la promocion', 'Mensaje');
+                $("#txtpromocion").focus();
+                return
+            }
+            if (tipo_promo==null){
+                toastr.warning('seleccione un tipo de promocion', 'Mensaje');
+                $("#dwtipo_promo").focus();
+                return
+            }
+            var disabled = $("#txtdescuento").prop('disabled');
+
+            if (!disabled){
+
+                porc=Number.parseFloat($("#txtdescuento").val());
+                if (porc==0 || isNaN(porc)){
+                    toastr.warning('Ingrese el % de descuento', 'Mensaje');
+                    $("#txtdescuento").focus();
+                    return;
+                }
+
+
+            }
+
+            if (fec_ini.length==0 || fec_fin.length==0){
+                toastr.warning('Seleccione la fecha de rango', 'Mensaje');
+                return
+            }
+
+            porc=Number.parseFloat($("#txtdescuento").val());
+            if (isNaN(porc)){
+                porc=0;
+            }
+
+            prioridad=Number.parseFloat($("#txtprioridad").val());
+            if (isNaN(prioridad)){
+                prioridad=0;
+            }
+            
+
+            switch(estado)
+            {
+                case 1:
+                    mensaje = "¿Está seguro generar una nueva promocion?"
+                    break;
+                case 2:
+                    mensaje = "¿Está seguro modificar la promocion?"
+                    break;
+            }
+            swal({
+                title: "Guardar datos de la promocion",
+                text: mensaje,// "¿Está seguro de guardar el cruce?",
+                icon: "warning",
+                buttons: ["No", "Si"],
+                dangerMode: true,
+            }).then((cambiar) => {
+                if (cambiar) {
+                    waitingDialog.show("Espere un momento por favor.")
+                    $.ajax({
+                        type: "POST",
+                        url: '@Url.Action("update_promocion", "Articulo")',
+                        data: {estado_acccion:estado,ofe_id:ofe_id,ofe_descripcion:promo_des, ofe_porc:porc, ofe_fecini:fec_ini, ofe_fecfin:fec_fin,
+                            ofe_prioridad:prioridad,ofe_prom_id:tipo_promo,categoria:categoria,marca:marca,estado_promo:estado_promo},
+                        success: function (data) {
+                            if (data.estado == 1) {                              
+
+                                if (estado==1){
+                                    swal({
+                                        title: "Ok",
+                                        text: "Se Grabo con exito la promocion",
+                                        icon: "success"
+                                    }
+                                    ).then((value) => {
+                                        cancelar();
+                                        //waitingDialog.hide();
+                                    });
+                                }
+                                else{
+                                    swal({
+                                        title: "Ok",
+                                        text: "Se Modificaron con exito la promocion.",
+                                        icon: "success"
+                                    }
+                                    ).then((value) => {
+                                        cancelar();
+                                        //waitingDialog.hide();
+                                    });
+                                }
+
+
+                            } else {
+                                toastr.error(data.mensaje);
+                                waitingDialog.hide();
+                            }
+                        },
+                        error: function (XMLHttpRequest, textStatus, errorThrown) {
+                            waitingDialog.hide();
+                            toastr.error("Error al consultar.", "Alerta");
+                        }
+                    });
+                }
+            });
+
+        }
+        function cancelar(){
+            $("#btnGenerar").prop("disabled", true);            
+            window.location = '@Url.Action("ListaPromo", "Articulo")';
+        }
+        function limpiar_todo() {
+            waitingDialog.show("Espere por favor...")
+            $.ajax({
+                type: "POST",
+                url: '@Url.Action("eliminar_articulo_lista_promo_todo", "Articulo")',
+                data: {},
+                success: function (data) {
+                    if (data.estado == "1") {
+                        $('#tbarticulo').DataTable().ajax.reload();
+                        toastr.success(data.mensaje, "Mensaje");
+                        waitingDialog.hide();
+                    }
+                    else {
+                        waitingDialog.hide();
+                        toastr.warning(data.mensaje, "Alerta");
+                    }
+                },
+                error: function (XMLHttpRequest, textStatus, errorThrown) {
+                    waitingDialog.hide();
+                    toastr.error("Error al consultar.", "Alerta");
+                }
+            });
+        }
+
+        function eliminar(articulo) {
+            waitingDialog.show("Espere por favor...")
+            $.ajax({
+                type: "POST",
+                url: '@Url.Action("eliminar_articulo_lista_promo", "Articulo")',
+                data: { articulo: articulo },
+                success: function (data) {
+                    if (data.estado == "1") {
+                        $('#tbarticulo').DataTable().ajax.reload();
+                        toastr.success(data.mensaje, "Mensaje");
+                        waitingDialog.hide();
+                    }
+                    else {
+                        waitingDialog.hide();
+                        toastr.warning(data.mensaje, "Alerta");
+                    }
+                },
+                error: function (XMLHttpRequest, textStatus, errorThrown) {
+                    waitingDialog.hide();
+                    toastr.error("Error al consultar.", "Alerta");
+                }
+            });
+        }
+        function select_tipo_des(){
+            var strTipo_prom = $('#dwtipo_promo').val();
+
+            var lista_filter = tipo_promo_array.filter(obj => obj.Prom_ID == strTipo_prom);
+
+            var str_tipo=lista_filter[0].Prom_Tipo;
+
+            $("#txtdescuento").val('0');
+
+            if (str_tipo=="N"){
+                $("#txtdescuento").prop("disabled", false);
+                $("#txtdescuento").focus();
+
+            }else{
+                $("#txtdescuento").prop("disabled", true);
+            }
+
+
+
+        }
+
+        function agregar() {
+            var articulo = $("#txtarticulo").val().toString().trimLeft().trimRight().trim();
+
+            if (articulo.length == 0) {
+                toastr.warning('Ingrese el codigo de articulo', "Mensaje");
+                return;
+            }
+            if (articulo.length != 7) {
+                toastr.warning('El codigo debe de tener 7 caracteres', "Mensaje");
+                return;
+            }
+            waitingDialog.show("Espere por favor...")
+            $.ajax({
+                type: "POST",
+                url: '@Url.Action("agregar_articulo_lista_promo", "Articulo")',
+                data: {  articulo: articulo },
+                success: function (data) {
+                    if (data.estado == "1") {
+
+                        $('#tbarticulo').DataTable().ajax.reload();
+                        toastr.success(data.mensaje, "Mensaje");
+                        $("#txtarticulo").val('');
+                        waitingDialog.hide();
+                        $("#txtarticulo").focus();
+                    }
+                    else {
+                        waitingDialog.hide();
+                        toastr.warning(data.mensaje, "Alerta");
+                    }
+                },
+                error: function (XMLHttpRequest, textStatus, errorThrown) {
+                    waitingDialog.hide();
+                    toastr.error("Error al consultar.", "Alerta");
+                }
+            });
+
+        }
+    </script>
+
+    <script>
+        $(document).ready(function () {
+           
+
+
+            $('#tbarticulo').DataTable({
+                "language": {
+                    "url": "../Scripts/DataTables/Spanish.json"
+                },
+                "bServerSide": true,
+                "bAutoWidth": false,
+                "sAjaxSource": '@Url.Action("getTablePromocionListaArticuloAjax", "Articulo")',
+                "fnServerParams": function (aoData) {
+                    aoData.push({ "name": "actualizar", "value": "" });
+                },
+                "bProcessing": true,
+                "bdestroy": true,
+                "start": 0,
+                "columnDefs": [{
+                    "orderable": false,
+                    "targets": [1],
+                }],
+                "order": [[0, "desc"]],
+                "bDeferRender": true,
+                "aoColumns": [
+                      { "sName": "Art_Id", "mData": "Art_Id" },                  
+                       {
+                           "render": function (data, type, full) {
+
+                               var articulo = full.Art_Id;
+
+                               var btnEdit = '<button type="submit" title="Eliminar articulo" onclick="eliminar(\'' + articulo + '\');" class="btn btn-danger"><span class="glyphicon glyphicon-remove"></span></button>';
+
+
+                               return btnEdit;
+                           }, "class": "boton-md-td"
+                       },
+                ]
+            });
+            if (estado==1){
+                $("#dwtipo_promo").prop("selectedIndex", -1);
+                $("#datepickerini").datepicker({
+                    autoclose: true,
+                    todayHighlight: true
+
+                }).datepicker("setDate","0");
+
+
+                $("#datepickerfin").datepicker({
+                    autoclose: true,
+                    todayHighlight: true
+                }).datepicker("setDate", "0");
+
+                $("#txtdescuento").prop("disabled", true);
+                $("#txtdescuento").val('0');
+                $("#chkactivo").prop("checked", true);
+                $("#dcpromoid").html('');
+                
+            } else{
+                var tipo_oferta_array=function () { return @Html.Raw(Json.Encode(ViewBag.oferta)); }();
+
+                $("#dwtipo_promo").prop("disabled", true);
+
+                $("#dcpromoid").html('ID: ' + tipo_oferta_array.Ofe_Id);
+                $("#txtpromocion").val(tipo_oferta_array.Ofe_Descripcion);
+                $("#dwtipo_promo").val(tipo_oferta_array.Ofe_Prom_Id);
+                $("#txtdescuento").val(tipo_oferta_array.Ofe_Porc);
+                $("#fecini").val(tipo_oferta_array.Ofe_FecIni);
+                $("#fecfin").val(tipo_oferta_array.Ofe_FecFin);
+                $("#txtprioridad").val(tipo_oferta_array.ofe_prioridad)
+                $("#chkactivo").prop("checked",((tipo_oferta_array.Ofe_EstID=='A')? true:false))
+
+
+
+                var arr_cat = [];           
+                var arr_mar = [];           
+
+                var tipo_oferta_array_categoria=tipo_oferta_array.lista_categoria;
+                var tipo_oferta_array_marca=tipo_oferta_array.lista_marca;
+
+
+                $.each(tipo_oferta_array_categoria, function (index, item) {
+
+                    arr_cat[index]=tipo_oferta_array_categoria[index].Ofe_categoria.toString();
+                });
+
+                $.each(tipo_oferta_array_marca, function (index, item) {
+
+                    arr_mar[index]=tipo_oferta_array_marca[index].Ofe_marca.toString();
+                });
+
+
+                $('#dwcategoria').selectpicker('val', arr_cat);
+                $('#dwmarca').selectpicker('val', arr_mar);
+
+                if (tipo_oferta_array.Ofe_Porc==0) $("#txtdescuento").prop("disabled", true);
+             
+            }
+
+        });
+
+      
+
+       
+
+     
+
+    </script>
+}

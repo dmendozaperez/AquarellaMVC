@@ -258,5 +258,8 @@ namespace CapaDato.Articulo
             }
             return valida;
         }
+
+      
+
     }
 }
