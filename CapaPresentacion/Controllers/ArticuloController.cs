@@ -1439,7 +1439,428 @@ namespace CapaPresentacion.Controllers
             }
             return Json(new { estado = 0, mensaje = 1 });
         }
-        
+
         #endregion
+
+        #region<PROMOCION>
+        private String _session_lista_promocion = "_session_lista_promocion";
+        private Dat_Promocion prom = new Dat_Promocion();
+        public ActionResult ListaPromo()
+        {
+            Ent_Usuario _usuario = (Ent_Usuario)Session[Ent_Constantes.NameSessionUser];
+
+            string actionName = this.ControllerContext.RouteData.GetRequiredString("action");
+            string controllerName = this.ControllerContext.RouteData.GetRequiredString("controller");
+            string return_view = actionName + "|" + controllerName;
+
+            if (_usuario == null)
+            {
+                return RedirectToAction("Login", "Control", new { returnUrl = return_view });
+            }
+            else
+            {
+                Session[_session_lista_promocion] = null;
+                return View();
+            }
+              
+        }
+      
+        public ActionResult getTablePromocionListaAjax(Ent_jQueryDataTableParams param,string actualizar)
+        {
+           
+            if (Session[_session_lista_promocion] == null || actualizar == "1")
+            {
+                List<Ent_Promocion> entPromocionList = new List<Ent_Promocion>();
+                Session[_session_lista_promocion] = prom.lista_promocion();
+            }
+           
+
+            IQueryable<Ent_Promocion> membercol = ((List<Ent_Promocion>)(Session[_session_lista_promocion])).AsQueryable();  //lista().AsQueryable();
+
+            int totalCount = membercol.Count();
+            IEnumerable<Ent_Promocion> filteredMembers = membercol;
+
+            if (!string.IsNullOrEmpty(param.sSearch))
+            {
+                filteredMembers = membercol
+                    .Where(m => m.Prom_Des.ToUpper().Contains(param.sSearch.ToUpper()) 
+                     );
+            }
+
+
+            var sortIdx = Convert.ToInt32(Request["iSortCol_0"]);
+           
+            if (param.iSortingCols > 0)
+            {
+                if (Request["sSortDir_0"].ToString() == "asc")
+                {
+                    switch (sortIdx)
+                    {
+                        case 0:
+                            filteredMembers = filteredMembers.OrderBy(o => Convert.ToInt32(o.Prom_ID)); break;
+                        case 1:
+                            filteredMembers = filteredMembers.OrderBy(o => o.Prom_Des); break;
+                        case 2:
+                            filteredMembers = filteredMembers.OrderBy(o => Convert.ToInt32(o.Prom_Prioridad)); break;                        
+                    }
+                }
+                else
+                {
+                    switch (sortIdx)
+                    {
+
+                        case 0:
+                            filteredMembers = filteredMembers.OrderByDescending(o => Convert.ToInt32(o.Prom_ID)); break;
+                        case 1:
+                            filteredMembers = filteredMembers.OrderByDescending(o => o.Prom_Des); break;
+                        case 2:
+                            filteredMembers = filteredMembers.OrderByDescending(o => Convert.ToInt32(o.Prom_Prioridad)); break;
+
+                      
+                    }
+                }
+            }
+           
+            var displayMembers = filteredMembers
+              .Skip(param.iDisplayStart)
+              .Take(param.iDisplayLength);
+            var result = from a in displayMembers
+                         select new
+                         {
+                a.Prom_ID,
+                a.Prom_Des,
+                a.Prom_Porc,
+                a.Prom_FecIni,
+                a.Prom_FecFin,
+                a.Prom_EstID,
+                a.Prom_Prioridad,
+                a.Prom_Tip_PromID
+            };
+           
+            return Json(new
+            {
+                sEcho = param.sEcho,
+                iTotalRecords = totalCount,
+                iTotalDisplayRecords = filteredMembers.Count(),
+                aaData = result
+            }, JsonRequestBehavior.AllowGet);
+        }
+        private string _session_lista_articulo_promocion = "_session_lista_articulo_promocion";
+        public ActionResult ArticuloPromocion(string estado, string promid = "0")
+        {
+
+            Ent_Usuario _usuario = (Ent_Usuario)Session[Ent_Constantes.NameSessionUser];
+
+            string actionName = this.ControllerContext.RouteData.GetRequiredString("action");
+            string controllerName = this.ControllerContext.RouteData.GetRequiredString("controller");
+            string return_view = actionName + "|" + controllerName;
+
+            if (_usuario == null)
+            {
+                return RedirectToAction("Login", "Control", new { returnUrl = return_view });
+            }
+            else
+            {
+                if (estado == null) return RedirectToAction("ListaPromo", "Articulo");
+                if (estado == "2")
+                {
+                    Ent_Oferta Oferta = prom.leer_promocion(promid);
+
+                    List<Ent_Articulo> entArticuloList = new List<Ent_Articulo>();
+
+                    foreach(var item in Oferta.lista_articulo)
+                    {
+                        Ent_Articulo entArticulo = new Ent_Articulo();
+                        entArticulo.articulo=item.Ofe_articulo;
+                        entArticulo.Art_Id=item.Ofe_articulo;
+                        entArticuloList.Add(entArticulo);
+                    }
+
+                    Session[_session_lista_articulo_promocion] = entArticuloList;
+
+                    ViewBag.oferta = Oferta;
+
+                }
+                else
+                {
+                    Session[_session_lista_articulo_promocion] = null;
+                }
+                Dat_Marca datMarca = new Dat_Marca();
+                Dat_Categoria datCategoria = new Dat_Categoria();
+
+                ViewBag.marca = datMarca.listar();
+                ViewBag.categoria = datCategoria.listar();
+                ViewBag.tipo_promo = prom.lista_promocion_config();
+
+                ViewBag.estado = estado;
+                ViewBag.promid = promid;
+
+                return View();
+            }
+
+
+              
+        }
+
+        public ActionResult JsonExcelArticulos_Promo(string articulos)
+        {
+            List<Ent_Articulo> listArtExcel = (List<Ent_Articulo>)null;
+            try
+            {
+                listArtExcel = new List<Ent_Articulo>();
+                List<Ent_Articulo> entArticuloList2 = (List<Ent_Articulo>)JsonConvert.DeserializeObject<List<Ent_Articulo>>(articulos.ToUpper());
+                if (listArtExcel.Where(w => String.IsNullOrEmpty(w.articulo)).ToList().Count > 0)
+                {
+                    Session[_session_lista_articulo_promocion] = new List<Ent_Articulo>();
+                    return Json(new { estado = 0, resultados = "El Archivo no tiene el formato correcto ó hay campos vacios.\nVerifique el archivo." });
+                }
+                else
+                {
+                    List<Ent_Articulo> entArticuloList3 = new List<Ent_Articulo>();
+                    foreach (var data in ((IEnumerable<Ent_Articulo>)entArticuloList2).GroupBy(n => new
+                    {
+                        articulo = n.articulo
+                    }).Select(g => new { articulo = g.Key.articulo }).ToList())
+                    {
+                        Ent_Articulo entArticulo = new Ent_Articulo();
+                        entArticulo.articulo=data.articulo.PadLeft(7, '0');
+                        entArticulo.Art_Id=data.articulo.PadLeft(7, '0');
+                        entArticuloList3.Add(entArticulo);
+                    }
+                    List<Ent_Articulo> entArticuloList4 = this.prom.lista_existe_articulo(entArticuloList3);
+                    using (List<Ent_Articulo>.Enumerator enumerator = entArticuloList4.GetEnumerator())
+                    {
+                        while (enumerator.MoveNext())
+                        {
+                            Ent_Articulo item = enumerator.Current;
+                            int index = entArticuloList3.FindIndex((Predicate<Ent_Articulo>)(a => a.Art_Id == item.Art_Id));
+                            entArticuloList3.RemoveAt(index);
+                        }
+                    }
+                    Session[_session_lista_articulo_promocion] = entArticuloList3;
+                    return (ActionResult)this.Json((object)new
+                    {
+                        estado = 1,
+                        resultados = "ok",
+                        lista_valida = entArticuloList4
+                    });
+                }              
+            }
+            catch (Exception ex)
+            {
+                return (ActionResult)this.Json((object)new
+                {
+                    estado = 0,
+                    resultados = ex.Message
+                });
+            }
+        }
+
+        public ActionResult agregar_articulo_lista_promo(string articulo)
+        {
+            string str1;
+            string str2;
+            try
+            {
+                List<Ent_Articulo> entArticuloList1 = new List<Ent_Articulo>();
+                Ent_Articulo entArticulo1 = new Ent_Articulo();
+                entArticulo1.Art_Id=articulo;
+                entArticuloList1.Add(entArticulo1);
+                if (this.prom.lista_existe_articulo(entArticuloList1).Count != 0)
+                {
+                    str1 = "0";
+                    str2 = "No existe el articulo ingresado...";
+                }
+                else
+                {
+                    List<Ent_Articulo> entArticuloList2 = (List<Ent_Articulo>)Session[_session_lista_articulo_promocion];
+                    if (((IEnumerable<Ent_Articulo>)entArticuloList2).Where<Ent_Articulo>((Func<Ent_Articulo, bool>)(a => a.Art_Id == articulo)).ToList<Ent_Articulo>().Count == 0)
+                    {
+                        Ent_Articulo entArticulo2 = new Ent_Articulo();
+                        entArticulo2.Art_Id=articulo;
+                        entArticuloList2.Add(entArticulo2);
+                        Session[_session_lista_articulo_promocion] = entArticuloList2;
+                        str1 = "1";
+                        str2 = "Se agrego con exito el articulo";
+                    }
+                    else
+                    {
+                        str1 = "0";
+                        str2 = "El articulo ingresado ya existe en la lista...";
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                str1 = "0";
+                str2 = ex.Message;
+            }
+            return (ActionResult)this.Json((object)new
+            {
+                estado = str1,
+                mensaje = str2
+            });
+        }
+
+        public ActionResult eliminar_articulo_lista_promo(string articulo)
+        {
+            string str1;
+            string str2;
+            try
+            {
+                List<Ent_Articulo> entArticuloList = (List<Ent_Articulo>)Session[_session_lista_articulo_promocion];
+                int index = entArticuloList.FindIndex((Predicate<Ent_Articulo>)(item => item.Art_Id == articulo));
+                entArticuloList.RemoveAt(index);
+                str1 = "1";
+                str2 = "Se elimino con exito el articulo";
+                Session[_session_lista_articulo_promocion] = entArticuloList;
+            }
+            catch (Exception ex)
+            {
+                str1 = "0";
+                str2 = ex.Message;
+            }
+            return (ActionResult)this.Json((object)new
+            {
+                estado = str1,
+                mensaje = str2
+            });
+        }
+
+        public ActionResult eliminar_articulo_lista_promo_todo()
+        {
+            string str1;
+            string str2;
+            try
+            {
+                str1 = "1";
+                str2 = "Se eliminaron toda la lista";
+                Session[_session_lista_articulo_promocion] =null;
+            }
+            catch (Exception ex)
+            {
+                str1 = "0";
+                str2 = ex.Message;
+            }
+            return (ActionResult)this.Json((object)new
+            {
+                estado = str1,
+                mensaje = str2
+            });
+        }
+
+        public ActionResult getTablePromocionListaArticuloAjax(Ent_jQueryDataTableParams param,string actualizar)
+        {
+            // ISSUE: object of a compiler-generated type is created
+            // ISSUE: variable of a compiler-generated type
+            //ArticuloController.\u003C\u003Ec__DisplayClass52_0 cDisplayClass520 = new ArticuloController.\u003C\u003Ec__DisplayClass52_0();
+            // ISSUE: reference to a compiler-generated field
+            //cDisplayClass520.param = param;
+            if (Session[_session_lista_articulo_promocion] == null || actualizar == "1")
+            { 
+                Session[_session_lista_articulo_promocion] = new List<Ent_Articulo>();
+            }
+
+            IQueryable<Ent_Articulo> membercol = ((List<Ent_Articulo>)(Session[_session_lista_articulo_promocion])).AsQueryable();  //lista().AsQueryable();
+
+            //IQueryable<Ent_Articulo> source1 = ((IEnumerable<Ent_Articulo>)this.get_Session()[this._session_lista_articulo_promocion]).AsQueryable<Ent_Articulo>();
+            //int num = source1.Count<Ent_Articulo>();
+            int totalCount = membercol.Count();
+
+            //IEnumerable<Ent_Articulo> source2 = (IEnumerable<Ent_Articulo>)source1;
+            IEnumerable<Ent_Articulo> filteredMembers = membercol;
+            // ISSUE: reference to a compiler-generated field
+            if (!string.IsNullOrEmpty(param.sSearch))
+            {
+                filteredMembers = membercol
+                    .Where(m => m.articulo.ToUpper().Contains(param.sSearch.ToUpper()) ||
+                     m.Art_Id.ToUpper().Contains(param.sSearch.ToUpper())                      
+                     );             
+            }
+            var sortIdx = Convert.ToInt32(Request["iSortCol_0"]);
+            // ISSUE: reference to a compiler-generated field
+            if (param.iSortingCols > 0)
+            {
+                if (Request["sSortDir_0"].ToString() == "asc")
+                {
+                    if (sortIdx == 0) filteredMembers = filteredMembers.OrderBy(o => o.Art_Id);
+                                                
+                }
+                else
+                {
+                    if (sortIdx == 0) filteredMembers = filteredMembers.OrderByDescending(o => o.Art_Id);
+                }
+            }
+
+            var displayMembers = filteredMembers
+              .Skip(param.iDisplayStart)
+              .Take(param.iDisplayLength);
+
+            var result = from a in displayMembers
+                         select new
+                         {
+                             a.Art_Id,
+                            
+                         };
+            //Se devuelven los resultados por json
+            return Json(new
+            {
+                sEcho = param.sEcho,
+                iTotalRecords = totalCount,
+                iTotalDisplayRecords = filteredMembers.Count(),
+                aaData = result
+            }, JsonRequestBehavior.AllowGet);
+
+          
+          
+        }
+
+        public ActionResult update_promocion(
+          string estado_acccion,
+          string ofe_id,
+          string ofe_descripcion,
+          string ofe_porc,
+          string ofe_fecini,
+          string ofe_fecfin,
+          string ofe_prioridad,
+          string ofe_prom_id,
+          string categoria,
+          string marca,
+          string estado_promo)
+        {
+            string str1;
+            string str2;
+            try
+            {
+                Ent_Usuario entUsuario = (Ent_Usuario)Session[Ent_Constantes.NameSessionUser];
+                List<Ent_Articulo> entArticuloList = (List<Ent_Articulo>)Session[_session_lista_articulo_promocion];
+                str1 = this.prom.update_promocion(Convert.ToInt32(estado_acccion), Convert.ToInt32(ofe_id), ofe_descripcion, Convert.ToDecimal(ofe_porc), Convert.ToDateTime(ofe_fecini), Convert.ToDateTime(ofe_fecfin), entUsuario.usu_id, Convert.ToDecimal(ofe_prioridad), ofe_prom_id, entArticuloList, categoria, marca, estado_promo);
+                if (str1.Length == 0)
+                {
+                    str2 = "1";
+                    str1 = "Se Actualizo con exito la promocion";
+                }
+                else
+                    str2 = "0";
+            }
+            catch (Exception ex)
+            {
+                str2 = "0";
+                str1 = ex.Message;
+            }
+            return (ActionResult)this.Json((object)new
+            {
+                estado = str2,
+                mensaje = str1
+            });
+        }
+
+        //public ArticuloController()
+        //{
+        //    base.\u002Ector();
+        //}
     }
+    #endregion
+
+
 }
