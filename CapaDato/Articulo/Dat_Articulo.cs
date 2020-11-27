@@ -11,54 +11,44 @@ namespace CapaDato.Articulo
 {
     public class Dat_Articulo
     {
-        public List<Ent_Articulo> ListaPrecios()
+        public List<Ent_ListaArticuloPrecio> ListaArticuloPrecio()
         {
-            List<Ent_Articulo> Listar = new List<Ent_Articulo>();
+            List<Ent_ListaArticuloPrecio> Listar = null;
             string sqlquery = "[USP_MVC_ConsultaListaPrecios]";
             try
             {
                 using (SqlConnection cn = new SqlConnection(Ent_Conexion.conexion))
-                {
-                    cn.Open();
+                {                   
                     using (SqlCommand cmd = new SqlCommand(sqlquery, cn))
                     {
+                        cmd.CommandTimeout = 0;
                         cmd.CommandType = CommandType.StoredProcedure;
-                        using (SqlDataReader _Leer = cmd.ExecuteReader())
+                        using (SqlDataAdapter da = new SqlDataAdapter(cmd))
                         {
-                            if (_Leer.HasRows)
-                            {
-                                while (_Leer.Read())
-                                {
-                                    Ent_Articulo Item = new Ent_Articulo
-                                    {
-                                        Art_Id = (string)(_Leer["idarticulo"]),
-                                        Ent_CategoriaPrincipal = new Ent_CategoriaPrincipal
-                                        {
-                                            Cat_Pri_Descripcion = (string)(_Leer["cat_principal"])
-                                        },
-                                        Ent_SubCategoria = new Ent_SubCategoria
-                                        {
-                                            Sca_Descripcion = (string)(_Leer["Subcategoria"])
-                                        },
-                                        Ent_Marca = new Ent_Marca
-                                        {
-                                            Mar_Descripcion = (string)(_Leer["Marca"])
-                                        },
-                                        Art_Descripcion = (string)(_Leer["descripcion"]),
-                                        precioigv = (Decimal)(_Leer["precioigv"]),
-                                        preciosinigv = (Decimal)(_Leer["preciosinigv"]),
-                                        costo = (Decimal)(_Leer["costo"])
-                                    };
-                                    Listar.Add(Item);
-                                }
-                            }
+                            DataTable dt = new DataTable();
+                            da.Fill(dt);
+
+                            Listar = new List<Ent_ListaArticuloPrecio>();
+                            Listar = (from DataRow fila in dt.Rows
+                                      select new Ent_ListaArticuloPrecio()
+                                      {
+                                          IdArticulo = fila["idarticulo"].ToString(),
+                                          Cat_Principal = fila["cat_principal"].ToString(),
+                                          SubCategoria = fila["Subcategoria"].ToString(),
+                                          Marca = fila["Marca"].ToString(),
+                                          Descripcion = fila["descripcion"].ToString(),
+                                          PrecioIgv = Convert.ToDecimal(fila["precioigv"].ToString()),
+                                          PrecioSinIgv = Convert.ToDecimal(fila["preciosinigv"].ToString()),
+                                          Costo = Convert.ToDecimal(fila["costo"].ToString())
+                                      }
+                                    ).ToList();
                         }
                     }
                 }
             }
             catch (Exception ex)
             {
-                throw new Exception(ex.Message);
+                Listar = new List<Ent_ListaArticuloPrecio>();
 
             }
             return Listar;

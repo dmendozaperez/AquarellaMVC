@@ -35,6 +35,17 @@ namespace CapaEntidad.Articulo
         public Ent_SubCategoria Ent_SubCategoria { get; set; }
         public Ent_Marca Ent_Marca { get; set; }
         public Ent_Articulo_Precio Ent_Articulo_Precio { get; set; }
+    }
 
+    public class Ent_ListaArticuloPrecio
+    {
+        public string IdArticulo { get; set; }
+        public string Cat_Principal { get; set; }
+        public string SubCategoria { get; set; }
+        public string Marca { get; set; }
+        public string Descripcion { get; set; }
+        public Decimal PrecioIgv { get; set; }
+        public Decimal PrecioSinIgv { get; set; }
+        public Decimal Costo { get; set; }
     }
 }

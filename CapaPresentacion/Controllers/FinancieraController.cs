@@ -1,4 +1,4 @@
-﻿using OfficeOpenXml;
+﻿using System.Text;
 using CapaDato.Financiera;
 using CapaDato.Pedido;
 using CapaDato.Persona;
@@ -33,6 +33,8 @@ namespace CapaPresentacion.Controllers
         private string _sessionPagsLiqs = "_SessionPagsLiqs";
         private string _sessin_customer = "_sessin_customer";
         private string _session_listCuentasContables = "_session_listCuentasContables";
+        private string _session_ListCuentasContables_Excel = "_session_listCuentasContables_Excel";
+        
         // GET: Financiera
         public ActionResult Index()
         {
@@ -368,6 +370,7 @@ namespace CapaPresentacion.Controllers
 
         public ActionResult MovPago()
         {
+
             //Ent_Usuario _usuario = (Ent_Usuario)Session[Ent_Constantes.NameSessionUser];
             Ent_Usuario _usuario = new Ent_Usuario();
             _usuario.usu_id = 1;
@@ -455,148 +458,148 @@ namespace CapaPresentacion.Controllers
             return Json(JSON, JsonRequestBehavior.AllowGet);
         }
 
-        public FileContentResult ListaCuentasExcel()
+        public ActionResult get_exporta_ListCuentasContables_excel()
         {
-            string excelContentType = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
-
-            var entDocTrans = (List<Ent_Lista_Cuenta_Contables>)Session[_session_listCuentasContables];
-
-            var Lista = entDocTrans.GroupBy(x => x.Clear_id).Select(y => new
+            JsonResponse objResult = new JsonResponse();
+            try
             {
-                Padre = y.Key,
-                Hijos = y.Select(m => new
-                {
-                    Clear_id = m.Clear_id,
-                    Cuenta = m.Cuenta,
-                    CuentaDes = m.CuentaDes,
-                    TipoEntidad = m.TipoEntidad,
-                    CodigoEntidad = m.CodigoEntidad,
-                    DesEntidad = m.DesEntidad,
-                    Tipo = m.Tipo,
-                    Serie = m.Serie,
-                    Numero = m.Numero,
-                    Fecha = m.Fecha,
-                    Debe = m.Debe,
-                    Haber = m.Haber,
-                })
-            }).ToList();
-
-            //// var ListCount = Lista.Count();
-
-            int row = 7;
-            int rowCount = 0;
-            int varMerge = 0;
-            List<int> newId = new List<int>();
-            ExcelPackage Ep = new ExcelPackage();
-            ExcelWorksheet Sheet = Ep.Workbook.Worksheets.Add("Cuentas");
-            ////Titulo
-            //Sheet.Cells["C2:F2"].Merge = true;
-            //Sheet.Cells["C2"].Value = "LISTA DE ARTICULOS - CATALOGO - BATA";
-            //Sheet.Cells["C2"].Style.Font.Size = 24;
-            //Sheet.Cells["C2"].Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Center;
-            //Cabecera
-            Sheet.Cells["B6"].Value = "Clear Id";
-            Sheet.Cells["C6"].Value = "Cuenta Contable";
-            Sheet.Cells["D6"].Value = "Descripción Cuenta";
-            Sheet.Cells["E6"].Value = "Tipo de Entidad";
-            Sheet.Cells["F6"].Value = "Codigo entidad";
-            Sheet.Cells["G6"].Value = "Descripción Entidad";
-            Sheet.Cells["H6"].Value = "Tipo";
-            Sheet.Cells["I6"].Value = "Serie";
-            Sheet.Cells["J6"].Value = "Número";
-            Sheet.Cells["K6"].Value = "Fecha";
-            Sheet.Cells["L6"].Value = "Debe";
-            Sheet.Cells["M6"].Value = "Haber";
-
-            //Formato de cabecera
-            Sheet.Cells["B1:M6"].Style.Font.Bold = true;
-            Sheet.Cells["B5:M6"].Style.Fill.PatternType = OfficeOpenXml.Style.ExcelFillStyle.Solid;
-            Sheet.Cells["B5:M6"].Style.Fill.BackgroundColor.SetColor(System.Drawing.Color.DodgerBlue);
-            Sheet.Cells["B5:M6"].Style.Font.Color.SetColor(System.Drawing.Color.White);
-            Sheet.Cells["B5:M6"].Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Center;
-            Sheet.Cells["B5:M6"].Style.VerticalAlignment = OfficeOpenXml.Style.ExcelVerticalAlignment.Center;
-
-            Sheet.Cells["H5:K5"].Merge = true;
-            Sheet.Cells["H5"].Value = "Documentos";
-            
-            //Estilo al cuerpo del excel
-            //Carga datos      
-            var recuperar = 0;
-            foreach (var itemP in Lista)
-            {
-                foreach (var itemH in itemP.Hijos)
+                Session[_session_ListCuentasContables_Excel] = null;
+                string cadena = "";
+                if (Session[_session_listCuentasContables] != null)
                 {
 
-                    Sheet.Cells[string.Format("B{0}", row)].Value = itemH.Clear_id;
-                    Sheet.Cells[string.Format("B{0}", row)].Style.Border.Left.Style = OfficeOpenXml.Style.ExcelBorderStyle.Thin;
-                    Sheet.Cells[string.Format("B{0}", row)].Style.Border.Left.Color.SetColor(System.Drawing.Color.Black);
-                    Sheet.Cells[string.Format("C{0}", row)].Value = itemH.Cuenta;
-                    Sheet.Cells[string.Format("C{0}", row)].Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Center;
-
-                    Sheet.Cells[string.Format("D{0}", row)].Value = itemH.CuentaDes;
-
-                    Sheet.Cells[string.Format("E{0}", row)].Value = itemH.TipoEntidad;
-                    Sheet.Cells[string.Format("E{0}", row)].Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Center;
-
-                    Sheet.Cells[string.Format("F{0}", row)].Value = itemH.CodigoEntidad;
-                    Sheet.Cells[string.Format("F{0}", row)].Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Center;
-
-                    Sheet.Cells[string.Format("G{0}", row)].Value = itemH.DesEntidad;
-
-                    Sheet.Cells[string.Format("H{0}", row)].Value = itemH.Tipo;
-                    Sheet.Cells[string.Format("H{0}", row)].Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Center;
-
-                    Sheet.Cells[string.Format("I{0}", row)].Value = itemH.Serie;
-                    Sheet.Cells[string.Format("I{0}", row)].Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Center;
-
-                    Sheet.Cells[string.Format("J{0}", row)].Value = itemH.Numero;
-                    Sheet.Cells[string.Format("J{0}", row)].Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Center;
-                    
-                    Sheet.Cells[string.Format("K{0}", row)].Style.Numberformat.Format = "dd/mm/yyyy";
-                    Sheet.Cells[string.Format("K{0}", row)].Value = (itemH.Fecha == null) ? (DateTime?)null : Convert.ToDateTime(itemH.Fecha);
-                    Sheet.Cells[string.Format("K{0}", row)].Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Center;
-
-                    Sheet.Cells[string.Format("L{0}", row)].Value = (itemH.Debe == null) ? (double?)null : Convert.ToDouble(string.Format("{0:F2}", itemH.Debe));
-                    Sheet.Cells[string.Format("L{0}", row)].Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Right;
-
-                    Sheet.Cells[string.Format("M{0}", row)].Value = (itemH.Haber == null) ? (double?)null : Convert.ToDouble(string.Format("{0:F2}", itemH.Haber));
-                    Sheet.Cells[string.Format("M{0}", row)].Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Right;
-                    Sheet.Cells[string.Format("M{0}", row)].Style.Border.Right.Style = OfficeOpenXml.Style.ExcelBorderStyle.Thin;
-                    Sheet.Cells[string.Format("M{0}", row)].Style.Border.Right.Color.SetColor(System.Drawing.Color.Black);
-                    row++;
-                    rowCount++;
+                    List<Ent_Lista_Cuenta_Contables> ListarArticulo = (List<Ent_Lista_Cuenta_Contables>)Session[_session_listCuentasContables];
+                    if (ListarArticulo.Count == 0)
+                    {
+                        objResult.Success = false;
+                        objResult.Message = "No hay filas para exportar";
+                    }
+                    else
+                    {
+                        cadena = get_html_ListCuentasContables_str((List<Ent_Lista_Cuenta_Contables>)Session[_session_listCuentasContables]);
+                        if (cadena.Length == 0)
+                        {
+                            objResult.Success = false;
+                            objResult.Message = "Error del formato html";
+                        }
+                        else
+                        {
+                            objResult.Success = true;
+                            objResult.Message = "Se genero el excel correctamente";
+                            Session[_session_ListCuentasContables_Excel] = cadena;
+                        }
+                    }
                 }
-                newId.Add(row);
-                varMerge = row - rowCount;
-                Sheet.Cells[string.Format("B" + varMerge + ":B" + (row - 1))].Merge = true;
-                Sheet.Cells[string.Format("B" + varMerge + ":B" + (row - 1))].Style.Font.Bold = true;
-                Sheet.Cells[string.Format("B" + varMerge + ":B" + (row - 1))].Style.Fill.PatternType = OfficeOpenXml.Style.ExcelFillStyle.Solid;
-                Sheet.Cells[string.Format("B" + varMerge + ":B" + (row - 1))].Style.Fill.BackgroundColor.SetColor(System.Drawing.Color.CornflowerBlue);
-                Sheet.Cells[string.Format("B" + varMerge + ":B" + (row - 1))].Style.Font.Color.SetColor(System.Drawing.Color.Black);
-                Sheet.Cells[string.Format("B" + varMerge + ":B" + (row - 1))].Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Center;
-                Sheet.Cells[string.Format("B" + varMerge + ":B" + (row - 1))].Style.VerticalAlignment = OfficeOpenXml.Style.ExcelVerticalAlignment.Center;
-                varMerge = 0;
-                rowCount = 0;
+                else
+                {
+                    objResult.Success = false;
+                    objResult.Message = "No hay filas para exportar";
+                }
+
             }
-
-            int[] arr_newId = newId.ToArray();
-
-            foreach (var item in arr_newId)
+            catch (Exception ex)
             {
-                Sheet.Cells["B" + (item - 1) + ":M" + (item - 1)].Style.Font.Bold = true;
-                Sheet.Cells["B" + (item - 1) + ":M" + (item - 1)].Style.Fill.PatternType = OfficeOpenXml.Style.ExcelFillStyle.Solid;
-                Sheet.Cells["B" + (item - 1) + ":M" + (item - 1)].Style.Fill.BackgroundColor.SetColor(System.Drawing.Color.SkyBlue);
-                Sheet.Cells["B" + (item - 1) + ":M" + (item - 1)].Style.Font.Color.SetColor(System.Drawing.Color.Black);
-
-                Sheet.Cells["B" + (item - 1) + ":M" + (item - 1)].Style.Border.Bottom.Style = OfficeOpenXml.Style.ExcelBorderStyle.Thin;
-                Sheet.Cells["B" + (item - 1) + ":M" + (item - 1)].Style.Border.Bottom.Color.SetColor(System.Drawing.Color.Black);
+                objResult.Success = false;
+                objResult.Message = "No hay filas para exportar";
             }
 
-            Sheet.Cells["A:AZ"].AutoFitColumns();
-            var stream = new MemoryStream(Ep.GetAsByteArray());
-            return File(stream.ToArray(), excelContentType, "CuentaContables.xlsx");
+            var JSON = JsonConvert.SerializeObject(objResult);
+
+            return Json(JSON, JsonRequestBehavior.AllowGet);
         }
 
+        public string get_html_ListCuentasContables_str(List<Ent_Lista_Cuenta_Contables> ListCuentasContables)
+        {
+            StringBuilder sb = new StringBuilder();
+            int intcounT = 0;
+            int intCell = 1;
+            try
+            {
+                //Lista por grupos
+                var Lista = ListCuentasContables.GroupBy(x => x.Clear_id).Select(y => new
+                {
+                    Padre = y.Key,
+                    Hijos = y.Select(m => new
+                    {
+                        Clear_id = m.Clear_id,
+                        Cuenta = m.Cuenta,
+                        CuentaDes = m.CuentaDes,
+                        TipoEntidad = m.TipoEntidad,
+                        CodigoEntidad = m.CodigoEntidad,
+                        DesEntidad = m.DesEntidad,
+                        Tipo = m.Tipo,
+                        Serie = m.Serie,
+                        Numero = m.Numero,
+                        Fecha = m.Fecha,
+                        Debe = m.Debe,
+                        Haber = m.Haber,
+                    })
+                }).ToList();
+
+                sb.Append("<div><table cellspacing='0' rules='all' border='1' style='border-collapse:collapse;'><td Colspan='12' valign='middle' align='center' style='font-size: 18px;font-weight: bold;color:#285A8F'>CUENTAS CONTABLE - CATALOGO - BATA</td></table>");
+                sb.Append("<table border='2' bgColor='#ffffff' borderColor='#FFFFFF' cellSpacing='2' cellPadding='2' style='font-size:10.0pt; font-family:Calibri; background:white;'><tr  bgColor='#5799bf'><th colspan='6'></th><th colspan='4' style='text-align: center;'><font color='#FFFFFF'>Docummento</fonr></th><th colspan='2'></th></tr><tr bgColor='#5799bf'><th style='text-align: center;'><font color='#FFFFFF'>Clear ID</font></th><th style='text-align: center;'><font color='#FFFFFF'>Cuenta Contable</font></th><th style='text-align: center;'><font color='#FFFFFF'>Descripción Cuenta</font></th><th style='text-align: center;'><font color='#FFFFFF'>Tipo de Entidad</font></th><th style='text-align: center;'><font color='#FFFFFF'>Codigo entidad</font></th><th style='text-align: center;'><font color='#FFFFFF'>Descripción Entidad</font></th><th style='text-align: center;'><font color='#FFFFFF'>Tipo</font></th><th style='text-align: center;'><font color='#FFFFFF'>Serie</font></th><th style='text-align: center;'><font color='#FFFFFF'>Número</font></th><th style='text-align: center;'><font color='#FFFFFF'>Fecha</font></th><th style='text-align: center;'><font color='#FFFFFF'>Debe</font></th><th style='text-align: center;'><font color='#FFFFFF'>Haber</font></th></tr>\n");
+                string tdSColor = "";
+                foreach (var itemP in Lista)
+                {
+                    foreach (var itemH in itemP.Hijos)
+                    {
+                        sb.Append("<tr>\n");
+                        if (intcounT == 0)
+                        {
+                            intcounT = itemP.Hijos.Count();
+                            sb.Append("<td bgcolor='#83c5ea' style='text-align: center; vertical-align: middle;' rowspan='" + intcounT + "'>" + itemH.Clear_id + "</td>");                                                      
+                        }
+                        if (intCell == itemP.Hijos.Count()) tdSColor = " bgcolor='#b1dbf3' ";
+                        sb.Append("<td " + tdSColor + " align='center'>" + itemH.Cuenta + "</td>");
+                        sb.Append("<td " + tdSColor + ">" + itemH.CuentaDes + "</td>");
+                        sb.Append("<td " + tdSColor + " align='center'>" + itemH.TipoEntidad + "</td>");
+                        sb.Append("<td " + tdSColor + ">" + itemH.CodigoEntidad + "</td>");
+                        sb.Append("<td " + tdSColor + ">" + itemH.DesEntidad + "</td>");
+                        sb.Append("<td " + tdSColor + " align='center'>" + itemH.Tipo + "</td>");
+                        sb.Append("<td " + tdSColor + " align='center'>" + itemH.Serie + "</td>");
+                        sb.Append("<td " + tdSColor + " align='center'>" + itemH.Numero + "</td>");
+                        sb.Append("<td " + tdSColor + " align='center'>" + ((itemH.Fecha == null) ? (DateTime?)null : Convert.ToDateTime(String.Format("{0:d}", itemH.Fecha))) + " </td>");
+                        sb.Append("<td " + tdSColor + " align='right'>" + ((itemH.Debe == null) ? (Decimal?)null : Convert.ToDecimal(string.Format("{0:F2}", itemH.Debe))) + "</td>");
+                        sb.Append("<td " + tdSColor + " align='right'>" + ((itemH.Haber == null) ? (Decimal?)null : Convert.ToDecimal(string.Format("{0:F2}", itemH.Haber))) + "</td>");
+                        sb.Append("</tr>\n");
+                        intCell++;
+                    }
+                    intcounT = 0;
+                    tdSColor = "";
+                    intCell = 1;
+                }
+                sb.Append("</table></div>");
+            }
+            catch
+            {
+
+            }
+            return sb.ToString();
+        }
+
+
+        public ActionResult listCuentasContablesExcel()
+        {
+            string NombreArchivo = "Lista_Cuenta_Contables";
+            String style = style = @"<style> .textmode { mso-number-format:\@; } </script> ";
+            try
+            {
+                Response.Clear();
+                Response.Buffer = true;
+                Response.ContentType = "application/vnd.ms-excel";
+                Response.AddHeader("Content-Disposition", "attachment;filename=" + NombreArchivo + ".xls");
+                Response.Charset = "UTF-8";
+                Response.ContentEncoding = Encoding.Default;
+                Response.Write(style);
+                Response.Write(Session[_session_ListCuentasContables_Excel].ToString());
+                Response.End();
+            }
+            catch
+            {
+
+            }
+            return Json(new { estado = 0, mensaje = 1 });
+        }
         #endregion
-    }    
+    }
 }

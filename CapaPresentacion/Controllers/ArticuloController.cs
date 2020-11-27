@@ -19,6 +19,7 @@ using System.Web.Mvc;
 using System.Web.UI;
 using System.IO;
 using Newtonsoft.Json;
+
 namespace CapaPresentacion.Controllers
 {
     public class ArticuloController : Controller
@@ -28,6 +29,7 @@ namespace CapaPresentacion.Controllers
         private string _session_stock_x_articulo_filtro = "_session_stock_x_articulo_filtro";
         private string _session_pedido_sin_stock = "_session_pedido_sin_stock";
         private string _session_listaArticuloPrecios = "_session_listaArticuloPrecios";
+        private string _session_Lista_articulo_Excel = "_session_Lista_articulo";
 
         Dat_Articulo Dat_Articulo = new Dat_Articulo();
         public ActionResult Index()
@@ -474,9 +476,9 @@ namespace CapaPresentacion.Controllers
                 }
 
 
-                cadena += "</tr>" +
-                            "</table>" +
-                             "</div>";
+                    cadena += "</tr>" +
+                                "</table>" +
+                                "</div>";
 
                 html_str = cadena;
               
@@ -1212,60 +1214,56 @@ namespace CapaPresentacion.Controllers
         #region<Listar Precios de los articulos>
         public ActionResult ListarArticulo()
         {
-             //Ent_Usuario _usuario = (Ent_Usuario)Session[Ent_Constantes.NameSessionUser];
+            //Ent_Usuario _usuario = (Ent_Usuario)Session[Ent_Constantes.NameSessionUser];
 
-             //string actionName = this.ControllerContext.RouteData.GetRequiredString("action");
-             //string controllerName = this.ControllerContext.RouteData.GetRequiredString("controller");
-             //string return_view = actionName + "|" + controllerName;
+            //string actionName = this.ControllerContext.RouteData.GetRequiredString("action");
+            //string controllerName = this.ControllerContext.RouteData.GetRequiredString("controller");
+            //string return_view = actionName + "|" + controllerName;
 
-             //if (_usuario == null)
-             //{
-             //    return RedirectToAction("Login", "Control", new { returnUrl = return_view });
-             //}
-             //else
-             //{
-             //    Session[_session_listaArticuloPrecios] = Dat_Articulo.ListaPrecios();
-             //    return View();
-             //}
-             
-            Session[_session_listaArticuloPrecios] = Dat_Articulo.ListaPrecios();
+            //if (_usuario == null)
+            //{
+            //    return RedirectToAction("Login", "Control", new { returnUrl = return_view });
+            //}
+            //else
+            //{
+            //    ViewBag.usu_tip_id = _usuario.usu_tip_id;
+            //    Session[_session_listaArticuloPrecios] = Dat_Articulo.ListaArticuloPrecio();
+            //    return View();
+            //}
+            Session[_session_listaArticuloPrecios] = Dat_Articulo.ListaArticuloPrecio();
             return View();
         }
 
-        /****/
+        public List<Ent_ListaArticuloPrecio> ListaArticuloPrecio()
+        {
+            List<Ent_ListaArticuloPrecio> listArticulo = Dat_Articulo.ListaArticuloPrecio();
+            Session[_session_listaArticuloPrecios] = listArticulo;
+            return listArticulo;
+        }
+    
 
         public ActionResult getListArticulosAjax(Ent_jQueryDataTableParams param)
         {
 
-            // List<Ent_Articulo> listArticulo = new List<Ent_Articulo>();
+            // List<Ent_ListaArticuloPrecio> listArticulo = new List<Ent_ListaArticuloPrecio>();
             /*verificar si esta null*/
             /*f (Session[_session_listCliente_private] == null)
              {
-                 listArticulo = new List<Ent_Articulo>();
-                 listArticulo = lista(); //datOE.get_lista_atributos();
+                 listArticulo = new List<Ent_ListaArticuloPrecio>();
+                 listArticulo = ListaArticuloPrecio();
                  if (listcliente == null)
                  {
-                     listArticulo = new List<Ent_Articulo>();
+                     listArticulo = new List<Ent_ListaArticuloPrecio>();
                  }
                  Session[_session_listaArticuloPrecios] = listArticulo;
              }*/
 
-            //Traer registros
-            var membercol = ((List<Ent_Articulo>)(Session[_session_listaArticuloPrecios])).Select(x => new ArticuloViewModel
-            {
-                IdArticulo = x.Art_Id,
-                Cat_Principal = x.Ent_CategoriaPrincipal.Cat_Pri_Descripcion,
-                SubCategoria = x.Ent_SubCategoria.Sca_Descripcion,
-                Marca = x.Ent_Marca.Mar_Descripcion,
-                Descripcion = x.Art_Descripcion,
-                PrecioIgv = x.precioigv,
-                PrecioSinIgv = x.preciosinigv,
-                Costo = x.costo
-            }).ToList();
+            //Traer registro
 
+            IQueryable<Ent_ListaArticuloPrecio> membercol = ((List<Ent_ListaArticuloPrecio>)(Session[_session_listaArticuloPrecios])).AsQueryable();
             //Manejador de filtros
             int totalCount = membercol.Count();
-            IEnumerable<ArticuloViewModel> filteredMembers = membercol;
+            IEnumerable<Ent_ListaArticuloPrecio> filteredMembers = membercol;
             if (!string.IsNullOrEmpty(param.sSearch))
             {
                 filteredMembers = membercol
@@ -1320,79 +1318,128 @@ namespace CapaPresentacion.Controllers
             }, JsonRequestBehavior.AllowGet);
         }
 
-        public FileContentResult ListaArticulosPrecioExcel()
+        public ActionResult get_exporta_ListaArticulo_excel()
         {
-            string excelContentType = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
-            var Lista = ((List<Ent_Articulo>)(Session[_session_listaArticuloPrecios])).Select(x => new ArticuloViewModel
+            JsonResponse objResult = new JsonResponse();
+            try
             {
-                IdArticulo = x.Art_Id,
-                Cat_Principal = x.Ent_CategoriaPrincipal.Cat_Pri_Descripcion,
-                SubCategoria = x.Ent_SubCategoria.Sca_Descripcion,
-                Marca = x.Ent_Marca.Mar_Descripcion,
-                Descripcion = x.Art_Descripcion,
-                PrecioIgv = x.precioigv,
-                PrecioSinIgv = x.preciosinigv,
-                Costo = x.costo
-            }).ToList();
+                Session[_session_Lista_articulo_Excel] = null;
+                string cadena = "";
+                if (Session[_session_listaArticuloPrecios] != null)
+                {
 
-            var ListCount = Lista.Count();
-            int row = 5;
+                    List<Ent_ListaArticuloPrecio> ListarArticulo = (List<Ent_ListaArticuloPrecio>)Session[_session_listaArticuloPrecios];
+                    if (ListarArticulo.Count == 0)
+                    {
+                        objResult.Success = false;
+                        objResult.Message= "No hay filas para exportar";
+                    }
+                    else
+                    {
+                        cadena = get_html_ListarArticulo_str((List<Ent_ListaArticuloPrecio>)Session[_session_listaArticuloPrecios]);
+                        if (cadena.Length == 0)
+                        {
+                            objResult.Success = false;
+                            objResult.Message = "Error del formato html";
+                        }
+                        else
+                        {
+                            objResult.Success = true;
+                            objResult.Message = "Se genero el excel correctamente";
+                            Session[_session_Lista_articulo_Excel] = cadena;
+                        }
+                    }
+                }
+                else
+                {
+                    objResult.Success = false;
+                    objResult.Message = "No hay filas para exportar";
+                }
 
-            ExcelPackage Ep = new ExcelPackage();
-            ExcelWorksheet Sheet = Ep.Workbook.Worksheets.Add("Articulos");
-            //Titulo
-            Sheet.Cells["C2:F2"].Merge = true;
-            Sheet.Cells["C2"].Value = "LISTA DE ARTICULOS - CATALOGO - BATA";
-            Sheet.Cells["C2"].Style.Font.Size = 24;
-            Sheet.Cells["C2"].Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Center;
-            //Cabecera
-            Sheet.Cells["B4"].Value = "Articulo";
-            Sheet.Cells["C4"].Value = "Categoría";
-            Sheet.Cells["D4"].Value = "Sub Categoría";
-            Sheet.Cells["E4"].Value = "Marca";
-            Sheet.Cells["F4"].Value = "Descripción";
-            Sheet.Cells["G4"].Value = "Precio Inc(Igv)";
-            Sheet.Cells["H4"].Value = "Precio Sin(Igv)";
-            Sheet.Cells["I4"].Value = "Precio Costo";
-            //Formato de cabecera
-            Sheet.Cells["B1:I4"].Style.Font.Bold = true;
-            Sheet.Cells["B4:I4"].Style.Fill.PatternType = OfficeOpenXml.Style.ExcelFillStyle.Solid;
-            Sheet.Cells["B4:I4"].Style.Fill.BackgroundColor.SetColor(System.Drawing.Color.LightSkyBlue);
-            Sheet.Cells["B4:I4"].Style.Font.Color.SetColor(System.Drawing.Color.White);
-            //Estilo al cuerpo del excel
-            using (var range = Sheet.Cells[4, 2, ListCount + 4, 9])
-            {
-                range.Style.Border.Top.Style = OfficeOpenXml.Style.ExcelBorderStyle.Thin;
-                range.Style.Border.Bottom.Style = OfficeOpenXml.Style.ExcelBorderStyle.Thin;
-                range.Style.Border.Left.Style = OfficeOpenXml.Style.ExcelBorderStyle.Thin;
-                range.Style.Border.Right.Style = OfficeOpenXml.Style.ExcelBorderStyle.Thin;
             }
-            //Carga datos      
-            foreach (var item in Lista)
+            catch (Exception ex)
             {
-                Sheet.Cells[string.Format("B{0}", row)].Value = item.IdArticulo;
-                Sheet.Cells[string.Format("B{0}", row)].Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Center;
-
-                Sheet.Cells[string.Format("C{0}", row)].Value = item.Cat_Principal;
-                Sheet.Cells[string.Format("D{0}", row)].Value = item.SubCategoria;
-                Sheet.Cells[string.Format("E{0}", row)].Value = item.Marca;
-                Sheet.Cells[string.Format("F{0}", row)].Value = item.Descripcion;
-
-                Sheet.Cells[string.Format("G{0}", row)].Value = "S/ " + Convert.ToDecimal(string.Format("{0:F2}", item.PrecioIgv));
-                Sheet.Cells[string.Format("G{0}", row)].Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Right;
-
-                Sheet.Cells[string.Format("H{0}", row)].Value = "S/ " + Convert.ToDecimal(string.Format("{0:F2}", item.PrecioSinIgv));
-                Sheet.Cells[string.Format("H{0}", row)].Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Right;
-
-                Sheet.Cells[string.Format("I{0}", row)].Value = "S/ " + Convert.ToDecimal(string.Format("{0:F2}", item.Costo));
-                Sheet.Cells[string.Format("I{0}", row)].Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Right;
-
-                row++;
+                objResult.Success = false;
+                objResult.Message = "No hay filas para exportar";
             }
-            Sheet.Cells["A:AZ"].AutoFitColumns();
-            var stream = new MemoryStream(Ep.GetAsByteArray());
-            return File(stream.ToArray(), excelContentType, "Lista de Articulos.xlsx");
+
+            var JSON = JsonConvert.SerializeObject(objResult);
+
+            return Json(JSON, JsonRequestBehavior.AllowGet);
         }
+
+        public string get_html_ListarArticulo_str(List<Ent_ListaArticuloPrecio> ListaArticuloPrecio)
+        {
+            StringBuilder sb = new StringBuilder();
+
+            //Ent_Usuario _usuario = (Ent_Usuario)Session[Ent_Constantes.NameSessionUser];
+            
+            Ent_Usuario _usuario = new Ent_Usuario();
+            _usuario.usu_tip_id = "07";
+            string cabecera = "";
+            string cadena = "";
+            try
+            {
+                sb.Append("<div><table cellspacing='0' rules='all' border='1' style='border-collapse:collapse;'><td Colspan='7' valign='middle' align='center' style='font-size: 18px;font-weight: bold;color:#285A8F'>LISTA DE PRECIOS DE LOS ARTICULOS - CATALOGO - BATA</td></table>");
+                sb.Append("<Table border='1' bgColor='#ffffff' borderColor='#000000' cellSpacing='2' cellPadding='2' style='font-size:10.0pt; font-family:Calibri; background:white;'>");
+                sb.Append("<tr bgcolor = '#C0C0C0' height = 40><th>Categoría</th><th>Sub Categoría</th><th>Marca</th><th>Descripción</th><th>IdArticulo</th><th>Precio Inc(Igv)</th><th>Precio Sin(Igv)</th>\n");
+
+                if (_usuario.usu_tip_id == "04" || _usuario.usu_tip_id == "06")
+                {
+                    sb.Append("<th>Precio Costo</th>\n");
+                }
+                sb.Append("</tr>\n");
+                
+                foreach (Ent_ListaArticuloPrecio item in ListaArticuloPrecio)
+                {
+                    sb.Append("<tr>\n");
+                    sb.Append("<td>" + item.Cat_Principal + "</td>");
+                    sb.Append("<td>" + item.SubCategoria + "</td>");
+                    sb.Append("<td>" + item.Marca + "</td>");
+                    sb.Append("<td>" + item.Descripcion + "</td>");
+                    sb.Append("<td align='center'>" + item.IdArticulo + "</td>");
+                    sb.Append("<td align='right'>" + "S/ " + Convert.ToDecimal(string.Format("{0:F2}", item.PrecioSinIgv))+ "</td>");
+                    sb.Append("<td align='right'>" + "S/ " + Convert.ToDecimal(string.Format("{0:F2}", item.PrecioSinIgv)) + "</td>"); 
+                    if (_usuario.usu_tip_id == "04" || _usuario.usu_tip_id == "06")
+                    {
+                        sb.Append("<td align='right'>" + "S/ " + Convert.ToDecimal(string.Format("{0:F2}", item.Costo)) + "</td>");
+                    }
+                    sb.Append("</tr>\n");
+                }
+                
+                sb.Append("</table></div>");             
+            }
+            catch
+            {
+
+            }
+            return sb.ToString(); 
+        }
+
+
+        public ActionResult ListaArticuloPrecioExcel()
+        {
+            string NombreArchivo = "Lista_Articulo_Precio";
+            String style = style = @"<style> .textmode { mso-number-format:\@; } </script> ";
+            try
+            {
+                Response.Clear();
+                Response.Buffer = true;
+                Response.ContentType = "application/vnd.ms-excel";
+                Response.AddHeader("Content-Disposition", "attachment;filename=" + NombreArchivo  + ".xls");
+                Response.Charset = "UTF-8";
+                Response.ContentEncoding = Encoding.Default;
+                Response.Write(style);
+                Response.Write(Session[_session_Lista_articulo_Excel].ToString());
+                Response.End();
+            }
+            catch
+            {
+
+            }
+            return Json(new { estado = 0, mensaje = 1 });
+        }
+        
         #endregion
     }
 }
