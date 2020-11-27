@@ -1214,24 +1214,28 @@ namespace CapaPresentacion.Controllers
         #region<Listar Precios de los articulos>
         public ActionResult ListarArticulo()
         {
-            //Ent_Usuario _usuario = (Ent_Usuario)Session[Ent_Constantes.NameSessionUser];
+            Ent_Usuario _usuario = (Ent_Usuario)Session[Ent_Constantes.NameSessionUser];
 
-            //string actionName = this.ControllerContext.RouteData.GetRequiredString("action");
-            //string controllerName = this.ControllerContext.RouteData.GetRequiredString("controller");
-            //string return_view = actionName + "|" + controllerName;
+            string actionName = this.ControllerContext.RouteData.GetRequiredString("action");
+            string controllerName = this.ControllerContext.RouteData.GetRequiredString("controller");
+            string return_view = actionName + "|" + controllerName;
 
-            //if (_usuario == null)
-            //{
-            //    return RedirectToAction("Login", "Control", new { returnUrl = return_view });
-            //}
-            //else
-            //{
-            //    ViewBag.usu_tip_id = _usuario.usu_tip_id;
-            //    Session[_session_listaArticuloPrecios] = Dat_Articulo.ListaArticuloPrecio();
-            //    return View();
-            //}
-            Session[_session_listaArticuloPrecios] = Dat_Articulo.ListaArticuloPrecio();
-            return View();
+            if (_usuario == null)
+            {
+                return RedirectToAction("Login", "Control", new { returnUrl = return_view });
+            }
+            else
+            {
+                ViewBag.usu_tip_id = _usuario.usu_tip_id;
+                Session[_session_listaArticuloPrecios] = Dat_Articulo.ListaArticuloPrecio();
+                return View();
+            }
+                //{
+                //    ViewBag.usu_tip_id = _usuario.usu_tip_id;
+                //    Session[_session_listaArticuloPrecios] = Dat_Articulo.ListaArticuloPrecio();
+                //    return View();
+                //}
+               
         }
 
         public List<Ent_ListaArticuloPrecio> ListaArticuloPrecio()
@@ -1242,8 +1246,13 @@ namespace CapaPresentacion.Controllers
         }
     
 
-        public ActionResult getListArticulosAjax(Ent_jQueryDataTableParams param)
+        public ActionResult getListArticulosAjax(Ent_jQueryDataTableParams param,string actualizar)
         {
+
+            if (actualizar == "1")
+            {
+                Session[_session_listaArticuloPrecios] = Dat_Articulo.ListaArticuloPrecio();
+            }
 
             // List<Ent_ListaArticuloPrecio> listArticulo = new List<Ent_ListaArticuloPrecio>();
             /*verificar si esta null*/
@@ -1258,9 +1267,9 @@ namespace CapaPresentacion.Controllers
                  Session[_session_listaArticuloPrecios] = listArticulo;
              }*/
 
-            //Traer registro
+                //Traer registro
 
-            IQueryable<Ent_ListaArticuloPrecio> membercol = ((List<Ent_ListaArticuloPrecio>)(Session[_session_listaArticuloPrecios])).AsQueryable();
+                IQueryable<Ent_ListaArticuloPrecio> membercol = ((List<Ent_ListaArticuloPrecio>)(Session[_session_listaArticuloPrecios])).AsQueryable();
             //Manejador de filtros
             int totalCount = membercol.Count();
             IEnumerable<Ent_ListaArticuloPrecio> filteredMembers = membercol;

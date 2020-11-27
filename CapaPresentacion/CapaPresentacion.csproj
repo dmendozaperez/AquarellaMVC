@@ -236,10 +236,12 @@
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
+    <Compile Include="Models\ArticuloViewModel.cs" />
     <Compile Include="Models\Control\LoginViewModel.cs" />
     <Compile Include="Models\Crystal\Invoice.cs" />
     <Compile Include="Models\Crystal\Liquidation.cs" />
     <Compile Include="Models\Crystal\ReporteFacturacion.cs" />
+    <Compile Include="Models\Documento_TransaccionViewModel.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="RptsCrystal\Data\Data_Cr_Aquarella.cs" />
     <Compile Include="RptsCrystal\InvoiceReport.cs">
@@ -3088,6 +3090,7 @@
     <Content Include="Views\Articulo\ListaPromo.cshtml" />
     <Content Include="Views\Articulo\ArticuloPromocion.cshtml" />
     <Content Include="Views\Articulo\ListarArticulo.cshtml" />
+    <Content Include="Views\Financiera\MovPago.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
