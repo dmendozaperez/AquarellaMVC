@@ -48,11 +48,14 @@
     <Compile Include="ArticuloStock\Departamento.cs" />
     <Compile Include="ArticuloStock\Articulo_Tienda.cs" />
     <Compile Include="ArticuloSustituto\Articulo_Sustituto_Tienda.cs" />
+    <Compile Include="Articulo\Ent_Articulo.cs" />
     <Compile Include="Articulo\Ent_Articulo_Categoria_Stock.cs" />
     <Compile Include="Articulo\Ent_Articulo_Precio.cs" />
+    <Compile Include="Articulo\Ent_Marca.cs" />
     <Compile Include="Articulo\Ent_Premios.cs" />
     <Compile Include="Articulo\Ent_Articulo_Stock.cs" />
     <Compile Include="Articulo\Ent_CategoriaPrincipal.cs" />
+    <Compile Include="Articulo\Ent_SubCategoria.cs" />
     <Compile Include="Articulo\Ent_Temporada.cs" />
     <Compile Include="Cliente\Ent_Cliente_Agencia.cs" />
     <Compile Include="Cliente\Ent_Cliente_Despacho.cs" />
@@ -63,7 +66,10 @@
     <Compile Include="Control\Ent_Tienda.cs" />
     <Compile Include="Devolucion\Ent_Documentos_Dev.cs" />
     <Compile Include="Financiera\Ent_Cruce.cs" />
+    <Compile Include="Financiera\Ent_Documento_Transaccion.cs" />
     <Compile Include="Financiera\Ent_Documents_Trans.cs" />
+    <Compile Include="Financiera\Ent_Nota_Credito.cs" />
+    <Compile Include="Financiera\Ent_Pago.cs" />
     <Compile Include="Logistica\Ent_Lista_Despacho.cs" />
     <Compile Include="Logistica\Ent_Lista_Rotulo.cs" />
     <Compile Include="Maestros\Ent_Documento_Tipo.cs" />
