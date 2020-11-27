@@ -26,36 +26,35 @@ namespace CapaDato.Financiera
                         cmd.Parameters.AddWithValue("@var_fechaini", DbType.DateTime).Value = ent.FechaInicio;
                         cmd.Parameters.AddWithValue("@var_fechafin", DbType.DateTime).Value = ent.FechaFin;
                         cmd.Parameters.AddWithValue("@var_cliente", DbType.Int16).Value = ent.IdCliente;
-                        using (SqlDataReader _Leer = cmd.ExecuteReader())
+                        using (SqlDataAdapter da = new SqlDataAdapter(cmd))
                         {
-                            if (_Leer.HasRows)
-                            {
-                                while (_Leer.Read())
-                                {
-                                    Ent_Lista_Cuenta_Contables Item = new Ent_Lista_Cuenta_Contables
-                                    {
-                                        Clear_id = (string)(_Leer["Clear_id"]),
-                                        Cuenta = (_Leer["cuenta"] is DBNull) ? string.Empty : (string)(_Leer["cuenta"]),
-                                        CuentaDes = (_Leer["CuentaDes"] is DBNull) ? string.Empty : (string)(_Leer["CuentaDes"]),
-                                        TipoEntidad = (_Leer["TipoEntidad"] is DBNull) ? string.Empty : (string)(_Leer["TipoEntidad"]),
-                                        CodigoEntidad = (_Leer["CodigoEntidad"] is DBNull) ? string.Empty : (string)(_Leer["CodigoEntidad"]),
-                                        DesEntidad = (_Leer["DesEntidad"] is DBNull) ? string.Empty : (string)(_Leer["DesEntidad"]),
-                                        Tipo = (_Leer["Tipo"] is DBNull) ? string.Empty : (string)(_Leer["Tipo"]),
-                                        Serie = (_Leer["Serie"] is DBNull) ? string.Empty : (string)(_Leer["Serie"]),
-                                        Numero = (_Leer["Numero"] is DBNull) ? string.Empty : (string)(_Leer["Numero"]),
-                                        Fecha = (_Leer["Fecha"] is DBNull) ? (DateTime?)null : Convert.ToDateTime(_Leer["Fecha"]),
-                                        Debe = (_Leer["Debe"] is DBNull) ? (double?)null : Convert.ToDouble(_Leer["Debe"]),
-                                        Haber = (_Leer["Haber"] is DBNull) ? (double?)null : Convert.ToDouble(_Leer["Haber"]),
-                                        devito = (_Leer["devito"] is DBNull) ? string.Empty : (string)(_Leer["devito"]),
-                                        Amount = (_Leer["Amount"] is DBNull) ? (double?)null : Convert.ToDouble(_Leer["Amount"]),
-                                        Concepto = (_Leer["Concepto"] is DBNull) ? string.Empty : (string)(_Leer["Concepto"]),
-                                        Ad_Co = (_Leer["Ad_Co"] is DBNull) ? (int?)null : Convert.ToInt32(_Leer["Ad_Co"]),
-                                        Pad_Pay_Date = (_Leer["Pad_Pay_Date"] is DBNull) ? (DateTime?)null : Convert.ToDateTime(_Leer["Pad_Pay_Date"]),
-                                        Contador = (_Leer["Contador"] is DBNull) ? (int?)null : Convert.ToInt32(_Leer["Contador"])
-                                    };
-                                    Listar.Add(Item);
-                                }
-                            }
+                            DataTable dt = new DataTable();
+                            da.Fill(dt);
+
+                            Listar = new List<Ent_Lista_Cuenta_Contables>();
+                            Listar = (from DataRow fila in dt.Rows
+                                      select new Ent_Lista_Cuenta_Contables()
+                                      {
+                                          Clear_id = fila["Clear_id"].ToString(),
+                                          Cuenta = (fila["cuenta"] is DBNull) ? string.Empty : (string)(fila["cuenta"]),
+                                          CuentaDes = (fila["CuentaDes"] is DBNull) ? string.Empty : (string)(fila["CuentaDes"]),
+                                          TipoEntidad = (fila["TipoEntidad"] is DBNull) ? string.Empty : (string)(fila["TipoEntidad"]),
+                                          CodigoEntidad = (fila["CodigoEntidad"] is DBNull) ? string.Empty : (string)(fila["CodigoEntidad"]),
+                                          DesEntidad = (fila["DesEntidad"] is DBNull) ? string.Empty : (string)(fila["DesEntidad"]),
+                                          Tipo = (fila["Tipo"] is DBNull) ? string.Empty : (string)(fila["Tipo"]),
+                                          Serie = (fila["Serie"] is DBNull) ? string.Empty : (string)(fila["Serie"]),
+                                          Numero = (fila["Numero"] is DBNull) ? string.Empty : (string)(fila["Numero"]),
+                                          Fecha = (fila["Fecha"] is DBNull) ? (DateTime?)null : Convert.ToDateTime(fila["Fecha"]),
+                                          Debe = (fila["Debe"] is DBNull) ? (Decimal?)null : Convert.ToDecimal(fila["Debe"]),
+                                          Haber = (fila["Haber"] is DBNull) ? (Decimal?)null : Convert.ToDecimal(fila["Haber"]),
+                                          devito = (fila["devito"] is DBNull) ? string.Empty : (string)(fila["devito"]),
+                                          Amount = (fila["Amount"] is DBNull) ? (double?)null : Convert.ToDouble(fila["Amount"]),
+                                          Concepto = (fila["Concepto"] is DBNull) ? string.Empty : (string)(fila["Concepto"]),
+                                          Ad_Co = (fila["Ad_Co"] is DBNull) ? (int?)null : Convert.ToInt32(fila["Ad_Co"]),
+                                          Pad_Pay_Date = (fila["Pad_Pay_Date"] is DBNull) ? (DateTime?)null : Convert.ToDateTime(fila["Pad_Pay_Date"]),
+                                          Contador = (fila["Contador"] is DBNull) ? (int?)null : Convert.ToInt32(fila["Contador"])
+                                      }
+                                    ).ToList();
                         }
                     }
                 }

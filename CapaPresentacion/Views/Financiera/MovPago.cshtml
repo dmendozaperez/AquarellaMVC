@@ -77,8 +77,10 @@
         <div class="col-md-6">
 
         </div>
-        <div class="col-md-6 text-right">
-            <a id="btnExportarExcel" href="@Url.Action("ListaCuentasExcel","Financiera")" class="btn btn-primary disabled"><i class="glyphicon glyphicon-export"></i>&nbsp;&nbsp;Exportar Lista</a>
+        <div class="col-md-6 text-right">           
+            <button id="btnExportar" title="Actualizar" class="btn btn-primary .disabled" disabled>
+                <span class="glyphicon glyphicon-export"></span>&nbsp;&nbsp;Exportar Lista
+            </button>
         </div>
     </div>
     <br />
@@ -123,6 +125,33 @@
     <script>
         $(document).ready(function () {
 
+        
+            $("#btnExportar").addClass("disabled");
+           
+            $("#btnExportar").click(function () {
+                waitingDialog.show("Espere por favor...")
+                $.ajax({
+                    type: "POST",
+                    url: '@Url.Action("get_exporta_ListCuentasContables_excel", "Financiera")',
+                    //data: {},
+                    success: function (data) {
+                        data = JSON.parse(data);
+                        waitingDialog.hide();
+                        if (data.Success) {
+                            toastr.success(data.Message);
+                            window.location = '@Url.Action("listCuentasContablesExcel")';
+                        }
+                        else {
+                            toastr.error(data.Message, "Alerta");
+                        }
+                    },
+                    error: function (XMLHttpRequest, textStatus, errorThrown) {
+                        waitingDialog.hide();
+                        toastr.error("Error al consultar.", "Alerta");
+                    }
+                });
+            })
+
             function Validar() {
                 debugger;
                 var dwCliente = $('#IdCliente').val();
@@ -148,7 +177,14 @@
             }
 
             $("#btnBuscar").click(function(){
+                consultar();
+            })
 
+            $("#IdCliente").change(function(){
+                consultar();
+            })
+
+            function consultar() {
                 var data = {
                     'FechaInicio' : $("#FechaInicio").val(),
                     'FechaFin' :  $("#FechaFin").val(),
@@ -170,8 +206,8 @@
                             waitingDialog.hide();
                         }
                     });
-                }
-            })
+                }            
+            }
 
             $(function () {
                 $("#datepickerini").datepicker({
@@ -190,10 +226,12 @@
                  debugger
                     let newId = [];
                     let Html = "";
-                    let counT = 0;;
+                    let counT = 0;
 
                     if(IsOk){
-                        $("#btnExportarExcel").removeClass("disabled")
+                        $("#btnExportar").removeClass("disabled");
+                        $("#btnExportar").removeAttr("disabled");
+                        
                         for (let i in Data)
                         {
                             for (let j in Data[i].Hijos)
@@ -231,7 +269,8 @@
                             $('#tbCtsContables tbody tr #Id_' + newId[key].Id).addClass("tdClassTot");
                         }
                     }else{
-                        $("#btnExportarExcel").addClass("disabled");
+                        $("#btnExportar").addClass("disabled");
+                        $("#btnExportar").attr('disabled', 'disabled');
                         Html += "<tr>";
                         Html += "<td colspan ='12'>No se encontraron resultados</td>";
                         Html += "</tr>";

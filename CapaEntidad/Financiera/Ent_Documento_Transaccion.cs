@@ -43,8 +43,8 @@ namespace CapaEntidad.Financiera
         public string Serie { get; set; }
         public string Numero { get; set; }
         public DateTime? Fecha { get; set; }
-        public double? Debe { get; set; }
-        public double? Haber { get; set; }
+        public Decimal? Debe { get; set; }
+        public Decimal? Haber { get; set; }
         public string devito { get; set; }
         public double? Amount { get; set; }
         public string Concepto { get; set; }

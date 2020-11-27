@@ -1,4 +1,5 @@
-﻿using CapaDato.Articulo;
+﻿using OfficeOpenXml;
+using CapaDato.Articulo;
 using CapaDato.Pedido;
 using CapaEntidad.Articulo;
 using CapaEntidad.Control;
@@ -6,6 +7,7 @@ using CapaEntidad.General;
 using CapaEntidad.Pedido;
 using CapaEntidad.Util;
 using CapaPresentacion.Bll;
+using CapaPresentacion.Models;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
@@ -15,6 +17,8 @@ using System.Text;
 using System.Web;
 using System.Web.Mvc;
 using System.Web.UI;
+using System.IO;
+using Newtonsoft.Json;
 
 namespace CapaPresentacion.Controllers
 {
@@ -23,8 +27,11 @@ namespace CapaPresentacion.Controllers
         // GET: Articulo
         private string _session_stock_x_articulo = "_session_stock_x_articulo";
         private string _session_stock_x_articulo_filtro = "_session_stock_x_articulo_filtro";
-
         private string _session_pedido_sin_stock = "_session_pedido_sin_stock";
+        private string _session_listaArticuloPrecios = "_session_listaArticuloPrecios";
+        private string _session_Lista_articulo_Excel = "_session_Lista_articulo";
+
+        Dat_Articulo Dat_Articulo = new Dat_Articulo();
         public ActionResult Index()
         {
             return View();
@@ -469,9 +476,9 @@ namespace CapaPresentacion.Controllers
                 }
 
 
-                cadena += "</tr>" +
-                            "</table>" +
-                             "</div>";
+                    cadena += "</tr>" +
+                                "</table>" +
+                                "</div>";
 
                 html_str = cadena;
               
@@ -1204,12 +1211,235 @@ namespace CapaPresentacion.Controllers
 
         #endregion
 
-        #region<PROMOCIONES>
-        public ActionResult ListaPromo()
+        #region<Listar Precios de los articulos>
+        public ActionResult ListarArticulo()
         {
+            //Ent_Usuario _usuario = (Ent_Usuario)Session[Ent_Constantes.NameSessionUser];
+
+            //string actionName = this.ControllerContext.RouteData.GetRequiredString("action");
+            //string controllerName = this.ControllerContext.RouteData.GetRequiredString("controller");
+            //string return_view = actionName + "|" + controllerName;
+
+            //if (_usuario == null)
+            //{
+            //    return RedirectToAction("Login", "Control", new { returnUrl = return_view });
+            //}
+            //else
+            //{
+            //    ViewBag.usu_tip_id = _usuario.usu_tip_id;
+            //    Session[_session_listaArticuloPrecios] = Dat_Articulo.ListaArticuloPrecio();
+            //    return View();
+            //}
+            Session[_session_listaArticuloPrecios] = Dat_Articulo.ListaArticuloPrecio();
             return View();
         }
-        #endregion
 
+        public List<Ent_ListaArticuloPrecio> ListaArticuloPrecio()
+        {
+            List<Ent_ListaArticuloPrecio> listArticulo = Dat_Articulo.ListaArticuloPrecio();
+            Session[_session_listaArticuloPrecios] = listArticulo;
+            return listArticulo;
+        }
+    
+
+        public ActionResult getListArticulosAjax(Ent_jQueryDataTableParams param)
+        {
+
+            // List<Ent_ListaArticuloPrecio> listArticulo = new List<Ent_ListaArticuloPrecio>();
+            /*verificar si esta null*/
+            /*f (Session[_session_listCliente_private] == null)
+             {
+                 listArticulo = new List<Ent_ListaArticuloPrecio>();
+                 listArticulo = ListaArticuloPrecio();
+                 if (listcliente == null)
+                 {
+                     listArticulo = new List<Ent_ListaArticuloPrecio>();
+                 }
+                 Session[_session_listaArticuloPrecios] = listArticulo;
+             }*/
+
+            //Traer registro
+
+            IQueryable<Ent_ListaArticuloPrecio> membercol = ((List<Ent_ListaArticuloPrecio>)(Session[_session_listaArticuloPrecios])).AsQueryable();
+            //Manejador de filtros
+            int totalCount = membercol.Count();
+            IEnumerable<Ent_ListaArticuloPrecio> filteredMembers = membercol;
+            if (!string.IsNullOrEmpty(param.sSearch))
+            {
+                filteredMembers = membercol
+                    .Where(m => m.IdArticulo.ToUpper().Contains(param.sSearch.ToUpper()) ||
+                     m.Cat_Principal.ToUpper().Contains(param.sSearch.ToUpper()) ||
+                     m.SubCategoria.ToUpper().Contains(param.sSearch.ToUpper()) ||
+                     m.Marca.ToUpper().Contains(param.sSearch.ToUpper()) ||
+                     m.Descripcion.ToUpper().Contains(param.sSearch.ToUpper())
+                     );
+            }
+
+            //Manejador de orden
+            var sortIdx = Convert.ToInt32(Request["iSortCol_0"]);
+
+            if (param.iSortingCols > 0)
+            {
+                if (Request["sSortDir_0"].ToString() == "asc")
+                {
+                    switch (sortIdx)
+                    {
+                        case 0: filteredMembers = filteredMembers.OrderBy(o => o.IdArticulo); break;
+                        case 1: filteredMembers = filteredMembers.OrderBy(o => o.Cat_Principal); break;
+                        case 2: filteredMembers = filteredMembers.OrderBy(o => o.SubCategoria); break;
+                        case 3: filteredMembers = filteredMembers.OrderBy(o => o.Marca); break;
+                        case 4: filteredMembers = filteredMembers.OrderBy(o => o.Descripcion); break;
+                    }
+                }
+                else
+                {
+                    switch (sortIdx)
+                    {
+                        case 0: filteredMembers = filteredMembers.OrderByDescending(o => o.IdArticulo); break;
+                        case 1: filteredMembers = filteredMembers.OrderByDescending(o => o.Cat_Principal); break;
+                        case 2: filteredMembers = filteredMembers.OrderByDescending(o => o.SubCategoria); break;
+                        case 3: filteredMembers = filteredMembers.OrderByDescending(o => o.Marca); break;
+                        case 4: filteredMembers = filteredMembers.OrderByDescending(o => o.Descripcion); break;
+                    }
+                }
+            }
+
+            var Result = filteredMembers
+                .Skip(param.iDisplayStart)
+                .Take(param.iDisplayLength);
+
+            //Se devuelven los resultados por json
+            return Json(new
+            {
+                sEcho = param.sEcho,
+                iTotalRecords = totalCount,
+                iTotalDisplayRecords = filteredMembers.Count(),
+                aaData = Result
+            }, JsonRequestBehavior.AllowGet);
+        }
+
+        public ActionResult get_exporta_ListaArticulo_excel()
+        {
+            JsonResponse objResult = new JsonResponse();
+            try
+            {
+                Session[_session_Lista_articulo_Excel] = null;
+                string cadena = "";
+                if (Session[_session_listaArticuloPrecios] != null)
+                {
+
+                    List<Ent_ListaArticuloPrecio> ListarArticulo = (List<Ent_ListaArticuloPrecio>)Session[_session_listaArticuloPrecios];
+                    if (ListarArticulo.Count == 0)
+                    {
+                        objResult.Success = false;
+                        objResult.Message= "No hay filas para exportar";
+                    }
+                    else
+                    {
+                        cadena = get_html_ListarArticulo_str((List<Ent_ListaArticuloPrecio>)Session[_session_listaArticuloPrecios]);
+                        if (cadena.Length == 0)
+                        {
+                            objResult.Success = false;
+                            objResult.Message = "Error del formato html";
+                        }
+                        else
+                        {
+                            objResult.Success = true;
+                            objResult.Message = "Se genero el excel correctamente";
+                            Session[_session_Lista_articulo_Excel] = cadena;
+                        }
+                    }
+                }
+                else
+                {
+                    objResult.Success = false;
+                    objResult.Message = "No hay filas para exportar";
+                }
+
+            }
+            catch (Exception ex)
+            {
+                objResult.Success = false;
+                objResult.Message = "No hay filas para exportar";
+            }
+
+            var JSON = JsonConvert.SerializeObject(objResult);
+
+            return Json(JSON, JsonRequestBehavior.AllowGet);
+        }
+
+        public string get_html_ListarArticulo_str(List<Ent_ListaArticuloPrecio> ListaArticuloPrecio)
+        {
+            StringBuilder sb = new StringBuilder();
+
+            //Ent_Usuario _usuario = (Ent_Usuario)Session[Ent_Constantes.NameSessionUser];
+            
+            Ent_Usuario _usuario = new Ent_Usuario();
+            _usuario.usu_tip_id = "07";
+            string cabecera = "";
+            string cadena = "";
+            try
+            {
+                sb.Append("<div><table cellspacing='0' rules='all' border='1' style='border-collapse:collapse;'><td Colspan='7' valign='middle' align='center' style='font-size: 18px;font-weight: bold;color:#285A8F'>LISTA DE PRECIOS DE LOS ARTICULOS - CATALOGO - BATA</td></table>");
+                sb.Append("<Table border='1' bgColor='#ffffff' borderColor='#000000' cellSpacing='2' cellPadding='2' style='font-size:10.0pt; font-family:Calibri; background:white;'>");
+                sb.Append("<tr bgcolor = '#C0C0C0' height = 40><th>Categoría</th><th>Sub Categoría</th><th>Marca</th><th>Descripción</th><th>IdArticulo</th><th>Precio Inc(Igv)</th><th>Precio Sin(Igv)</th>\n");
+
+                if (_usuario.usu_tip_id == "04" || _usuario.usu_tip_id == "06")
+                {
+                    sb.Append("<th>Precio Costo</th>\n");
+                }
+                sb.Append("</tr>\n");
+                
+                foreach (Ent_ListaArticuloPrecio item in ListaArticuloPrecio)
+                {
+                    sb.Append("<tr>\n");
+                    sb.Append("<td>" + item.Cat_Principal + "</td>");
+                    sb.Append("<td>" + item.SubCategoria + "</td>");
+                    sb.Append("<td>" + item.Marca + "</td>");
+                    sb.Append("<td>" + item.Descripcion + "</td>");
+                    sb.Append("<td align='center'>" + item.IdArticulo + "</td>");
+                    sb.Append("<td align='right'>" + "S/ " + Convert.ToDecimal(string.Format("{0:F2}", item.PrecioSinIgv))+ "</td>");
+                    sb.Append("<td align='right'>" + "S/ " + Convert.ToDecimal(string.Format("{0:F2}", item.PrecioSinIgv)) + "</td>"); 
+                    if (_usuario.usu_tip_id == "04" || _usuario.usu_tip_id == "06")
+                    {
+                        sb.Append("<td align='right'>" + "S/ " + Convert.ToDecimal(string.Format("{0:F2}", item.Costo)) + "</td>");
+                    }
+                    sb.Append("</tr>\n");
+                }
+                
+                sb.Append("</table></div>");             
+            }
+            catch
+            {
+
+            }
+            return sb.ToString(); 
+        }
+
+
+        public ActionResult ListaArticuloPrecioExcel()
+        {
+            string NombreArchivo = "Lista_Articulo_Precio";
+            String style = style = @"<style> .textmode { mso-number-format:\@; } </script> ";
+            try
+            {
+                Response.Clear();
+                Response.Buffer = true;
+                Response.ContentType = "application/vnd.ms-excel";
+                Response.AddHeader("Content-Disposition", "attachment;filename=" + NombreArchivo  + ".xls");
+                Response.Charset = "UTF-8";
+                Response.ContentEncoding = Encoding.Default;
+                Response.Write(style);
+                Response.Write(Session[_session_Lista_articulo_Excel].ToString());
+                Response.End();
+            }
+            catch
+            {
+
+            }
+            return Json(new { estado = 0, mensaje = 1 });
+        }
+        
+        #endregion
     }
 }

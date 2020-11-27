@@ -24,10 +24,14 @@
 <div class="box box-body box-default">
     <div class="row">
         <div class="col-md-6">
-            <a href="@Url.Action("ListarArticulo", "Articulo")" class="btn btn-info"><i class="glyphicon glyphicon-repeat"></i>&nbsp;Refresh</a>
+            <button id="btnRefrescar" title="Actualizar" class="btn btn-success">
+                <span class="glyphicon glyphicon-refresh"></span>&nbsp;&nbsp;Refresh
+            </button>
         </div>
         <div class="col-md-6 text-right">
-            <a href="@Url.Action("ListaArticulosPrecioExcel","Articulo")" class="btn btn-primary"><i class="glyphicon glyphicon-export"></i>&nbsp;&nbsp;Exportar Lista</a>
+            <button id="btnExportar" title="Actualizar" class="btn btn-primary">
+                <span class="glyphicon glyphicon-export"></span>&nbsp;&nbsp;Exportar Lista
+            </button>
         </div>
     </div>
     <br />
@@ -67,62 +71,95 @@
 </div>
 @section scripts{
     <script language="javascript" type="text/javascript">
+        $(document).ready(function () {
+            //var tipo_user=@ViewBag.usu_tip_id;
+            var IsOk = false;
+            var tipo_user = '0';
+            if (tipo_user == '04' || tipo_user == '06') {
+                IsOk = true;
+            }
 
-    $(document).ready(function () {
-        debugger
-        $("body").toggleClass('sidebar-collapse');
+            $("#btnRefrescar").click(function () {
+                waitingDialog.show("Espere por favor...")
+                $('#tbArticulos').DataTable().ajax.reload(function () {
+                    waitingDialog.hide();
+                });
+            })
 
-        $('#dwlider option').attr("selected", "selected");
-        $('#dwlider').selectpicker('refresh');
+            $("#btnExportar").click(function () {
+                waitingDialog.show("Espere por favor...")
+                $.ajax({
+                    type: "POST",
+                    url: '@Url.Action("get_exporta_ListaArticulo_excel", "Articulo")',
+                    //data: {},
+                    success: function (data) {
+                        data = JSON.parse(data);
+                        waitingDialog.hide();
+                        if (data.Success) {
+                            toastr.success(data.Message);
+                            window.location = '@Url.Action("ListaArticuloPrecioExcel")';
+                        }
+                        else {
+                            toastr.error(data.Message, "Alerta");
+                        }
+                    },
+                    error: function (XMLHttpRequest, textStatus, errorThrown) {
+                        waitingDialog.hide();
+                        toastr.error("Error al consultar.", "Alerta");
+                    }
+                });
+            })
 
+            $("body").toggleClass('sidebar-collapse');
 
-        $('#tbArticulos').DataTable({
-            "language": {
-                "url": "../Scripts/DataTables/Spanish.json"
-            },
-            "bServerSide": true,
-            "bAutoWidth": false,
-            "sAjaxSource": '@Url.Action("getListArticulosAjax", "Articulo")',
-            "fnServerParams": function (aoData) {
-                aoData.push({ "name": "actualizar", "value": "" });
-            },
-            "bdestroy": true,
-            "start": 0,
-            "columnDefs": [{
-                "orderable": false,
-                "targets": [5, 6, 7],
-            }],
-            "bDeferRender": true,
-            "aoColumns": [
-                  { "sName": "Cat_Principal", "mData": "Cat_Principal" },
-                  { "sName": "SubCategoria", "mData": "SubCategoria" },
-                  { "sName": "Marca", "mData": "Marca" },
-                  { "sName": "Descripcion", "mData": "Descripcion" },
-                  { "sName": "IdArticulo", "mData": "IdArticulo" },
-                  {
-                      "sName": "PrecioIgv", "mData": "PrecioIgv",
-                      "sClass": "alignRight",
-                      "render": function (data, type, full, meta) {
-                           return "S/" + data.toFixed(2)
-                      }
-                  },
-                  {
-                      "sName": "PrecioSinIgv", "mData": "PrecioSinIgv",
-                      "sClass": "alignRight",
-                      "render": function (data, type, full, meta) {
-                          return "S/" + data.toFixed(2)
-                      }
-                  },
-                  {
-                      "sName": "Costo", "mData": "Costo",
-                      "sClass": "alignRight",
-                      "render": function (data, type, full, meta) {
-                          return "S/" + data.toFixed(2)
-                      }
-                  }
-            ]
-        });
-    })
+            $('#tbArticulos').DataTable({
+                "language": {
+                    "url": "../Scripts/DataTables/Spanish.json"
+                },
+                "bServerSide": true,
+                "bAutoWidth": false,
+                "sAjaxSource": '@Url.Action("getListArticulosAjax", "Articulo")',
+                "fnServerParams": function (aoData) {
+                    aoData.push({ "name": "actualizar", "value": "" });
+                },
+                "bdestroy": true,
+                "start": 0,
+                "columnDefs": [{
+                    "orderable": false,
+                    "targets": [5, 6, 7],
+                }],
+                "bDeferRender": true,
+                "aoColumns": [
+                        { "sName": "Cat_Principal", "mData": "Cat_Principal" },
+                        { "sName": "SubCategoria", "mData": "SubCategoria" },
+                        { "sName": "Marca", "mData": "Marca" },
+                        { "sName": "Descripcion", "mData": "Descripcion" },
+                        { "sName": "IdArticulo", "mData": "IdArticulo" },
+                        {
+                            "sName": "PrecioIgv", "mData": "PrecioIgv",
+                            "sClass": "alignRight",
+                            "render": function (data, type, full, meta) {
+                                return "S/" + data.toFixed(2)
+                            }
+                        },
+                        {
+                            "sName": "PrecioSinIgv", "mData": "PrecioSinIgv",
+                            "sClass": "alignRight",
+                            "render": function (data, type, full, meta) {
+                                return "S/" + data.toFixed(2)
+                            }
+                        },
+                        {
+                            "sName": "Costo", "mData": "Costo",
+                            "sClass": "alignRight",
+                            "bVisible": IsOk,
+                            "render": function (data, type, full, meta) {
+                                return "S/" + data.toFixed(2)
+                            }
+                        }
+                ]
+            });
+        })
 
     </script>
 }
