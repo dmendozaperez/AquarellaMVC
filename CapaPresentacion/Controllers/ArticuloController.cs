@@ -1,5 +1,4 @@
-﻿using OfficeOpenXml;
-using CapaDato.Articulo;
+﻿using CapaDato.Articulo;
 using CapaDato.Pedido;
 using CapaEntidad.Articulo;
 using CapaEntidad.Control;
@@ -17,8 +16,7 @@ using System.Text;
 using System.Web;
 using System.Web.Mvc;
 using System.Web.UI;
-using System.IO;
-using Newtonsoft.Json;
+
 
 namespace CapaPresentacion.Controllers
 {
