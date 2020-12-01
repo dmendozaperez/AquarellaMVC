@@ -1,7 +1,7 @@
 ﻿@model CapaPresentacion.Models.Lista_Cuenta_ContablesViewModel
 
 @{
-    ViewBag.Title = "Titulo";
+    ViewBag.Title = "Movimientos de Pago";
     ViewBag.SubTitle = "";
 }
 <style>
@@ -18,8 +18,12 @@
     .alignRight {
         text-align: right;
     }
+    
+    .alignCenter {
+        text-align: center;
+    }
 
-    .tdClassTot {
+    .table .tdClassTot {
         color: #000 !important;
         background-color: #b1dbf3 !important;
         font-weight: bold;
@@ -93,7 +97,6 @@
                             <th colspan="6"></th>
                             <th colspan="4" style="text-align: center;">Docummento</th>
                             <th colspan="2"></th>
-
                         </tr>
                         <tr>
                             <th style="text-align: center;">Clear ID</th>
@@ -123,160 +126,220 @@
 
 @section scripts{
     <script>
-        $(document).ready(function () {
+        debugger
+        var objMovpago = {            
+            Inicio: function () {
+                debugger
 
-        
-            $("#btnExportar").addClass("disabled");
-           
-            $("#btnExportar").click(function () {
-                waitingDialog.show("Espere por favor...")
-                $.ajax({
-                    type: "POST",
-                    url: '@Url.Action("get_exporta_ListCuentasContables_excel", "Financiera")',
-                    //data: {},
-                    success: function (data) {
-                        data = JSON.parse(data);
-                        waitingDialog.hide();
-                        if (data.Success) {
-                            toastr.success(data.Message);
-                            window.location = '@Url.Action("listCuentasContablesExcel")';
-                        }
-                        else {
-                            toastr.error(data.Message, "Alerta");
-                        }
-                    },
-                    error: function (XMLHttpRequest, textStatus, errorThrown) {
-                        waitingDialog.hide();
-                        toastr.error("Error al consultar.", "Alerta");
-                    }
-                });
-            })
-
-            function Validar() {
-                debugger;
-                var dwCliente = $('#IdCliente').val();
-                var FechaInicio = $("#FechaInicio").val();
-                var FechaFin = $("#FechaFin").val();
-                    dwCliente = dwCliente.toString();
-
-                if (dwCliente == null) {
-                    toastr.error("¡Ingrese un cliente!", "Alerta");
-                    $('#IdCliente').focus();
-                    return false;
-                }
-
-                if (FechaInicio == undefined || FechaInicio == null || FechaInicio.length == 0 || FechaInicio == '' ) {
-                    toastr.error("La fecha de Inicio no puede estar vacio", "Alerta");
-                    return false;
-                }
-                if (FechaFin == undefined || FechaFin == null || FechaFin.length == 0 || FechaFin == '') {
-                    toastr.error("La fecha de Fin no puede estar vacio", "Alerta");
-                    return false;
-                }
-                return true;
-            }
-
-            $("#btnBuscar").click(function(){
-                consultar();
-            })
-
-            $("#IdCliente").change(function(){
-                consultar();
-            })
-
-            function consultar() {
-                var data = {
-                    'FechaInicio' : $("#FechaInicio").val(),
-                    'FechaFin' :  $("#FechaFin").val(),
-                    'IdCliente' :  $("#IdCliente").val()
-                }
-                if(Validar()){
-                    waitingDialog.show("Espere por favor...")
-                    $.ajax({
-                        type: "GET",
-                        url: '@Url.Action("CuentaContable", "Financiera")',
-                        data : data,
-                        success: function (data) {
-                            waitingDialog.hide();
-                            debugger
-                            data = JSON.parse(data)
-                            cargaTabla(data.Data,data.Success);
-                        },
-                        error: function (XMLHttpRequest, textStatus, errorThrown) {
-                            waitingDialog.hide();
-                        }
-                    });
-                }            
-            }
-
-            $(function () {
                 $("#datepickerini").datepicker({
                     autoclose: true,
                     todayHighlight: true
-                }).datepicker("setDate", "0");;
-            });
-            $(function () {
+                }).datepicker("setDate", "0");
+
                 $("#datepickerfin").datepicker({
                     autoclose: true,
                     todayHighlight: true
-                }).datepicker("setDate", "0");;
-            });
+                }).datepicker("setDate", "0");
+                
+                this.isOkUpdate =true;
+                this.IdCliente = $('#IdCliente').val();
+                this.FechaInicio = $("#FechaInicio").val();
+                this.FechaFin = $("#FechaFin").val();
 
-             function cargaTabla(Data,IsOk){
-                 debugger
-                    let newId = [];
-                    let Html = "";
-                    let counT = 0;
+                objMovpago.grid.get();
 
-                    if(IsOk){
-                        $("#btnExportar").removeClass("disabled");
-                        $("#btnExportar").removeAttr("disabled");
-                        
-                        for (let i in Data)
-                        {
-                            for (let j in Data[i].Hijos)
-                            {
-                                debugger
-                                counT++;
-                                Html += "<tr>";
-                                if (j==0){
-                                    Html += "<td class='rowspanClass' rowspan=" + Data[i].Hijos.length +" >" + Data[i].Hijos[j].Clear_id  + "</td>";
+                $("#btnExportar").click(function () {
+                    waitingDialog.show("Espere por favor...")
+                    objMovpago.generaal.exportar();
+                })
+                $("#btnBuscar").click(function () {
+                    objMovpago.isOkUpdate = true;
+                    objMovpago.IdCliente = $('#IdCliente').val();
+                    objMovpago.FechaInicio = $("#FechaInicio").val();
+                    objMovpago.FechaFin = $("#FechaFin").val();
+                    objMovpago.generaal.consultar();
+                    objMovpago.isOkUpdate = false;
+                })
+            },
+            grid: {
+                get: function () {
+                    debugger
+                    $('#tbCtsContables').DataTable({
+                        "language": {
+                            "url": "../Scripts/DataTables/Spanish.json"
+                        },
+                        "bServerSide": true,
+                        "bAutoWidth": false,
+                        "sAjaxSource": '@Url.Action("getListaCuentaContablesAjax", "Financiera")',
+                        "fnServerParams": function (aoData) {
+                            debugger;
+                            aoData.push({ "name": "isOkUpdate", "value": objMovpago.isOkUpdate });
+                            aoData.push({ "name": "FechaInicio", "value": objMovpago.FechaInicio });
+                            aoData.push({ "name": "FechaFin", "value": objMovpago.FechaFin });
+                            aoData.push({ "name": "IdCliente", "value": objMovpago.IdCliente });
+                        },
+                        "bdestroy": true,
+                        "start": 0,
+                        "columnDefs": [{
+                            "orderable": false,
+                            "targets": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11],
+                        }],
+                        "bDeferRender": true,
+                        "aoColumns": [
+                                { "sName": "Clear_id", "mData": "Clear_id", "sClass": "alignCenter" },
+                                { "sName": "Cuenta", "mData": "Cuenta", "sClass": "alignCenter" },
+                                { "sName": "CuentaDes", "mData": "CuentaDes" },
+                                { "sName": "TipoEntidad", "mData": "TipoEntidad", "sClass": "alignCenter" },
+                                { "sName": "CodigoEntidad", "mData": "CodigoEntidad", "sClass": "alignCenter" },
+                                { "sName": "DesEntidad", "mData": "DesEntidad" },
+                                { "sName": "Tipo", "mData": "Tipo", "sClass": "alignCenter" },
+                                { "sName": "Serie", "mData": "Serie", "sClass": "alignCenter" },
+                                { "sName": "Numero", "mData": "Numero", "sClass": "alignCenter" },
+                                {
+                                    "sName": "Fecha", "mData": "Fecha",
+                                    "sClass": "alignCenter",
+                                    "render": function (Data, type, full, meta) {
+                                        debugger;
+                                        var Fecha = (full.Fecha == undefined || full.Fecha == null || full.Fecha == 0) ? ' ' : new Date(parseInt(full.Fecha.replace("/Date(", "").replace(")/", ""), 10));;
+                                        return (Fecha == undefined || Fecha == null || Fecha == 0) ? ' ' : Fecha.toLocaleDateString();
+                                    }
+                                },
+                                {
+                                    "sName": "Debe", "mData": "Debe",
+                                    "sClass": "alignRight",
+                                    "render": function (Data, type, full, meta) {
+                                        debugger
+                                        var Debe = full.Debe;
+                                        return (Debe == undefined || Debe == null || Debe == 0) ? ' ' : Debe.toFixed(2);
+                                    }
+                                },
+                                {
+                                    "sName": "Haber", "mData": "Haber",
+                                    "sClass": "alignRight",
+                                    "render": function (Data, type, full, meta) {
+                                        debugger
+                                        var Haber = full.Haber;
+                                        return (Haber == undefined || Haber == null || Haber == 0) ? ' ' : Haber.toFixed(2);
+                                    }
                                 }
-                                Html += "<td style='text-align: center;' id = 'Id_" + counT + "' >" + Data[i].Hijos[j].Cuenta  + "</td>";
-                                Html += "<td id = 'Id_" + counT + "' >" + Data[i].Hijos[j].CuentaDes + "</td>";
-                                Html += "<td id = 'Id_" + counT + "' >" + Data[i].Hijos[j].TipoEntidad + "</td>";
-                                Html += "<td style='text-align: center;' id = 'Id_" + counT + "' >" + Data[i].Hijos[j].CodigoEntidad + "</td>";
-                                Html += "<td id = 'Id_" + counT + "' >" + Data[i].Hijos[j].DesEntidad	 + "</td>";
-                                Html += "<td style='text-align: center;' id = 'Id_" + counT + "' >" + Data[i].Hijos[j].Tipo  + "</td>";
-                                Html += "<td style='text-align: center;' id = 'Id_" + counT + "' >" + Data[i].Hijos[j].Serie  + "</td>";
-                                Html += "<td style='text-align: center;' id = 'Id_" + counT + "' >" + Data[i].Hijos[j].Numero + "</td>";
+                        ],
+                        "fnRowCallback": function (row, data, index) {
+                            debugger
+                            if (data.Contador == 0) {
                                 debugger
-                                var Fecha = (Data[i].Hijos[j].Fecha == undefined || Data[i].Hijos[j].Fecha == null || Data[i].Hijos[j].Fecha == 0) ? ' ': new Date(Data[i].Hijos[j].Fecha);
-
-                                Html += "<td style='text-align: center;' id = 'Id_" + counT + "' >" + ((Fecha == undefined || Fecha == null || Fecha == 0) ? ' ': Fecha.toLocaleDateString()) + "</td>";
-                                var Debe= Data[i].Hijos[j].Debe;
-                                Html += "<td style='text-align: right;' id = 'Id_" + counT + "' >" +  ((Debe == undefined || Debe == null || Debe == 0) ? ' ': Debe.toFixed(2)) + "</td>";
-                                var Haber= Data[i].Hijos[j].Haber;
-                                Html += "<td style='text-align: right;' id = 'Id_" + counT + "' >" + ((Haber == undefined || Haber == null || Haber == 0) ? ' ': Haber.toFixed(2)) + "</td>"
-                                Html += "</tr>";
+                                //$("#tbCtsContables tr:eq(" + index + ") td").addClass("tdClassTot");
+                                $(row).addClass('tdClassTot');
                             }
-                            newId.push({Id : counT})
+                        },
+                        "drawCallback": function (settings) {
+                            debugger
+                            var table = $('#tbCtsContables').dataTable();
+                            var data = table.fnGetData();
+                            if (data.length == 0) {
+                                $("#btnExportar").addClass("disabled");
+                                $("#btnExportar").attr('disabled', 'disabled');
+                                $("#tbCtsContables td:first-child").removeClass('rowspanClass');
+                            } else {
+                                $("#btnExportar").removeClass("disabled");
+                                $("#btnExportar").removeAttr("disabled");
+                                $("#tbCtsContables td:first-child").addClass('rowspanClass');
+                            }
+                            objMovpago.grid.MergeGridCells();
+                        },
+                        "initComplete": function (settings, json) {
                         }
+                    });
+                },
+                MergeGridCells: function () {
+                    debugger;
+                    var dimension_cells = new Array();
+                    var dimension_col = null;
+                    var columnCount = 1
+                    // first_instance contiene la primera instancia de td 
+                    var first_instance = null;
+                    var rowspan = 1;
+                    // iterate  a través de filas
+                    $("#tbCtsContables").find('tr').each(function () {
                         debugger
-                        $('#tbCtsContables tbody').html(Html);
-                        for (const key in newId)
-                        {
-                            $('#tbCtsContables tbody tr #Id_' + newId[key].Id).addClass("tdClassTot");
+                        // Encuentre el td de la columna correcta (determinado por el dimension_col establecido arriba)
+                        var dimension_td = $(this).find('td:nth-child(' + columnCount + ')');
+
+                        if (first_instance == null) {
+                            // debe ser la primera fila
+                            first_instance = dimension_td;
+                        } else if (dimension_td.text() == first_instance.text()) {
+                            // El td actual es idéntico al anterior
+                            // Eliminar el td actual
+                            dimension_td.remove();
+                            ++rowspan;
+                            //Incrementar el atributo rowpan de la primera instancia
+                            first_instance.attr('rowspan', rowspan);
+                        } else {
+                            //Esta celda es diferente a la anterior
+                            first_instance = dimension_td;
+                            rowspan = 1;
                         }
-                    }else{
-                        $("#btnExportar").addClass("disabled");
-                        $("#btnExportar").attr('disabled', 'disabled');
-                        Html += "<tr>";
-                        Html += "<td colspan ='12'>No se encontraron resultados</td>";
-                        Html += "</tr>";
-                        $('#tbCtsContables tbody').html(Html);
+                    });
+                },
+                cargaTabla: function () {
+                    debugger
+                    waitingDialog.show("Espere por favor...")
+                    $('#tbCtsContables').DataTable().ajax.reload(function () {
+                        waitingDialog.hide();
+                    });
+                }
+            },
+            generaal: {
+                Validar : function(){
+                    debugger;
+                    //objMovpago.IdCliente = IdCliente.toString();
+                    if (objMovpago.IdCliente == null || objMovpago.IdCliente == 0 || objMovpago.IdCliente =='') {
+                        toastr.error("¡Ingrese un cliente!", "Alerta");
+                        $('#IdCliente').focus();
+                        return false;
                     }
-             }
-    })
+                    if (objMovpago.FechaInicio == undefined || objMovpago.FechaInicio == null || objMovpago.FechaInicio.length == 0 || objMovpago.FechaInicio == '') {
+                        toastr.error("La fecha de Inicio no puede estar vacio", "Alerta");
+                        return false;
+                    }
+                    if (objMovpago.FechaFin == undefined || objMovpago.FechaFin == null || objMovpago.FechaFin.length == 0 || objMovpago.FechaFin == '') {
+                        toastr.error("La fecha de Fin no puede estar vacio", "Alerta");
+                        return false;
+                    }
+                    return true;
+                },
+                consultar: function () {
+                    debugger
+                    if (objMovpago.generaal.Validar()) {
+                        objMovpago.grid.cargaTabla();
+                    }
+                },                
+                exportar: function () {
+                    $.ajax({
+                        type: "POST",
+                        url: '@Url.Action("get_exporta_ListCuentasContables_excel", "Financiera")',
+                        success: function (data) {
+                            data = JSON.parse(data);
+                            waitingDialog.hide();
+                            if (data.Success) {
+                                toastr.success(data.Message);
+                                window.location = '@Url.Action("listCuentasContablesExcel")';
+                            }
+                            else {
+                                toastr.error(data.Message, "Alerta");
+                            }
+                        },
+                        error: function (XMLHttpRequest, textStatus, errorThrown) {
+                            waitingDialog.hide();
+                            toastr.error("Error al consultar.", "Alerta");
+                        }
+                    });
+                }
+            }
+        };
+
+        $(document).ready(function () {
+            objMovpago.Inicio();
+        });
     </script>
 }

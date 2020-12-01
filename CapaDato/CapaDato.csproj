@@ -57,6 +57,7 @@
     <Compile Include="Control\Dat_Roles.cs" />
     <Compile Include="Control\Dat_Usuario.cs" />
     <Compile Include="Devolucion\Dat_Documentos_Dev.cs" />
+    <Compile Include="Financiera\Dat_Banco.cs" />
     <Compile Include="Financiera\Dat_Clear.cs" />
     <Compile Include="Financiera\Dat_Documento_Transaccion.cs" />
     <Compile Include="Financiera\Dat_Financiera.cs" />

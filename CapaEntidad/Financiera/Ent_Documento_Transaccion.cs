@@ -56,4 +56,10 @@ namespace CapaEntidad.Financiera
         public DateTime? FechaFin { get; set; }
         public int IdCliente { get; set; }
     }
+
+    public class Ent_Listar_Cliente_Banco
+    {
+        public string Ban_Id { get; set; }
+        public string Campo { get; set; }
+    }
 }

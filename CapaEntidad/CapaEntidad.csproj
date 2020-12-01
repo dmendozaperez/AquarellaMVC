@@ -65,6 +65,7 @@
     <Compile Include="Control\Ent_Recov_Pass.cs" />
     <Compile Include="Control\Ent_Tienda.cs" />
     <Compile Include="Devolucion\Ent_Documentos_Dev.cs" />
+    <Compile Include="Financiera\Ent_Banco.cs" />
     <Compile Include="Financiera\Ent_Cruce.cs" />
     <Compile Include="Financiera\Ent_Documento_Transaccion.cs" />
     <Compile Include="Financiera\Ent_Documents_Trans.cs" />

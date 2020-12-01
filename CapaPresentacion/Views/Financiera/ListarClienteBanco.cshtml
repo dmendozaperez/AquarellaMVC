@@ -1,0 +1,90 @@
+﻿@{
+    ViewBag.Title = "Exportar Clientes";
+    ViewBag.SubTitle = "";
+}
+<style>
+    .table thead {
+        background-color: #5799bf;
+        color: #fff;
+    }
+
+    .boton-xs-td {
+        padding-top: 5px !important;
+        padding-bottom: 5px !important;
+    }
+
+    .alignRight {
+        text-align: right;
+    }
+</style>
+<p class="text-primary">Esta ventana permite exportar la lista de cliente.</p>
+<div class="box box-header box-primary">
+    <h3 class="box-title danger" style="color:#9c9c9c;font-weight:bold">Parametro de Busqueda</h3>
+    <br />
+    <br />
+    <div class="row">
+        <div class="col-sm-4">
+            <label for="fecini">Seleccione banco</label>
+
+            <div class="form-group">
+                @Html.DropDownList("ddlBanco", new SelectList(ViewBag.ListarBancos, "Codigo", "Descripcion", null), "Selecione",new { @class = "form-control selectpicker", @data_live_search = "true", @id = "ddlBanco", @name = "ddlBanco" })
+            </div>
+
+        </div>
+    </div>
+</div>
+<div class="box box-body box-primary">
+    <div class="row">
+        <div class="col-sm-4">
+
+
+            <button id="btnExportar" title="Actualizar" class="btn btn-block btn-social btn-linkedin .disabled" disabled>
+                <span class="glyphicon glyphicon-download-alt"></span>Exportar los datos de los clientes
+            </button>
+        </div>
+    </div>
+</div>
+@section scripts{
+    <script language="javascript" type="text/javascript">
+        $(document).ready(function () {
+
+            $("#ddlBanco").change(function () {
+                let IdBanco = $("#ddlBanco").val();
+                if (IdBanco == undefined || IdBanco == null || IdBanco == 0 || IdBanco == '') {
+                    $("#btnExportar").attr('disabled', 'disabled');                    
+                } else {
+                    $("#btnExportar").removeAttr("disabled");
+                }
+            })
+
+
+            $("#btnExportar").click(function () {
+                let IdBanco = $("#ddlBanco").val();
+                waitingDialog.show("Espere por favor...")
+                $.ajax({
+                    type: "POST",
+                    url: '@Url.Action("get_exporta_Listar_Cliente_Banco_Txt", "Financiera")',
+                    data :{
+                        IdBanco : IdBanco
+                    },
+                    success: function (data) {
+                        data = JSON.parse(data);
+                        waitingDialog.hide();
+                        if (data.Success) {
+                            toastr.success(data.Message);
+                            window.location = '@Url.Action("listClienteBancoTxt")';
+                        }
+                        else {
+                            toastr.error(data.Message, "Alerta");
+                        }
+                    },
+                    error: function (XMLHttpRequest, textStatus, errorThrown) {
+                        waitingDialog.hide();
+                        toastr.error("Error al consultar.", "Alerta");
+                    }
+                });
+            })
+        })
+
+    </script>
+}

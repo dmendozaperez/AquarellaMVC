@@ -27,14 +27,15 @@ namespace CapaPresentacion.Controllers
         private Dat_Pedido datPedido = new Dat_Pedido();
         private Dat_Persona datPersona = new Dat_Persona();
         private Dat_Financiera datFinanciera = new Dat_Financiera();
-
         private Dat_Documento_Transaccion datDocumento_Transaccion = new Dat_Documento_Transaccion();
+        private Dat_Banco datBanco = new Dat_Banco();
 
         private string _sessionPagsLiqs = "_SessionPagsLiqs";
         private string _sessin_customer = "_sessin_customer";
         private string _session_listCuentasContables = "_session_listCuentasContables";
         private string _session_ListCuentasContables_Excel = "_session_listCuentasContables_Excel";
-        
+        private string _session_listClienteBanco = "_session_listClienteBanco";
+        private string _session_listClienteBanco_Txt = "_session_listClienteBanco_Txt";
         // GET: Financiera
         public ActionResult Index()
         {
@@ -366,7 +367,7 @@ namespace CapaPresentacion.Controllers
         }
         #endregion
 
-        #region Lista de cuenta contables
+        #region <Lista de cuenta contables>
 
         public ActionResult MovPago()
         {
@@ -409,53 +410,103 @@ namespace CapaPresentacion.Controllers
         }
 
         [HttpGet]
-        public JsonResult CuentaContable(string FechaInicio, string FechaFin, int IdCliente)
+        public JsonResult getListaCuentaContablesAjax(Ent_jQueryDataTableParams param, string FechaInicio,string FechaFin,int IdCliente,bool isOkUpdate)
         {
+            Ent_Lista_Cuenta_Contables Ent_Lista_Cuenta_Contables = new Ent_Lista_Cuenta_Contables();
             JsonResponse objResult = new JsonResponse();
-            Ent_Lista_Cuenta_Contables ent = new Ent_Lista_Cuenta_Contables();
             DateTime time = new DateTime();
-
-            ent.FechaInicio = DateTime.Parse(FechaInicio);
-            ent.FechaFin = DateTime.Parse(FechaFin);
-            ent.IdCliente = IdCliente;
-
-            var entDocTrans = datDocumento_Transaccion.Listar_Asientos_Adonis(ent).ToList();
-
-            Session[_session_listCuentasContables] = entDocTrans;
-            objResult.Data = entDocTrans.GroupBy(x => x.Clear_id).Select(y => new
+            if (isOkUpdate)
             {
-                Padre = y.Key,
-                Hijos = y.Select(m => new
-                {
-                    Clear_id = m.Clear_id,
-                    Cuenta = m.Cuenta,
-                    CuentaDes = m.CuentaDes,
-                    TipoEntidad = m.TipoEntidad,
-                    CodigoEntidad = m.CodigoEntidad,
-                    DesEntidad = m.DesEntidad,
-                    Tipo = m.Tipo,
-                    Serie = m.Serie,
-                    Numero = m.Numero,
-                    Fecha = m.Fecha,
-                    Debe = m.Debe,
-                    Haber = m.Haber,
-                    devito = m.devito,
-                    Amount = m.Amount,
-                    Concepto = m.Concepto,
-                    Ad_Co = m.Ad_Co,
-                    Pad_Pay_Date = m.Pad_Pay_Date,
-                    Contador = m.Contador
-                })
-            }).ToList();
-
-            if (entDocTrans.Count > 0)
-            {
-                objResult.Success = true;
+                Ent_Lista_Cuenta_Contables.FechaInicio = DateTime.Parse(FechaInicio);
+                Ent_Lista_Cuenta_Contables.FechaFin = DateTime.Parse(FechaFin);
+                Ent_Lista_Cuenta_Contables.IdCliente = IdCliente;
+                Session[_session_listCuentasContables] = datDocumento_Transaccion.Listar_Asientos_Adonis(Ent_Lista_Cuenta_Contables).ToList(); ;
             }
 
-            var JSON = JsonConvert.SerializeObject(objResult);
+            /*verificar si esta null*/
+            if (Session[_session_listCuentasContables] == null)
+            {
+                List<Ent_Lista_Cuenta_Contables> Lista_Cuenta_Contables = new List<Ent_Lista_Cuenta_Contables>();
+                Session[_session_listCuentasContables] = Lista_Cuenta_Contables;
+            }
 
-            return Json(JSON, JsonRequestBehavior.AllowGet);
+            IQueryable<Ent_Lista_Cuenta_Contables> entDocTrans = ((List<Ent_Lista_Cuenta_Contables>)(Session[_session_listCuentasContables])).AsQueryable();
+            
+            //Manejador de filtros
+            int totalCount = entDocTrans.Count();
+            IEnumerable<Ent_Lista_Cuenta_Contables> filteredMembers = entDocTrans;
+            if (!string.IsNullOrEmpty(param.sSearch))
+            {
+                filteredMembers = entDocTrans
+                    .Where(m =>
+                       m.Clear_id.ToUpper().Contains(param.sSearch.ToUpper()) ||
+                     m.Cuenta.ToUpper().Contains(param.sSearch.ToUpper()) ||
+                     m.CuentaDes.ToUpper().Contains(param.sSearch.ToUpper()) ||
+                     m.TipoEntidad.ToUpper().Contains(param.sSearch.ToUpper()) ||
+                     m.CodigoEntidad.ToUpper().Contains(param.sSearch.ToUpper()) ||
+                     m.DesEntidad.ToUpper().Contains(param.sSearch.ToUpper()) ||
+                     m.Tipo.ToUpper().Contains(param.sSearch.ToUpper()) ||
+                     m.Serie.ToUpper().Contains(param.sSearch.ToUpper()) ||
+                     m.Numero.ToUpper().Contains(param.sSearch.ToUpper())
+                     );
+            }
+
+            //Manejador de orden
+            var sortIdx = Convert.ToInt32(Request["iSortCol_0"]);
+
+            if (param.iSortingCols > 0)
+            {
+                if (Request["sSortDir_0"].ToString() == "asc")
+                {
+                    switch (sortIdx)
+                    {
+                        case 0: filteredMembers = filteredMembers.OrderBy(o => o.Clear_id); break;
+                        case 1: filteredMembers = filteredMembers.OrderBy(o => o.Cuenta); break;
+                        case 2: filteredMembers = filteredMembers.OrderBy(o => o.CuentaDes); break;
+                        case 3: filteredMembers = filteredMembers.OrderBy(o => o.TipoEntidad); break;
+                        case 4: filteredMembers = filteredMembers.OrderBy(o => o.CodigoEntidad); break;
+                        case 5: filteredMembers = filteredMembers.OrderBy(o => o.DesEntidad); break;
+                        case 6: filteredMembers = filteredMembers.OrderBy(o => o.Tipo); break;
+                        case 7: filteredMembers = filteredMembers.OrderBy(o => o.Serie); break;
+                        case 8: filteredMembers = filteredMembers.OrderBy(o => o.Numero); break;
+                        case 9: filteredMembers = filteredMembers.OrderBy(o => o.Fecha); break;
+                        case 10: filteredMembers = filteredMembers.OrderBy(o => o.Debe); break;
+                        case 11: filteredMembers = filteredMembers.OrderBy(o => o.Haber); break;
+                    }
+                }
+                else
+                {
+                    switch (sortIdx)
+                    {
+                        case 0: filteredMembers = filteredMembers.OrderByDescending(o => o.Clear_id); break;
+                        case 1: filteredMembers = filteredMembers.OrderByDescending(o => o.Cuenta); break;
+                        case 2: filteredMembers = filteredMembers.OrderByDescending(o => o.CuentaDes); break;
+                        case 3: filteredMembers = filteredMembers.OrderByDescending(o => o.TipoEntidad); break;
+                        case 4: filteredMembers = filteredMembers.OrderByDescending(o => o.CodigoEntidad); break;
+                        case 5: filteredMembers = filteredMembers.OrderByDescending(o => o.DesEntidad); break;
+                        case 6: filteredMembers = filteredMembers.OrderByDescending(o => o.Tipo); break;
+                        case 7: filteredMembers = filteredMembers.OrderByDescending(o => o.Serie); break;
+                        case 8: filteredMembers = filteredMembers.OrderByDescending(o => o.Numero); break;
+                        case 9: filteredMembers = filteredMembers.OrderByDescending(o => o.Fecha); break;
+                        case 10: filteredMembers = filteredMembers.OrderByDescending(o => o.Debe); break;
+                        case 11: filteredMembers = filteredMembers.OrderByDescending(o => o.Haber); break;
+                    }
+                }
+            }
+
+            var Result = filteredMembers
+                .Skip(param.iDisplayStart)
+                .Take(param.iDisplayLength);
+
+            //Se devuelven los resultados por json
+            return Json(new
+            {
+                sEcho = param.sEcho,
+                iTotalRecords = totalCount,
+                iTotalDisplayRecords = filteredMembers.Count(),
+                aaData = Result
+            }, JsonRequestBehavior.AllowGet);
+
         }
 
         public ActionResult get_exporta_ListCuentasContables_excel()
@@ -536,7 +587,7 @@ namespace CapaPresentacion.Controllers
                     })
                 }).ToList();
 
-                sb.Append("<div><table cellspacing='0' rules='all' border='1' style='border-collapse:collapse;'><td Colspan='12' valign='middle' align='center' style='font-size: 18px;font-weight: bold;color:#285A8F'>CUENTAS CONTABLE - CATALOGO - BATA</td></table>");
+                sb.Append("<div><table cellspacing='0' rules='all' border='0' style='border-collapse:collapse;'><td Colspan='12' valign='middle' align='center' style='font-size: 18px;font-weight: bold;color:#285A8F'>CUENTAS CONTABLE - CATALOGO - BATA</td></table>");
                 sb.Append("<table border='2' bgColor='#ffffff' borderColor='#FFFFFF' cellSpacing='2' cellPadding='2' style='font-size:10.0pt; font-family:Calibri; background:white;'><tr  bgColor='#5799bf'><th colspan='6'></th><th colspan='4' style='text-align: center;'><font color='#FFFFFF'>Docummento</fonr></th><th colspan='2'></th></tr><tr bgColor='#5799bf'><th style='text-align: center;'><font color='#FFFFFF'>Clear ID</font></th><th style='text-align: center;'><font color='#FFFFFF'>Cuenta Contable</font></th><th style='text-align: center;'><font color='#FFFFFF'>Descripción Cuenta</font></th><th style='text-align: center;'><font color='#FFFFFF'>Tipo de Entidad</font></th><th style='text-align: center;'><font color='#FFFFFF'>Codigo entidad</font></th><th style='text-align: center;'><font color='#FFFFFF'>Descripción Entidad</font></th><th style='text-align: center;'><font color='#FFFFFF'>Tipo</font></th><th style='text-align: center;'><font color='#FFFFFF'>Serie</font></th><th style='text-align: center;'><font color='#FFFFFF'>Número</font></th><th style='text-align: center;'><font color='#FFFFFF'>Fecha</font></th><th style='text-align: center;'><font color='#FFFFFF'>Debe</font></th><th style='text-align: center;'><font color='#FFFFFF'>Haber</font></th></tr>\n");
                 string tdSColor = "";
                 foreach (var itemP in Lista)
@@ -592,6 +643,108 @@ namespace CapaPresentacion.Controllers
                 Response.ContentEncoding = Encoding.Default;
                 Response.Write(style);
                 Response.Write(Session[_session_ListCuentasContables_Excel].ToString());
+                Response.End();
+            }
+            catch
+            {
+
+            }
+            return Json(new { estado = 0, mensaje = 1 });
+        }
+        #endregion
+
+        #region <ARCHIVO CLIENTE BANCO EN FORMATO TXT>
+
+        public ActionResult ListarClienteBanco()
+        {
+            var ListarBancos = datBanco.Listar_Bancos().Where(x => x.Codigo == "1" || x.Codigo == "4").ToList();
+            ViewBag.ListarBancos = ListarBancos;
+            return View();
+        }
+
+        public ActionResult get_exporta_Listar_Cliente_Banco_Txt(string IdBanco)
+        {
+            JsonResponse objResult = new JsonResponse();         
+
+            try
+            {
+                Ent_Listar_Cliente_Banco ent = new Ent_Listar_Cliente_Banco();
+                ent.Ban_Id = IdBanco;
+                List<Ent_Listar_Cliente_Banco> Listar_Cliente_Banco = datDocumento_Transaccion.Listar_Cliente_Banco(ent).ToList();
+                Session[_session_listClienteBanco_Txt] = null;
+
+                string cadena = "";
+
+                if (Listar_Cliente_Banco.Count == 0)
+                {
+                    objResult.Success = false;
+                    objResult.Message = "No hay filas para exportar";
+                }
+                else
+                {
+                    cadena = get_Txt_Listar_Cliente_Banco_str(Listar_Cliente_Banco);
+                    if (cadena.Length == 0)
+                    {
+                        objResult.Success = false;
+                        objResult.Message = "Error del formato txt";
+                    }
+                    else
+                    {
+                        objResult.Success = true;
+                        objResult.Message = "Se genero el txt correctamente";
+                        Session[_session_listClienteBanco_Txt] = cadena;
+                    }
+                }
+
+
+            }
+            catch (Exception ex)
+            {
+                objResult.Success = false;
+                objResult.Message = "No hay filas para exportar";
+            }
+
+            var JSON = JsonConvert.SerializeObject(objResult);
+
+            return Json(JSON, JsonRequestBehavior.AllowGet);
+        }
+
+        public string get_Txt_Listar_Cliente_Banco_str(List<Ent_Listar_Cliente_Banco> Listar_Cliente_Banco)
+        {
+            StringBuilder sb = new StringBuilder();
+            int intcounT = 0;
+            int intCell = 1;
+            try
+            {
+                var Lista = Listar_Cliente_Banco.ToList();
+                foreach (var item in Lista)
+                {                   
+                    sb.Append( item.Campo + "\r\n");
+                }
+                
+            }
+            catch
+            {
+
+            }
+            return sb.ToString();
+        }
+
+
+        public ActionResult listClienteBancoTxt()
+        {
+            string NombreArchivo = "Lista_Cliente_Banco";
+            //String style = style = @"<style> .textmode { mso-number-format:\@; } </script> ";
+            try
+            {
+                Response.Clear();
+                Response.Buffer = true;
+                Response.ContentType = "text/plain";
+                Response.AddHeader("Content-Disposition", "attachment;filename=" + NombreArchivo + ".txt");
+                Response.Charset = "UTF-8";
+                Response.ContentEncoding = Encoding.Default;
+               // Response.Write(style);
+                Response.Write(Session[_session_listClienteBanco_Txt].ToString());
                 Response.End();
             }
             catch

@@ -52,7 +52,42 @@ namespace CapaDato.Financiera
                                           Concepto = (fila["Concepto"] is DBNull) ? string.Empty : (string)(fila["Concepto"]),
                                           Ad_Co = (fila["Ad_Co"] is DBNull) ? (int?)null : Convert.ToInt32(fila["Ad_Co"]),
                                           Pad_Pay_Date = (fila["Pad_Pay_Date"] is DBNull) ? (DateTime?)null : Convert.ToDateTime(fila["Pad_Pay_Date"]),
-                                          Contador = (fila["Contador"] is DBNull) ? (int?)null : Convert.ToInt32(fila["Contador"])
+                                          Contador = (fila["Contador"] is DBNull) ? 0 : Convert.ToInt32(fila["Contador"])
+                                      }
+                                    ).ToList();
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+            return Listar;
+        }
+
+        public List<Ent_Listar_Cliente_Banco> Listar_Cliente_Banco(Ent_Listar_Cliente_Banco ent)
+        {
+            List<Ent_Listar_Cliente_Banco> Listar = new List<Ent_Listar_Cliente_Banco>();
+            string sqlquery = "[USP_Exportar_Clientes_Por_Banco]";
+            try
+            {
+                using (SqlConnection cn = new SqlConnection(Ent_Conexion.conexion))
+                {
+                    using (SqlCommand cmd = new SqlCommand(sqlquery, cn))
+                    {
+                        cmd.CommandType = CommandType.StoredProcedure;
+                        cmd.Parameters.AddWithValue("@Ban_Id", DbType.String).Value = ent.Ban_Id;
+                        using (SqlDataAdapter da = new SqlDataAdapter(cmd))
+                        {
+                            DataTable dt = new DataTable();
+                            da.Fill(dt);
+
+                            Listar = new List<Ent_Listar_Cliente_Banco>();
+                            Listar = (from DataRow fila in dt.Rows
+                                      select new Ent_Listar_Cliente_Banco()
+                                      {
+                                          Campo = (fila["Campo"] is DBNull) ? string.Empty : (string)(fila["Campo"])
                                       }
                                     ).ToList();
                         }

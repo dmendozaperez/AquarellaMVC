@@ -1405,8 +1405,7 @@ namespace CapaPresentacion.Controllers
                         sb.Append("<td align='right'>" + "S/ " + Convert.ToDecimal(string.Format("{0:F2}", item.Costo)) + "</td>");
                     }
                     sb.Append("</tr>\n");
-                }
-                
+                }                
                 sb.Append("</table></div>");             
             }
             catch
