@@ -8,6 +8,7 @@ namespace CapaEntidad.Articulo
 {
     public class Ent_Articulo
     {
+        public string articulo { get; set; }
         public string Art_Id { get; set; }
         public string Art_Descripcion { get; set; }
         public string Art_Mar_Id { get; set; }

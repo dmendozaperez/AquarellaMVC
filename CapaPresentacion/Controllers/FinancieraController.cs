@@ -372,10 +372,7 @@ namespace CapaPresentacion.Controllers
         public ActionResult MovPago()
         {
 
-            //Ent_Usuario _usuario = (Ent_Usuario)Session[Ent_Constantes.NameSessionUser];
-            Ent_Usuario _usuario = new Ent_Usuario();
-            _usuario.usu_id = 1;
-            _usuario.usu_postPago = "1";
+            Ent_Usuario _usuario = (Ent_Usuario)Session[Ent_Constantes.NameSessionUser];          
             string actionName = this.ControllerContext.RouteData.GetRequiredString("action");
             string controllerName = this.ControllerContext.RouteData.GetRequiredString("controller");
             string return_view = actionName + "|" + controllerName;
@@ -385,27 +382,13 @@ namespace CapaPresentacion.Controllers
                 return RedirectToAction("Login", "Control", new { returnUrl = return_view });
             }
             else
-            {
-                #region<VALIDACION DE ROLES DE USUARIO>
-                Boolean valida_rol = true;
-                Basico valida_controller = new Basico();
-                List<Ent_Menu_Items> menu = (List<Ent_Menu_Items>)Session[Ent_Global._session_menu_user];
-                //valida_rol = valida_controller.AccesoMenu(menu, this);
-                valida_rol = true;
-                #endregion
-                if (valida_rol)
-                {
-                    Session[_sessionPagsLiqs] = null;
+            {               
+                Session[_sessionPagsLiqs] = null;
 
-                    Ent_Pedido_Maestro maestros = datPedido.Listar_Maestros_Pedido(_usuario.usu_id, _usuario.usu_postPago, "");
-                    ViewBag.listPromotor = maestros.combo_ListPromotor;
+                Ent_Pedido_Maestro maestros = datPedido.Listar_Maestros_Pedido(_usuario.usu_id, _usuario.usu_postPago, "");
+                ViewBag.listPromotor = maestros.combo_ListPromotor;
 
-                    return View();
-                }
-                else
-                {
-                    return RedirectToAction("Login", "Control", new { returnUrl = return_view });
-                }
+                return View();               
             }
         }
 

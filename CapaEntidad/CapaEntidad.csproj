@@ -51,10 +51,13 @@
     <Compile Include="Articulo\Ent_Articulo.cs" />
     <Compile Include="Articulo\Ent_Articulo_Categoria_Stock.cs" />
     <Compile Include="Articulo\Ent_Articulo_Precio.cs" />
+    <Compile Include="Articulo\Ent_Categoria.cs" />
     <Compile Include="Articulo\Ent_Marca.cs" />
+    <Compile Include="Articulo\Ent_Oferta.cs" />
     <Compile Include="Articulo\Ent_Premios.cs" />
     <Compile Include="Articulo\Ent_Articulo_Stock.cs" />
     <Compile Include="Articulo\Ent_CategoriaPrincipal.cs" />
+    <Compile Include="Articulo\Ent_Promocion.cs" />
     <Compile Include="Articulo\Ent_SubCategoria.cs" />
     <Compile Include="Articulo\Ent_Temporada.cs" />
     <Compile Include="Cliente\Ent_Cliente_Agencia.cs" />

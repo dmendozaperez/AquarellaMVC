@@ -47,8 +47,11 @@
   <ItemGroup>
     <Compile Include="Articulo\Dat_Articulo.cs" />
     <Compile Include="Articulo\Dat_Articulo_Precio.cs" />
+    <Compile Include="Articulo\Dat_Categoria.cs" />
+    <Compile Include="Articulo\Dat_Marca.cs" />
     <Compile Include="Articulo\Dat_Premios.cs" />
     <Compile Include="Articulo\Dat_Articulo_Stock.cs" />
+    <Compile Include="Articulo\Dat_Promocion.cs" />
     <Compile Include="Cliente\Dat_Cliente.cs" />
     <Compile Include="Cliente\Dat_Combo_Lider.cs" />
     <Compile Include="Control\Dat_Aplicacion.cs" />

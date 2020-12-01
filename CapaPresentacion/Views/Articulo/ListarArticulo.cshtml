@@ -72,15 +72,19 @@
 @section scripts{
     <script language="javascript" type="text/javascript">
         $(document).ready(function () {
-            //var tipo_user=@ViewBag.usu_tip_id;
+            var tipo_user=@ViewBag.usu_tip_id;
             var IsOk = false;
-            var tipo_user = '0';
+
+            var actualizar='0';
+
+            //var tipo_user = '0';
             if (tipo_user == '04' || tipo_user == '06') {
                 IsOk = true;
             }
 
             $("#btnRefrescar").click(function () {
                 waitingDialog.show("Espere por favor...")
+                actualizar='1';
                 $('#tbArticulos').DataTable().ajax.reload(function () {
                     waitingDialog.hide();
                 });
@@ -120,7 +124,8 @@
                 "bAutoWidth": false,
                 "sAjaxSource": '@Url.Action("getListArticulosAjax", "Articulo")',
                 "fnServerParams": function (aoData) {
-                    aoData.push({ "name": "actualizar", "value": "" });
+                    aoData.push({ "name": "actualizar", "value": actualizar });
+                    actualizar='';
                 },
                 "bdestroy": true,
                 "start": 0,

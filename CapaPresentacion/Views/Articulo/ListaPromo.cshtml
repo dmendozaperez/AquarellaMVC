@@ -1,7 +1,111 @@
 ﻿
 @{
-    ViewBag.Title = "ListaPromo";
+    ViewBag.Title = "Lista de Promocion";
 }
+<style>
+    .table thead {
+        background-color: #5799bf;
+        color: #fff;
+    }
 
-<h2>ListaPromo</h2>
+    .boton-xs-td {
+        padding-top: 5px !important;
+        padding-bottom: 5px !important;
+    }
+</style>
+<p class="text-primary">Consulta de promociones , editar y crear un nueva promocion</p>
+<div class="box box-body box-default">
+    <div class="row">
+        <div class="col-md-6">
+            <a href="@Url.Action("ArticuloPromocion", "Articulo",new {estado= "1"})" class="btn btn-success"><i class="glyphicon glyphicon-plus"></i>&nbsp;Crear nueva Promocion</a>
+        </div>
+     
+    </div>
+    <br />
+    <div class="row">
+        <div class="col-md-12">
+            <div class="table-responsive">
+                <table id="tbpromocion" class="table table-hover table-bordered compact">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>PROMOCION</th>
+                            <th>% DCTO</th>
+                            <th>FEC.INI</th>
+                            <th>FEC.FIN</th>
+                            <th>ESTADO</th>
+                            <th>PRIORIDAD</th>                            
+                            <th>ACCIONES</th>
+                        </tr>
+                    </thead>
+                    <tbody data-bind="foreach:"></tbody>
+                    <tfoot>
+                        <tr>
+                            <th>ID</th>
+                            <th>PROMOCION</th>
+                            <th>% DCTO</th>
+                            <th>FEC.INI</th>
+                            <th>FEC.FIN</th>
+                            <th>ESTADO</th>
+                            <th>PRIORIDAD</th>
+                            <th>ACCIONES</th>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+@section scripts{
+    <script>
+        $(document).ready(function () {
+            $('#tbpromocion').DataTable({
+                "language": {
+                    "url": "../Scripts/DataTables/Spanish.json"
+                },
+                "bServerSide": true,
+                "bAutoWidth": false,
+                "sAjaxSource": '@Url.Action("getTablePromocionListaAjax", "Articulo")',
+                "fnServerParams": function (aoData) {
+                    aoData.push({ "name": "actualizar", "value": "" });
+                },
+                "bdestroy": true,
+                "start": 0,
+                "columnDefs": [{
+                    "orderable": false,
+                    "targets": [2, 3, 4, 5, 7],
+                }],
+                "order": [[ 0, "desc" ]],
+                "bDeferRender": true,
+                "aoColumns": [
+                      { "sName": "Prom_ID", "mData": "Prom_ID" },
+                      { "sName": "Prom_Des", "mData": "Prom_Des" },
+                      { "sName": "Prom_Porc", "mData": "Prom_Porc" },
+                      { "sName": "Prom_FecIni", "mData": "Prom_FecIni" },
+                      { "sName": "Prom_FecFin", "mData": "Prom_FecFin" },
+                      { "sName": "Prom_EstID", "mData": "Prom_EstID" },
+                      { "sName": "Prom_Prioridad", "mData": "Prom_Prioridad" },                      
+                       {
+                           "render": function (data, type, full) {
 
+                               var id = full.Prom_ID;
+
+                               var btnEdit = '<button type="submit" title="Editar Promocion" onclick="Editar(\'' + id + '\');" class="btn btn-xs btn-default btn-tabla editar-fila"><span class="fa fa-pencil text-primary"></span></button>';
+
+                             
+                               return btnEdit;
+                           }, "class": "boton-xs-td"
+                       },
+                ]
+            });
+        });
+
+        function Editar(id) {
+            window.location = "@Url.Action("ArticuloPromocion", "Articulo")" + "?estado=2&promid=" + id;
+        }
+
+    </script>
+
+
+
+}
