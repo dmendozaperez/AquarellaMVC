@@ -640,9 +640,22 @@ namespace CapaPresentacion.Controllers
 
         public ActionResult ListarClienteBanco()
         {
-            var ListarBancos = datBanco.Listar_Bancos().Where(x => x.Codigo == "1" || x.Codigo == "4").ToList();
-            ViewBag.ListarBancos = ListarBancos;
-            return View();
+
+            Ent_Usuario _usuario = (Ent_Usuario)Session[Ent_Constantes.NameSessionUser];
+            string actionName = this.ControllerContext.RouteData.GetRequiredString("action");
+            string controllerName = this.ControllerContext.RouteData.GetRequiredString("controller");
+            string return_view = actionName + "|" + controllerName;
+
+            if (_usuario == null)
+            {
+                return RedirectToAction("Login", "Control", new { returnUrl = return_view });
+            }
+            else
+            {
+                var ListarBancos = datBanco.Listar_Bancos().Where(x => x.Codigo == "1" || x.Codigo == "4").ToList();
+                ViewBag.ListarBancos = ListarBancos;
+                return View();
+            }
         }
 
         public ActionResult get_exporta_Listar_Cliente_Banco_Txt(string IdBanco)

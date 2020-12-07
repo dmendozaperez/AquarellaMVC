@@ -69,7 +69,7 @@ namespace CapaDato.Financiera
         public List<Ent_Listar_Cliente_Banco> Listar_Cliente_Banco(Ent_Listar_Cliente_Banco ent)
         {
             List<Ent_Listar_Cliente_Banco> Listar = new List<Ent_Listar_Cliente_Banco>();
-            string sqlquery = "[USP_Exportar_Clientes_Por_Banco]";
+            string sqlquery = "[USP_MVC_Exportar_Clientes_Por_Banco]";
             try
             {
                 using (SqlConnection cn = new SqlConnection(Ent_Conexion.conexion))
