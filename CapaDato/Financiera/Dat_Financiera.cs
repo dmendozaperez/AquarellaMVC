@@ -162,5 +162,56 @@ namespace CapaDato.Financiera
             }
             return data;
         }
+
+        public List<Ent_Listar_Cliente_Pagos> Listar_Cliente_Pagos(Ent_Listar_Cliente_Pagos ent)
+        {
+            List<Ent_Listar_Cliente_Pagos> Listar = new List<Ent_Listar_Cliente_Pagos>();
+            string sqlquery = "[USP_MVC_LEER_CLIENTES_PAGOS]";
+            try
+            {
+                using (SqlConnection cn = new SqlConnection(Ent_Conexion.conexion))
+                {
+                    using (SqlCommand cmd = new SqlCommand(sqlquery, cn))
+                    {
+                        cmd.CommandType = CommandType.StoredProcedure;
+                        cmd.Parameters.AddWithValue("@FechaInicio", DbType.String).Value = ent.FechaInicio;
+                        cmd.Parameters.AddWithValue("@FechaFin", DbType.String).Value = ent.FechaFin;
+                        cmd.Parameters.AddWithValue("@Idcliente", DbType.Int32).Value = ent.IdCliente;
+                        cmd.Parameters.AddWithValue("@PagNumConsignacion", DbType.String).Value = ent.NumeroConsignacion;
+                        using (SqlDataAdapter da = new SqlDataAdapter(cmd))
+                        {
+                            DataTable dt = new DataTable();
+                            da.Fill(dt);
+
+                            Listar = new List<Ent_Listar_Cliente_Pagos>();
+                            Listar = (from DataRow dr in dt.Rows
+                                      select new Ent_Listar_Cliente_Pagos()
+                                      {
+                                        PagoId = Convert.ToInt32(dr["PagoId"]),
+                                        Documento = Convert.ToString(dr["Documento"]),
+                                        NombreCompleto = Convert.ToString(dr["NombreCompleto"]),
+                                        PrimerNombre = Convert.ToString(dr["PrimerNombre"]),
+                                        SegundoNombre = Convert.ToString(dr["SegundoNombre"]),
+                                        PrimeroApellido = Convert.ToString(dr["PrimeroApellido"]),
+                                        SegundoApellido = Convert.ToString(dr["SegundoApellido"]),
+                                        Correo = Convert.ToString(dr["Correo"]),
+                                        NumeroConsignacion = Convert.ToString(dr["NumeroConsignacion"]),
+                                        FechaConsignacion = Convert.ToString(dr["FechaConsignacion"]),
+                                        FechaCreacion = Convert.ToString(dr["FechaCreacion"]),
+                                        Monto = Convert.ToDecimal(dr["Monto"]),
+                                        Estado = Convert.ToString(dr["Estado"]),
+                                        EstadoNombre = Convert.ToString(dr["EstadoNombre"])
+                                      }
+                                    ).ToList();
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+            return Listar;
+        }
     }
 }

@@ -4,6 +4,7 @@ using CapaDato.Pedido;
 using CapaDato.Persona;
 using CapaEntidad.Control;
 using CapaEntidad.Financiera;
+
 using CapaEntidad.General;
 using CapaEntidad.Menu;
 using CapaEntidad.Pedido;
@@ -29,13 +30,17 @@ namespace CapaPresentacion.Controllers
         private Dat_Financiera datFinanciera = new Dat_Financiera();
         private Dat_Documento_Transaccion datDocumento_Transaccion = new Dat_Documento_Transaccion();
         private Dat_Banco datBanco = new Dat_Banco();
-
+        private Dat_Concepto datConcepto = new Dat_Concepto();
+        private Dat_Pago datPago = new Dat_Pago();
+        private Dat_Estado datEstado = new Dat_Estado();
         private string _sessionPagsLiqs = "_SessionPagsLiqs";
         private string _sessin_customer = "_sessin_customer";
         private string _session_listCuentasContables = "_session_listCuentasContables";
         private string _session_ListCuentasContables_Excel = "_session_listCuentasContables_Excel";
         private string _session_listClienteBanco = "_session_listClienteBanco";
         private string _session_listClienteBanco_Txt = "_session_listClienteBanco_Txt";
+        private string _session_ListarClientePagos = "_session_ListarClientePagos";
+        private string _session_ListarVerificarPagos = "_session_ListarVerificarPagos";
         // GET: Financiera
         public ActionResult Index()
         {
@@ -371,7 +376,6 @@ namespace CapaPresentacion.Controllers
 
         public ActionResult MovPago()
         {
-
             Ent_Usuario _usuario = (Ent_Usuario)Session[Ent_Constantes.NameSessionUser];          
             string actionName = this.ControllerContext.RouteData.GetRequiredString("action");
             string controllerName = this.ControllerContext.RouteData.GetRequiredString("controller");
@@ -382,12 +386,9 @@ namespace CapaPresentacion.Controllers
                 return RedirectToAction("Login", "Control", new { returnUrl = return_view });
             }
             else
-            {               
-                Session[_sessionPagsLiqs] = null;
-
+            {
                 Ent_Pedido_Maestro maestros = datPedido.Listar_Maestros_Pedido(_usuario.usu_id, _usuario.usu_postPago, "");
                 ViewBag.listPromotor = maestros.combo_ListPromotor;
-
                 return View();               
             }
         }
@@ -640,9 +641,21 @@ namespace CapaPresentacion.Controllers
 
         public ActionResult ListarClienteBanco()
         {
-            var ListarBancos = datBanco.Listar_Bancos().Where(x => x.Codigo == "1" || x.Codigo == "4").ToList();
-            ViewBag.ListarBancos = ListarBancos;
-            return View();
+            Ent_Usuario _usuario = (Ent_Usuario)Session[Ent_Constantes.NameSessionUser];
+            string actionName = this.ControllerContext.RouteData.GetRequiredString("action");
+            string controllerName = this.ControllerContext.RouteData.GetRequiredString("controller");
+            string return_view = actionName + "|" + controllerName;
+
+            if (_usuario == null)
+            {
+                return RedirectToAction("Login", "Control", new { returnUrl = return_view });
+            }
+            else
+            {
+                var ListarBancos = datBanco.Listar_Bancos().Where(x => x.Codigo == "1" || x.Codigo == "4").ToList();
+                ViewBag.ListarBancos = ListarBancos;
+                return View();
+            }            
         }
 
         public ActionResult get_exporta_Listar_Cliente_Banco_Txt(string IdBanco)
@@ -695,20 +708,17 @@ namespace CapaPresentacion.Controllers
         public string get_Txt_Listar_Cliente_Banco_str(List<Ent_Listar_Cliente_Banco> Listar_Cliente_Banco)
         {
             StringBuilder sb = new StringBuilder();
-            int intcounT = 0;
-            int intCell = 1;
             try
             {
                 var Lista = Listar_Cliente_Banco.ToList();
                 foreach (var item in Lista)
                 {                   
                     sb.Append( item.Campo + "\r\n");
-                }
-                
+                }                
             }
-            catch
+            catch(Exception ex)
             {
-
+                throw new Exception(ex.Message);
             }
             return sb.ToString();
         }
@@ -717,7 +727,6 @@ namespace CapaPresentacion.Controllers
         public ActionResult listClienteBancoTxt()
         {
             string NombreArchivo = "Lista_Cliente_Banco";
-            //String style = style = @"<style> .textmode { mso-number-format:\@; } </script> ";
             try
             {
                 Response.Clear();
@@ -726,15 +735,483 @@ namespace CapaPresentacion.Controllers
                 Response.AddHeader("Content-Disposition", "attachment;filename=" + NombreArchivo + ".txt");
                 Response.Charset = "UTF-8";
                 Response.ContentEncoding = Encoding.Default;
-               // Response.Write(style);
                 Response.Write(Session[_session_listClienteBanco_Txt].ToString());
                 Response.End();
             }
-            catch
+            catch (Exception ex)
             {
-
+                throw new Exception(ex.Message);
             }
             return Json(new { estado = 0, mensaje = 1 });
+        }
+        #endregion
+
+        #region <LISTA DE PAGOS>
+        /// <summary>
+        /// lista los clientes y sus pagos
+        /// </summary>
+        /// <returns> View </returns>
+        public ActionResult ListarPagos()
+        {
+            Ent_Usuario _usuario = (Ent_Usuario)Session[Ent_Constantes.NameSessionUser];
+
+            string actionName = this.ControllerContext.RouteData.GetRequiredString("action");
+            string controllerName = this.ControllerContext.RouteData.GetRequiredString("controller");
+            string return_view = actionName + "|" + controllerName;
+
+            if (_usuario == null)
+            {
+                return RedirectToAction("Login", "Control", new { returnUrl = return_view });
+            }
+            else
+            {
+                ViewBag.usu_tip_id = _usuario.usu_tip_id;
+                Ent_Pedido_Maestro maestros = datPedido.Listar_Maestros_Pedido(_usuario.usu_id, _usuario.usu_postPago, "");
+                ViewBag.listPromotor = maestros.combo_ListPromotor;
+                return View();
+            }
+        }
+        /// <summary>
+        /// Controlador que sìrve para la paginación
+        /// </summary>
+        /// <param name="param"></param>
+        /// <param name="NroConsignacion"></param>
+        /// <param name="FechaInicio"></param>
+        /// <param name="FechaFin"></param>
+        /// <param name="IdCliente"></param>
+        /// <param name="isOkUpdate"></param>
+        /// <returns></returns>
+        [HttpGet]
+        public JsonResult getListaPagosAjax(Ent_jQueryDataTableParams param, string NroConsignacion, string FechaInicio, string FechaFin, int IdCliente, bool isOkUpdate)
+        {
+            Ent_Listar_Cliente_Pagos Ent_ListarClientePagos = new Ent_Listar_Cliente_Pagos();
+            if (isOkUpdate)
+            {
+                Ent_ListarClientePagos.FechaInicio = FechaInicio;
+                Ent_ListarClientePagos.FechaFin = FechaFin;
+                Ent_ListarClientePagos.IdCliente = IdCliente;
+                Ent_ListarClientePagos.NumeroConsignacion = NroConsignacion;
+                Session[_session_ListarClientePagos] = datFinanciera.Listar_Cliente_Pagos(Ent_ListarClientePagos).ToList();
+            }
+
+            /*verificar si esta null*/
+            if (Session[_session_ListarClientePagos] == null)
+            {
+                List<Ent_Listar_Cliente_Pagos> ListarClientePagos = new List<Ent_Listar_Cliente_Pagos>();
+                Session[_session_ListarClientePagos] = ListarClientePagos;
+            }
+
+            IQueryable<Ent_Listar_Cliente_Pagos> entCliPagos = ((List<Ent_Listar_Cliente_Pagos>)(Session[_session_ListarClientePagos])).AsQueryable();
+
+            //Manejador de filtros
+            int totalCount = entCliPagos.Count();
+            IEnumerable<Ent_Listar_Cliente_Pagos> filteredMembers = entCliPagos;
+            if (!string.IsNullOrEmpty(param.sSearch))
+            {
+                filteredMembers = entCliPagos
+                    .Where(m =>
+                        m.Documento.ToUpper().Contains(param.sSearch.ToUpper()) ||
+                        m.NombreCompleto.ToUpper().Contains(param.sSearch.ToUpper()) ||
+                        m.PrimerNombre.ToUpper().Contains(param.sSearch.ToUpper()) ||
+                        m.SegundoNombre.ToUpper().Contains(param.sSearch.ToUpper()) ||
+                        m.PrimeroApellido.ToUpper().Contains(param.sSearch.ToUpper()) ||
+                        m.SegundoApellido.ToUpper().Contains(param.sSearch.ToUpper()) ||
+                        m.Correo.ToUpper().Contains(param.sSearch.ToUpper()) ||
+                        m.NumeroConsignacion.ToUpper().Contains(param.sSearch.ToUpper()) ||
+                        m.FechaConsignacion.ToUpper().Contains(param.sSearch.ToUpper()) ||
+                        m.Estado.ToUpper().Contains(param.sSearch.ToUpper()) ||
+                        m.EstadoNombre.ToUpper().Contains(param.sSearch.ToUpper())
+                        );
+            }
+
+            //Manejador de orden
+            var sortIdx = Convert.ToInt32(Request["iSortCol_0"]);
+
+            if (param.iSortingCols > 0)
+            {
+                if (Request["sSortDir_0"].ToString() == "asc")
+                {
+                    switch (sortIdx)
+                    {
+                        case 0: filteredMembers = filteredMembers.OrderBy(o => o.Documento); break;
+                        case 1: filteredMembers = filteredMembers.OrderBy(o => o.NombreCompleto); break;
+                        case 2: filteredMembers = filteredMembers.OrderBy(o => o.PrimerNombre); break;
+                        case 3: filteredMembers = filteredMembers.OrderBy(o => o.SegundoNombre); break;
+                        case 4: filteredMembers = filteredMembers.OrderBy(o => o.PrimeroApellido); break;
+                        case 5: filteredMembers = filteredMembers.OrderBy(o => o.SegundoApellido); break;
+                        case 6: filteredMembers = filteredMembers.OrderBy(o => o.Correo); break;
+                        case 7: filteredMembers = filteredMembers.OrderBy(o => o.NumeroConsignacion); break;
+                        case 8: filteredMembers = filteredMembers.OrderBy(o => o.FechaConsignacion); break;
+                        case 9: filteredMembers = filteredMembers.OrderBy(o => o.Estado); break;
+                        case 10: filteredMembers = filteredMembers.OrderBy(o => o.EstadoNombre); break;                        
+                    }
+                }
+                else
+                {
+                    switch (sortIdx)
+                    {
+                        case 0: filteredMembers = filteredMembers.OrderByDescending(o => o.Documento); break;
+                        case 1: filteredMembers = filteredMembers.OrderByDescending(o => o.NombreCompleto); break;
+                        case 2: filteredMembers = filteredMembers.OrderByDescending(o => o.PrimerNombre); break;
+                        case 3: filteredMembers = filteredMembers.OrderByDescending(o => o.SegundoNombre); break;
+                        case 4: filteredMembers = filteredMembers.OrderByDescending(o => o.PrimeroApellido); break;
+                        case 5: filteredMembers = filteredMembers.OrderByDescending(o => o.SegundoApellido); break;
+                        case 6: filteredMembers = filteredMembers.OrderByDescending(o => o.Correo); break;
+                        case 7: filteredMembers = filteredMembers.OrderByDescending(o => o.NumeroConsignacion); break;
+                        case 8: filteredMembers = filteredMembers.OrderByDescending(o => o.FechaConsignacion); break;
+                        case 9: filteredMembers = filteredMembers.OrderByDescending(o => o.Estado); break;                        
+                        case 11: filteredMembers = filteredMembers.OrderByDescending(o => o.EstadoNombre); break;
+                    }
+                }
+            }
+
+            var Result = filteredMembers
+                .Skip(param.iDisplayStart)
+                .Take(param.iDisplayLength);
+
+            //Se devuelven los resultados por json
+            return Json(new
+            {
+                sEcho = param.sEcho,
+                iTotalRecords = totalCount,
+                iTotalDisplayRecords = filteredMembers.Count(),
+                aaData = Result
+            }, JsonRequestBehavior.AllowGet);
+
+        }
+
+        #region<Registrar pago nuevo>
+        /// <summary>
+        /// //controlador que inicia con el pago nuevo
+        /// </summary>
+        /// <returns>View pago</returns>
+        public ActionResult NuevoPago()
+        {
+            Ent_Usuario _usuario = (Ent_Usuario)Session[Ent_Constantes.NameSessionUser];
+            Ent_Pago Pago = new Ent_Pago();
+            string actionName = this.ControllerContext.RouteData.GetRequiredString("action");
+            string controllerName = this.ControllerContext.RouteData.GetRequiredString("controller");
+            string return_view = actionName + "|" + controllerName;
+
+            if (_usuario == null)
+            {
+                return RedirectToAction("Login", "Control", new { returnUrl = return_view });
+            }
+            else
+            {
+                Ent_Pedido_Maestro maestros = datPedido.Listar_Maestros_Pedido(_usuario.usu_id, _usuario.usu_postPago, "");
+                var ListarBancos = datBanco.Listar_Bancos().Where(x => x.Codigo == "1" || x.Codigo == "4").ToList();
+                var ListarConceptos = datConcepto.Listar_Conceptos();
+                ViewBag.ListarPromotor = maestros.combo_ListPromotor;
+                ViewBag.ListarBancos = ListarBancos;
+                ViewBag.ListarConceptos = ListarConceptos;
+                
+                ViewBag.Pago = Pago;
+                return View("Pagos");
+            }
+
+        }
+        /// <summary>
+        /// controlador que valida la operacion que ya se encuentra registrado
+        /// </summary>
+        /// <param name="_Ent"></param>
+        /// <returns>Success=true/false</returns>
+        [HttpPost]
+        public ActionResult getValOperacion(Ent_Pago _Ent)
+        {            
+            bool Result = false;
+            JsonResponse objResult = new JsonResponse();           
+            try
+            {
+                Result = datPago.ValOperacion(_Ent);
+                if (Result)
+                {
+                    objResult.Success = true;
+                }
+                else
+                {
+                    objResult.Success = false;                    
+                }
+            }
+            catch (Exception ex)
+            {
+                objResult.Success = false;
+                objResult.Message = "Error";
+            }
+
+            var JSON = JsonConvert.SerializeObject(objResult);
+            return Json(JSON, JsonRequestBehavior.AllowGet);
+        }
+        /// <summary>
+        ///Controlador que registra el pago nuevo
+        /// </summary>
+        /// <param name="_Ent"></param>
+        /// <returns>Success/Message</returns>
+        public ActionResult getRegistrarPago(Ent_Pago _Ent)
+        {
+            bool Result = false;
+            Ent_Usuario _usuario = (Ent_Usuario)Session[Ent_Constantes.NameSessionUser];
+            JsonResponse objResult = new JsonResponse();
+            try
+            {
+                _Ent.Pag_Usu_Creacion = Convert.ToDouble(_usuario.usu_id);
+                Result = datPago.GrabarPagos(_Ent);
+                if (Result)
+                {
+                    objResult.Success = true;
+                    objResult.Message = "El pago se registro correctamente.";
+                }
+                else
+                {
+                    objResult.Success = false;
+                    objResult.Message = "El pago no se pudo resgitrar.";
+                }
+            }
+            catch (Exception ex)
+            {
+                objResult.Success = false;
+                objResult.Message = "Error al registrar";
+            }
+
+            var JSON = JsonConvert.SerializeObject(objResult);
+
+            return Json(JSON, JsonRequestBehavior.AllowGet);
+        }
+
+        /// <summary>
+        /// controlador que valida si el pago ya tiene transacciones 
+        /// </summary>
+        /// <param name="PagoId"></param>
+        /// <returns>Success/Message</returns>
+        public ActionResult getValPagoTransaccion(string PagoId)
+        {
+            int Result = 0;
+            JsonResponse objResult = new JsonResponse();
+            Ent_Pago _Ent = new Ent_Pago();
+            try
+            {
+                _Ent.Pag_Id = PagoId;
+                _Ent = datPago.ValPagoTransaccionInt(_Ent);
+                if (_Ent.Existe== 0)
+                {                    
+                    objResult.Success = true;
+                    objResult.Message = "El pago se elimino correctamente.";
+                }
+                else if (_Ent.Existe == 1)
+                {
+                    objResult.Success = false;
+                    objResult.Message = "El pago no se puede eliminar porque se encuentra en una transacción( Nro : " + _Ent.RetVal + " ).";
+                }
+                else if (_Ent.Existe == 2)
+                {
+                    objResult.Success = false;
+                    objResult.Message = "El pago no se puede eliminar porque se encuentre en una transacción.";
+                }
+            }
+            catch (Exception ex)
+            {
+                objResult.Success = false;
+                objResult.Message = "Error al validar pago";
+            }
+
+            var JSON = JsonConvert.SerializeObject(objResult);
+
+            return Json(JSON, JsonRequestBehavior.AllowGet);
+        }
+        /// <summary>
+        /// controlador que elimina el pago
+        /// </summary>
+        /// <param name="PagoId"></param>
+        /// <returns>Success/Message</returns>
+        public ActionResult getEliminarPago(string PagoId)
+        {
+            bool Result = false;
+            JsonResponse objResult = new JsonResponse();
+            Ent_Pago _Ent = new Ent_Pago();
+            _Ent.Pag_Id = PagoId;
+            try
+            {
+                Result = datPago.EliminarPago(_Ent);
+                if (Result)
+                {
+                    objResult.Success = true;
+                    objResult.Message = "El pago se elimino correctamente.";
+                }
+                else
+                {
+                    objResult.Success = false;
+                    objResult.Message = "El pago no se pudo resgitrar.";
+                }
+            }
+            catch (Exception ex)
+            {
+                objResult.Success = false;
+                objResult.Message = "Error al eliminar";
+            }
+
+            var JSON = JsonConvert.SerializeObject(objResult);
+
+            return Json(JSON, JsonRequestBehavior.AllowGet);
+        }
+        #endregion
+
+        #endregion
+
+        #region<Confirmación de pagos y consignaciones>
+        /// <summary>
+        /// Vista donde se realiza la verificación de pagos y consignaciones por veficar.
+        /// </summary>
+        /// <returns></returns>
+        public ActionResult VerificarPago()
+        {
+            Ent_Estado _EntEst = new Ent_Estado();
+            Ent_Pago _EntPago = new Ent_Pago();
+            Ent_Usuario _usuario = (Ent_Usuario)Session[Ent_Constantes.NameSessionUser];
+            string actionName = this.ControllerContext.RouteData.GetRequiredString("action");
+            string controllerName = this.ControllerContext.RouteData.GetRequiredString("controller");
+            string return_view = actionName + "|" + controllerName;
+
+            if (_usuario == null)
+            {
+                return RedirectToAction("Login", "Control", new { returnUrl = return_view });
+            }
+            else
+            {
+                ViewBag._EntPago = _EntPago;
+
+                _EntEst.Est_Mod_Id = 4;
+                var ListarEstados = datEstado.Listar_Estados(_EntEst);
+                ViewBag.ListarEstados = ListarEstados;
+
+                return View();
+            }
+        }
+        /// <summary>
+        /// Realice la verificación de pagos y consignaciones por veficar
+        /// </summary>
+        /// <param name="param"></param>
+        /// <param name="NroConsignacion"></param>
+        /// <param name="isOkUpdate"></param>
+        /// <returns></returns>
+        [HttpGet]
+        public JsonResult getListarVerificarPagosAjax(Ent_jQueryDataTableParams param, string Est_Id, string Are_Id, bool isOkUpdate)
+        {
+            Ent_Listar_Verificar_Pagos EntListarVerificarPagos = new Ent_Listar_Verificar_Pagos();
+            if (isOkUpdate)
+            {
+                EntListarVerificarPagos.Est_Id = Est_Id;
+                EntListarVerificarPagos.Are_Id = Are_Id;
+                Session[_session_ListarVerificarPagos] = datPago.Listar_Verificar_Pagos(EntListarVerificarPagos).ToList();
+            }
+
+            /*verificar si esta null*/
+            if (Session[_session_ListarVerificarPagos] == null)
+            {
+                List<Ent_Listar_Verificar_Pagos> ListarVerificarPagos = new List<Ent_Listar_Verificar_Pagos>();
+                Session[_session_ListarVerificarPagos] = ListarVerificarPagos;
+            }
+
+            IQueryable<Ent_Listar_Verificar_Pagos> entVerificarPagos = ((List<Ent_Listar_Verificar_Pagos>)(Session[_session_ListarVerificarPagos])).AsQueryable();
+
+            //Manejador de filtros
+            int totalCount = entVerificarPagos.Count();
+            IEnumerable<Ent_Listar_Verificar_Pagos> filteredMembers = entVerificarPagos;
+            if (!string.IsNullOrEmpty(param.sSearch))
+            {
+                filteredMembers = entVerificarPagos
+                    .Where(m =>                            
+                            m.Bas_Documento.ToUpper().Contains(param.sSearch.ToUpper()) ||
+                            m.Pag_Num_Consignacion.ToUpper().Contains(param.sSearch.ToUpper()) 
+                        );
+            }
+
+            //Manejador de orden
+            var sortIdx = Convert.ToInt32(Request["iSortCol_0"]);
+
+            if (param.iSortingCols > 0)
+            {
+                if (Request["sSortDir_0"].ToString() == "asc")
+                {
+                    switch (sortIdx)
+                    {
+                        case 0: filteredMembers = filteredMembers.OrderBy(o => o.Pag_Id); break;
+                        case 1: filteredMembers = filteredMembers.OrderBy(o => o.Lider); break;
+                        case 2: filteredMembers = filteredMembers.OrderBy(o => o.Bas_Documento); break;
+                        case 3: filteredMembers = filteredMembers.OrderBy(o => o.Promotor); break;
+                        case 4: filteredMembers = filteredMembers.OrderBy(o => o.Ban_Descripcion); break;
+                        case 5: filteredMembers = filteredMembers.OrderBy(o => o.Pag_Num_Consignacion); break;
+                        case 6: filteredMembers = filteredMembers.OrderBy(o => o.Con_Descripcion); break;
+                        case 7: filteredMembers = filteredMembers.OrderBy(o => o.Pag_Num_ConsFecha); break;
+                        case 8: filteredMembers = filteredMembers.OrderBy(o => o.Pag_Monto); break;
+                        case 9: filteredMembers = filteredMembers.OrderBy(o => o.Est_Id); break;
+                        case 10: filteredMembers = filteredMembers.OrderBy(o => o.Con_Id); break;
+                    }
+                }
+                else
+                {
+                    switch (sortIdx)
+                    {
+                        case 0: filteredMembers = filteredMembers.OrderByDescending(o => o.Pag_Id); break;
+                        case 1: filteredMembers = filteredMembers.OrderByDescending(o => o.Lider); break;
+                        case 2: filteredMembers = filteredMembers.OrderByDescending(o => o.Bas_Documento); break;
+                        case 3: filteredMembers = filteredMembers.OrderByDescending(o => o.Promotor); break;
+                        case 4: filteredMembers = filteredMembers.OrderByDescending(o => o.Ban_Descripcion); break;
+                        case 5: filteredMembers = filteredMembers.OrderByDescending(o => o.Pag_Num_Consignacion); break;
+                        case 6: filteredMembers = filteredMembers.OrderByDescending(o => o.Con_Descripcion); break;
+                        case 7: filteredMembers = filteredMembers.OrderByDescending(o => o.Pag_Num_ConsFecha); break;
+                        case 8: filteredMembers = filteredMembers.OrderByDescending(o => o.Pag_Monto); break;
+                        case 9: filteredMembers = filteredMembers.OrderByDescending(o => o.Est_Id); break;
+                        case 10: filteredMembers = filteredMembers.OrderByDescending(o => o.Con_Id); break;
+                    }
+                }
+            }
+
+            var Result = filteredMembers
+                .Skip(param.iDisplayStart)
+                .Take(param.iDisplayLength);
+
+            //Se devuelven los resultados por json
+            return Json(new
+            {
+                sEcho = param.sEcho,
+                iTotalRecords = totalCount,
+                iTotalDisplayRecords = filteredMembers.Count(),
+                aaData = Result
+            }, JsonRequestBehavior.AllowGet);
+
+        }
+        /// <summary>
+        /// Controlado que actualiza el estado del pagpo
+        /// </summary>
+        /// <param name="PagoId"></param>
+        /// <returns>Success/Message</returns>
+        public ActionResult getActEstPago(Ent_Pago _Ent)
+        {
+            bool Result = false;
+            JsonResponse objResult = new JsonResponse();
+            try
+            {
+                Result = datPago.Actualizar_Estado_Pago(_Ent);
+                if (Result)
+                {
+                    objResult.Success = true;
+                    objResult.Message = "El estado del pago se actualizo correctamente.";
+                }
+                else
+                {
+                    objResult.Success = false;
+                    objResult.Message = "El estado del pago no se pudo actualizo.";
+                }
+            }
+            catch (Exception ex)
+            {
+                objResult.Success = false;
+                objResult.Message = "Error al actualizar";
+            }
+
+            var JSON = JsonConvert.SerializeObject(objResult);
+
+            return Json(JSON, JsonRequestBehavior.AllowGet);
         }
         #endregion
     }

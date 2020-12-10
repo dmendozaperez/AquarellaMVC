@@ -1,0 +1,348 @@
+﻿@{
+    ViewBag.Title = "Listar pagos";
+    ViewBag.SubTitle = "";
+}
+<style>
+    .table thead {
+        background-color: #5799bf;
+        color: #fff;
+    }
+
+    .boton-xs-td {
+        padding-top: 5px !important;
+        padding-bottom: 5px !important;
+    }
+
+    .alignRight {
+        text-align: right;
+    }
+
+    .alignCenter {
+        text-align: center;
+    }
+
+    .table .tdClassTot {
+        color: #000 !important;
+        background-color: #b1dbf3 !important;
+        font-weight: bold;
+    }
+
+    .table .rowspanClass {
+        color: #000 !important;
+        background-color: #83c5ea;
+        text-align: center;
+        font-weight: bold;
+        vertical-align: middle;
+    }
+</style>
+<div class="box box-header box-primary">
+    <div class="row">
+        <div class="col-md-6">
+            <a href="@Url.Action("NuevoPago", "Financiera")" class="btn btn-success"><i class="glyphicon glyphicon-plus"></i>&nbsp;Crear nuevo pago</a>
+        </div>
+    </div>
+</div>
+<div class="box box-header box-primary">
+    <label style="color:#9c9c9c;font-weight:bold">Parametros de busqueda</label>
+    <div class="row">
+        <div class="col-sm-2">
+            <label for="NroConsignacion">Nro. Operacón</label>
+            <div class="form-group">
+                @Html.TextBox("NroConsignacion", null, new { @class = "form-control custom-input" })
+            </div>
+        </div>
+        <div class="col-sm-2">
+            <label for="ddlClientes">Seleccione cliente</label>
+            <div class="form-group">
+                @Html.DropDownList("ddlClientes", new SelectList(ViewBag.listPromotor, "codigo", "descripcion", null), "Seleccione",new { @class = "form-control selectpicker", @data_live_search = "true", @id = "ddlClientes", @name = "ddlClientes" })
+            </div>
+        </div>
+        <div class="col-sm-3">
+            <label for="fecini">Fec. Ini</label>
+            <div class="form-group">
+                <div id="datepickerini" class="input-group date" data-date-format="dd-mm-yyyy">
+                    @Html.TextBox("FechaInicio",null, new { @class = "form-control custom-input", @placeholder = "dd-mm-yyyy", @disabled = "disabled" })
+                    <span class="input-group-addon  bg-white"><img src="~/Content/images/wall-calendar-with-lines.svg" height="20" width="20"></span>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-3">
+            <label for="fecfin">Fec. Fin</label>
+            <div class="form-group">
+                <div id="datepickerfin" class="input-group date" data-date-format="dd-mm-yyyy">
+                    @Html.TextBox("FechaFin",null, new { @class = "form-control custom-input", @placeholder = "dd-mm-yyyy", @disabled = "disabled" })
+                    <span class="input-group-addon  bg-white"><img src="~/Content/images/wall-calendar-with-lines.svg" height="20" width="20"></span>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-2 text-right">
+                <button id="btnBuscar" type="button" title="Consultar" class="btn btn-primary" style="margin-top: 25px;">
+                    <span class="glyphicon glyphicon-search"></span>&nbsp;&nbsp;Buscar
+                </button>            
+        </div>
+    </div>
+</div>
+<div class="box box-body box-primary">
+    @*<div class="row">
+        <div class="col-md-6">
+
+        </div>
+        <div class="col-md-6 text-right">
+            <button id="btnExportar" title="Actualizar" class="btn btn-primary .disabled" disabled>
+                <span class="glyphicon glyphicon-export"></span>&nbsp;&nbsp;Exportar Lista
+            </button>
+        </div>
+    </div>
+    <br />*@
+    <div class="row">
+        <div class="col-md-12">
+            <div class="table-responsive">
+                <table id="tbClientesPagos" class="table table-hover table-bordered compact">
+                    <thead>
+                        <tr>
+                            <th style="text-align: center;">Nro. Operacón</th>
+                            <th style="text-align: center;">Fec. Operacón</th>
+                            <th style="text-align: center;">DNI/RUC</th>
+                            <th style="text-align: center;">Nombre</th>
+                            <th style="text-align: center;">Correo</th>
+                            <th style="text-align: center;">Monto</th>
+                            <th style="text-align: center;">Estado</th>
+                            <th style="text-align: center;">Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section scripts{
+    <script>
+        var objCliPago = {
+            Inicio: function () {
+                var tipo_user=@ViewBag.usu_tip_id;
+                this.IsOk = false;
+
+                if (tipo_user == '08' || tipo_user == '06' || tipo_user == '04' ) {
+                    objCliPago.IsOk = true;
+                }
+                $("#datepickerini").datepicker({
+                    autoclose: true,
+                    todayHighlight: true
+                }).datepicker("setDate", "0");
+
+                $("#datepickerfin").datepicker({
+                    autoclose: true,
+                    todayHighlight: true
+                }).datepicker("setDate", "0");
+
+                this.isOkUpdate =true;
+                this.IdCliente = 0;
+                this.FechaInicio = $("#FechaInicio").val();
+                this.FechaFin = $("#FechaInicio").val();
+                this.NroConsignacion = '';
+
+                objCliPago.Input.SoloTexto($("#NroConsignacion"));
+                objCliPago.grid.get();
+
+                $("#btnBuscar").click(function () {
+                    objCliPago.isOkUpdate = true;
+                    objCliPago.IdCliente = $("#ddlClientes").val();
+                    objCliPago.FechaInicio = $("#FechaInicio").val();
+                    objCliPago.FechaFin = $("#FechaFin").val();
+                    objCliPago.NroConsignacion = $("#NroConsignacion").val();
+                    objCliPago.generaal.consultar(1);
+                    objCliPago.isOkUpdate = false;
+                })
+
+                $("#NroConsignacion").keyup(function (e) {
+                    if (e.keyCode == 13) {
+                        objCliPago.isOkUpdate = true;
+                        objCliPago.IdCliente = 0;
+                        objCliPago.FechaInicio = '';
+                        objCliPago.FechaFin = '';
+                        objCliPago.NroConsignacion = $("#NroConsignacion").val();
+                        objCliPago.generaal.consultar(2);
+                        objCliPago.isOkUpdate = false;
+                    }
+                });
+            },
+            Input: {
+                SoloTexto: function (element) {
+                    //SOLO LETRAS CON NUMERO SIN CARACTERES ESPECIALES
+                    $(element).keypress(function (e) {
+                        var keyCode = e.keyCode || e.which;
+                        var regex = /^[a-zA-ZáéíóúÁÉÍÓÚñÑ0-9.]+$/;
+                        //Validate TextBox value against the Regex.
+                        var isValid = regex.test(String.fromCharCode(keyCode));
+                        return isValid;
+                    });
+                }
+            },
+            grid: {
+                get: function () {
+                    $('#tbClientesPagos').DataTable({
+                        "language": {
+                            "url": "../Scripts/DataTables/Spanish.json"
+                        },
+                        "bServerSide": true,
+                        "bAutoWidth": false,
+                        "sAjaxSource": '@Url.Action("getListaPagosAjax", "Financiera")',
+                        "fnServerParams": function (aoData) {
+                            aoData.push({ "name": "isOkUpdate", "value": objCliPago.isOkUpdate });
+                            aoData.push({ "name": "FechaInicio", "value": objCliPago.FechaInicio });
+                            aoData.push({ "name": "FechaFin", "value": objCliPago.FechaFin });
+                            aoData.push({ "name": "IdCliente", "value": objCliPago.IdCliente });
+                            aoData.push({ "name": "NroConsignacion", "value": objCliPago.NroConsignacion });
+                        },
+                        "bdestroy": true,
+                        "start": 0,
+                        "columnDefs": [{
+                            "orderable": false,
+                            "targets": [1, 2, 5],
+                        }],
+                        "bDeferRender": true,
+                        "aoColumns": [
+                                        { "sName": "NumeroConsignacion", "mData": "NumeroConsignacion", "sClass": "alignCenter" },
+                                        { "sName": "FechaConsignacion", "mData": "FechaConsignacion", "sClass": "alignCenter" },
+                                        { "sName": "Documento", "mData": "Documento", "sClass": "alignCenter" },
+                                        { "sName": "NombreCompleto", "mData": "NombreCompleto" },
+                                        { "sName": "Correo", "mData": "Correo" },
+                                        {
+                                            "sName": "Monto", "mData": "Monto", "sClass": "alignRight",
+                                            "bVisible": objCliPago.IsOk,
+                                            "render": function (Data, type, full, meta) {
+                                            var Monto = full.Monto;
+                                            return (Monto == undefined || Monto == null || Monto == 0) ? ' ' : Monto.toFixed(2);
+                                            }
+                                        },
+                                        { "sName": "EstadoNombre", "mData": "EstadoNombre" },
+                                        {
+                                            "mData": null,
+                                            "render": function (data, type, full,meta) {
+                                                return '<button type="buttom" onclick="objCliPago.grid.Eliminar(\''+ full.PagoId + '\');"  class="btn btn-xs btn-default"><i class="glyphicon glyphicon-trash" style="color:#FF3131"></i></button>';
+                                            }
+                                        }
+                        ],
+                        "fnRowCallback": function (row, data, index) {
+                        },
+                        "drawCallback": function (settings) {
+                            objCliPago.isOkUpdate = false;
+                        },
+                        "initComplete": function (settings, json) {
+                        }
+                    });
+                },
+                cargaTabla: function () {
+                    waitingDialog.show("Espere por favor...")
+                    $('#tbClientesPagos').DataTable().ajax.reload(function () {
+                        waitingDialog.hide();
+                    });
+                },
+                Validar : function(PagoId){
+                    var Result = false;
+                    $.ajax({
+                        type: "POST",
+                        url: '@Url.Action("getValPagoTransaccion", "Financiera")',
+                        data: { PagoId: PagoId },
+                        async: false,
+                        success: function (data) {
+                            data = JSON.parse(data);
+                            if (data.Success) {      
+                                Result = true;
+                            } else {
+                                swal({ title: "Alerta", text: data.Message, icon: "error" }).then((value) => { });                                
+                                Result = false;
+                            }
+                        },
+                        error: function (XMLHttpRequest, textStatus, errorThrown) {
+                            waitingDialog.hide();
+                            swal({ title: "Alerta", text: "Error al consultar.", icon: "error" }).then((value) => { });                              
+                            Result = false;
+                        }
+                    });
+                    return Result;
+                },
+                Eliminar : function(PagoId){
+                    if (objCliPago.grid.Validar(PagoId)) {
+                        swal({
+                            title: "Eliminar registro",
+                            text: "¿Está seguro de eliminar el pago?",
+                            icon: "warning",
+                            buttons: ["No", "Si"],
+                            dangerMode: true,
+                        }).then((cambiar) => {
+                            if (cambiar) {
+                                waitingDialog.show("Espere un momento por favor.")
+                                 $.ajax({
+                                        type: "POST",
+                                        url: '@Url.Action("getEliminarPago", "Financiera")',
+                                        data: { PagoId: PagoId },
+                                        async: false,
+                                        success: function (data) {
+                                            data = JSON.parse(data);
+                                            if (data.Success) {                                                
+                                                swal({title: "Ok",text: data.Message,icon: "success"}).then((value) => {});
+                                                objCliPago.NroConsignacion = ""                                                
+                                                objCliPago.isOkUpdate = true
+                                                waitingDialog.hide();
+                                                $('#tbClientesPagos').DataTable().ajax.reload(function () {                                                         
+                                                });
+                                            } else {                                                
+                                                swal({ title: "Alerta", text: data.Message, icon: "error" }).then((value) => { });    
+                                                waitingDialog.hide();
+                                            }
+                                        },
+                                        error: function (XMLHttpRequest, textStatus, errorThrown) {
+                                            waitingDialog.hide();
+                                            swal({ title: "Alerta", text: "Error al Eliminar el registro", icon: "error" }).then((value) => { });
+                                        }
+                                    })
+                            }
+                        })
+                    }
+                }
+            },
+            generaal: {
+                Validar: function (Opcion) {
+                    //Valida las fechas y el IdCliente
+                    if (Opcion==1) {
+                        if (objCliPago.NroConsignacion == undefined || objCliPago.NroConsignacion == null || objCliPago.NroConsignacion == 0 || objCliPago.NroConsignacion == '') {
+                            objCliPago.NroConsignacion = 0;
+                        }
+                        if (objCliPago.IdCliente == undefined || objCliPago.IdCliente == null || objCliPago.IdCliente == 0 || objCliPago.IdCliente == '') {
+                            objCliPago.IdCliente = 0;
+                        }
+                        if (objCliPago.FechaInicio == undefined || objCliPago.FechaInicio == null || objCliPago.FechaInicio.length == 0 || objCliPago.FechaInicio == '') {
+                            swal({ title: "Alerta", text: "La fecha de Inicio no puede estar vacio", icon: "error" }).then((value) => { });                            
+                            return false;
+                        }
+                        if (objCliPago.FechaFin == undefined || objCliPago.FechaFin == null || objCliPago.FechaFin.length == 0 || objCliPago.FechaFin == '') {
+                            swal({ title: "Alerta", text: "La fecha de Fin no puede estar vacio", icon: "error" }).then((value) => { });                            
+                            return false;
+                        }
+                    }else{
+                        if (objCliPago.NroConsignacion == undefined || objCliPago.NroConsignacion == null || objCliPago.NroConsignacion == 0 || objCliPago.NroConsignacion == '') {
+                            $('#NroConsignacion').focus();
+                            swal({ title: "Alerta", text: "El Nro de operacón no puede ser vacio", icon: "error" }).then((value) => { });                            
+                            return false;
+                        }
+                    }
+                    return true;
+                },
+                consultar: function (Opcion) {
+                    if (objCliPago.generaal.Validar(Opcion)) {
+                        objCliPago.grid.cargaTabla();
+                    }
+                }
+            }
+        };
+
+        $(document).ready(function () {
+            objCliPago.Inicio();
+        });
+    </script>
+}

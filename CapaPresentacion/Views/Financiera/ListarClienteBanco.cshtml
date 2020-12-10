@@ -27,7 +27,7 @@
             <label for="fecini">Seleccione banco</label>
 
             <div class="form-group">
-                @Html.DropDownList("ddlBanco", new SelectList(ViewBag.ListarBancos, "Codigo", "Descripcion", null), "Selecione",new { @class = "form-control selectpicker", @data_live_search = "true", @id = "ddlBanco", @name = "ddlBanco" })
+                @Html.DropDownList("ddlBanco", new SelectList(ViewBag.ListarBancos, "Codigo", "Descripcion", null), new { @class = "form-control selectpicker", @data_live_search = "false", @id = "ddlBanco", @name = "ddlBanco" })
             </div>
 
         </div>
@@ -47,7 +47,7 @@
 @section scripts{
     <script language="javascript" type="text/javascript">
         $(document).ready(function () {
-
+            $("#ddlBanco").prop("selectedIndex", -1);
             $("#ddlBanco").change(function () {
                 let IdBanco = $("#ddlBanco").val();
                 if (IdBanco == undefined || IdBanco == null || IdBanco == 0 || IdBanco == '') {

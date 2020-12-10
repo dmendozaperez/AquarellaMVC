@@ -1,0 +1,297 @@
+﻿@{
+    ViewBag.Title = "Confirmación de pagos y consignaciones";
+    ViewBag.SubTitle = "";
+}
+<style>
+    .table thead {
+        background-color: #5799bf;
+        color: #fff;
+    }
+
+    .boton-xs-td {
+        padding-top: 5px !important;
+        padding-bottom: 5px !important;
+    }
+
+    .alignRight {
+        text-align: right;
+    }
+
+    .alignCenter {
+        text-align: center;
+    }    
+
+    .btn-ColorSave {
+    background-color: #34D334;
+    border-color: #6fca6f;
+    margin-top: 5px;
+    margin-left: 0px;
+    }
+</style>
+@*<div class="box box-header box-primary">
+    <label style="color:#9c9c9c;font-weight:bold">Parametros de busqueda</label>
+    <div class="row">
+        <div class="col-sm-2">
+            <label for="NroConsignacion">Nro. Operacón</label>
+            <div class="form-group">
+                @Html.TextBox("NroConsignacion", null, new { @class = "form-control custom-input" })
+            </div>
+        </div>
+
+        <div class="col-sm-2 text-right">
+            <button id="btnBuscar" type="button" title="Consultar" class="btn btn-primary" style="margin-top: 25px;">
+                <span class="glyphicon glyphicon-search"></span>&nbsp;&nbsp;Buscar
+            </button>
+        </div>
+    </div>
+</div>*@
+<div class="box box-body box-primary">
+    <div class="row">
+        <div class="col-md-12">
+            <div class="table-responsive">
+                <table id="tbVerificarPago" class="table table-hover table-bordered compact">
+                    <thead>
+                        <tr>
+                            <th style="text-align: center;">Nro. Operación</th>
+                            <th style="text-align: center;">Fec. Operación</th>
+                            <th style="text-align: center;">Banco</th>  
+                            <th style="text-align: center;">Lider</th>
+                            <th style="text-align: center;">Documento</th>
+                            <th style="text-align: center;">Promotor</th>                                                      
+                            <th style="text-align: center;">Tipo</th>                            
+                            <th style="text-align: center;">Valor</th>
+                            <th style="text-align: center;">Estado</th>
+                            <th style="text-align: center;">Acción</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section scripts{
+    <script src="~/Scripts/Linkend/linq.min.js"></script>
+    <script>
+        var objVerificarPago = {
+            Inicio: function () {               
+
+                this.selected = [];
+                this.isOkUpdate =true;
+                this.Est_Id = 'PXV';
+                this.Are_Id = '%%';
+
+                objVerificarPago.Input.SoloTexto($("#NroConsignacion"));
+                objVerificarPago.grid.get();
+
+                this.ListarEstados = function () { return @Html.Raw(Json.Encode(ViewBag.ListarEstados)); }();
+
+                $('#tbVerificarPago tbody').on('change', '#ddlEstado', function (e) {                  
+                    //Limpiamos el array
+                    objVerificarPago.selected = [];
+                    //Cargar el valor del Select
+                    let Sel_Est_Id = $(this).val();
+
+                    e.preventDefault();
+
+                    let tr = $(this).closest('tr').index();
+                    let row = $('#tbVerificarPago').DataTable().row(tr);
+                    let data = row.data();
+                    data.Pag_Id = data.Pag_Id;
+                    data.Lider = data.Lider;
+                    data.Bas_Documento = data.Bas_Documento;
+                    data.Promotor = data.Promotor;
+                    data.Ban_Descripcion = data.Ban_Descripcion;
+                    data.Pag_Num_Consignacion = data.Pag_Num_Consignacion;
+                    data.Con_Descripcion = data.Con_Descripcion;
+                    data.Pag_Num_ConsFecha = data.Pag_Num_ConsFecha;
+                    data.Pag_Monto = data.Pag_Monto;
+                    data.Est_Id = Sel_Est_Id;
+                    data.Con_Id = data.Con_Id;
+                    data.Are_Id = data.Are_Id;
+
+                    let index = $.inArray(tr, objVerificarPago.selected);
+                    if (index === -1) {
+                        objVerificarPago.selected.push(data);
+                    } else {
+                        objVerificarPago.selected.splice(index, 1);
+                    }
+                    e.stopPropagation();
+                })
+
+                $('#tbVerificarPago tbody').on('click', '#IdGuardarRow', function (e) {
+
+                    debugger
+                    if (objVerificarPago.grid.Validar()) {
+                        swal({
+                            title: "Guardar datos del pago",
+                            text: "¿Está seguro de cambiar el estado del pago?",
+                            icon: "warning",
+                            buttons: ["No", "Si"],
+                            dangerMode: true,
+                        }).then((cambiar) => {
+                            if (cambiar) {
+                                waitingDialog.show("Espere un momento por favor.")
+                                let Data = objVerificarPago.selected;
+                                let _Ent = function () { return @Html.Raw(Json.Encode(ViewBag._EntPago)); }();
+                                _Ent.Pag_Id = Data[0].Pag_Id
+                                _Ent.Pag_EstId = Data[0].Est_Id;
+
+                                $.ajax({
+                                    type: "POST",
+                                    url: '@Url.Action("getActEstPago", "Financiera")',
+                                    data: { _Ent: _Ent },
+                                    async: false,
+                                    success: function (data) {
+                                        data = JSON.parse(data);
+                                        if (data.Success) {                                            
+                                            swal({
+                                                title: "Ok",
+                                                text: data.Message,
+                                                icon: "success"
+                                            }
+                                            ).then((value) => {
+                                              
+                                            });
+                                            objVerificarPago.isOkUpdate = true
+                                            waitingDialog.hide();
+                                            $('#tbVerificarPago').DataTable().ajax.reload(function () {
+                                               
+                                            });
+                                            objVerificarPago.selected = [];
+                                        } else {
+                                            swal({ title: "Alerta", text: data.Message, icon: "error" }).then((value) => { });                                            
+                                            waitingDialog.hide();
+                                        }
+                                    },
+                                    error: function (XMLHttpRequest, textStatus, errorThrown) {
+                                        waitingDialog.hide();
+                                        swal({ title: "Alerta", text: "Error al grabar.", icon: "error" }).then((value) => { });                                        
+                                    }
+                                });
+                            }
+                        })                        
+                    }
+                    e.stopPropagation();                    
+                })
+            },
+            Input: {
+                SoloTexto: function (element) {
+                    //SOLO LETRAS CON NUMERO SIN CARACTERES ESPECIALES
+                    $(element).keypress(function (e) {
+                        var keyCode = e.keyCode || e.which;
+                        var regex = /^[a-zA-ZáéíóúÁÉÍÓÚñÑ0-9.]+$/;
+                        //Validate TextBox value against the Regex.
+                        var isValid = regex.test(String.fromCharCode(keyCode));
+                        return isValid;
+                    });
+                }
+            },
+            grid: {
+                get: function () {
+                    $('#tbVerificarPago').DataTable({
+                        "language": {
+                            "url": "../Scripts/DataTables/Spanish.json"
+                        },
+                        "bServerSide": true,
+                        "bAutoWidth": false,
+                        "sAjaxSource": '@Url.Action("getListarVerificarPagosAjax", "Financiera")',
+                        "fnServerParams": function (aoData) {
+                            aoData.push({ "name": "isOkUpdate", "value": objVerificarPago.isOkUpdate });
+                            aoData.push({ "name": "Est_Id", "value": objVerificarPago.Est_Id });
+                            aoData.push({ "name": "Are_Id", "value": objVerificarPago.Are_Id });
+                        },
+                        "start": 0,
+                        "columnDefs": [{
+                            "orderable": false,
+                            "targets": [1, 2, 3,4,5,6,7,8,9],
+                        }],
+                        "bDeferRender": true,
+                        "aoColumns": [
+                            { "sName": "Pag_Num_Consignacion", "mData": "Pag_Num_Consignacion", "sClass": "alignCenter" },
+                            { "sName": "Pag_Num_ConsFecha", "mData": "Pag_Num_ConsFecha","sClass": "alignCenter"},
+                            { "sName": "Ban_Descripcion", "mData": "Ban_Descripcion"},
+                            { "sName": "Lider", "mData": "Lider" },
+                            { "sName": "Bas_Documento", "mData": "Bas_Documento", "sClass": "alignCenter" },
+                            { "sName": "Promotor", "mData": "Promotor" },                           
+                            { "sName": "Con_Descripcion", "mData": "Con_Descripcion" },                            
+                            {
+                                "sName": "Pag_Monto", "mData": "Pag_Monto", "sClass": "alignRight",
+                                "render": function (Data, type, full, meta) {
+                                    var Pag_Monto = full.Pag_Monto;
+                                    return (Pag_Monto == undefined || Pag_Monto == null || Pag_Monto == 0) ? ' ' : Pag_Monto.toFixed(2);
+                                }
+                            },
+                            {
+                                "mData": null,
+                                "render": function (data, type, full, meta) {
+                                    return objVerificarPago.grid.dropdownlist(objVerificarPago.ListarEstados, full.Est_Id);
+                                }
+                            },
+                            {
+                                "mData": null,
+                                "render": function (data, type, full, meta) {
+                                    //onclick="objVerificarPago.grid.Grabar(\'' + full.Pag_Id + '\');"
+                                    return '<button type="buttom" id="IdGuardarRow" data_Id = "' + full.Pag_Id + '" class="btn btn-xs btn-ColorSave"><i class="glyphicon glyphicon-floppy-disk"  style="color:#FFFFFF"></i></button>';
+                            }
+                            }
+                        ],
+                        "fnRowCallback": function (row, data, index) {
+                        },
+                        "drawCallback": function (settings) {
+                            //actualiza el estado cuando ya se ha listado el grid, cuando hace paginación
+                            objVerificarPago.isOkUpdate = false;
+                        },
+                        "initComplete": function (settings, json) {
+                        }
+                    });
+                },
+                cargaTabla: function () {
+                    waitingDialog.show("Espere por favor...")
+                    $('#tbVerificarPago').DataTable().ajax.reload(function () {
+                        waitingDialog.hide();
+                    });
+                },
+                dropdownlist: function (Lista,Value) {
+                    var $select = $("<select id ='ddlEstado' class='form-control custom-input'></select>", {
+                        "id": "IdEstado",
+                        "value": Value
+                    });
+                    $.each(Lista, function(k,v){
+                        var $option = $("<option></option>", {
+                            "text": v.Descripcion,
+                            "value": v.Codigo
+                        });
+                        if (v.Codigo == Value) {
+                            $option.attr("selected", "selected")
+                        }
+                        $select.append($option);
+                    });
+                    return $select.prop("outerHTML");
+                },
+                Validar: function () {
+                    if (objVerificarPago.selected.length == 0) {                        
+                        swal({
+                            title: "Alerta",
+                            text: "No ha generado ningún cambio para guardar.",
+                            icon: "warning"
+                        }
+                        ).then((value) => {
+
+                        });
+                        return false;
+                    }
+                    return true
+                }
+            },
+            generaal: {
+            }
+        };
+
+        $(document).ready(function () {
+            objVerificarPago.Inicio();
+        });
+    </script>
+}

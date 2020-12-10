@@ -3091,6 +3091,9 @@
     <Content Include="Views\Articulo\ListarArticulo.cshtml" />
     <Content Include="Views\Financiera\MovPago.cshtml" />
     <Content Include="Views\Financiera\ListarClienteBanco.cshtml" />
+    <Content Include="Views\Financiera\ListarPagos.cshtml" />
+    <Content Include="Views\Financiera\Pagos.cshtml" />
+    <Content Include="Views\Financiera\VerificarPago.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

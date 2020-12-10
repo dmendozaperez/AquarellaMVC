@@ -1405,7 +1405,7 @@ namespace CapaPresentacion.Controllers
                     sb.Append("<td>" + item.Marca + "</td>");
                     sb.Append("<td>" + item.Descripcion + "</td>");
                     sb.Append("<td align='center'>" + item.IdArticulo + "</td>");
-                    sb.Append("<td align='right'>" + "S/ " + Convert.ToDecimal(string.Format("{0:F2}", item.PrecioSinIgv))+ "</td>");
+                    sb.Append("<td align='right'>" + "S/ " + Convert.ToDecimal(string.Format("{0:F2}", item.PrecioIgv))+ "</td>");
                     sb.Append("<td align='right'>" + "S/ " + Convert.ToDecimal(string.Format("{0:F2}", item.PrecioSinIgv)) + "</td>"); 
                     if (_usuario.usu_tip_id == "04" || _usuario.usu_tip_id == "06")
                     {
