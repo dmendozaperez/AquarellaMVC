@@ -1,0 +1,517 @@
+﻿@{
+    ViewBag.Title = "Validacion de pagos";
+    ViewBag.SubTitle = "";
+}
+<style>
+    .table thead {
+        background-color: #5799bf;
+        color: #fff;
+    }
+
+    .boton-xs-td {
+        padding-top: 5px !important;
+        padding-bottom: 5px !important;
+    }
+
+    .alignRight {
+        text-align: right;
+        vertical-align: middle;
+    }
+
+    .alignCenter {
+        text-align: center;
+        vertical-align: middle;
+    }
+
+
+     .form-control-NotDisabled {
+        background-color: #eee;
+        opacity: 1;
+     }
+
+     .form-control-Disabled {
+        background-color: #F6F5F5;
+        opacity: 1;
+     }
+
+</style>
+<p class="text-primary">Validacion de pagos por medio del archivo del banco.</p>
+<div class="box box-header box-primary">
+    <h3 class="box-title danger" style="color:#9c9c9c;font-weight:bold">Parametro de Busqueda</h3>
+    <br />
+    <br />
+    <form enctype="multipart/form-data">
+        <div class="row">
+            <div class="col-sm-4">
+                <label for="">Entidad recaudadora</label>
+                <div class="form-group">
+                    @Html.DropDownList("ddlBanco", new SelectList(ViewBag.ListarBancos, "Codigo", "Descripcion", null), "--Selecione--", new { @class = "form-control ", @id = "ddlBanco", @name = "ddlBanco" })
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-sm-4">
+                <label for="">Tipo de archivo</label>
+                <div class="form-group">
+                    @Html.DropDownList("ddlTipoArchivo", new List<SelectListItem>
+                {
+                    new SelectListItem{ Text= "--Selecione--", Value = "-1" },
+                    new SelectListItem{ Text= "ARCHIVO DEL DIA", Value = "1" },
+                    new SelectListItem{ Text= "ARCHIVO HISTORIAL", Value = "2" }
+                }, new { @class = "form-control", @id = "ddlTipoArchivo", @name = "ddlTipoArchivo" })
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-sm-4">
+                <div class="form-group" id="divMenArchivo">
+                    <label id="lblMenArchivo" class="control-label">
+                        Adjuntar archivo del Banco
+                    </label>
+                    <div class="input-group Input-Archivo ">
+                        <div class="input-group-btn">
+                            <button id="btnExaminar" class="btn btn-info btn-Examinar" type="button" style="width: 61.5px;">
+                                <i class="glyphicon glyphicon-folder-open" style="color:#FFF"></i>
+                            </button>
+                        </div>
+                        <input id="IdNombre" name="IdNombre" type="text" class="form-control " disabled placeholder='Seleccionar archivo...' />
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-8 text-right">
+                <button name="btnGuardar" id="btnGuardar" title="Guardar" class="btn btn-success" type="button" style="margin-top: 24px;">
+                    <span class="glyphicon glyphicon-floppy-disk"></span> &nbsp;Guardar Datos
+                </button>
+            </div>
+        </div>
+    </form>
+    <br />
+    <div class="row">
+        <div class="col-md-12">
+            <div class="table-responsive">
+                <table id="tbValidarPagos" class="table table-hover table-bordered compact">
+                    <thead>
+                        <tr>
+                            <th style="text-align: center;">Nro. Documento</th>
+                            <th style="text-align: center;">Nro. Pedido</th>
+                            <th style="text-align: center;">Fecha</th>
+                            <th style="text-align: center;">Descripción</th>
+                            <th style="text-align: center;">Monto</th>
+                            <th style="text-align: center;">Num. Operación</th>                         
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td colspan='12'>No se encontraron resultados</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section scripts{
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.13.5/xlsx.full.min.js"></script>
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.13.5/jszip.js"></script>
+
+<script src="~/Scripts/Linkend/linq.min.js"></script>
+<script>
+        var objValPagos = {
+            Inicio: function () {
+                this.isOkUpdate = true;
+
+                this.NumBanco = 0;
+                this.NumTipoArchivo = 0;
+                this.NumDocuemntoIsOk = false;
+                this.NumPedidoIsOk = false;
+                this.DesOperacionIsOk = true;
+
+                objValPagos.general.btnEstado(false, false, false);
+                objValPagos.general.btnfile();
+                objValPagos.grid.get();
+
+                $("#ddlBanco").change(function () {
+
+                    objValPagos.isOkUpdate = true;
+                    objValPagos.grid.cargaTabla();
+                    if (this.value == 0) {
+                        $("#ddlTipoArchivo").val(-1);
+                        objValPagos.general.btnEstado(false, false, false);
+                    } else if (this.value == 4) {
+                        $("#ddlTipoArchivo").val(-1);
+                        objValPagos.general.btnEstado(true,false,false);
+                    } else {
+                        debugger
+                        $("#ddlTipoArchivo").val(-1);
+                        objValPagos.general.btnEstado(false, true,false);                        
+                    }
+                })
+
+                $("#ddlTipoArchivo").change(function () {
+                    objValPagos.isOkUpdate = true;
+                    objValPagos.grid.cargaTabla();
+                    if (this.value == 0) {
+                        objValPagos.general.btnEstado(false, true, false);
+                    } else {
+                        debugger
+                        objValPagos.general.btnEstado(true, true, false);
+                    }
+                })
+
+                $("#btnGuardar").click(function () {
+                    let ddlBanco = $("#ddlBanco").val();
+                    objValPagos.general.Registrar(ddlBanco);
+                });
+
+                $("#IdArchivo").change(function () {                    
+                    if (this.value != "") {
+                        
+                        objValPagos.NumBanco = $("#ddlBanco").val();
+                        objValPagos.NumTipoArchivo = $("#ddlTipoArchivo").val();
+                        if (objValPagos.NumBanco != 4) {
+                            waitingDialog.show("Espere por favor...")
+                            debugger
+                            //[Validar Bancos !=4]
+                            try {
+                                debugger
+                                var fileExtension = ['xls', 'xlsx'];
+                                var filename = this.value;
+                                if (filename.length == 0) {                                    
+                                    swal({ title: "Alerta", text: "Seleccione un archivo de formato correcto", icon: "error" }).then((value) => { });
+                                    $("#IdArchivo").val("");
+                                    $("#IdNombre").val("");
+                                    waitingDialog.hide();
+                                    return false;
+                                }
+                                else {
+                                    var extension = filename.replace(/^.*\./, '');
+                                    if ($.inArray(extension, fileExtension) == -1) {
+                                        swal({ title: "Alerta", text: "Seleccione un archivo de formato correcto", icon: "error" }).then((value) => { });
+                                        $("#IdArchivo").val("");
+                                        $("#IdNombre").val("");
+                                        waitingDialog.hide();
+                                        return false;
+                                    }
+                                }
+                                debugger
+                                
+                                objValPagos.general.ValidarPagos();
+                                debugger;
+
+                            } catch (e) {
+                                swal("Error al cargar archivo excel.");
+                                $("#IdArchivo").val("");
+                                $("#IdNombre").val("");
+                                waitingDialog.hide();
+                            }
+                            //[/Validar Bancos !=4]
+                        }
+                        else
+                        {
+                            waitingDialog.show("Espere por favor...")
+                            debugger
+                            try {
+                                var fileExtension = ['txt'];
+                                var filename = this.value;
+                                if (filename.length == 0) {
+                                    swal({ title: "Alerta", text: "Seleccione un archivo de formato correcto", icon: "error" }).then((value) => { });
+                                    $("#IdArchivo").val("");
+                                    $("#IdNombre").val("");
+                                    waitingDialog.hide();
+                                    return false;
+                                }
+                                else {
+                                    var extension = filename.replace(/^.*\./, '');
+                                    if ($.inArray(extension, fileExtension) == -1) {
+                                        swal({ title: "Alerta", text: "Seleccione un archivo de formato correcto", icon: "error" }).then((value) => { });
+                                        $("#IdArchivo").val("");
+                                        $("#IdNombre").val("");
+                                        waitingDialog.hide();
+                                        return false;
+                                    }
+                                }
+                                debugger
+                               
+                                objValPagos.general.ValidarPagos();
+                                debugger
+                            } catch (e) {
+                                swal("Error al cargar archivo txt.");
+                                $("#IdArchivo").val("");
+                                $("#IdNombre").val("");
+                                waitingDialog.hide();
+                            }                            
+                        }
+                    } else {
+                        $("#btnGuardar").addClass("disabled");
+                        $("#btnGuardar").attr('disabled', 'disabled');
+                        $("#IdArchivo").val("");
+                        $("#IdNombre").val("");
+                        waitingDialog.hide();
+                    }
+                });
+
+
+            },
+            grid: {
+                get: function () {
+                    $('#tbValidarPagos').DataTable({
+                        "language": {
+                            "url": "../Scripts/DataTables/Spanish.json"
+                        },
+                        "bServerSide": true,
+                        "bAutoWidth": false,
+                        "sAjaxSource": '@Url.Action("getListarValidarPagos", "Financiera")',
+                        "fnServerParams": function (aoData) {
+                            aoData.push({ "name": "isOkUpdate", "value": objValPagos.isOkUpdate})
+                        },
+                        "start": 0,
+                        "bdestroy": true,
+                        "columnDefs": [{
+                            "orderable": false,
+                            "targets": [0,1, 2, 3],
+                        }],
+                        "bDeferRender": true,
+                        "aoColumns": [
+                            { "sName": "NumDocuemnto", "mData": "NumDocuemnto", "sClass": "alignCenter", "bVisible": objValPagos.NumDocuemntoIsOk, },
+                            { "sName": "NumPedido", "mData": "NumPedido", "sClass": "alignCenter", "bVisible": objValPagos.NumPedidoIsOk, },
+                            { "sName": "FecOperacion", "mData": "FecOperacion", "sClass": "alignCenter" },
+                            //{
+                            //    "sName": "FecOperacion", "mData": "FecOperacion",
+                            //    "sClass": "alignCenter",
+                            //    "render": function (Data, type, full, meta) {
+                            //        debugger;
+                            //        var Fecha = (full.FecOperacion == undefined || full.FecOperacion == null || full.FecOperacion == 0) ? ' ' : new Date(full.FecOperacion);;
+                            //        return (Fecha == undefined || Fecha == null || Fecha == 0) ? ' ' : Fecha;
+                            //    }
+                            //},
+                            { "sName": "DesOperacion", "mData": "DesOperacion", "sClass": "alignCenter", "bVisible": objValPagos.DesOperacionIsOk },
+                            //{ "sName": "MonOperacion", "mData": "MonOperacion", "sClass": "" },
+                            {
+                                "sName": "MonOperacion", "mData": "MonOperacion", "sClass": "alignRight",
+                                "render": function (Data, type, full, meta) {
+                                    var Monto = parseFloat(full.MonOperacion);
+                                    return (Monto == undefined || Monto == null || Monto == 0) ? ' ' : Monto.toFixed(2);
+                                }
+                            },
+                            { "sName": "NumOperacion", "mData": "NumOperacion", "sClass": "alignCenter" }
+                        ],
+                        "fnRowCallback": function (row, data, index) {
+                        },
+                        "drawCallback": function (settings) {
+                            //actualiza el estado cuando ya se ha listado el grid, cuando hace paginación
+                            objValPagos.isOkUpdate = false;
+                            //objValPagos.NumDocuemntoIsOk = true;
+                            //objValPagos.NumPedidoIsOk = true;
+                        },
+                        "initComplete": function (settings, json) {
+                        }
+                    });
+                },
+                cargaTabla: function () {
+                    //waitingDialog.show("Espere por favor...")
+                    $('#tbValidarPagos').DataTable().ajax.reload(function () {
+                        waitingDialog.hide();
+                    });
+                }
+            },
+            general: {
+                btnfile :function () {
+                    $(".Input-Archivo").before(
+                        function() {
+                            if ( ! $(this).prev().hasClass("Input-File") ) {
+                                var element = $("<input type='file' id ='IdArchivo' class='Input-File' style='visibility:hidden; height:0'>");
+                                element.attr("name",$(this).attr("name"));
+                                element.change(function () {
+                                    
+                                    element.next(element).find('input').val((element.val()).split('\\').pop());
+                                });
+                                $(this).find("button.btn-Examinar").click(function(){
+                                    element.click();
+                                });
+                                $(this).find('input').css("cursor","pointer");
+                                $(this).find('input').mousedown(function() {
+                                    $(this).parents('.Input-Archivo').prev().click();
+                                    return false;
+                                });
+                                debugger
+
+                                return element;
+                            }
+                        }
+                    );
+                },
+                btnEstado: function (btnExaminar, ddlTipoArchivo, btnGuardar) {
+                    debugger
+                    if (btnExaminar) {
+                        $("#btnExaminar").removeClass("disabled");
+                        $("#btnExaminar").removeAttr("disabled");
+                    } else {
+                        $("#btnExaminar").addClass("disabled");
+                        $("#btnExaminar").attr('disabled', 'disabled');
+                    }
+
+                    if (ddlTipoArchivo) {
+                        $("#ddlTipoArchivo").removeClass("disabled");
+                        $("#ddlTipoArchivo").removeAttr("disabled");
+                    } else {
+                        $("#ddlTipoArchivo").addClass("disabled");
+                        $("#ddlTipoArchivo").attr('disabled', 'disabled');
+                    }
+
+                    if (btnGuardar) {
+                        $("#btnGuardar").removeClass("disabled");
+                        $("#btnGuardar").removeAttr("disabled");
+                    } else {
+                        $("#btnGuardar").addClass("disabled");
+                        $("#btnGuardar").attr('disabled', 'disabled');
+                    }
+
+                    $("#IdArchivo").val("");
+                    $("#IdNombre").val("");
+                },
+                ValidarPagos: function () {
+                    try {
+                        debugger
+                        var table = $('#tbValidarPagos').DataTable();
+
+                        var fdata = new FormData();
+                        var fileUpload = $("#IdArchivo").get(0);
+                        var files = fileUpload.files;
+                        fdata.append(files[0].name, files[0]);
+                        fdata.append("NumBanco", objValPagos.NumBanco);
+                        fdata.append("NumTipoArchivo", objValPagos.NumTipoArchivo);
+                       
+                        $.ajax({
+                            type: "POST",
+                            url: '@Url.Action("getValidarArchivo", "Financiera")',
+                            data: fdata,
+                            async: false,
+                            dataType: 'json',
+                            contentType: false,
+                            processData: false,
+                            success: function (data) {
+                                debugger
+                                data = JSON.parse(data);
+                                if (data.Success) {
+                                    swal({ title: "Ok", text: data.Message, icon: "success" }).then((value) => { });
+                                        waitingDialog.hide();
+                                        $('#tbValidarPagos').DataTable().ajax.reload(function () { });
+                                    
+                                    if (data.Data == 4) {                                       
+                                        table.columns([0, 1]).visible(true);
+                                        table.columns([3]).visible(false);
+                                    } else {
+                                        table.columns([0, 1]).visible(false);
+                                        table.columns([3]).visible(true);
+                                    }
+
+                                    $("#IdArchivo").val("");
+                                    //$("#IdNombre").val("");
+
+                                    $("#btnGuardar").removeClass("disabled");
+                                    $("#btnGuardar").removeAttr("disabled");
+                                } else {
+                                    $("#IdArchivo").val("");
+                                    $("#IdNombre").val("");
+                                    $("#btnGuardar").addClass("disabled");
+                                    $("#btnGuardar").attr('disabled', 'disabled');
+                                    swal({ title: "Alerta", text: data.Message, icon: "error" }).then((value) => { });
+                                    waitingDialog.hide();
+                                    objValPagos.isOkUpdate = true;
+                                    $('#tbValidarPagos').DataTable().ajax.reload(function () { });
+                                }
+                            },
+                            error: function (e) {
+                                waitingDialog.hide();
+                                $('#divPrint').html(e.responseText);
+                            }
+                        });
+                    } catch (e) {
+                        swal({ title: "Alerta", text: "Error en la carga", icon: "error" }).then((value) => { });
+                        $("#IdArchivo").val("");
+                        $("#IdNombre").val("");
+                    }
+                },
+                Registrar: function (NumBanco) {
+                    try {
+                        debugger
+                        var table = $('#tbValidarPagos').DataTable();
+                        
+                        swal({
+                            title: "¿Seguro que que desea grabar el archivo?",
+                            text: "",
+                            icon: "warning",
+                            buttons: ["No", "Si"],
+                            dangerMode: true,
+                        }).then((cambiar) => {
+                            if (cambiar) {
+                                waitingDialog.show("Espere un momento por favor.")
+                                $.ajax({
+                                    type: "POST",
+                                    url: '@Url.Action("getRegistrarArchivo", "Financiera")',
+                                    data: { NumBanco: NumBanco },
+                                    async: false,
+                                    success: function (data) {
+                                        debugger
+                                        data = JSON.parse(data);
+                                        if (data.Success) {
+                                            swal({ title: "Ok", text: data.Message, icon: "success" }).then((value) => { });
+                                            waitingDialog.hide();
+                                            objValPagos.isOkUpdate = true;
+                                            $('#tbValidarPagos').DataTable().ajax.reload(function () { });
+
+                                            if (data.Data == 4) {
+                                                debugger
+                                                table.columns([0, 1]).visible(true);
+                                                table.columns([3]).visible(false);
+                                                $("#ddlTipoArchivo").val(-1);
+                                                objValPagos.general.btnEstado(true,false,false);
+                                            } else {
+                                                table.columns([0, 1]).visible(false);
+                                                table.columns([3]).visible(true);
+                                                $("#ddlTipoArchivo").val(-1);
+                                                objValPagos.general.btnEstado(false, true, false);
+                                            }
+                                            $("#IdArchivo").val("");
+                                           // $("#IdNombre").val("");
+                                        } else {
+                                            $("#IdArchivo").val("");
+                                            $("#IdNombre").val("");
+                                            swal({ title: "Alerta", text: data.Message, icon: "error" }).then((value) => { });
+                                            waitingDialog.hide();
+                                            objValPagos.isOkUpdate = true;
+                                            $('#tbValidarPagos').DataTable().ajax.reload(function () { });
+                                            if (data.Data == 4) {
+                                                debugger
+                                                table.columns([0, 1]).visible(true);
+                                                table.columns([3]).visible(false);
+                                                $("#ddlTipoArchivo").val(-1);
+                                                objValPagos.general.btnEstado(true, false, false);
+                                            } else {
+                                                table.columns([0, 1]).visible(false);
+                                                table.columns([3]).visible(true);
+                                                $("#ddlTipoArchivo").val(-1);
+                                                objValPagos.general.btnEstado(false, true, false);
+                                            }
+
+                                        }
+                                    },
+                                    error: function (e) {
+
+                                    }
+                                });
+                            }
+                        })                        
+                    } catch (e) {
+                        swal({ title: "Alerta", text: "Error al registrar.", icon: "error" }).then((value) => { });
+                    }
+                }
+            }
+        };
+
+        $(document).ready(function () {
+            objValPagos.Inicio();
+        });
+</script>
+}

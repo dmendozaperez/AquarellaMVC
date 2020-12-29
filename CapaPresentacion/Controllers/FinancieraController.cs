@@ -19,7 +19,10 @@ using System.Linq;
 using System.Web;
 using System.Web.Mvc;
 using System.IO;
+using System.Text;
 using Newtonsoft.Json;
+using System.Data.OleDb;
+using System.Globalization;
 
 namespace CapaPresentacion.Controllers
 {
@@ -41,6 +44,10 @@ namespace CapaPresentacion.Controllers
         private string _session_listClienteBanco_Txt = "_session_listClienteBanco_Txt";
         private string _session_ListarClientePagos = "_session_ListarClientePagos";
         private string _session_ListarVerificarPagos = "_session_ListarVerificarPagos";
+        private string _session_ListarVentaSemanal = "_session_ListarVentaSemanal";
+        private string _session_ListarVentaSemanal_Excel = "_session_ListarVentaSemanal_Excel";
+        private string _session_listSaldosAnticipos = "_session_listSaldosAnticipos";
+        private string _session_ListarValidarPagos = "_session_ListarValidarPagos";
         // GET: Financiera
         public ActionResult Index()
         {
@@ -1213,6 +1220,1259 @@ namespace CapaPresentacion.Controllers
 
             return Json(JSON, JsonRequestBehavior.AllowGet);
         }
+        #endregion
+
+        #region <REPORTE SEMANAL>
+
+        /// <summary>
+        /// Vista que muestra el listado del reporte semanal
+        /// </summary>
+        /// <returns></returns>
+        public ActionResult ReporteSemanal()
+        {
+            Ent_Usuario _usuario = (Ent_Usuario)Session[Ent_Constantes.NameSessionUser];
+            string actionName = this.ControllerContext.RouteData.GetRequiredString("action");
+            string controllerName = this.ControllerContext.RouteData.GetRequiredString("controller");
+            string return_view = actionName + "|" + controllerName;
+
+            if (_usuario == null)
+            {
+                return RedirectToAction("Login", "Control", new { returnUrl = return_view });
+            }
+            else
+            {
+                Ent_Venta_Semanal EntVentaSemanal = new Ent_Venta_Semanal();
+                ViewBag.EntVentaSemanal = EntVentaSemanal;
+                return View();
+            }
+        }
+        /// <summary>
+        ///  Listado del reporte semanal
+        /// </summary>
+        /// <param name="param"></param>
+        /// <param name="FechaInicio"></param>
+        /// <param name="FechaFin"></param>
+        /// <param name="isOkUpdate"></param>
+        /// <returns></returns>
+        [HttpGet]
+        public JsonResult getListaVentaSemanalAjax(Ent_jQueryDataTableParams param, string FechaInicio, string FechaFin, bool isOkUpdate)
+        {
+            Ent_Venta_Semanal Ent_Lista_Venta_Semanal = new Ent_Venta_Semanal();
+            JsonResponse objResult = new JsonResponse();
+            DateTime time = new DateTime();
+            if (isOkUpdate)
+            {
+                Ent_Lista_Venta_Semanal.FechaInicio = DateTime.Parse(FechaInicio);
+                Ent_Lista_Venta_Semanal.FechaFin = DateTime.Parse(FechaFin);
+                
+                DataTable dtVentaSemanal = new DataTable();
+                dtVentaSemanal.Columns.Add("Dtv_Clear", typeof(string));
+                dtVentaSemanal.Columns.Add("Promotor", typeof(string));
+                dtVentaSemanal.Columns.Add("DniRuc", typeof(string));
+                dtVentaSemanal.Columns.Add("Ped", typeof(string));
+                dtVentaSemanal.Columns.Add("BolFact", typeof(string));
+                dtVentaSemanal.Columns.Add("FechaDoc", typeof(string));
+                dtVentaSemanal.Columns.Add("MontoFac", typeof(Decimal));
+                dtVentaSemanal.Columns.Add("NroVouBcp", typeof(string));
+                dtVentaSemanal.Columns.Add("FechavouBcp", typeof(string));
+                dtVentaSemanal.Columns.Add("MontoVouBcp", typeof(Decimal));
+                dtVentaSemanal.Columns.Add("NroVisa", typeof(string));
+                dtVentaSemanal.Columns.Add("FechaVisa", typeof(string));
+                dtVentaSemanal.Columns.Add("MontoVisa", typeof(Decimal));
+                dtVentaSemanal.Columns.Add("Nronc", typeof(string));
+                dtVentaSemanal.Columns.Add("Fechanc", typeof(string));
+                dtVentaSemanal.Columns.Add("Montonc", typeof(Decimal));
+                dtVentaSemanal.Columns.Add("FechaSaldoant", typeof(string));
+                dtVentaSemanal.Columns.Add("MontoSaldoant", typeof(Decimal));
+                dtVentaSemanal.Columns.Add("TotalPagos", typeof(Decimal));
+                dtVentaSemanal.Columns.Add("SaldoFavor", typeof(Decimal));
+                dtVentaSemanal.Columns.Add("Id", typeof(int));
+
+                List<Ent_Venta_Semanal> _listar_Venta_Semanal = datDocumento_Transaccion.Listar_Venta_Semanal(Ent_Lista_Venta_Semanal);
+                //Filtra y agrupa por Dtv_Clear no null
+                var ListarVentas = _listar_Venta_Semanal.Where(w => w.Dtv_Clear != string.Empty).GroupBy(x => new { x.Dtv_Clear }).Select(y => new { Cabecera = y.Key, Detalle = y.Select(m => new { Dtv_Clear = m.Dtv_Clear, Promotor = m.Promotor, DniRuc = m.DniRuc, Ped = m.Ped, BolFact = m.BolFact, FechaDoc = m.FechaDoc, MontoFac = m.MontoFac, TotalPagos = m.TotalPagos, SaldoFavor = m.SaldoFavor, NroVouBcp = m.NroVouBcp, FechavouBcp = m.FechavouBcp, MontoVouBcp = m.MontoVouBcp, NroVisa = "", FechaVisa = "", MontoVisa = "", Nronc = m.Nronc, Fechanc = m.Fechanc, Montonc = m.Montonc, FechaSaldoant = m.FechaSaldoant, MontoSaldoant = m.MontoSaldoant }) }).ToList();
+
+                var Fila = 0; //Inicia la fila
+                var vc = 0; //Inicia Vouches
+                var nc = 0; //Inicia Nota de credito
+                var sl = 0; //Inicia Saldo
+                var VM = 0; //Inicia el valor mayor, configura la cantidad de filas por grupo.
+                string Promotor="";
+                string DniRuc = "";
+                foreach (var c in ListarVentas)
+                {
+                    VM = 0;
+                    var BalFac = c.Detalle.Where(w => w.Promotor != string.Empty && w.Dtv_Clear != string.Empty).Select(s => new { Dtv_Clear = s.Dtv_Clear, Promotor = s.Promotor, DniRuc = s.DniRuc, Ped = s.Ped, BolFact = s.BolFact, FechaDoc = s.FechaDoc, MontoFac = s.MontoFac, TotalPagos = s.TotalPagos, SaldoFavor = s.SaldoFavor }).Distinct().ToList();
+                    VM = (VM > BalFac.Count() ? VM : BalFac.Count());
+                    var Vouch = c.Detalle.Where(w => w.NroVouBcp != string.Empty).Select(s => new { Dtv_Clear = s.Dtv_Clear, NroVouBcp = s.NroVouBcp, FechavouBcp = s.FechavouBcp, MontoVouBcp = s.MontoVouBcp }).OrderBy(x => x.NroVouBcp).ToList();
+                    VM = (VM > Vouch.Count() ? VM : Vouch.Count());
+                    var NC = c.Detalle.Where(w => w.Nronc != string.Empty).Select(s => new { Dtv_Clear = s.Dtv_Clear, Nronc = s.Nronc, Fechanc = s.Fechanc, Montonc = s.Montonc, }).OrderBy(x => x.Nronc).ToList();
+                    VM = (VM > NC.Count() ? VM : NC.Count());
+                    var Saldo = c.Detalle.Where(w => w.FechaSaldoant != string.Empty).Select(s => new { Dtv_Clear = s.Dtv_Clear, FechaSaldoant = s.FechaSaldoant, MontoSaldoant = s.MontoSaldoant }).ToList();
+                    VM = (VM > Saldo.Count() ? VM : Saldo.Count());
+
+                    //Arma la cantidad de filas por grupos
+                    for (int i = 0; i < VM; i++)
+                    {
+                        dtVentaSemanal.Rows.Add();
+                    }
+
+                    foreach (var d in BalFac)
+                    {
+                        Promotor = d.Promotor;
+                        DniRuc = d.DniRuc;
+                        dtVentaSemanal.Rows[Fila]["Id"] = 1;
+                        dtVentaSemanal.Rows[Fila]["Dtv_Clear"] = d.Dtv_Clear;
+                        dtVentaSemanal.Rows[Fila]["Promotor"] = d.Promotor;
+                        dtVentaSemanal.Rows[Fila]["DniRuc"] = d.DniRuc;
+                        dtVentaSemanal.Rows[Fila]["Ped"] = d.Ped;
+                        dtVentaSemanal.Rows[Fila]["BolFact"] = d.BolFact;
+                        dtVentaSemanal.Rows[Fila]["FechaDoc"] = d.FechaDoc;
+                        dtVentaSemanal.Rows[Fila]["MontoFac"] = d.MontoFac;
+                        dtVentaSemanal.Rows[Fila]["TotalPagos"] = d.TotalPagos;
+                        dtVentaSemanal.Rows[Fila]["SaldoFavor"] = d.SaldoFavor;
+                    }
+                    vc = 0;
+                    foreach (var d in Vouch)
+                    {
+                        dtVentaSemanal.Rows[Fila + vc]["Dtv_Clear"] = d.Dtv_Clear;
+                        dtVentaSemanal.Rows[Fila + vc]["Promotor"] = Promotor;
+                        dtVentaSemanal.Rows[Fila + vc]["DniRuc"] = DniRuc;
+                        dtVentaSemanal.Rows[Fila + vc]["NroVouBcp"] = d.NroVouBcp;
+                        dtVentaSemanal.Rows[Fila + vc]["FechavouBcp"] = d.FechavouBcp;
+                        dtVentaSemanal.Rows[Fila + vc]["MontoVouBcp"] = d.MontoVouBcp;
+                        vc++;
+                    }
+                    nc = 0;
+                    foreach (var d in NC)
+                    {
+                        dtVentaSemanal.Rows[Fila + nc]["Dtv_Clear"] = d.Dtv_Clear;
+                        dtVentaSemanal.Rows[Fila + nc]["Promotor"] = Promotor;
+                        dtVentaSemanal.Rows[Fila + nc]["DniRuc"] = DniRuc;
+                        dtVentaSemanal.Rows[Fila + nc]["Nronc"] = d.Nronc;
+                        dtVentaSemanal.Rows[Fila + nc]["Fechanc"] = d.Fechanc;
+                        dtVentaSemanal.Rows[Fila + nc]["Montonc"] = d.Montonc;
+                        nc++;
+                    }
+                    sl = 0;
+                    foreach (var d in Saldo)
+                    {
+                        dtVentaSemanal.Rows[Fila + sl]["Dtv_Clear"] = d.Dtv_Clear;
+                        dtVentaSemanal.Rows[Fila + sl]["Promotor"] = Promotor;
+                        dtVentaSemanal.Rows[Fila + sl]["DniRuc"] = DniRuc;
+                        dtVentaSemanal.Rows[Fila + sl]["FechaSaldoant"] = d.FechaSaldoant;
+                        dtVentaSemanal.Rows[Fila + sl]["MontoSaldoant"] = d.MontoSaldoant;
+                        sl++;
+                    }
+                    DniRuc = "";
+                    Promotor = "";
+                    Fila += (VM);
+                }
+
+                IList<Ent_Venta_Semanal> _Listar_Venta_Semanal = dtVentaSemanal.AsEnumerable().Select(row =>
+                    new Ent_Venta_Semanal
+                    {
+                        Id = row.Field<int?>("Id"),
+                        Dtv_Clear = row.Field<string>("Dtv_Clear"),
+                        Promotor = row.Field<string>("Promotor"),
+                        DniRuc = row.Field<string>("DniRuc"),
+                        Ped = row.Field<string>("Ped"),
+                        BolFact = row.Field<string>("BolFact"),
+                        FechaDoc = row.Field<string>("FechaDoc"),
+                        MontoFac = row.Field<Decimal?>("MontoFac"),
+                        NroVouBcp = row.Field<string>("NroVouBcp"),
+                        FechavouBcp = row.Field<string>("FechavouBcp"),
+                        MontoVouBcp = row.Field<Decimal?>("MontoVouBcp"),
+                        NroVisa = row.Field<string>("NroVisa"),
+                        FechaVisa = row.Field<string>("FechaVisa"),
+                        MontoVisa = row.Field<Decimal?>("MontoVisa"),
+                        Nronc = row.Field<string>("Nronc"),
+                        Fechanc = row.Field<string>("Fechanc"),
+                        Montonc = row.Field<Decimal?>("Montonc"),
+                        FechaSaldoant = row.Field<string>("FechaSaldoant"),
+                        MontoSaldoant = row.Field<Decimal?>("MontoSaldoant"),
+                        TotalPagos = row.Field<Decimal?>("TotalPagos"),
+                        SaldoFavor = row.Field<Decimal?>("SaldoFavor")
+                    }).ToList();
+
+                 Session[_session_ListarVentaSemanal] = _Listar_Venta_Semanal;
+            }
+
+            /*verificar si esta null*/
+            if (Session[_session_ListarVentaSemanal] == null)
+            {
+                List<Ent_Venta_Semanal> Listar_Venta_Semanal = new List<Ent_Venta_Semanal>();
+                Session[_session_ListarVentaSemanal] = Listar_Venta_Semanal;
+            }
+
+            IQueryable<Ent_Venta_Semanal> entDocTrans = ((List<Ent_Venta_Semanal>)(Session[_session_ListarVentaSemanal])).AsQueryable();
+
+            //Manejador de filtros
+            int totalCount = entDocTrans.Count();
+            IEnumerable<Ent_Venta_Semanal> filteredMembers = entDocTrans;
+            if (!string.IsNullOrEmpty(param.sSearch))
+            {                
+                filteredMembers = entDocTrans.Where(
+                        m =>
+                        (!string.IsNullOrEmpty(m.Promotor) && m.Promotor.ToUpper().Contains(param.sSearch.ToUpper())) ||
+                        (!string.IsNullOrEmpty(m.DniRuc) && m.DniRuc.ToUpper().Contains(param.sSearch.ToUpper())) ||
+                        (!string.IsNullOrEmpty(m.Ped) && m.Ped.ToUpper().Contains(param.sSearch.ToUpper())) ||
+                        (!string.IsNullOrEmpty(m.BolFact) && m.BolFact.ToUpper().Contains(param.sSearch.ToUpper())) ||
+                        (!string.IsNullOrEmpty(m.FechaDoc) && m.FechaDoc.ToUpper().Contains(param.sSearch.ToUpper())) 
+                );
+            }
+            //Manejador de orden
+            var sortIdx = Convert.ToInt32(Request["iSortCol_0"]);
+
+            if (param.iSortingCols > 0)
+            {
+                if (Request["sSortDir_0"].ToString() == "asc")
+                {
+                    switch (sortIdx)
+                    {
+                        case 0: filteredMembers = filteredMembers.OrderBy(o => o.Dtv_Clear); break;
+                        case 1: filteredMembers = filteredMembers.OrderBy(o => o.Promotor); break;
+                        case 2: filteredMembers = filteredMembers.OrderBy(o => o.DniRuc); break;
+                        case 3: filteredMembers = filteredMembers.OrderBy(o => o.Ped); break;
+                        case 4: filteredMembers = filteredMembers.OrderBy(o => o.BolFact); break;
+                        case 5: filteredMembers = filteredMembers.OrderBy(o => o.FechaDoc); break;
+                        case 6: filteredMembers = filteredMembers.OrderBy(o => Convert.ToDecimal(o.MontoFac)); break;
+                        case 7: filteredMembers = filteredMembers.OrderBy(o => o.NroVouBcp); break;
+                        case 8: filteredMembers = filteredMembers.OrderBy(o => o.FechavouBcp); break;
+                        case 9: filteredMembers = filteredMembers.OrderBy(o => Convert.ToDecimal(o.MontoVouBcp)); break;
+                        case 10: filteredMembers = filteredMembers.OrderBy(o => o.NroVisa); break;
+                        case 11: filteredMembers = filteredMembers.OrderBy(o => o.FechaVisa); break;
+                        case 12: filteredMembers = filteredMembers.OrderBy(o => Convert.ToDecimal(o.MontoVisa)); break;
+                        case 13: filteredMembers = filteredMembers.OrderBy(o => o.Nronc); break;
+                        case 14: filteredMembers = filteredMembers.OrderBy(o => o.Fechanc); break;
+                        case 15: filteredMembers = filteredMembers.OrderBy(o => Convert.ToDecimal(o.Montonc)); break;
+                        case 16: filteredMembers = filteredMembers.OrderBy(o => o.FechaSaldoant); break;
+                        case 17: filteredMembers = filteredMembers.OrderBy(o => Convert.ToDecimal(o.MontoSaldoant)); break;
+                        case 18: filteredMembers = filteredMembers.OrderBy(o => Convert.ToDecimal(o.TotalPagos)); break;
+                        case 19: filteredMembers = filteredMembers.OrderBy(o => Convert.ToDecimal(o.SaldoFavor)); break;
+                    }
+                }
+                else
+                {
+                    switch (sortIdx)
+                    {                        
+                        case 0: filteredMembers = filteredMembers.OrderByDescending(o => o.Dtv_Clear); break;
+                        case 1: filteredMembers = filteredMembers.OrderByDescending(o => o.Promotor); break;
+                        case 2: filteredMembers = filteredMembers.OrderByDescending(o => o.DniRuc); break;
+                        case 3: filteredMembers = filteredMembers.OrderByDescending(o => o.Ped); break;
+                        case 4: filteredMembers = filteredMembers.OrderByDescending(o => o.BolFact); break;
+                        case 5: filteredMembers = filteredMembers.OrderByDescending(o => o.FechaDoc); break;
+                        case 6: filteredMembers = filteredMembers.OrderByDescending(o => Convert.ToDecimal(o.MontoFac)); break;
+                        case 7: filteredMembers = filteredMembers.OrderByDescending(o => o.NroVouBcp); break;
+                        case 8: filteredMembers = filteredMembers.OrderByDescending(o => o.FechavouBcp); break;
+                        case 9: filteredMembers = filteredMembers.OrderByDescending(o => Convert.ToDecimal(o.MontoVouBcp)); break;
+                        case 10: filteredMembers = filteredMembers.OrderByDescending(o => o.NroVisa); break;
+                        case 11: filteredMembers = filteredMembers.OrderByDescending(o => o.FechaVisa); break;
+                        case 12: filteredMembers = filteredMembers.OrderByDescending(o => Convert.ToDecimal(o.MontoVisa)); break;
+                        case 13: filteredMembers = filteredMembers.OrderByDescending(o => o.Nronc); break;
+                        case 14: filteredMembers = filteredMembers.OrderByDescending(o => o.Fechanc); break;
+                        case 15: filteredMembers = filteredMembers.OrderByDescending(o => Convert.ToDecimal(o.Montonc)); break;
+                        case 16: filteredMembers = filteredMembers.OrderByDescending(o => o.FechaSaldoant); break;
+                        case 17: filteredMembers = filteredMembers.OrderByDescending(o => Convert.ToDecimal(o.MontoSaldoant)); break;
+                        case 18: filteredMembers = filteredMembers.OrderByDescending(o => Convert.ToDecimal(o.TotalPagos)); break;
+                        case 19: filteredMembers = filteredMembers.OrderByDescending(o => Convert.ToDecimal(o.SaldoFavor)); break;
+                    }
+                }
+            }
+
+            var displayMembers = filteredMembers
+                .Skip(param.iDisplayStart)
+                .Take(param.iDisplayLength);
+
+            var Result = from a in displayMembers
+                         select new
+                         {
+                            a.Id,
+                            a.Dtv_Clear,
+                            a.Promotor,
+                            a.DniRuc,
+                            a.Ped,
+                            a.BolFact,
+                            a.FechaDoc,
+                            a.MontoFac,
+                            a.NroVouBcp,
+                            a.FechavouBcp,
+                            a.MontoVouBcp,
+                            a.NroVisa,
+                            a.FechaVisa,
+                            a.MontoVisa,
+                            a.Nronc,
+                            a.Fechanc,
+                            a.Montonc,
+                            a.FechaSaldoant,
+                            a.MontoSaldoant,
+                            a.TotalPagos,
+                            a.SaldoFavor
+                         };
+
+            //Se devuelven los resultados por json
+            return Json(new
+            {
+                sEcho = param.sEcho,
+                iTotalRecords = totalCount,
+                iTotalDisplayRecords = filteredMembers.Count(),
+                aaData = Result
+            }, JsonRequestBehavior.AllowGet);
+        }
+        /// <summary>
+        /// Valida la cantidad de data y crea el excel
+        /// </summary>
+        /// <param name="_Ent"></param>
+        /// <returns></returns>
+        public ActionResult get_exporta_ListaVentaSemanal_excel(Ent_Venta_Semanal _Ent)
+        {
+            JsonResponse objResult = new JsonResponse();
+            try
+            {
+                Session[_session_ListarVentaSemanal_Excel] = null;
+                string cadena = "";
+                if (Session[_session_ListarVentaSemanal] != null)
+                {
+
+                    List<Ent_Venta_Semanal> Listar_Venta_Semanal = (List<Ent_Venta_Semanal>)Session[_session_ListarVentaSemanal];
+                    if (Listar_Venta_Semanal.Count == 0)
+                    {
+                        objResult.Success = false;
+                        objResult.Message = "No hay filas para exportar";
+                    }
+                    else
+                    {
+                        cadena = get_html_ListaVentaSemanal_str((List<Ent_Venta_Semanal>)Session[_session_ListarVentaSemanal], _Ent);
+                        if (cadena.Length == 0)
+                        {
+                            objResult.Success = false;
+                            objResult.Message = "Error del formato html";
+                        }
+                        else
+                        {
+                            objResult.Success = true;
+                            objResult.Message = "Se genero el excel correctamente";
+                            Session[_session_ListarVentaSemanal_Excel] = cadena;
+                        }
+                    }
+                }
+                else
+                {
+                    objResult.Success = false;
+                    objResult.Message = "No hay filas para exportar";
+                }
+
+            }
+            catch (Exception ex)
+            {
+                objResult.Success = false;
+                objResult.Message = "No hay filas para exportar";
+            }
+
+            var JSON = JsonConvert.SerializeObject(objResult);
+
+            return Json(JSON, JsonRequestBehavior.AllowGet);
+        }
+        /// <summary>
+        /// Genera el excel del ReporteSemanal
+        /// </summary>
+        /// <param name="ListaVentaSemanal"></param>
+        /// <param name="ent"></param>
+        /// <returns></returns>
+        public string get_html_ListaVentaSemanal_str(List<Ent_Venta_Semanal> ListaVentaSemanal, Ent_Venta_Semanal ent)
+        {
+            StringBuilder sb = new StringBuilder();
+            int intcounT = 0;
+            int intCell = 1;
+            try
+            {
+                //Lista por grupos
+                var Lista = ListaVentaSemanal
+               .GroupBy(x => new
+               {
+                   x.Dtv_Clear
+               }).Select(y => new
+               {
+                   Padre = y.Key,
+                   Hijos = y.Select(m => new
+                   {
+                       Id = m.Id,
+                       Dtv_Clear = m.Dtv_Clear,
+                       Promotor = m.Promotor,
+                       DniRuc = m.DniRuc,
+                       Ped = m.Ped,
+                       BolFact = m.BolFact,
+                       FechaDoc = m.FechaDoc,
+                       MontoFac = m.MontoFac,
+
+                       TotalPagos = m.TotalPagos,
+                       SaldoFavor = m.SaldoFavor,
+
+                       NroVouBcp = m.NroVouBcp,
+                       FechavouBcp = m.FechavouBcp,
+                       MontoVouBcp = m.MontoVouBcp,
+                       NroVisa = m.NroVisa,
+                       FechaVisa = m.FechaVisa,
+                       MontoVisa = m.MontoVisa,
+
+                       Nronc = m.Nronc,
+                       Fechanc = m.Fechanc,
+                       Montonc = m.Montonc,
+                       FechaSaldoant = m.FechaSaldoant,
+                       MontoSaldoant = m.MontoSaldoant
+
+                   })
+               }).ToList();
+
+                sb.Append("<div><table cellspacing='0' rules='all' border='0' style='border-collapse:collapse;'><tr><td Colspan='19'></td></tr><tr><td Colspan='19' valign='middle' align='center' style='vertical-align: middle;font-size: 16.0pt;font-weight: bold;color:#285A8F'>REPORTE DE VENTA SEMANAL</td></tr><tr><td Colspan='19'  valign='middle' align='center' style='font-size: 10.0pt;font-weight: bold;vertical-align: middle'>DESDE EL " + String.Format("{0:dd/MM/yyyy}", ent.FechaInicio) + " HASTA EL " + String.Format("{0:dd/MM/yyyy}", ent.FechaFin) + "</td></tr></table>");
+                sb.Append("<table  border='1' bgColor='#ffffff' borderColor='#FFFFFF' cellSpacing='5' cellPadding='5' style='font-size:10.0pt; font-family:Calibri; background:white;'><tr  bgColor='#5799bf'>\n");
+                sb.Append("<tr bgColor='#5799bf'>\n");
+                sb.Append("<th colspan='3'></th>\n");
+                sb.Append("<th colspan='3' style='text-align: center;'><font color='#FFFFFF'>Datos del Documento Boleta o Factura</font></th>\n");
+                sb.Append("<th colspan='3' style='text-align: center;'><font color='#FFFFFF'>Deposito del Banco de Credito</font></th>\n");
+                sb.Append("<th colspan='3' style='text-align: center;'><font color='#FFFFFF'>Deposito de Visa Unica</font></th>\n");
+                sb.Append("<th colspan='3' style='text-align: center;'><font color='#FFFFFF'>Datos de la Nota de Credito</font></th>\n");
+                sb.Append("<th colspan='2' style='text-align: center;'><font color='#FFFFFF'>Saldo Anterior</font></th>\n");
+                sb.Append("<th colspan='2'></th>\n");
+                sb.Append("</tr>\n");
+                sb.Append("<tr bgColor='#5799bf'>\n");
+                sb.Append("<th style='text-align: center;'><font color='#FFFFFF'>Promotor</font></th>\n");
+                sb.Append("<th style='text-align: center;'><font color='#FFFFFF'>Dni/Ruc</font></th>\n");
+                sb.Append("<th style='text-align: center;'><font color='#FFFFFF'>Ped</font></th>\n");
+                sb.Append("<th style='text-align: center;'><font color='#FFFFFF'>Número</font></th>\n");
+                sb.Append("<th style='text-align: center;'><font color='#FFFFFF'>Fecha</font></th>\n");
+                sb.Append("<th style='text-align: center;'><font color='#FFFFFF'>Monto</font></th>\n");
+                sb.Append("<th style='text-align: center;'><font color='#FFFFFF'>Número</font></th>\n");
+                sb.Append("<th style='text-align: center;'><font color='#FFFFFF'>Fecha</font></th>\n");
+                sb.Append("<th style='text-align: center;'><font color='#FFFFFF'>Monto</font></th>\n");
+                sb.Append("<th style='text-align: center;'><font color='#FFFFFF'>Número</font></th>\n");
+                sb.Append("<th style='text-align: center;'><font color='#FFFFFF'>Fecha</font></th>\n");
+                sb.Append("<th style='text-align: center;'><font color='#FFFFFF'>Monto</font></th>\n");
+                sb.Append("<th style='text-align: center;'><font color='#FFFFFF'>Número</font></th>\n");
+                sb.Append("<th style='text-align: center;'><font color='#FFFFFF'>Fecha</font></th>\n");
+                sb.Append("<th style='text-align: center;'><font color='#FFFFFF'>Monto</font></th>\n");
+                sb.Append("<th style='text-align: center;'><font color='#FFFFFF'>Fecha</font></th>\n");
+                sb.Append("<th style='text-align: center;'><font color='#FFFFFF'>Monto</font></th>\n");
+                sb.Append("<th style='text-align: center;'><font color='#FFFFFF'>Tot. Pagar</font></th>\n");
+                sb.Append("<th style='text-align: center;'><font color='#FFFFFF'>Sal. Favor</font></th>\n");
+                sb.Append("</tr>\n");
+
+                string tdSColor = "";
+                string tdBorder = "";
+                Decimal? Stotal = 0;
+                foreach (var itemP in Lista)
+                {
+                    foreach (var itemH in itemP.Hijos)
+                    {
+                        if (itemH.MontoFac != null) Stotal += itemH.MontoFac;
+                        sb.Append("<tr>\n");
+                       if (itemH.Id == 1) tdBorder = "border-top:solid 1px;";
+
+                        if (intcounT == 0)
+                        {
+                            intcounT = itemP.Hijos.Count();
+                            sb.Append("<td bgcolor='#7FCCF4' style='vertical-align: middle; "  + tdBorder + "' rowspan='" + intcounT + "'>" + ((itemH.Promotor == null) ? string.Empty : itemH.Promotor) + "</td>\n");
+                            sb.Append("<td bgcolor='#7FCCF4' style='text-align: center; vertical-align: middle; " + tdBorder + "' rowspan='" + intcounT + "'>" + ((itemH.DniRuc == null) ? string.Empty : itemH.DniRuc) + "</td>\n");
+                        }
+                                      
+                        sb.Append("<td bgcolor='#7FCCF4' align='center' style='" + tdBorder + "'>" + ((itemH.Ped == null) ? string.Empty : itemH.Ped) + "</td>\n");
+                        sb.Append("<td bgcolor='#B1DEF6' align='center' style='" + tdBorder + "'>" + ((itemH.BolFact == null) ? string.Empty : itemH.BolFact) + "</td>\n");
+                        sb.Append("<td bgcolor='#B1DEF6' align='center' style='" + tdBorder + "'>" + ((itemH.FechaDoc == null) ? string.Empty : itemH.FechaDoc) + "</td>\n");
+                        sb.Append("<td bgcolor='#B1DEF6' align='right' style='" + tdBorder + "'>" + ((itemH.MontoFac == null) ? (Decimal?)null : Convert.ToDecimal(string.Format("{0:F2}", itemH.MontoFac))) + "</td>\n");
+                        sb.Append("<td bgcolor='#B1DEF6' align='center' style='" + tdBorder + "'>" + ((itemH.NroVouBcp == null) ? string.Empty : itemH.NroVouBcp) + "</td>\n");
+                        sb.Append("<td bgcolor='#B1DEF6' align='center'style='" + tdBorder + "'>" + ((itemH.FechavouBcp == null) ? string.Empty : itemH.FechavouBcp) + "</td>\n");
+                        sb.Append("<td bgcolor='#B1DEF6' align='right' style='" + tdBorder + "'>" + ((itemH.MontoVouBcp == null) ? (Decimal?)null : Convert.ToDecimal(string.Format("{0:F2}", itemH.MontoVouBcp))) + "</td>\n");
+                        sb.Append("<td align='center' style='" + tdBorder + "'>"  + ((itemH.NroVisa == null) ? string.Empty : itemH.NroVisa) + "</td>\n");
+                        sb.Append("<td align='center' style='" + tdBorder + "'>" + ((itemH.FechaVisa == null) ? string.Empty : itemH.FechaVisa) + "</td>\n");
+                        sb.Append("<td align='right' style='" + tdBorder + "'>" + ((itemH.MontoVisa == null) ? (Decimal?)null : Convert.ToDecimal(string.Format("{0:F2}", itemH.MontoVisa))) + "</td>\n");
+                        sb.Append("<td align='center' style='" + tdBorder + "'>" + ((itemH.Nronc == null) ? string.Empty : itemH.Nronc) + "</td>\n");
+                        sb.Append("<td align='center' style='" + tdBorder + "'>" + ((itemH.Fechanc == null) ? string.Empty : itemH.Fechanc) + "</td>\n");
+                        sb.Append("<td align='right' style='" + tdBorder + "'>" + ((itemH.Montonc == null) ? (Decimal?)null : Convert.ToDecimal(string.Format("{0:F2}", itemH.Montonc))) + "</td>\n");
+                        sb.Append("<td align='center' style='" + tdBorder + "'>" + ((itemH.FechaSaldoant == null) ? string.Empty : itemH.FechaSaldoant) + "</td>\n");
+                        sb.Append("<td align='right' style='" + tdBorder + "'>" + ((itemH.MontoSaldoant == null) ? (Decimal?)null : Convert.ToDecimal(string.Format("{0:F2}", itemH.MontoSaldoant))) + "</td>\n");
+                        sb.Append("<td bgcolor='#0397E7' align='right' style='font-weight: bold; " + tdBorder + "'><font color='#FFFFFF'>" + ((itemH.TotalPagos == null) ? (Decimal?)null : Convert.ToDecimal(string.Format("{0:F2}", itemH.TotalPagos))) + "</font></td>\n");
+                        sb.Append("<td bgcolor='#0397E7' align='right' style='font-weight: bold; " + tdBorder + "''><font color='#FFFFFF'>" + ((itemH.SaldoFavor == null) ? (Decimal?)null : Convert.ToDecimal(string.Format("{0:F2}", itemH.SaldoFavor))) + "</font></td>\n");
+                                               
+                        sb.Append("</tr>\n");
+                        intCell++;
+                        tdBorder = "";
+                    }
+                    intcounT = 0;
+                   
+                    intCell = 1;
+                }
+                
+                sb.Append("<tfoot>\n");
+                sb.Append("<tr bgcolor='#0397E7'>\n");
+                sb.Append("<td colspan='4'></td>\n");
+                sb.Append("<td style='text-align:center;font-weight: bold;font-size:11.0pt; '><font color='#FFFFFF'>TOTAL</font></td>\n");
+                sb.Append("<td style='text-align:right;font-weight: bold;font-size:11.0pt; '><font color='#FFFFFF'>" + Convert.ToDecimal(string.Format("{0:F2}", Stotal)) + "</font></td>\n");
+                sb.Append("<td colspan ='13'></td>\n");
+
+                sb.Append("</tr>\n");
+                sb.Append("</tfoot>\n");
+                sb.Append("</table></div>");
+            }
+            catch
+            {
+
+            }
+            return sb.ToString();
+        }
+        /// <summary>
+        /// Exporta el excel
+        /// </summary>
+        /// <returns></returns>
+        public ActionResult ListaVentaSemanalExcel()
+        {
+            string NombreArchivo = "VentaSemanal";
+            String style = style = @"<style> .textmode { mso-number-format:\@; } </script> ";
+            try
+            {
+                Response.Clear();
+                Response.Buffer = true;
+                Response.ContentType = "application/vnd.ms-excel";
+                Response.AddHeader("Content-Disposition", "attachment;filename=" + NombreArchivo + ".xls");
+                Response.Charset = "UTF-8";
+                Response.ContentEncoding = Encoding.Default;
+                Response.Write(style);
+                Response.Write(Session[_session_ListarVentaSemanal_Excel].ToString());
+                Response.End();
+            }
+            catch
+            {
+
+            }
+            return Json(new { estado = 0, mensaje = 1 });
+        }
+        #endregion
+
+        #region <GENERAR SALDO>
+        /// <summary>
+        /// Genera saldo de anticpos a la nota de credito
+        /// </summary>
+        /// <returns></returns>
+        public ActionResult Generar_Saldos()
+        {
+            Ent_Usuario _usuario = (Ent_Usuario)Session[Ent_Constantes.NameSessionUser];
+            string actionName = this.ControllerContext.RouteData.GetRequiredString("action");
+            string controllerName = this.ControllerContext.RouteData.GetRequiredString("controller");
+            string return_view = actionName + "|" + controllerName;
+
+            if (_usuario == null)
+            {
+                return RedirectToAction("Login", "Control", new { returnUrl = return_view });
+            }
+            else
+            {
+                List<Ent_Saldos_Anticipos> LisSaldosAnticipos = new List<Ent_Saldos_Anticipos>();
+                ViewBag.LisSaldos = LisSaldosAnticipos;
+
+                Ent_Saldos_Anticipos entSaldosAnticipos = new Ent_Saldos_Anticipos();
+                ViewBag.entSaldo = entSaldosAnticipos;
+                return View();
+            }
+        }
+        /// <summary>
+        /// Listar los clientes para hacer anticipos en las notas de credito.
+        /// </summary>
+        /// <param name="param"></param>
+        /// <param name="isOkUpdate"></param>
+        /// <returns>JSON</returns>
+        public JsonResult getListaSaldosAnticiposAjax(Ent_jQueryDataTableParams param,bool isOkUpdate)
+        {
+            if (isOkUpdate)
+            {
+                Session[_session_listSaldosAnticipos] = datDocumento_Transaccion.Listar_Saldos_Anticipos().ToList(); ;
+            }
+
+            /*verificar si esta null*/
+            if (Session[_session_listSaldosAnticipos] == null)
+            {
+                List<Ent_Saldos_Anticipos> Lista_Saldos_Anticipos = new List<Ent_Saldos_Anticipos>();
+                Session[_session_listSaldosAnticipos] = Lista_Saldos_Anticipos;
+            }
+
+            IQueryable<Ent_Saldos_Anticipos> entDocTrans = ((List<Ent_Saldos_Anticipos>)(Session[_session_listSaldosAnticipos])).AsQueryable();
+
+            //Manejador de filtros
+            int totalCount = entDocTrans.Count();
+            IEnumerable<Ent_Saldos_Anticipos> filteredMembers = entDocTrans;
+            if (!string.IsNullOrEmpty(param.sSearch))
+            {
+                filteredMembers = entDocTrans
+                    .Where(m =>
+                            m.Documento.ToUpper().Contains(param.sSearch.ToUpper()) ||
+                            m.Cliente.ToUpper().Contains(param.sSearch.ToUpper()) 
+                            );
+            }
+
+            //Manejador de ordene
+            var sortIdx = Convert.ToInt32(Request["iSortCol_0"]);
+
+            if (param.iSortingCols > 0)
+            {
+                if (Request["sSortDir_0"].ToString() == "asc")
+                {
+                    switch (sortIdx)
+                    {
+                        case 0: filteredMembers = filteredMembers.OrderBy(o => o.Documento); break;
+                        case 1: filteredMembers = filteredMembers.OrderBy(o => o.Cliente); break;
+                        case 2: filteredMembers = filteredMembers.OrderBy(o => o.Saldo); break;
+                        case 3: filteredMembers = filteredMembers.OrderBy(o => o.SerieFac); break;
+                        case 4: filteredMembers = filteredMembers.OrderBy(o => o.NumeroFac); break;
+                        case 5: filteredMembers = filteredMembers.OrderBy(o => o.Fec_Fac); break;
+                        case 6: filteredMembers = filteredMembers.OrderBy(o => o.MontoFac); break;
+                        case 7: filteredMembers = filteredMembers.OrderBy(o => o.SerieNc); break;
+                        case 8: filteredMembers = filteredMembers.OrderBy(o => o.NumeroNc); break;
+                        case 9: filteredMembers = filteredMembers.OrderBy(o => o.Fec_Nc); break;
+                        case 10: filteredMembers = filteredMembers.OrderBy(o => o.MontoNc); break;
+                        case 11: filteredMembers = filteredMembers.OrderBy(o => o.Monto_Util); break;
+                        case 12: filteredMembers = filteredMembers.OrderBy(o => o.Percepcion); break;
+                        case 13: filteredMembers = filteredMembers.OrderBy(o => o.Chk); break;
+                        case 14: filteredMembers = filteredMembers.OrderBy(o => o.Bas_Id); break;
+                    }
+                }
+                else
+                {
+                    switch (sortIdx)
+                    {
+                        case 0: filteredMembers = filteredMembers.OrderByDescending(o => o.Documento); break;
+                        case 1: filteredMembers = filteredMembers.OrderByDescending(o => o.Cliente); break;
+                        case 2: filteredMembers = filteredMembers.OrderByDescending(o => o.Saldo); break;
+                        case 3: filteredMembers = filteredMembers.OrderByDescending(o => o.SerieFac); break;
+                        case 4: filteredMembers = filteredMembers.OrderByDescending(o => o.NumeroFac); break;
+                        case 5: filteredMembers = filteredMembers.OrderByDescending(o => o.Fec_Fac); break;
+                        case 6: filteredMembers = filteredMembers.OrderByDescending(o => o.MontoFac); break;
+                        case 7: filteredMembers = filteredMembers.OrderByDescending(o => o.SerieNc); break;
+                        case 8: filteredMembers = filteredMembers.OrderByDescending(o => o.NumeroNc); break;
+                        case 9: filteredMembers = filteredMembers.OrderByDescending(o => o.Fec_Nc); break;
+                        case 10: filteredMembers = filteredMembers.OrderByDescending(o => o.MontoNc); break;
+                        case 11: filteredMembers = filteredMembers.OrderByDescending(o => o.Monto_Util); break;
+                        case 12: filteredMembers = filteredMembers.OrderByDescending(o => o.Percepcion); break;
+                        case 13: filteredMembers = filteredMembers.OrderByDescending(o => o.Chk); break;
+                        case 14: filteredMembers = filteredMembers.OrderByDescending(o => o.Bas_Id); break;
+                    }
+                }
+            }
+
+            var Result = filteredMembers
+                .Skip(param.iDisplayStart)
+                .Take(param.iDisplayLength);
+
+            //Se devuelven los resultados por json
+            return Json(new
+            {
+                sEcho = param.sEcho,
+                iTotalRecords = totalCount,
+                iTotalDisplayRecords = filteredMembers.Count(),
+                aaData = Result
+            }, JsonRequestBehavior.AllowGet);
+        }
+        /// <summary>
+        /// Genera/Registrar los saldos anticipos
+        /// </summary>
+        /// <param name="_LisSaldo"></param>
+        /// <returns></returns>
+        public ActionResult getGenerarAnticipos(List<Ent_Saldos_Anticipos> _LisSaldo)
+        {
+            bool Result = false;
+            JsonResponse objResult = new JsonResponse();
+            try
+            {
+                Ent_Usuario _usuario = (Ent_Usuario)Session[Ent_Constantes.NameSessionUser];
+                Ent_Saldos_Anticipos Ent = new Ent_Saldos_Anticipos();
+                Ent.usu_ingreso = _usuario.usu_id;
+                DataTable dtSaldos = new DataTable();
+                dtSaldos.Columns.Add("Bas_Id", typeof(int));
+                dtSaldos.Columns.Add("Monto_Util", typeof(Decimal));
+                dtSaldos.Columns.Add("NumeroFac", typeof(string));
+                dtSaldos.Columns.Add("Fec_Fac", typeof(string));
+                dtSaldos.Columns.Add("NumeroNc", typeof(string));
+                dtSaldos.Columns.Add("Fec_Nc", typeof(string));
+                var Fila = 0;
+                foreach (var item in _LisSaldo)
+                {
+                    dtSaldos.Rows.Add();
+                    dtSaldos.Rows[Fila]["Bas_Id"] = item.Bas_Id;
+                    dtSaldos.Rows[Fila]["Monto_Util"] = item.Monto_Util;
+                    dtSaldos.Rows[Fila]["NumeroFac"] = item.SerieFac.ToString() + item.NumeroFac.ToString();
+                    dtSaldos.Rows[Fila]["Fec_Fac"] = item.Fec_Fac;
+                    dtSaldos.Rows[Fila]["NumeroNc"] = item.SerieNc.ToString() + item.NumeroNc.ToString();
+                    dtSaldos.Rows[Fila]["Fec_Nc"] = item.Fec_Nc;
+                    Fila++;
+                }
+
+                Result = datDocumento_Transaccion.Genera_Provisiones(dtSaldos, Ent);
+                if (Result)
+                {
+                    objResult.Success = true;
+                    objResult.Message = "se género las provisiones de los saldos seleccionados.";
+                }
+                else
+                {
+                    objResult.Success = false;
+                    objResult.Message = "¡Error! Al generar las provisiones de los saldos seleccionados.";
+                }
+            }
+            catch (Exception ex)
+            {
+                objResult.Success = false;
+                objResult.Message = "Error al registrar";
+            }
+            var JSON = JsonConvert.SerializeObject(objResult);
+            return Json(JSON, JsonRequestBehavior.AllowGet);
+        }
+        /// <summary>
+        /// Anula los saldos anticipos
+        /// </summary>
+        /// <param name="_ent"></param>
+        /// <returns></returns>
+        public ActionResult getAnularSaldos(Ent_Saldos_Anticipos _ent)
+        {
+            Ent_Usuario _usuario = (Ent_Usuario)Session[Ent_Constantes.NameSessionUser];
+            bool result = false;
+            JsonResponse objResult = new JsonResponse();
+            _ent.usu_ingreso = _usuario.usu_id;
+            try
+            {
+                result = datDocumento_Transaccion.AnularSaldos(_ent);
+                if (result)
+                {
+                    objResult.Success = true;
+                    objResult.Message = "Se anulo los items seleccionados.";
+                }
+                else
+                {
+                    objResult.Success = false;
+                    objResult.Message = "Error al anular los items seleccionados.";
+                }
+            }
+            catch (Exception exc)
+            {
+                objResult.Success = false;
+                objResult.Message = "Error al anular";
+            }
+
+            var JSON = JsonConvert.SerializeObject(objResult);
+            return Json(JSON, JsonRequestBehavior.AllowGet);
+        }
+        #endregion
+
+        #region <VALIDACIONES DE PAGOS>
+        public ActionResult validar_Pagos()
+        {
+            Ent_Usuario _usuario = (Ent_Usuario)Session[Ent_Constantes.NameSessionUser];
+            string actionName = this.ControllerContext.RouteData.GetRequiredString("action");
+            string controllerName = this.ControllerContext.RouteData.GetRequiredString("controller");
+            string return_view = actionName + "|" + controllerName;
+
+            if (_usuario == null)
+            {
+                return RedirectToAction("Login", "Control", new { returnUrl = return_view });
+            }
+            else
+            {
+                var ListarBancos = datBanco.Listar_Bancos().Where(x => x.Codigo == "1" || x.Codigo == "4").ToList();
+                ViewBag.ListarBancos = ListarBancos;
+
+                Ent_Validar_Pagos EntValidarPagos = new Ent_Validar_Pagos();
+                ViewBag.EntValidarPagos = EntValidarPagos;
+
+                return View();
+            }
+        }
+        /// <summary>
+        /// Validamos el archivo entrante.
+        /// </summary>
+        /// <returns></returns>
+        public ActionResult getValidarArchivo()
+        {
+            Session[_session_ListarValidarPagos] = null;
+            Ent_Validar_Pagos _Ent = new Ent_Validar_Pagos();
+            var Archivo = Request.Files[0];
+            int NumBanco = Convert.ToInt32(Request.Form[0]);
+            int NumTipoArchivo = Convert.ToInt32(Request.Form[1]);
+            JsonResponse objResult = new JsonResponse();
+            var JSON="";
+            bool rpta = false;
+            try
+            {
+                string FileName = Path.GetFileName(Archivo.FileName);
+                string Extension = Path.GetExtension(Archivo.FileName);
+                string FolderPath = Path.GetTempPath();
+                Random r = new Random();
+                int varAleatorio = r.Next(0, 999);
+
+                if (NumBanco != 4)
+                {
+                    string FilePath = Path.Combine(FolderPath + FileName + varAleatorio);
+                    Archivo.SaveAs(FilePath);
+
+                    rpta = validarArchivo(FilePath, Extension, NumTipoArchivo);
+                    if (rpta)
+                    {
+                    
+                        Import_To_Grid(FilePath, Extension, NumTipoArchivo);
+                        objResult.Data = NumBanco; 
+                        objResult.Success = true;
+                        objResult.Message = "Archivo correcto";
+                    }
+                    else
+                    {
+                        objResult.Data = NumBanco;
+                        objResult.Success = false;
+                        objResult.Message= "Debe seleccionar un tipo de archivo correcto";
+                    }
+
+                     JSON = JsonConvert.SerializeObject(objResult);
+                    return Json(JSON, JsonRequestBehavior.AllowGet);
+                }
+                else
+                {
+                    FileName = FileName.Substring(0, FileName.Length - 4);
+                    string FilePath = Path.Combine(FolderPath + FileName + varAleatorio.ToString() + Extension);
+                    Archivo.SaveAs(FilePath);
+
+                    string[] lineas = System.IO.File.ReadAllLines(FilePath);
+
+                    DataTable dtinter = new DataTable();
+                    dtinter.Columns.Add("DniRuc", typeof(string));
+                    dtinter.Columns.Add("Pedido", typeof(string));
+                    dtinter.Columns.Add("Op", typeof(string));
+                    dtinter.Columns.Add("Fecha", typeof(string));
+                    dtinter.Columns.Add("Monto", typeof(string));
+
+                    foreach (string lin in lineas)
+                    {
+                        string dniruc = Convert.ToString(lin.Substring(9, 20).Trim());
+                        string pedido = Convert.ToString(Convert.ToInt32(lin.Substring(37, 15).Trim()).ToString());
+                        string op = Convert.ToString(lin.Substring(139, 8).Trim());
+                        string op_fecha = Convert.ToString(DateTime.ParseExact(lin.Substring(82, 8).Trim(), "yyyyMMdd", null, DateTimeStyles.None));
+                        string enter = Convert.ToString(Convert.ToInt32(lin.Substring(96, 11).Trim()).ToString());
+                        string decim = Convert.ToString(lin.Substring(96 + 11, 2).Trim().ToString());
+                        string op_monto = Convert.ToString(Convert.ToDecimal(enter + "." + decim));
+
+                        dtinter.Rows.Add(dniruc, pedido, op, op_fecha, op_monto);
+                    }
+
+                    DataTable dtreturn = datDocumento_Transaccion.getvalida_inter(dtinter);
+                    if (dtreturn.Rows.Count == 0)
+                    {
+                        objResult.Data = NumBanco;
+                        objResult.Success = false;
+                        objResult.Message = "No hay datos para cargar , debido a que no esta registrado en nuestra base o ya ha sio registrado:" + DateTime.Now;
+                    }
+                    else
+                    {
+                        objResult.Data = NumBanco;
+                        objResult.Success = true;
+                        objResult.Message = "Solo se carga los numero de OP PENDIENTES del banco interbank. Última actualización" + DateTime.Now;
+
+                        IList<Ent_Validar_Pagos> _Listar_Validar_Pagos = dtinter.AsEnumerable().Select(row =>
+                            new Ent_Validar_Pagos
+                            {
+                                NumDocuemnto = row.Field<string>("DniRuc"),
+                                NumPedido = row.Field<string>("Pedido"),
+                                FecOperacion = row.Field<string>("Fecha"),                           
+                                MonOperacion = row.Field<string>("Monto"),
+                                NumOperacion = row.Field<string>("Op")
+                            }).ToList();
+
+                        Session[_session_ListarValidarPagos] = _Listar_Validar_Pagos;
+                    }
+
+                    JSON = JsonConvert.SerializeObject(objResult);
+                    return Json(JSON, JsonRequestBehavior.AllowGet);
+                }
+            }
+            catch (Exception e)
+            {
+                objResult.Data = NumBanco;
+                objResult.Success = false;
+                objResult.Message = "Debe seleccionar un tipo de archivo correcto";
+                JSON = JsonConvert.SerializeObject(objResult);
+                return Json(JSON, JsonRequestBehavior.AllowGet);
+            }
+                       
+        }
+        /// <summary>
+        /// Validamos version y Tipo de archivo(Dia o historial)
+        /// </summary>
+        /// <param name="FilePath"></param>
+        /// <param name="Extension"></param>
+        /// <param name="val_dwTipArc"></param>
+        /// <returns></returns>
+        public bool validarArchivo(string FilePath, string Extension, int val_dwTipArc)
+        {
+            bool rpta = false;
+            string conStr = "";
+            switch (Extension)
+            {
+                case ".xls": //Excel 97-03
+                    conStr = "Provider=Microsoft.Jet.OLEDB.4.0;Data Source={0}; Extended Properties='Excel 8.0;HDR={1}";
+                    break;
+
+                case ".xlsx": //Excel 07
+                    conStr = "Provider = Microsoft.ACE.OLEDB.12.0; Data Source={0}; Extended Properties='Excel 8.0;HDR={1};'";
+                    break;
+            }
+
+            conStr = String.Format(conStr, FilePath, "A4:F5", true);
+            OleDbConnection connExcel = new OleDbConnection(conStr);
+            OleDbCommand cmdExcel = new OleDbCommand();
+            OleDbDataAdapter oda = new OleDbDataAdapter();
+            DataTable dt = new DataTable();
+            cmdExcel.Connection = connExcel;
+            //Get the name of First Sheet
+            connExcel.Open();
+            DataTable dtExcelSchema;
+            dtExcelSchema = connExcel.GetOleDbSchemaTable(OleDbSchemaGuid.Tables, null);
+            string SheetName = dtExcelSchema.Rows[0]["TABLE_NAME"].ToString();
+            connExcel.Close();
+            //Read Data from First Sheet
+            connExcel.Open();
+            if (val_dwTipArc == 1)
+            {
+                cmdExcel.CommandText = "SELECT count([F3]) AS operacion From [" + SheetName + "] where [F6] = 'Nº operación' ";
+            }
+            else
+            {
+                cmdExcel.CommandText = "SELECT count([F3]) AS operacion From [" + SheetName + "] where [F7] = 'Operación - Número' ";
+            }
+
+            oda.SelectCommand = cmdExcel;
+            oda.Fill(dt);
+
+            int a = 0;
+            foreach (DataRow dr in dt.Rows) 
+            {
+                a = System.Convert.ToInt32(dr["operacion"]);
+                if (val_dwTipArc == 1)
+                {
+                    if (a > 0)
+                    {
+                        rpta = true;
+                        break;
+                    }
+                }
+                else
+                {
+                    if (a > 0)
+                    {
+                        rpta = true;
+                        break;
+                    }
+                }
+            }
+            connExcel.Close();
+            return rpta;
+        }
+        /// <summary>
+        /// Creamos los temporales de los listados
+        /// </summary>
+        /// <param name="FilePath"></param>
+        /// <param name="Extension"></param>
+        /// <param name="val_dwTipArc"></param>
+        private void Import_To_Grid(string FilePath, string Extension, int val_dwTipArc)
+        {
+            string conStr = "";
+            switch (Extension)
+            {
+                case ".xls": //Excel 97-03
+                    conStr = "Provider=Microsoft.Jet.OLEDB.4.0;Data Source={0}; Extended Properties='Excel 8.0;HDR={1}";
+                    break;
+
+                case ".xlsx": //Excel 07
+                    conStr = "Provider = Microsoft.ACE.OLEDB.12.0; Data Source={0}; Extended Properties='Excel 8.0;HDR={1};'";
+                    break;
+            }
+
+            conStr = String.Format(conStr, FilePath, "A4:F5", true);
+            OleDbConnection connExcel = new OleDbConnection(conStr);
+            OleDbCommand cmdExcel = new OleDbCommand();
+            OleDbDataAdapter oda = new OleDbDataAdapter();
+            DataTable dtValidarPagos = new DataTable();
+            dtValidarPagos.Columns.Add("FecOperacion", typeof(string));
+            dtValidarPagos.Columns.Add("DesOperacion", typeof(string));
+            dtValidarPagos.Columns.Add("MonOperacion", typeof(string));
+            dtValidarPagos.Columns.Add("NumOperacion", typeof(string));
+
+            try
+            {
+                cmdExcel.Connection = connExcel;
+                //Get the name of First Sheet
+                connExcel.Open();
+
+                DataTable dtExcelSchema;
+                dtExcelSchema = connExcel.GetOleDbSchemaTable(OleDbSchemaGuid.Tables, null);
+                string SheetName = dtExcelSchema.Rows[0]["TABLE_NAME"].ToString();
+                connExcel.Close();
+
+                //Read Data from First Sheet
+                connExcel.Open();
+
+                if (val_dwTipArc == 1)
+                {
+                    cmdExcel.CommandText = "SELECT [Cuenta] as FecOperacion,[F3] as DesOperacion ,[F4] as MonOperacion ,[F6] as NumOperacion From [" + SheetName + "] where MID([F3], 1, 8) = 'EFECTIVO' ";
+                }
+                else
+                {
+                    cmdExcel.CommandText = "SELECT [Cuenta] as FecOperacion,[F3] as DesOperacion,[F4] as MonOperacion,[F7] as NumOperacion From [" + SheetName + "] where MID([F3], 1, 8) = 'EFECTIVO' ";
+                }
+
+                oda.SelectCommand = cmdExcel;
+                oda.Fill(dtValidarPagos);
+                for (Int32 i = 0; i < dtValidarPagos.Rows.Count; ++i)
+                {
+                    string _MONTOstr = dtValidarPagos.Rows[i]["MonOperacion"].ToString().Replace(',', '.');
+                    dtValidarPagos.Rows[i]["MonOperacion"] = formato_numerico(_MONTOstr);
+                    if (val_dwTipArc == 1)
+                    {
+                        dtValidarPagos.Rows[i]["NumOperacion"] = Convert.ToString(dtValidarPagos.Rows[i]["NumOperacion"].ToString().PadLeft(8, '0'));
+                    }
+                    else
+                    {
+                        dtValidarPagos.Rows[i]["NumOperacion"] = Convert.ToString(dtValidarPagos.Rows[i]["NumOperacion"].ToString().PadLeft(8, '0'));
+                    }
+                }
+                connExcel.Close();
+
+                IList<Ent_Validar_Pagos> _Listar_Validar_Pagos = dtValidarPagos.AsEnumerable().Select(row =>
+                    new Ent_Validar_Pagos
+                    {
+                        FecOperacion = row.Field<string>("FecOperacion"),
+                        DesOperacion = row.Field<string>("DesOperacion"),
+                        MonOperacion = row.Field<string>("MonOperacion"),
+                        NumOperacion = row.Field<string>("NumOperacion")
+                    }).ToList();
+
+                Session[_session_ListarValidarPagos] = _Listar_Validar_Pagos;
+            }
+            catch (Exception e)
+            {
+                throw new Exception(e.Message, e.InnerException);
+            }          
+
+        }
+
+        private decimal formato_numerico(string _valor)
+        {
+            decimal monto = 0;
+            long b = _valor.LongCount(letra => letra.ToString() == ".");
+
+            if (b > 1)
+            {
+                string cad_decimal = _valor.Substring(_valor.Length - 3, 3);
+                string cad_comas = _valor.Substring(0, _valor.Length - 3);
+                cad_comas = cad_comas.Replace('.', ',');
+                string _numero_str = cad_comas + cad_decimal;
+                monto = Convert.ToDecimal(_numero_str);
+            }
+            else
+            {
+                _valor = _valor.Replace(',', '.');
+                monto = Convert.ToDecimal(_valor);
+            }
+
+            return monto;
+        }
+        /// <summary>
+        /// Listado de la informacion que trae los archivos
+        /// </summary>
+        /// <param name="param"></param>
+        /// <param name="isOkUpdate"></param>
+        /// <returns></returns>
+        public JsonResult getListarValidarPagos(Ent_jQueryDataTableParams param, bool isOkUpdate)
+        {
+            if (isOkUpdate)
+            {
+                Session[_session_ListarValidarPagos] = null;
+            }
+            /*verificar si esta null*/
+            if (Session[_session_ListarValidarPagos] == null)
+            {
+                List<Ent_Validar_Pagos> Lista_Listar_Validar_Pagos = new List<Ent_Validar_Pagos>();
+                Session[_session_ListarValidarPagos] = Lista_Listar_Validar_Pagos;
+            }
+
+            IQueryable<Ent_Validar_Pagos> entDocTrans = ((List<Ent_Validar_Pagos>)(Session[_session_ListarValidarPagos])).AsQueryable();
+
+            //Manejador de filtros
+            int totalCount = entDocTrans.Count();
+            IEnumerable<Ent_Validar_Pagos> filteredMembers = entDocTrans;
+            if (!string.IsNullOrEmpty(param.sSearch))
+            {
+                filteredMembers = entDocTrans
+                    .Where(m =>
+                            m.NumDocuemnto.ToUpper().Contains(param.sSearch.ToUpper()) ||
+                            m.NumPedido.ToUpper().Contains(param.sSearch.ToUpper()) ||
+                            m.FecOperacion.ToUpper().Contains(param.sSearch.ToUpper()) ||
+                            m.DesOperacion.ToUpper().Contains(param.sSearch.ToUpper()) ||
+                            m.NumOperacion.ToUpper().Contains(param.sSearch.ToUpper())                           
+                            );
+            }
+
+            //Manejador de ordene
+            var sortIdx = Convert.ToInt32(Request["iSortCol_0"]);
+
+            if (param.iSortingCols > 0)
+            {
+                if (Request["sSortDir_0"].ToString() == "asc")
+                {
+                    switch (sortIdx)
+                    {
+                        case 0: filteredMembers = filteredMembers.OrderBy(o => o.NumDocuemnto); break;
+                        case 1: filteredMembers = filteredMembers.OrderBy(o => o.NumPedido); break;
+                        case 2: filteredMembers = filteredMembers.OrderBy(o => o.FecOperacion); break;
+                        case 3: filteredMembers = filteredMembers.OrderBy(o => o.DesOperacion); break;
+                        case 4: filteredMembers = filteredMembers.OrderBy(o => o.NumOperacion); break;
+                        case 5: filteredMembers = filteredMembers.OrderBy(o => o.MonOperacion); break;
+                    }
+                }
+                else
+                {
+                    switch (sortIdx)
+                    {
+                        case 0: filteredMembers = filteredMembers.OrderByDescending(o => o.NumDocuemnto); break;
+                        case 1: filteredMembers = filteredMembers.OrderByDescending(o => o.NumPedido); break;
+                        case 2: filteredMembers = filteredMembers.OrderByDescending(o => o.FecOperacion); break;
+                        case 3: filteredMembers = filteredMembers.OrderByDescending(o => o.DesOperacion); break;
+                        case 4: filteredMembers = filteredMembers.OrderByDescending(o => o.NumOperacion); break;
+                        case 5: filteredMembers = filteredMembers.OrderByDescending(o => o.MonOperacion); break;
+                    }
+                }
+            }
+
+            var Result = filteredMembers
+                .Skip(param.iDisplayStart)
+                .Take(param.iDisplayLength);
+
+            //Se devuelven los resultados por json
+            return Json(new
+            {
+                sEcho = param.sEcho,
+                iTotalRecords = totalCount,
+                iTotalDisplayRecords = filteredMembers.Count(),
+                aaData = Result
+            }, JsonRequestBehavior.AllowGet);
+        }
+        /// <summary>
+        /// Registra los archivos 
+        /// </summary>
+        /// <param name="NumBanco"></param>
+        /// <returns></returns>
+        public ActionResult getRegistrarArchivo(int NumBanco)
+        {
+            JsonResponse objResult = new JsonResponse();
+            Ent_Validar_Pagos _Ent = new Ent_Validar_Pagos();
+            Ent_Usuario _usuario = (Ent_Usuario)Session[Ent_Constantes.NameSessionUser];
+            var JSON = "";
+            bool Result = false;
+            try
+            {
+                IQueryable<Ent_Validar_Pagos> _ListarValidarPagos = ((List<Ent_Validar_Pagos>)(Session[_session_ListarValidarPagos])).AsQueryable();
+
+                if (_ListarValidarPagos.Count() != 0)
+                {
+                    if (NumBanco != 4)
+                    {
+                        DataTable dtvalida = new DataTable();
+                        dtvalida.Columns.Add("Pago_Fecha", typeof(DateTime));
+                        dtvalida.Columns.Add("Pago_Descripcion", typeof(string));
+                        dtvalida.Columns.Add("Pago_Monto", typeof(Decimal));
+                        dtvalida.Columns.Add("Pago_Operacion", typeof(string));
+                        dtvalida.Columns.Add("Pag_BanId", typeof(string));
+
+                        var Fila = 0;
+                        foreach (var item in _ListarValidarPagos)
+                        {
+                            dtvalida.Rows.Add();
+                            dtvalida.Rows[Fila]["Pago_Fecha"] = Convert.ToDateTime(item.FecOperacion);
+                            dtvalida.Rows[Fila]["Pago_Descripcion"] = Convert.ToString(item.DesOperacion);
+                            dtvalida.Rows[Fila]["Pago_Monto"] = Convert.ToDecimal(item.MonOperacion);
+                            dtvalida.Rows[Fila]["Pago_Operacion"] = Convert.ToString(item.NumOperacion);
+                            dtvalida.Rows[Fila]["Pag_BanId"] = Convert.ToString(NumBanco);
+                            Fila++;
+                        }
+                        _Ent.NumBanco = NumBanco;
+                        _Ent.Usu_Validar = _usuario.usu_id;
+                        
+                        Result = datDocumento_Transaccion.SaveValidateBank(dtvalida, _Ent);
+                        if (Result)
+                        {
+                            objResult.Data = NumBanco;
+                            objResult.Success = true;
+                            objResult.Message = "Se guardo correctamente. El archivo del banco " + " Última actualización: " + DateTime.Now;
+                        }
+                        else
+                        {
+                            objResult.Data = NumBanco;
+                            objResult.Success = false;
+                            objResult.Message = "Lamentablemente no se ha guardado el archivo";
+                        }
+
+                        JSON = JsonConvert.SerializeObject(objResult);
+                        return Json(JSON, JsonRequestBehavior.AllowGet);
+                    }
+                    else
+                    {
+                        DataTable dtvalida = new DataTable();
+                        dtvalida.Columns.Add("dniruc", typeof(string));
+                        dtvalida.Columns.Add("pedido", typeof(string));
+                        dtvalida.Columns.Add("op", typeof(string));
+                        dtvalida.Columns.Add("fecha", typeof(DateTime));
+                        dtvalida.Columns.Add("monto", typeof(Decimal));
+
+                        var Fila = 0;
+                        foreach (var item in _ListarValidarPagos)
+                        {
+                            dtvalida.Rows.Add();
+                            dtvalida.Rows[Fila]["dniruc"] = item.NumDocuemnto;
+                            dtvalida.Rows[Fila]["pedido"] = item.NumPedido;
+                            dtvalida.Rows[Fila]["op"] = item.NumPedido;
+                            dtvalida.Rows[Fila]["fecha"] = Convert.ToDateTime(item.FecOperacion);
+                            dtvalida.Rows[Fila]["monto"] = Convert.ToDecimal(item.MonOperacion);
+                            Fila++;
+                        }
+                        _Ent.NumBanco = NumBanco;
+                        _Ent.Usu_Validar = _usuario.usu_id;
+
+                        Result = datDocumento_Transaccion.SaveValidaInter(dtvalida, _Ent);
+                        if (Result)
+                        {
+                            objResult.Data = NumBanco;
+                            objResult.Success = true;
+                            objResult.Message = "Se guardo correctamente. El archivo del banco Interbank" + " Última actualización: " + DateTime.Now;
+                        }
+                        else
+                        {
+                            objResult.Data = NumBanco;
+                            objResult.Success = false;
+                            objResult.Message = "Lamentablemente no se ha guardado el archivo";
+                        }
+                        JSON = JsonConvert.SerializeObject(objResult);
+                        return Json(JSON, JsonRequestBehavior.AllowGet);
+                    }
+                }
+                else
+                {
+                    objResult.Data = NumBanco;
+                    objResult.Success = false;
+                    objResult.Message = "Lamentablemente no se ha guardado el archivo";
+                    JSON = JsonConvert.SerializeObject(objResult);
+                    return Json(JSON, JsonRequestBehavior.AllowGet);
+                }
+            }
+            catch (Exception e)
+            {
+                objResult.Data = NumBanco;
+                objResult.Success = false;
+                objResult.Message = "Se produjo un error al registrar el archivo.";
+                JSON = JsonConvert.SerializeObject(objResult);
+                return Json(JSON, JsonRequestBehavior.AllowGet);
+            }
+        }   
         #endregion
     }
 }

@@ -1,0 +1,1277 @@
+﻿@using Newtonsoft.Json;
+@{
+    ViewBag.Title = "Facturación de Saldos Anticipos";
+    ViewBag.SubTitle = "";
+}
+<style>
+    .table thead {
+        background-color: #5799bf;
+        color: #fff;
+    }
+
+    .boton-xs-td {
+        padding-top: 5px !important;
+        padding-bottom: 5px !important;
+    }
+
+    .alignRight {
+        text-align: right;
+        vertical-align: middle;
+    }
+
+    .alignCenter {
+        text-align: center;
+        vertical-align: middle;
+    }
+
+    .table .ui-cell-input {
+        margin:0px;
+        height: 20%;
+        width:80%;
+    }
+
+    .table .Select {
+        color: #000 !important;
+        background-color: #b1dbf3 !important;
+       
+    }
+
+     .table .SelectAnular {
+        color: #000 !important;
+        background-color: #FCADB5 !important;
+       
+    }
+
+    .table .control {
+        font-family: arial;
+        display: block;
+        position: relative;
+        padding-left: 28px;
+        margin-bottom: 4px;
+        padding-top: 2px;
+        cursor: pointer;
+        font-size: 14px;
+    }
+    .table .control input {
+        position: absolute;
+        z-index: -1;
+        opacity: 0;
+    }
+    .table .control_indicator {
+        position: absolute;
+        top: 3px;
+        left: 0;
+        height: 19px;
+        width: 20px;
+        background: #e6e6e6;        
+        border: 1px solid #97a6af;
+        border-radius: 4px;
+    }
+    .table .control:hover input ~ .control_indicator,
+    .control input:focus ~ .control_indicator {
+        background: #cccccc;
+    }
+        
+    .table .control input:checked ~ .control_indicator {
+        background: #156aac;
+    }
+    .table .control:hover input:not([disabled]):checked ~ .control_indicator,
+    .control input:checked:focus ~ .control_indicator {
+        background: #156aac;
+    }
+    .table .control input:disabled ~ .control_indicator {
+        background: #e6e6e6;
+        opacity: 0.6;
+        pointer-events: none;
+    }
+    .table .control_indicator:after {
+        box-sizing: unset;
+        content: '';
+        position: absolute;
+        display: none;
+    }
+    .table .control input:checked ~ .control_indicator:after {
+        display: block;
+    }
+    .table .control-checkbox .control_indicator:after {
+        left: 6px;
+        top: 2px;
+        width: 3px;
+        height: 8px;
+        border: solid #ffffff;
+        border-width: 0 2px 2px 0;
+        transform: rotate(45deg);
+    }
+    .table .control-checkbox input:disabled ~ .control_indicator:after {
+        border-color: #7b7b7b;
+    }
+</style>
+<p class="text-primary">Esta opcion es para que el saldo se convierta en nota de credito y haci el usuario lo pueda usar.</p>
+<div class="box box-body box-primary">
+    <div class="row">
+        <div class="col-md-3" style="margin-top: 25px;display:inline;width: 430px;">    
+                <button id="btnAcFecha" title="Actualizar fecha a todos" class="btn btn-info ">
+                    <span class="glyphicon glyphicon-calendar"></span>&nbsp;&nbsp;Actualizar fecha a todos
+                </button>
+
+                <button id="btnGenerarCorrelativo" title="Generar Correlativo" class="btn btn-primary " style="margin-left: 10px;">
+                    <span class="glyphicon glyphicon-list"></span>&nbsp;&nbsp;Genera correlativo manual
+                </button>
+        </div>
+        <div class="col-md-3" style="display:inline;padding-left: 0px;padding-right: 0px;width: 250px;">
+            <div style="display: inline-block;margin-left: 7px;">
+                <label for="dtpFechaNotaCredito" style="color: #3d566e;">Fec. Nota Credito</label>
+
+                <div class="input-group" id="IdFechaNotaCredito">
+                    <div id="dtpFecha" class="input-group date" data-date-format="dd-mm-yyyy">
+                        @Html.TextBox("dtpFechaNotaCredito", null, new { @class = "form-control custom-input", @placeholder = "dd-mm-yyyy", @disabled = "disabled" })
+                        <span class="input-group-addon  bg-white"><img src="~/Content/images/wall-calendar-with-lines.svg" height="20" width="20"></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4" style="display:inline;padding-left: 0px;padding-right: 0px;margin-top: 25px;">            
+            <button id="btnGuardar" title="Generar anticipos" class="btn btn-success " style="margin-left: 4px;">
+                <span class="glyphicon glyphicon-floppy-saved"></span>&nbsp;&nbsp;Generar anticipos
+            </button>
+        </div>
+    </div>
+
+    <br />
+    <div class="row">
+        <div class="col-md-12">
+            <div class="table-responsive">
+                <table id="tbGenerarSaldo" class="table table-hover table-bordered compact">
+                    <thead>
+                        <tr>
+                            <th colspan="4"></th>
+                            <th colspan="4" style="text-align: center;">Factura</th>
+                            <th colspan="4" style="text-align: center;">Nota de Credito</th>
+                            <th ></th>
+                        </tr>
+                        <tr>
+                            <th style="text-align: center;">Documento</th>
+                            <th style="text-align: center;">Cliente</th>
+                            <th style="text-align: center;">Saldo</th>
+                            <th style="text-align: center;">Saldo Util </th>
+
+                            <th style="text-align: center;">Serie</th>
+                            <th style="text-align: center;">Número</th>
+                            <th style="text-align: center;">Fecha </th>
+                            <th style="text-align: center;">Monto</th>
+
+                            <th style="text-align: center;">Serie</th>
+                            <th style="text-align: center;">Número</th>
+                            <th style="text-align: center;">Fecha </th>
+                            <th style="text-align: center;">Monto</th>
+                            <th ><button type="button" id="btnAnular" class="btn btn-block btn-danger btn-sm"  style="width: 90px;" >Anular</button></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td colspan='12'>No se encontraron resultados</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section scripts{
+    <script src="~/Scripts/Linkend/linq.min.js"></script>
+    <script>
+        var objGenerarSaldo = {
+            Inicio: function () {
+                /*[Inicializamos variables]*/
+                this.selected = [];
+                this.selectedAnular = [];
+                this.isOkUpdate = true;
+
+                objGenerarSaldo.grid.btnsEstado();
+
+                $("#dtpFecha").datepicker({
+                    autoclose: true,
+                    todayHighlight: true,
+                    dateFormat: 'dd/mm/yy'
+                })
+
+                objGenerarSaldo.grid.get();    
+                /*[/Inicializamos variables]*/
+
+                /*[Actualiza fechas de la tabla]*/
+                $("#dtpFecha").datepicker({
+                    autoclose: true,
+                    dateFormat: 'dd/mm/yy'
+                }).on("changeDate", function (selected) {
+                    //debugger
+                    var minDate = new Date(selected.date.valueOf());
+                    var Fec_Nc = minDate.toLocaleDateString()
+                    $("#tbGenerarSaldo").find('tr').each(function () {
+                        debugger
+                        var Documento = $(this).find('td.Documento').html()
+                        var index = objGenerarSaldo.selected.findIndex(C => C.Documento == Documento);
+                        if (index > -1) {
+                            objGenerarSaldo.selected[index].Fec_Nc = Fec_Nc;
+                            $(this).find('td.Fec_Nc #editCellTextFec').val(Fec_Nc);
+                        }
+                    });
+                });
+                /*[/Actualiza fechas de la tabla]*/
+
+                /*[CheckAnular que activa la fila ]*/
+                $('#tbGenerarSaldo tbody').on('change', '#chkAnular', function (e) {
+                   // debugger
+                    let _coltrg = $(this).data("colname")
+                    let tr = $(this).closest('tr').index();
+                    let $row = $(this).closest('tr');
+                    let row = $('#tbGenerarSaldo').DataTable().row(tr);
+                    let data = row.data();
+                    let Documento = data.Documento
+                    let index = objGenerarSaldo.selectedAnular.findIndex(C => C.Documento == data.Documento);
+                    let indexSelect = objGenerarSaldo.selected.findIndex(C => C.Documento == data.Documento);
+
+                    let Saldo = data.Saldo
+                    let _Saldo = objGenerarSaldo.grid.FormatDecimal(((Saldo) / (1 + data.Percepcion)), 2, '.', ',')
+                    data.MontoFac = _Saldo;
+                    data.MontoNc = _Saldo;
+                    data.SerieFac = "";
+                    data.NumeroFac = "";
+                    data.SerieNc = "";
+                    data.NumeroNc = "";
+                    //debugger
+                    $(this).closest('tr').find('#editCellTextCheck').attr('readonly', true);
+                    $(this).closest('tr').find('#editCellTextCheck').val(objGenerarSaldo.grid.FormatDecimal(Saldo, 2, '.', ','));
+                    $(this).closest('tr').find('td.MontoFac').html(_Saldo);
+                    $(this).closest('tr').find('td.MontoNc').html(_Saldo);
+                    $(this).closest('tr').find('td.SerieFac #editCellText').attr('readonly', true);
+                    $(this).closest('tr').find('td.SerieFac #editCellText').val("");
+                    $(this).closest('tr').find('td.NumeroFac #editCellText').attr('readonly', true);
+                    $(this).closest('tr').find('td.NumeroFac #editCellText').val("");
+                    $(this).closest('tr').find('td.SerieNc #editCellText').attr('readonly', true);
+                    $(this).closest('tr').find('td.SerieNc #editCellText').val("");
+                    $(this).closest('tr').find('td.NumeroNc #editCellText').attr('readonly', true);
+                    $(this).closest('tr').find('td.NumeroNc #editCellText').val("");
+                    $(this).closest('tr').find('td.Fec_Fac #editCellTextFec').attr('readonly', true);
+                    $(this).closest('tr').find('td.Fec_Nc #editCellTextFec').attr('readonly', true);
+                    $(this).closest('tr').find('td.Monto_Util #editCheck').removeAttr('checked');
+
+                    if (this.checked) {
+                        data.Chk = true;
+                        $("#btnAnular").removeClass("disabled");
+                        $("#btnAnular").removeAttr("disabled");
+                        $row.removeClass('Select');
+                        $row.addClass('SelectAnular');
+                        objGenerarSaldo.selectedAnular.push(data);
+                        /*[Anticipos]*/
+                        if(indexSelect>-1)
+                        {
+                            objGenerarSaldo.selected.splice(indexSelect, 1);
+                            if (objGenerarSaldo.selected.length == 0) {
+                                objGenerarSaldo.grid.btnsEstado();
+                            }
+                        }
+                        /*[/Anticipos]*/
+                    } else {
+                        data.Chk = false;
+                        objGenerarSaldo.selectedAnular.splice(index, 1);
+                        if (objGenerarSaldo.selectedAnular.length == 0) {
+                            $("#btnAnular").addClass("disabled");
+                            $("#btnAnular").attr('disabled', 'disabled');
+                        }
+                        $row.removeClass('SelectAnular');
+                    }
+                    console.log(objGenerarSaldo.selected);
+                    console.log(objGenerarSaldo.selectedAnular);
+                })
+                /*[CheckAnular que activa la fila ]*/
+
+                /*[Registra saldos]*/
+                $("#btnGuardar").click(function () {
+                    if (objGenerarSaldo.grid.Validar()) {
+                        objGenerarSaldo.general.Registrar();
+                    }
+                })
+                /*[/Registra saldos]*/
+
+                /*[Valida y anula las facturas]*/
+                $("#btnAnular").click(function () {
+                    if (objGenerarSaldo.grid.ValidarAnular()) {
+                        objGenerarSaldo.general.RegistrarAnular();
+                    }
+                    
+                })
+                /*[/Valida y anula las facturas]*/
+
+                /*[Genera correlativo manual]*/
+                $("#btnGenerarCorrelativo").click(function () {
+                   // debugger
+                    var select = objGenerarSaldo.selected;
+                    if (select.length > 0) {
+                        let result = true;
+                        let str = "00000000";
+                        let inicio = 1;
+                        let serieFac ="";
+                        let serieNc = "";
+                        let NumeroFac="";
+                        let NumeroNc = "";
+                        //[SerieFac]
+                        $("#tbGenerarSaldo").find('tr').each(function () {
+                           debugger
+                            var Documento = $(this).find('td.Documento').html()
+                            var index = objGenerarSaldo.selected.findIndex(C => C.Documento == Documento);
+
+                            if (index > -1) {
+                                serieFac = $(this).find('td.SerieFac #editCellText').val(); 
+                                if(serieFac != ''){                                    
+                                    return result = false;                                    
+                                }
+                            }
+                        });
+                        debugger
+                        if(result == true){
+                            swal({ title: "Generar Correlativo", text: "No ha ingresado una serie a la factura para poder generar.", icon: "warning" }).then((value) => { });
+                            return;
+                        }                       
+                        $("#tbGenerarSaldo").find('tr').each(function () {
+                            debugger
+                            var Documento = $(this).find('td.Documento').html()
+                            var index = objGenerarSaldo.selected.findIndex(C => C.Documento == Documento);
+
+                            if (index > -1) {
+                                objGenerarSaldo.selected[index].SerieFac = serieFac;
+                                $(this).find('td.SerieFac #editCellText').val(serieFac);
+                            }
+                        });
+                        //[/SerieFac]
+
+                        //[NumeroFac]
+                        result = true;
+                        $("#tbGenerarSaldo").find('tr').each(function () {
+                            debugger
+                            var Documento = $(this).find('td.Documento').html()
+                            var index = objGenerarSaldo.selected.findIndex(C => C.Documento == Documento);
+
+                            if (index > -1) {
+                                NumeroFac = $(this).find('td.NumeroFac #editCellText').val(); 
+                                if(NumeroFac != ''){
+                                    return result = false;                                    
+                                }
+                            }
+                        });
+                        if(result == true){
+                            swal({ title: "Generar Correlativo", text: "No ha ingresado un número a la factura para poder generar.", icon: "warning" }).then((value) => { });
+                            return;
+                        } 
+                        $("#tbGenerarSaldo").find('tr').each(function () {
+                            debugger
+                            var Documento = $(this).find('td.Documento').html()
+                            var index = objGenerarSaldo.selected.findIndex(C => C.Documento == Documento);
+
+                            if (index > -1) {
+                                let res = str.substring(NumeroFac.toString().length, 8) + NumeroFac.toString();
+                                objGenerarSaldo.selected[index].NumeroFac = res;
+                                $(this).find('td.NumeroFac #editCellText').val(res);
+                                
+                                NumeroFac++;
+                            }
+                        });
+                        //[/NumeroFac]
+
+                        //[SerieNc]
+                        result = true;
+                        $("#tbGenerarSaldo").find('tr').each(function () {
+                            debugger
+                            var Documento = $(this).find('td.Documento').html()
+                            var index = objGenerarSaldo.selected.findIndex(C => C.Documento == Documento);
+
+                            if (index > -1) {
+                                SerieNc = $(this).find('td.SerieNc #editCellText').val(); 
+                                if(SerieNc != ''){
+                                    return result = false;                                    
+                                }
+                            }
+                        });
+                        if(result == true){
+                            swal({ title: "Generar Correlativo", text: "No ha ingresado una serie a la nota de credito para poder generar.", icon: "warning" }).then((value) => { });
+                            return;
+                        }  
+                        $("#tbGenerarSaldo").find('tr').each(function () {
+                            debugger
+                            var Documento = $(this).find('td.Documento').html()
+                            var index = objGenerarSaldo.selected.findIndex(C => C.Documento == Documento);
+
+                            if (index > -1) {
+                                objGenerarSaldo.selected[index].SerieNc = SerieNc;
+                                $(this).find('td.SerieNc #editCellText').val(SerieNc);
+                            }
+                        });
+                        //[/SerieNc]                        
+
+                        //[NumeroNc]
+                        result = true;
+                        $("#tbGenerarSaldo").find('tr').each(function () {
+                            debugger
+                            var Documento = $(this).find('td.Documento').html()
+                            var index = objGenerarSaldo.selected.findIndex(C => C.Documento == Documento);
+
+                            if (index > -1) {
+                                NumeroNc = $(this).find('td.NumeroNc #editCellText').val(); 
+                                if(NumeroNc != ''){
+                                    return result = false;                                    
+                                }
+                            }
+                        });
+                        if(result == true){
+                            swal({ title: "Generar Correlativo", text: "No ha ingresado un número a la nota de credito para poder generar.", icon: "warning" }).then((value) => { });
+                            return;
+                        } 
+                        $("#tbGenerarSaldo").find('tr').each(function () {
+                            debugger
+                            var Documento = $(this).find('td.Documento').html()
+                            var index = objGenerarSaldo.selected.findIndex(C => C.Documento == Documento);
+                            if (index > -1) {
+                                let res = str.substring(NumeroNc.toString().length, 8) + NumeroNc.toString();
+                                objGenerarSaldo.selected[index].NumeroNc = res;
+                                $(this).find('td.NumeroNc #editCellText').val(res);                                
+                                NumeroNc++;
+                            }
+                        });
+                        //[/NumeroNc]
+                        debugger
+                    } else {
+                        swal({ title: "Generar Correlativo", text: "No ha seleccionado.", icon: "warning" }).then((value) => { });
+                    }
+                    console.log(objGenerarSaldo.selected)
+                });
+                /*[/Genera correlativo manual]*/
+
+                /*[Genera la fecha manual]*/
+                $("#btnAcFecha").click(function () {
+                     debugger
+                    var select = objGenerarSaldo.selected;
+                    if (select.length > 0) {
+                        let result = true;
+                        let Fec_Fac ="";
+                        let Fec_Nc = "";
+                        //[Fec_Fac]
+                        $("#tbGenerarSaldo").find('tr').each(function () {
+                            debugger
+                            var Documento = $(this).find('td.Documento').html()
+                            var index = objGenerarSaldo.selected.findIndex(C => C.Documento == Documento);
+
+                            if (index > -1) {
+                                Fec_Fac = $(this).find('td.Fec_Fac #editCellTextFec').val(); 
+                                if(Fec_Fac != ''){
+                                    return result = false;                                    
+                                }
+                            }
+                        });
+                        
+                        $("#tbGenerarSaldo").find('tr').each(function () {
+                            debugger
+                            var Documento = $(this).find('td.Documento').html()
+                            var index = objGenerarSaldo.selected.findIndex(C => C.Documento == Documento);
+
+                            if (index > -1) {
+                                objGenerarSaldo.selected[index].Fec_Fac = Fec_Fac;
+                                $(this).find('td.Fec_Fac #editCellTextFec').val(Fec_Fac);
+                            }
+                        });
+                        //[/Fec_Fac]
+
+                        //[Fec_Nc]
+                        $("#tbGenerarSaldo").find('tr').each(function () {
+                            var Documento = $(this).find('td.Documento').html()
+                            var index = objGenerarSaldo.selected.findIndex(C => C.Documento == Documento);
+
+                            if (index > -1) {
+                                Fec_Nc = $(this).find('td.Fec_Nc #editCellTextFec').val(); 
+                                if(Fec_Nc != ''){
+                                    return result = false;                                    
+                                }
+                            }
+                        });
+                        
+                        $("#tbGenerarSaldo").find('tr').each(function () {
+                            debugger
+                            var Documento = $(this).find('td.Documento').html()
+                            var index = objGenerarSaldo.selected.findIndex(C => C.Documento == Documento);
+
+                            if (index > -1) {
+                                objGenerarSaldo.selected[index].Fec_Nc = Fec_Nc;
+                                $(this).find('td.Fec_Nc #editCellTextFec').val(Fec_Nc);
+                            }
+                        });
+                        //[/Fec_Nc]
+                        
+                        debugger
+                    } else {
+                        swal({ title: "Generar Correlativo", text: "No ha seleccionado.", icon: "warning" }).then((value) => { });
+                    }
+                    console.log(objGenerarSaldo.selected)
+                });
+                /*[/Genera la fecha manual]*/
+
+                /*[Check que selecciona las filas para generar el saldo]*/
+                $('#tbGenerarSaldo tbody').on('change', '#editCheck', function (e) {
+                   // debugger
+                    let _coltrg = $(this).data("colname")
+                    let tr = $(this).closest('tr').index();
+                    let $row = $(this).closest('tr');
+                    let row = $('#tbGenerarSaldo').DataTable().row(tr);
+                    let data = row.data();
+                    let Documento = data.Documento
+                    let index = objGenerarSaldo.selected.findIndex(C => C.Documento == data.Documento);
+                    let indexAnular = objGenerarSaldo.selectedAnular.findIndex(C => C.Documento == data.Documento);
+
+                    if (this.checked) {
+                        data.Chk = true;
+                        $row.removeClass('SelectAnular');
+                        $row.addClass('Select');
+                        $("#btnGuardar").removeClass("disabled");
+                        $("#btnGuardar").removeAttr("disabled");
+                        $("#btnGenerarCorrelativo").removeClass("disabled");
+                        $("#btnGenerarCorrelativo").removeAttr("disabled");
+                        $("#btnAcFecha").removeClass("disabled");
+                        $("#btnAcFecha").removeAttr("disabled");
+                        $(this).closest('tr').find('#editCellTextCheck').attr('readonly', false);
+                        $(this).closest('tr').find('td.SerieFac #editCellText').attr('readonly', false);
+                        $(this).closest('tr').find('td.NumeroFac #editCellText').attr('readonly', false);
+                        $(this).closest('tr').find('td.SerieNc #editCellText').attr('readonly', false);
+                        $(this).closest('tr').find('td.NumeroNc #editCellText').attr('readonly', false);
+                        $(this).closest('tr').find('td.Fec_Fac #datepickerFec').datepicker({ autoclose: true, dateFormat: 'dd/mm/yy' })
+                        $(this).closest('tr').find('td.Fec_Nc #datepickerFec').datepicker({ autoclose: true, dateFormat: 'dd/mm/yy' })
+                        $(this).closest('tr').find('td.Fec_Fac #editCellTextFec').attr('readonly', false);
+                        $(this).closest('tr').find('td.Fec_Nc #editCellTextFec').attr('readonly', false);
+                        objGenerarSaldo.selected.push(data);
+                        /*---[Anular]--*/
+                        $(this).closest('tr').find('td.Anular #chkAnular').removeAttr('checked');
+                        if(indexAnular>-1){
+                            objGenerarSaldo.selectedAnular.splice(indexAnular, 1);
+                            if (objGenerarSaldo.selectedAnular.length == 0) {
+                                objGenerarSaldo.grid.btnsEstado();
+                            }
+                        }
+                        /*---[/Anular]--*/
+                    } else {
+                        data.Chk = false;
+                        let Saldo = data.Saldo
+                        let _Saldo = objGenerarSaldo.grid.FormatDecimal(((Saldo) / (1 + data.Percepcion)), 2, '.', ',')
+                        data.MontoFac = _Saldo;
+                        data.MontoNc = _Saldo;
+                        data.SerieFac = "";
+                        data.NumeroFac = "";
+                        data.SerieNc = "";
+                        data.NumeroNc = "";
+                        //debugger
+                        $(this).closest('tr').find('#editCellTextCheck').attr('readonly', true);
+                        $(this).closest('tr').find('#editCellTextCheck').val(objGenerarSaldo.grid.FormatDecimal(Saldo, 2, '.', ','));
+                        $(this).closest('tr').find('td.MontoFac').html(_Saldo);
+                        $(this).closest('tr').find('td.MontoNc').html(_Saldo);
+                        $(this).closest('tr').find('td.SerieFac #editCellText').attr('readonly', true);
+                        $(this).closest('tr').find('td.SerieFac #editCellText').val("");
+                        $(this).closest('tr').find('td.NumeroFac #editCellText').attr('readonly', true);
+                        $(this).closest('tr').find('td.NumeroFac #editCellText').val("");
+                        $(this).closest('tr').find('td.SerieNc #editCellText').attr('readonly', true);
+                        $(this).closest('tr').find('td.SerieNc #editCellText').val("");
+                        $(this).closest('tr').find('td.NumeroNc #editCellText').attr('readonly', true);
+                        $(this).closest('tr').find('td.NumeroNc #editCellText').val("");
+                        $(this).closest('tr').find('td.Fec_Fac #editCellTextFec').attr('readonly', true);
+                        $(this).closest('tr').find('td.Fec_Nc #editCellTextFec').attr('readonly', true);
+                        objGenerarSaldo.selected.splice(index, 1);
+                        objGenerarSaldo.grid.btnsEstado();
+                        $row.removeClass('Select');
+                    }
+                    console.log(objGenerarSaldo.selected);
+                    console.log(objGenerarSaldo.selectedAnular);
+                })
+                /*[/Check que selecciona las filas para generar el saldo]*/
+
+                /*[Inputs que edita los campos Serie factura , nota de credito y los numeros de la tabla]*/
+                $('#tbGenerarSaldo tbody').on('blur', '#editCellText', function (e) {
+                    e.preventDefault();
+                    //debugger
+                    let _coltrg = $(this).data("colname")
+                    let tr = $(this).closest('tr').index();
+                    let row = $('#tbGenerarSaldo').DataTable().row(tr);
+                    let data = row.data();
+                    let Value = $(this).val();
+                    let index = objGenerarSaldo.selected.findIndex(C => C.Documento == data.Documento);
+                    if (_coltrg == "SerieFac") {
+                        data.SerieFac = Value;
+                        objGenerarSaldo.selected[index].SerieFac = Value
+                    }
+                    if (_coltrg == "NumeroFac") {
+                        data.NumeroFac = Value;
+                        objGenerarSaldo.selected[index].NumeroFac = Value
+                    }
+                    if (_coltrg == "SerieNc") {
+                        data.SerieNc = Value;
+                        objGenerarSaldo.selected[index].SerieNc = Value
+                    }
+                    if (_coltrg == "NumeroNc") {
+                        data.NumeroNc = Value;
+                        objGenerarSaldo.selected[index].NumeroNc = Value
+                        //$('#tbGenerarSaldo').dataTable().fnUpdate(data, tr, 10, false);
+                    }
+                    e.stopPropagation();
+                })
+                /*[/Inputs que edita los campos Serie factura , nota de credito y los numeros de la tabla]*/
+
+                /*[Inputs que edita los campos saldo Util de la tabla]*/
+                $('#tbGenerarSaldo tbody').on('blur', '#editCellTextCheck', function (e) {
+                    e.preventDefault();
+                    //debugger
+                    let _coltrg = $(this).data("colname")
+                    let tr = $(this).closest('tr').index();
+                    let row = $('#tbGenerarSaldo').DataTable().row(tr);
+                    let data = row.data();
+                    let index = objGenerarSaldo.selected.findIndex(C => C.Documento == data.Documento);
+                    if (_coltrg == "Monto_Util") {
+                        let Monto_Util = $(this).val();
+                        data.Monto_Util = Monto_Util;
+                        let _MontoFac = objGenerarSaldo.grid.FormatDecimal(((Monto_Util) / (1 + data.Percepcion)), 2, '.', ',')
+                        data.MontoFac = _MontoFac;
+                        data.MontoNc = _MontoFac;
+                        objGenerarSaldo.selected[index].Monto_Util = Monto_Util
+                        objGenerarSaldo.selected[index].MontoFac = _MontoFac
+                        objGenerarSaldo.selected[index].MontoNc = _MontoFac
+                        $(this).closest('tr').find('td.MontoFac').html(_MontoFac)
+                        $(this).closest('tr').find('td.MontoNc').html(_MontoFac)
+                        //$(this).closest('tr').find('td.MontoFac').attr('readonly', false);
+                       // $('#tbGenerarSaldo').dataTable().fnUpdate(data, tr, 4, false);
+                    }
+                    e.stopPropagation();
+                })
+                /*[/Inputs que edita los campos saldo Util de la tabla]*/
+            },
+            grid: {
+                get: function () {
+                    /*[Carga la tabla]*/
+                    waitingDialog.show("Espere por favor...")
+                    $('#tbGenerarSaldo').DataTable({
+                        "language": {
+                            "url": "../Scripts/DataTables/Spanish.json"
+                        },
+                        "bServerSide": true,
+                        "bAutoWidth": false,
+                        "sAjaxSource": '@Url.Action("getListaSaldosAnticiposAjax", "Financiera")',
+                        "fnServerParams": function (aoData) {
+                            aoData.push({ "name": "isOkUpdate", "value": objGenerarSaldo.isOkUpdate })
+                        },
+                        "start": 0,
+                        "columnDefs": [{
+                            "orderable": false,
+                            "targets": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12],
+
+                        }],
+                        "bDeferRender": true,
+                        "aoColumns": [
+                            //Documento
+                            { "sName": "Documento", "mData": "Documento", "sClass": "alignCenter Documento" },
+                            //Cliente
+                            { "sName": "Cliente", "mData": "Cliente", "sClass": "" },
+                            //Saldo
+                            {
+                                "sName": "Saldo", "mData": "Saldo", "sClass": "alignRight",
+                                "render": function (Data, type, full, meta) {
+                                    var Saldo = full.Saldo;
+                                    return (Saldo == undefined || Saldo == null || Saldo == 0) ? ' ' : Saldo.toFixed(2);
+                                }
+                            },
+                            //Monto_Util
+                           {
+                               "mData": null, "sClass": "alignCenter Monto_Util",
+                               "render": function (data, type, full, meta) {
+                                   //debugger
+                                   let IndexDocu = objGenerarSaldo.selected.findIndex(C => C.Documento == full.Documento);
+                                   let check = full.Chk
+                                   let Monto_Util = full.Monto_Util
+                                   let readonly = true;
+                                   if (IndexDocu > -1) {
+                                       check = objGenerarSaldo.selected[IndexDocu].Chk
+                                       Monto_Util = objGenerarSaldo.selected[IndexDocu].Monto_Util
+                                       readonly = false;
+                                   }
+                                   return objGenerarSaldo.grid.CheckboxText(Monto_Util, "Monto_Util", check, "Chk", readonly);
+                               }
+                           },
+                            //SerieFac
+                            {
+                                "mData": null, "sClass": "alignCenter SerieFac",
+                                "render": function (data, type, full, meta) {
+                                    //debugger
+                                    let IndexDocu = objGenerarSaldo.selected.findIndex(C => C.Documento == full.Documento);
+                                    let SerieFac = full.SerieFac
+                                    let readonly = true;
+                                    if (IndexDocu > -1) {
+                                        SerieFac = objGenerarSaldo.selected[IndexDocu].SerieFac
+                                        readonly = false;
+                                    }
+                                    return objGenerarSaldo.grid.InputText(SerieFac, "SerieFac", readonly,4);
+                                }
+                            },
+                            //NumeroFac
+                            {
+                                "mData": null, "sClass": "alignCenter NumeroFac",
+                                "render": function (data, type, full, meta) {
+                                    //debugger
+                                    let IndexDocu = objGenerarSaldo.selected.findIndex(C => C.Documento == full.Documento);
+                                    let NumeroFac = full.NumeroFac
+                                    let readonly = true;
+                                    if (IndexDocu > -1) {
+                                        NumeroFac = objGenerarSaldo.selected[IndexDocu].NumeroFac
+                                        readonly = false;
+                                    }
+                                    return objGenerarSaldo.grid.InputText(NumeroFac, "NumeroFac", readonly,8);
+                                }
+                            },
+                            //Fec_Fac
+                            {
+                                "mData": null, "sClass": "alignCenter ui-datepicker-inline Fec_Fac",
+                                "render": function (data, type, full, meta) {
+                                    //debugger
+                                    let IndexDocu = objGenerarSaldo.selected.findIndex(C => C.Documento == full.Documento);
+                                    let Fec_Fac = full.Fec_Fac;
+                                    let readonly = true;
+                                    if (IndexDocu > -1) {
+                                        Fec_Fac = objGenerarSaldo.selected[IndexDocu].Fec_Fac;
+                                        readonly = false;
+                                    }
+                                    return objGenerarSaldo.grid.InputFechaText(Fec_Fac, "Fec_Fac", readonly);
+                                }
+                            },
+                            //MontoFac
+                            {
+                                "sName": "MontoFac", "mData": "MontoFac", "sClass": "alignRight MontoFac",
+                                "render": function (Data, type, full, meta) {
+                                    //debugger
+                                    let IndexDocu = objGenerarSaldo.selected.findIndex(C => C.Documento == full.Documento);
+                                    let MontoFac = parseFloat(full.MontoFac);
+                                    if (IndexDocu > -1) {
+                                        MontoFac = parseFloat(objGenerarSaldo.selected[IndexDocu].MontoFac);
+                                    }
+                                    
+                                    return (MontoFac == undefined || MontoFac == null || MontoFac == 0) ? ' ' : MontoFac.toFixed(2);
+                                }
+                            },
+                            //SerieNc
+                            {
+                                "mData": null, "sClass": "alignCenter SerieNc",
+                                "render": function (data, type, full, meta) {
+                                    //debugger
+                                    let IndexDocu = objGenerarSaldo.selected.findIndex(C => C.Documento == full.Documento);
+                                    let SerieNc = full.SerieNc;
+                                    let readonly = true;
+                                    if (IndexDocu > -1) {
+                                        SerieNc = objGenerarSaldo.selected[IndexDocu].SerieNc;
+                                        readonly = false;
+                                    }
+                                    return objGenerarSaldo.grid.InputText(SerieNc, "SerieNc", readonly, 4);
+                                }
+                            },
+                           //NumeroNc
+                            {
+                                "mData": null, "sClass": "alignCenter NumeroNc",
+                                "render": function (data, type, full, meta) {
+                                    //debugger
+                                    let IndexDocu = objGenerarSaldo.selected.findIndex(C => C.Documento == full.Documento);
+                                    let NumeroNc = full.NumeroNc
+                                    let readonly = true;
+                                    if (IndexDocu > -1) {
+                                        NumeroNc = objGenerarSaldo.selected[IndexDocu].NumeroNc;
+                                        readonly = false;
+                                    }
+                                    return objGenerarSaldo.grid.InputText(NumeroNc, "NumeroNc", readonly, 8);
+                                }
+                            },
+                           //Fec_Nc
+                            {
+                                "mData": null, "sClass": "ui-datepicker-inline Fec_Nc",
+                                "render": function (data, type, full, meta) {
+                                    //debugger
+                                    let IndexDocu = objGenerarSaldo.selected.findIndex(C => C.Documento == full.Documento);
+                                    let Fec_Nc = full.Fec_Nc
+                                    let readonly = true;
+                                    if (IndexDocu > -1) {
+                                        Fec_Nc = objGenerarSaldo.selected[IndexDocu].Fec_Nc;
+                                        readonly = false;
+                                    }
+                                    return objGenerarSaldo.grid.InputFechaText(Fec_Nc, "Fec_Nc", readonly);
+                                }
+                            },
+                            //MontoNc
+                            {
+                                "sName": "MontoNc", "mData": "MontoNc", "sClass": "alignRight MontoNc",
+                                "render": function (Data, type, full, meta) {
+                                    //debugger
+                                    let IndexDocu = objGenerarSaldo.selected.findIndex(C => C.Documento == full.Documento);
+                                    let MontoNc = parseFloat(full.MontoNc);
+                                    if (IndexDocu > -1) {
+                                        MontoNc = parseFloat(objGenerarSaldo.selected[IndexDocu].MontoNc);
+                                    }
+                                    return (MontoNc == undefined || MontoNc == null || MontoNc == 0) ? ' ' : MontoNc.toFixed(2);
+                                }
+                            },
+                            {
+                                "mData": null, "sClass": "Anular alignCenter",
+                                "render": function (data, type, full, meta) {
+                                    //debugger
+                                    let IndexDocu = objGenerarSaldo.selectedAnular.findIndex(C => C.Documento == full.Documento);
+                                    let check = full.Chk
+                                    if (IndexDocu > -1) {
+                                        check = objGenerarSaldo.selectedAnular[IndexDocu].Chk
+                                    }
+                                    return objGenerarSaldo.grid.CheckboxAnular(check, "Anular");
+                                }
+                            }
+                        ],
+                        "fnRowCallback": function (row, data, index) {
+                            //debugger
+                            let IndexDocu = objGenerarSaldo.selected.findIndex(C => C.Documento == data.Documento);
+                            if (IndexDocu > -1) {
+                                $(row).addClass('Select');
+                            }
+                            let IndexAnular = objGenerarSaldo.selectedAnular.findIndex(C => C.Documento == data.Documento);
+                            if (IndexAnular > -1) {
+                                $(row).addClass('SelectAnular');
+                            }
+                        },
+                        "drawCallback": function (settings) {                           
+                            $("#tbGenerarSaldo tbody td.ui-datepicker-inline #datepickerFec").datepicker({
+                                    autoclose: true,
+                                    dateFormat: 'dd/mm/yy'
+                                }).on("changeDate", function (selected) {
+                                    debugger
+                                    var minDate = new Date(selected.date.valueOf());
+                                    var date = minDate.toLocaleDateString()
+
+                                    let _coltrg = $(this).children().first().data("colname")
+
+                                    let tr = $(this).closest('tr').index();
+                                    let row = $('#tbGenerarSaldo').DataTable().row(tr);
+                                    let data = row.data();
+                                    //data.Fec_Nc = date;
+                                    let index = objGenerarSaldo.selected.findIndex(C => C.Documento == data.Documento);
+
+                                    if(index>-1){
+                                        if (_coltrg === "Fec_Fac") {
+                                            data.Fec_Fac = date;
+                                            objGenerarSaldo.selected[index].Fec_Fac = date
+                                        }
+                                        if (_coltrg === "Fec_Nc") {
+                                            data.Fec_Nc = date;
+                                            objGenerarSaldo.selected[index].Fec_Nc = date
+                                        }
+                                    }
+                                });
+
+                            objGenerarSaldo.grid.btnsEstado();
+                            objGenerarSaldo.isOkUpdate = false;
+                            objGenerarSaldo.grid.OnBlur();
+                            waitingDialog.hide();
+                        },
+                        "initComplete": function (settings, json) {
+                        },
+                        "fndrawCallback": function (settings) {
+
+                        }
+                    });
+                    /*[/Carga la tabla]*/
+                },
+                cargaTabla: function () {
+                    waitingDialog.show("Espere por favor...")
+                    $('#tbGenerarSaldo').DataTable().ajax.reload(function () {
+                        waitingDialog.hide();
+                    });
+                },
+                InputText: function (value, colName, readonly,MaxValue) {
+                    //debugger
+                    readonly = readonly || false;
+                    var _input = '<input id="editCellText" type="text" class="form-control input-sm ui-cell-input" ' +
+                        'value="' + value + '" ' +
+                        'maxlength="' + MaxValue + '" ' +
+                        'data-colname="' + colName + '" ' +
+                        (readonly==true? ' readonly="true"' : '') +
+                        '/>';
+                    return _input;
+                },
+                InputTextDecimal: function (value, colName, readonly) {
+                    //debugger
+                    readonly = readonly || false;
+                    var _input = '<input id="editCellTextDecimal" type="text" class="form-control input-sm ui-cell-input" ' +
+                        'value="' + objGenerarSaldo.grid.FormatDecimal(value, 2, '.', ',') + '" ' +
+                        ' data-colname="' + colName + '"' +
+                        (readonly==true? ' readonly="true"' : '') +
+                        '/>';
+                    return _input;
+                },
+                InputFechaText: function (value, colName, readonly) {
+                   // debugger
+                    readonly = readonly || false;
+                    var _input = '<div id="datepickerFec" class="input-group date" data-date-format="dd/mm/yyyy" >' +
+                                    '<input id="editCellTextFec" type="text" class="form-control input-sm ui-cell-input" ' +
+                                    'value="' + value + '" ' +
+                                    ' data-colname="' + colName + '"' +
+                                    (readonly == true ? ' readonly="true"' : '') +
+                                    '/>'+
+                                    '<span class="input-group-addon btn btn-xs btn-default" style = "padding: 4px 5px;"><i class="glyphicon glyphicon-calendar"  height="20" width="20" style="color:#055483"></i></span>' +
+                                '</div>';
+                    return _input;
+                },
+                CheckboxText: function (value, colName, valueCheck, colNameCheck, readonly) {
+                    //debugger
+                    readonly = readonly || false;
+                    var _input = '<div class="input-group mb-3 CellMonto">' +
+                                    '<input id="editCellTextCheck" type="text" style="text-align:right;" class="form-control input-sm ui-cell-input" ' +
+                                    'value="' + objGenerarSaldo.grid.FormatDecimal(value) + '" ' +
+                                    ' data-colname="' + colName + '"' +
+                                    (readonly == true ? ' readonly="true"' : '') +
+                                    '/>' +
+                                    '<span class="input-group-addon btn btn-xs btn-default" style="padding: 4px 5px;">' +
+                                           '<input  id="editCheck" type="checkbox"' +
+                                            (valueCheck == true ? 'checked="checked"' : '') +
+                                            'data-colname="' + (typeof this == "object" && this.field != undefined ? this.field : colNameCheck) + '"' +
+                                            '/>'
+                                    '</span>' +
+                            '</div>';
+                    return _input;
+                    
+                },
+                CheckboxAnular : function (value, colName) {
+                    var _input = '<label class="control control-checkbox">' +
+                        '<input id="chkAnular" type="checkbox" class="form-check-input" ' +
+                        (value == true ? 'checked="checked"' : '') +
+                        'data-colname="' + (typeof this=="object" && this.field !=undefined ? this.field: colName) + '"' +
+                        '/>'+
+                        '<div class="control_indicator"></div>'+
+                        '</label>';
+                    return _input;
+                },
+                NoDigit: function (element) {
+                    $(element).keypress(function (e) {
+                        var keyCode = e.keyCode || e.which;
+                        var regex = /^[]+$/;
+                        //Validate TextBox value against the Regex.
+                        var isValid = regex.test(String.fromCharCode(keyCode));
+                        return isValid;
+                    });
+                },
+                SoloTexto: function (element) {
+                    //SOLO LETRAS CON NUMERO SIN CARACTERES ESPECIALES
+                    $(element).keypress(function (e) {
+                        var keyCode = e.keyCode || e.which;
+                        var regex = /^[a-zA-ZáéíóúÁÉÍÓÚñÑ0-9. ]+$/;
+                        //Validate TextBox value against the Regex.
+                        var isValid = regex.test(String.fromCharCode(keyCode));
+                        return isValid;
+                    });
+                },
+                SoloDecimales: function (element) {
+                    // SOLO PERMITE INGRESAR NUMEROS CON PUNTO DECIMAL
+                   // debugger
+                    $(element).keypress(function (evt) {
+                        var el = this;
+                        var charCode = (evt.which) ? evt.which : event.keyCode
+                        if (charCode != 45 && charCode != 8 && (charCode != 46) && (charCode < 48 || charCode > 57))
+                            return false;
+                        if (charCode == 46) {
+                            if ((el.value) && (el.value.indexOf('.') >= 0))
+                                return false;
+                            else
+                                return true;
+                        }
+
+                        return true;
+                    });
+                },
+                SoloNumeros: function (element) {
+                    //SOLO NUMEROS
+                    $(element).keypress(function (e) {
+                        var keyCode = e.keyCode || e.which;
+                        var regex = /^[0-9]$/;
+                        var isValid = regex.test(String.fromCharCode(keyCode));
+                        if (!isValid) {
+                        }
+                        return isValid;
+                    });
+                },
+                FormatDecimal: function (numero, decimales, separadorDecimal, separadorMiles) {
+                    //debugger
+                    var partes, array;
+
+                    if ( !isFinite(numero) || isNaN(numero = parseFloat(numero)) ) {
+                        return "";
+                    }
+                    if (typeof decimales === "undefined") {
+                        decimales = 2;
+                    }
+                    if (typeof separadorDecimal==="undefined") {
+                        separadorDecimal = ".";
+                    }
+                    if (typeof separadorMiles==="undefined") {
+                        separadorMiles = ",";
+                    }
+                    // Redondeamos
+                    if ( !isNaN(parseInt(decimales)) ) {
+                        if (decimales >= 0) {
+                            numero = numero.toFixed(decimales);
+                        } else {
+                            numero = (
+                                Math.round(numero / Math.pow(10, Math.abs(decimales))) * Math.pow(10, Math.abs(decimales))
+                            ).toFixed();
+                        }
+                    } else {
+                        numero = numero.toString();
+                    }
+                    // Damos formato
+                    partes = numero.split(".", 2);
+                    array = partes[0].split("");
+                    for (var i=array.length-3; i>0 && array[i-1]!=="-"; i-=3) {
+                        array.splice(i, 0, separadorMiles);
+                    }
+                    numero = array.join("");
+
+                    if (partes.length>1) {
+                        numero += separadorDecimal + partes[1];
+                    }
+                    return numero;
+                },
+                OnBlur: function () {
+                    //debugger
+                    objGenerarSaldo.grid.SoloDecimales("#tbGenerarSaldo tbody td.Monto_Util #editCellTextCheck", function (e) {
+                    });
+                    objGenerarSaldo.grid.SoloTexto("#tbGenerarSaldo tbody td.SerieFac #editCellText", function (e) {
+                    });
+                    objGenerarSaldo.grid.SoloNumeros("#tbGenerarSaldo tbody td.NumeroFac #editCellText", function (e) {
+                    });
+                    objGenerarSaldo.grid.SoloTexto("#tbGenerarSaldo tbody td.SerieNc #editCellText", function (e) {
+                    });
+                    objGenerarSaldo.grid.SoloNumeros("#tbGenerarSaldo tbody td.NumeroNc #editCellText", function (e) {
+                    });
+                    objGenerarSaldo.grid.NoDigit("#tbGenerarSaldo tbody td.Fec_Nc #editCellTextFec", function (e) {
+                    });
+                    objGenerarSaldo.grid.NoDigit("#tbGenerarSaldo tbody td.Fec_Fac #editCellTextFec", function (e) {
+                    });
+                },
+                Validar: function () {
+                    var resul = true
+                    if (objGenerarSaldo.selected.length == 0) {
+                        swal({ title: "Generar anticipos", text: "No ha seleccionado.", icon: "warning" }).then((value) => { });
+                        return resul = false;
+                    }
+                    if (objGenerarSaldo.selected.length > 0) {
+                        $("#tbGenerarSaldo").find('tr').each(function () {
+                            var Documento = $(this).find('td.Documento').html()
+                            var index = objGenerarSaldo.selected.findIndex(C => C.Documento == Documento);
+                            if (index > -1) {
+                               // debugger
+                                let Monto_Util = $(this).find('td.Monto_Util #editCellTextCheck').val();
+                                if (Monto_Util == undefined || Monto_Util == null || Monto_Util == 0 || Monto_Util == '') {
+                                    swal({ title: "Alerta", text: "Debe ingresar el saldo util.", icon: "error" }).then((value) => {
+                                        $(this).find('td.Monto_Util #editCellText').focus();
+                                    });
+                                    return resul = false;
+                                }
+                                let SerieFac = $(this).find('td.SerieFac #editCellText').val();
+                                if (SerieFac == undefined || SerieFac == null || SerieFac == 0 || SerieFac == '') {
+                                    swal({ title: "Alerta", text: "La serie factura no puede estar vacío.", icon: "error" }).then((value) => {
+                                        $(this).find('td.SerieFac #editCellText').focus();
+                                    });
+                                    return resul = false;
+                                }
+                                let NumeroFac = $(this).find('td.NumeroFac #editCellText').val();
+                                if (NumeroFac == undefined || NumeroFac == null || NumeroFac == 0 || NumeroFac == '') {
+                                    swal({ title: "Alerta", text: "El número de la factura no puede estar vacío.", icon: "error" }).then((value) => {
+                                        $(this).find('td.NumeroFac #editCellText').focus();
+                                    });
+                                    return resul = false;
+                                }
+                                let SerieNc = $(this).find('td.SerieNc #editCellText').val();
+                                if (SerieNc == undefined || SerieNc == null || SerieNc == 0 || SerieNc == '') {
+                                    swal({ title: "Alerta", text: "La serie de la nota de credito no puede estar vacío.", icon: "error" }).then((value) => {
+                                        $(this).find('td.SerieNc #editCellText').focus();
+                                    });
+                                    return resul = false;
+                                }
+                                let NumeroNc = $(this).find('td.NumeroNc #editCellText').val();
+                                if (NumeroNc == undefined || NumeroNc == null || NumeroNc == 0 || NumeroNc == '') {
+                                    swal({ title: "Alerta", text: "El número de la nota de credito no puede estar vacío.", icon: "error" }).then((value) => {
+                                        $(this).find('td.NumeroNc #editCellText').focus();
+                                    });
+                                    return resul = false;
+                                }
+                                let Fec_Fac = $(this).find('td.Fec_Fac #editCellTextFec').val();
+                                if (Fec_Fac == undefined || Fec_Fac == null || Fec_Fac == 0 || Fec_Fac == '') {
+                                    swal({ title: "Alerta", text: "La fecha de la factura no puede estar vacío.", icon: "error" }).then((value) => {
+                                        $(this).find('td.Fec_Fac #editCellTextFec').focus();
+                                    });
+                                    return resul = false;
+                                }
+                                let Fec_Nc = $(this).find('td.Fec_Nc #editCellTextFec').val();
+                                if (Fec_Nc == undefined || Fec_Nc == null || Fec_Nc == 0 || Fec_Nc == '') {
+                                    swal({ title: "Alerta", text: "La fecha de la nota de crfedito no puede estar vacío.", icon: "error" }).then((value) => {
+                                        $(this).find('td.Fec_Fac #editCellTextFec').focus();
+                                    });
+                                    return resul = false;
+                                }
+                            }
+                        });
+                    }
+                    //debugger;
+                    return resul;
+                },
+                ValidarAnular: function(){
+                    //debugger
+                    var resul = true
+                    if (objGenerarSaldo.selectedAnular.length == 0) {
+                        swal({ title: "Anular", text: "No ha seleccionado ningún item", icon: "warning" }).then((value) => { });
+                        return resul = false;
+                    }
+                    return resul
+                },
+                btnsEstado : function(){
+                    if(objGenerarSaldo.selected.length==0){
+                        $("#btnGuardar").addClass("disabled");
+                        $("#btnGuardar").attr('disabled', 'disabled');
+                        $("#btnGenerarCorrelativo").addClass("disabled");
+                        $("#btnGenerarCorrelativo").attr('disabled', 'disabled');
+                        $("#btnAcFecha").addClass("disabled");
+                        $("#btnAcFecha").attr('disabled', 'disabled');
+                        ;
+                    }else{
+                        $("#btnGuardar").removeClass("disabled");
+                        $("#btnGuardar").removeAttr("disabled");
+                        $("#btnGenerarCorrelativo").removeClass("disabled");
+                        $("#btnGenerarCorrelativo").removeAttr("disabled");
+                        $("#btnAcFecha").removeClass("disabled");
+                        $("#btnAcFecha").removeAttr("disabled");
+                    }
+
+                    if(objGenerarSaldo.selectedAnular.length==0){
+                        $("#btnAnular").addClass("disabled");
+                        $("#btnAnular").attr('disabled', 'disabled')
+                    }else{
+                        $("#btnAnular").removeClass("disabled");
+                        $("#btnAnular").removeAttr("disabled");
+                    }
+                }
+            },
+            general: {
+                Registrar: function () {
+                    debugger;
+                    swal({
+                        title: "¿Seguro que que desea generar los anticipos?",
+                        text: "",
+                        icon: "warning",
+                        buttons: ["No", "Si"],
+                        dangerMode: true,
+                    }).then((cambiar) => {
+                        if (cambiar) {
+                            waitingDialog.show("Espere un momento por favor.")
+                            debugger
+                            var _LisSaldo = function () { return @Html.Raw(Json.Encode(ViewBag.LisSaldos)); }();
+                            for(const key in objGenerarSaldo.selected){
+                                var _ent = function () { return @Html.Raw(Json.Encode(ViewBag.entSaldo)); }();
+                                _ent.Documento = objGenerarSaldo.selected[key].Documento;
+                                _ent.Cliente = objGenerarSaldo.selected[key].Cliente;
+                                _ent.Saldo = objGenerarSaldo.selected[key].Saldo;
+                                _ent.SerieFac = objGenerarSaldo.selected[key].SerieFac;
+                                _ent.NumeroFac = objGenerarSaldo.selected[key].NumeroFac;
+                                _ent.Fec_Fac = objGenerarSaldo.selected[key].Fec_Fac;
+                                _ent.MontoFac = objGenerarSaldo.selected[key].MontoFac;
+                                _ent.SerieNc = objGenerarSaldo.selected[key].SerieNc;
+                                _ent.NumeroNc = objGenerarSaldo.selected[key].NumeroNc;
+                                _ent.Fec_Nc = objGenerarSaldo.selected[key].Fec_Nc;
+                                _ent.MontoNc = objGenerarSaldo.selected[key].MontoNc;
+                                _ent.Monto_Util = objGenerarSaldo.selected[key].Monto_Util;
+                                _ent.Percepcion = objGenerarSaldo.selected[key].Percepcion;
+                                _ent.Chk = objGenerarSaldo.selected[key].Chk;
+                                _ent.Bas_Id = objGenerarSaldo.selected[key].Bas_Id;
+                                _LisSaldo.push(_ent);
+                            }
+                            debugger
+                            $.ajax({
+                                type: "POST",
+                                url: '@Url.Action("getGenerarAnticipos", "Financiera")',
+                                data: { _LisSaldo: _LisSaldo },
+                                async: false,
+                                success: function (data) {
+                                    data = JSON.parse(data);
+                                    if (data.Success) {
+                                        objGenerarSaldo.isOkUpdate = true                                       
+                                        swal({title: "Ok",text: data.Message,icon: "success"}).then((value) => {
+                                            waitingDialog.hide();
+                                            $('#tbGenerarSaldo').DataTable().ajax.reload(function () {});
+                                        }); 
+                                        objGenerarSaldo.selected = [];
+                                    } else {
+                                        swal({ title: "Alerta", text: data.Message, icon: "error" }).then((value) => { });
+                                        waitingDialog.hide();
+                                    }
+                                },
+                                error: function (XMLHttpRequest, textStatus, errorThrown) {
+                                    waitingDialog.hide();
+                                    swal({ title: "Alerta", text: "Error al grabar.", icon: "error" }).then((value) => { });
+                                }
+                            });
+                        }
+                    })
+                },
+                RegistrarAnular:function(){
+                    debugger;
+                    swal({
+                        title: "Anular",
+                        text: "¿Está seguro de Anular todos los saldos de clientes seleccionado?",
+                        icon: "warning",
+                        buttons: ["No", "Si"],
+                        dangerMode: true,
+                    }).then((cambiar) => {
+                        if (cambiar) {
+                            waitingDialog.show("Espere un momento por favor.")
+                            debugger
+
+                            var _ent = function () { return @Html.Raw(Json.Encode(ViewBag.entSaldo)); }();
+                            let strDocumento = "";
+                            for(const key in objGenerarSaldo.selectedAnular){
+                                strDocumento+= objGenerarSaldo.selectedAnular[key].Documento + ",";
+                            }
+                            _ent.Documento = strDocumento.slice(0, -1);
+                            debugger;
+                            $.ajax({
+                                type: "POST",
+                                url: '@Url.Action("getAnularSaldos", "Financiera")',
+                                data: { _ent: _ent },
+                                async: false,
+                                success: function (data) {
+                                    data = JSON.parse(data);
+                                    if (data.Success) {
+                                        objGenerarSaldo.isOkUpdate = true                                       
+                                        swal({title: "Ok",text: data.Message,icon: "success"}).then((value) => {
+                                            waitingDialog.hide();
+                                            $('#tbGenerarSaldo').DataTable().ajax.reload(function () {});
+                                        });
+                                        objGenerarSaldo.selectedAnular = [];
+                                    } else {
+                                        swal({ title: "Alerta", text: data.Message, icon: "error" }).then((value) => { });
+                                        waitingDialog.hide();
+                                    }
+                                },
+                                error: function (XMLHttpRequest, textStatus, errorThrown) {
+                                    waitingDialog.hide();
+                                    swal({ title: "Alerta", text: "Error al grabar.", icon: "error" }).then((value) => { });
+                                }
+                            });
+                        }
+                    })
+                }
+            }
+        };
+        //[Inicializamos]
+        $(document).ready(function () {
+            objGenerarSaldo.Inicio();
+        });
+        //[/Inicializamos]
+    </script>
+}

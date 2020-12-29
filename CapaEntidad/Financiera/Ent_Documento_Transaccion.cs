@@ -62,4 +62,66 @@ namespace CapaEntidad.Financiera
         public string Ban_Id { get; set; }
         public string Campo { get; set; }
     }
+
+    public class Ent_Venta_Semanal
+    {
+        public int? Id { get; set; }
+        public string Dtv_Clear { get; set; }
+        public string Promotor { get; set; }
+        public string DniRuc { get; set; }
+        public string Ped { get; set; }
+        public string BolFact { get; set; }
+        public string FechaDoc { get; set; }
+        public Decimal? MontoFac { get; set; }
+        public string NroVouBcp { get; set; }
+        public string FechavouBcp { get; set; }
+        public Decimal? MontoVouBcp { get; set; }
+        public string NroVisa { get; set; }
+        public string FechaVisa { get; set; }
+        public Decimal? MontoVisa { get; set; }
+        public string Nronc { get; set; }
+        public string Fechanc { get; set; }
+        public Decimal? Montonc { get; set; }
+        public string FechaSaldoant { get; set; }
+        public Decimal? MontoSaldoant { get; set; }
+        public Decimal? TotalPagos { get; set; }
+        public Decimal? SaldoFavor { get; set; }
+        //Campos adicionales
+        public DateTime? FechaInicio { get; set; }
+        public DateTime? FechaFin { get; set; }
+    }
+    public class Ent_Saldos_Anticipos{
+        public string Documento { get; set; }
+        public string Cliente { get; set; }
+        public Decimal? Saldo { get; set; }
+        public string SerieFac { get; set; }
+        public string NumeroFac { get; set; }
+        public string Fec_Fac { get; set; }
+        public Decimal? MontoFac { get; set; }
+        public string SerieNc { get; set; }
+        public string NumeroNc { get; set; }
+        public string Fec_Nc { get; set; }
+        public Decimal? MontoNc { get; set; }
+        public Decimal? Monto_Util { get; set; }
+        public Decimal? Percepcion { get; set; }
+        public bool? Chk { get; set; }
+        public int? Bas_Id { get; set; }
+        //campos adicionales
+        public decimal usu_ingreso { get; set; }
+    }
+
+    public class Ent_Validar_Pagos
+    {
+        public int NumBanco { get; set; }
+        public int NumTipoArchivo { get; set; }
+        public string NumDocuemnto { get; set; }
+        public string NumPedido { get; set; }
+        public string FecOperacion { get; set; }
+        public string DesOperacion { get; set; }
+        public string NumOperacion { get; set; }
+        public string MonOperacion { get; set; }
+        public string NomArchivo { get; set; }
+        public Decimal Usu_Validar { get; set; }
+    }
+
 }

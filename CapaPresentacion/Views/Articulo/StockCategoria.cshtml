@@ -49,10 +49,20 @@
         </div>                   
      </div>
     <div class="row">
-        <div class="col-sm-2" style="padding-left: 25px; width: 205px; margin-top: 23px; margin-bottom: 10px;">
-            <label for="excelFile" style="color: #3d566e;">Cargar archivo Excel</label>
-            <div class="form-group">
-                <input type="file" id="excelFile" accept=".xlsx">
+
+        <div class="col-md-3" style="padding-left: 25px;  margin-bottom: 10px;">
+            <div class="form-group" id="divMenArchivo">
+                <label id="lblMenArchivo" class="control-label">
+                    Cargar archivo Excel
+                </label>
+                <div class="input-group Input-Archivo ">
+                    <div class="input-group-btn">
+                        <button id="btnExaminar" class="btn btn-info btn-Examinar" type="button" style="width: 61.5px;">
+                            <i class="glyphicon glyphicon-folder-open" style="color:#FFF"></i>
+                        </button>
+                    </div>
+                    <input id="IdNombre" name="IdNombre" type="text" class="form-control " disabled placeholder='Seleccionar archivo...' />
+                </div>
             </div>
         </div>
     </div>
@@ -134,9 +144,11 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.7.7/xlsx.core.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xls/0.7.4-a/xls.core.min.js"></script>
     <script>
+        btnfile();
         $('input[type="file"]').change(function () {
             ExportToTable();
         });
+
         function ExportToTable() {
             try {
                 var regex = /\.(xls[mx]?)$/;
@@ -230,6 +242,32 @@
                     $('#excelFile').val("");
                 }
             });
+        }
+
+        function btnfile() {
+            $(".Input-Archivo").before(
+                function () {
+                    if (!$(this).prev().hasClass("Input-File")) {
+                        var element = $("<input type='file' id = 'excelFile' class='Input-File' style='visibility:hidden; height:0'>");
+                        element.attr("name", $(this).attr("name"));
+                        element.change(function () {
+
+                            element.next(element).find('input').val((element.val()).split('\\').pop());
+                        });
+                        $(this).find("button.btn-Examinar").click(function () {
+                            element.click();
+                        });
+                        $(this).find('input').css("cursor", "pointer");
+                        $(this).find('input').mousedown(function () {
+                            $(this).parents('.Input-Archivo').prev().click();
+                            return false;
+                        });
+                        debugger
+
+                        return element;
+                    }
+                }
+            );
         }
 
     </script>

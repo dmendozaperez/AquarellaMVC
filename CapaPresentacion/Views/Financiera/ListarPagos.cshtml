@@ -129,6 +129,7 @@
                 if (tipo_user == '08' || tipo_user == '06' || tipo_user == '04' ) {
                     objCliPago.IsOk = true;
                 }
+
                 $("#datepickerini").datepicker({
                     autoclose: true,
                     todayHighlight: true
@@ -286,8 +287,9 @@
                                             data = JSON.parse(data);
                                             if (data.Success) {                                                
                                                 swal({title: "Ok",text: data.Message,icon: "success"}).then((value) => {});
-                                                objCliPago.NroConsignacion = ""                                                
-                                                objCliPago.isOkUpdate = true
+                                                objCliPago.NroConsignacion = "";                                            
+                                                objCliPago.isOkUpdate = true;
+                                               
                                                 waitingDialog.hide();
                                                 $('#tbClientesPagos').DataTable().ajax.reload(function () {                                                         
                                                 });
