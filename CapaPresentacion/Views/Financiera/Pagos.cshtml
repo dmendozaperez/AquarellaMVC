@@ -131,7 +131,7 @@
             <div class="box-header with-border">
                 <div class="modal-footer" style="margin-top:-10px">
                     <div class="col-md-12">
-                        <button name="btncancelar" id="btncancelar" title="Cancelar" type="button" class="btn btn-danger">
+                        <button name="btncancelar" id="btncancelar" title="Cancelar" onclick="cancelar();" type="button" class="btn btn-danger">
                             <span class="glyphicon glyphicon-remove-circle">
                             </span>&nbsp;Cancelar
                         </button>
@@ -145,6 +145,16 @@
 </div>
 @section scripts{
     <script>
+
+        function cancelar() {
+            $("#btnGuardar").prop("disabled", true);
+            $("#btncancelar").prop("disabled", true);
+
+
+            window.location = '@Url.Action("ListarPagos", "Financiera")';
+        }
+
+
         var objNuevoPago = {
             Inicio: function () {
                 debugger
@@ -346,7 +356,8 @@
                                             swal({title: "Ok",text: data.Message,icon: "success"}).then((value) => {});
                                             waitingDialog.hide();
                                             setTimeout(function () {
-                                                window.location.href = '@Url.Action("ListarPagos", "Financiera", null)'
+                                                @*window.location.href = '@Url.Action("ListarPagos", "Financiera", null)'*@
+                                                cancelar();
                                             },50)
                                         } else {
                                             swal({ title: "Alerta", text: data.Message, icon: "error" }).then((value) => { });                                            
