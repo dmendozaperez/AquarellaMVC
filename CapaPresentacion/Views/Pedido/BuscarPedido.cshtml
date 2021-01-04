@@ -1,0 +1,324 @@
+﻿@using Newtonsoft.Json;
+@{
+    ViewBag.Title = "Búsqueda de pedido";
+    ViewBag.SubTitle = "";
+}
+<style>
+    .table thead {
+        background-color: #5799bf;
+        color: #fff;
+    }
+
+    .boton-xs-td {
+        padding-top: 5px !important;
+        padding-bottom: 5px !important;
+    }
+
+    .alignRight {
+        text-align: right;
+        vertical-align: middle;
+    }
+
+    .alignCenter {
+        text-align: center;
+        vertical-align: middle;
+    }
+
+</style>
+<p class="text-primary">Busque un pedido en el sistema y verifique su estado.</p>
+<div class="box box-body box-primary">
+    <div class="row">
+        <div class="col-md-8">
+        </div>
+        <div class="col-md-4 text-right" style="margin-top: 10px;">
+            <div class="form-group" style="margin-bottom: 0px;">
+                <div class="input-group">
+                    <input id="txtPedido" type="text" class="form-control" style="max-width: 100%" />
+                    <div class="input-group-btn">
+                        <button id="btnBuscar"  class="btn btn-primary" type="button">
+                            <i class="glyphicon glyphicon-search" style="color:#FFF"></i>
+                            &nbsp;&nbsp;Buscar
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <br />
+    <div class="row">
+        <div class="col-md-12">
+            <div class="table-responsive">
+                <table id="tbBusPedido" class="table table-hover table-bordered compact">
+                    <thead>
+                        <tr>
+                            <th style="text-align: center;">Lider</th>
+                            <th style="text-align: center;">Promotor</th>
+                            <th style="text-align: center;">Nro. Pedido</th>
+                            <th style="text-align: center;">Fec. Pedido</th>
+                            <th style="text-align: center;">Fec. Facturación</th>
+                            <th style="text-align: center;">Estado</th>
+                            <th style="text-align: center;">Unds</th>
+                            <th style="text-align: center;">Valor</th>
+                            <th style="text-align: center;">Ubicación</th>
+                            <th style="text-align: center;">Factura</th>
+                            <th style="text-align: center;">Nro. Guía</th>
+                            <th style="text-align: center;">Pedido</th>
+                            <th style="text-align: center;">Factura</th>                        
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td colspan='12'>No se encontraron resultados</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="CRLiquidacion" tabindex="-1" role="dialog" aria-labelledby="CRLiquidacion">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-12">
+                        <div id="ifrReporte" class="well" style="width: 100%; height: 100%; padding:0;">
+                            <iframe id="load" src="" frameborder="0" marginheight="1" marginwidth="1" scrolling="auto"
+                                    onload="javascript: waitingDialog.hide();" style="zoom:90%; width: 100%; height: calc(100vh - 100px);"></iframe>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button data-dismiss="modal" class="btn btn-primary">Cerrar</button>
+            </div>
+        </div>
+    </div>
+</div>
+@section scripts{
+    <script src="~/Scripts/Linkend/linq.min.js"></script>
+    <script>
+        var objBusPedido = {
+            Inicio: function () {
+                /*[Inicializamos variables]*/
+                this.isOkUpdate = false;
+                this.liq_id = 0;
+                objBusPedido.grid.get();
+                objBusPedido.Input.SoloNumeros($("#txtPedido"));
+
+                /*[/Inicializamos variables]*/
+
+                /*[Busqueda]*/
+                $("#btnBuscar").click(function () {
+                    objBusPedido.isOkUpdate = true;
+                    objBusPedido.liq_id = $("#txtPedido").val();
+                    objBusPedido.grid.cargaTabla();
+                });
+
+                $("#txtPedido").keyup(function (e) {
+                    if (e.keyCode == 13) {
+                        objBusPedido.isOkUpdate = true;
+                        objBusPedido.liq_id = $("#txtPedido").val();
+                        objBusPedido.grid.cargaTabla();
+                    }
+                });
+                /*[/Busqueda]*/
+
+
+                /*[btn Print]*/
+                $('#tbBusPedido tbody').on('click', '#btnPrint', function (e) {
+                    let _coltrg = $(this).data("colname")
+                    var liqId = $(this).attr('data-liqId');
+                    var venId = $(this).attr('data-venId');
+                    if (_coltrg == "Pedido")
+                    {                       
+                        waitingDialog.show("Espere por favor...");
+                        $.ajax({
+                            type: "Post",
+                            url: '@Url.Action("VerLiquidacion", "Pedido")',
+                            data: { liquidacion: liqId },
+                            success: function (data) {
+                                if (data.estado == 0) {
+                                    $("#load").show();
+                                    $("#load").attr("src", "../AspNetForms/ReportLiquidation.aspx");
+                                    $("#CRLiquidacion").modal({ backdrop: 'static', keyboard: false });
+                                    waitingDialog.hide();
+                                } else {
+                                    waitingDialog.hide();
+                                }
+                            },
+                            error: function (xhr) {
+                                waitingDialog.hide();
+                                toastr.error(xhr, 'Mensaje');
+                            }
+                        });
+                    }
+                    if (_coltrg == "Factura")
+                    {
+                        waitingDialog.show("Espere por favor...");
+                        $.ajax({
+                            type: "Post",
+                            url: '@Url.Action("VerFactura", "Pedido")',
+                            data: { liquidacion: liqId, invoice: venId },
+                            success: function (data) {
+                                if (data.estado == 0) {
+                                    $("#load").show();
+                                    $("#load").attr("src", "../AspNetForms/ReportInvoice.aspx");
+                                    $("#CRLiquidacion").modal({ backdrop: 'static', keyboard: false });
+                                    waitingDialog.hide();
+                                } else {
+                                    waitingDialog.hide();
+                                }
+                            },
+                            error: function (xhr) {
+                                waitingDialog.hide();
+                                toastr.error(xhr, 'Mensaje');
+                            }
+                        });
+                    }
+                })
+                /*[/btn Print]*/
+            },
+            grid: {
+                get: function () {
+                    /*[Carga la tabla]*/
+                    waitingDialog.show("Espere por favor...")
+                    $('#tbBusPedido').DataTable({
+                        "language": {
+                            "url": "../Scripts/DataTables/Spanish.json"
+                        },
+                        "bServerSide": true,
+                        "bAutoWidth": false,
+                        "sAjaxSource": '@Url.Action("getListarPedidoEstado", "Pedido")',
+                        "fnServerParams": function (aoData) {
+                            aoData.push({ "name": "isOkUpdate", "value": objBusPedido.isOkUpdate }),
+                            aoData.push({ "name": "liq_id", "value": objBusPedido.liq_id })
+                        },
+                        //"start": 0,
+                        "columnDefs": [{
+                            "orderable": false,
+                            "targets": [0,1, 2, 3, 4, 5, 6, 7, 8, 9, 10,11,12],
+
+                        }],
+                        "searching": false,   //Busqueda
+                        "lengthChange": false, //Lista por cantidad
+                        "bDeferRender": true,
+                        "aoColumns": [                            
+                            { "sName": "lider", "mData": "lider", "sClass": "" },
+                             { "sName": "nombres", "mData": "nombres", "sClass": "" },
+                            { "sName": "Liq_Id", "mData": "Liq_Id", "sClass": "alignCenter Liq_Id" },
+                            { "sName": "fecha", "mData": "fecha", "sClass": "" },
+                            //{ "sName": "Liq_Fecha", "mData": "Liq_Fecha", "sClass": "" },
+                            {
+                                "mData": null,
+                                "sClass": "alignCenter",
+                                "render": function (Data, type, full, meta) {
+                                    debugger;
+                                    var Liq_Fecha = (full.Liq_Fecha == undefined || full.Liq_Fecha == null || full.Liq_Fecha == 0) ? ' ' : new Date(parseInt(full.Liq_Fecha.replace("/Date(", "").replace(")/", ""), 10));;
+                                    return (Liq_Fecha == undefined || Liq_Fecha == null || Liq_Fecha == 0) ? ' ' : Liq_Fecha.toLocaleDateString();
+                                }
+                            },
+                            { "sName": "estado", "mData": "estado", "sClass": "" },
+                            { "sName": "cantidad", "mData": "cantidad", "sClass": "alignCenter" },
+                            { "sName": "valor", "mData": "valor", "sClass": "alignRight" },
+                            { "sName": "ubicacion", "mData": "ubicacion", "sClass": "" },
+                            //{ "sName": "Ven_Id", "mData": "Ven_Id", "sClass": "alignCenter" },
+                            {
+                                "mData": null, "sClass": "alignCenter",
+                                "render": function (Data, type, full, meta) {
+                                    var Ven_Id = full.Ven_Id;
+                                    return (Ven_Id == undefined || Ven_Id == null || Ven_Id == 0) ? '' : Ven_Id;
+                                }
+                            },
+                            //{ "sName": "Tra_Gui_No", "mData": "Tra_Gui_No", "sClass": "alignCenter" },
+                            {
+                                "mData": null, "sClass": "alignCenter",
+                                "render": function (Data, type, full, meta) {
+                                    debugger
+                                    var Tra_Gui_No = full.Tra_Gui_No;
+                                    return (Tra_Gui_No == undefined || Tra_Gui_No == null || Tra_Gui_No == 0) ? '' : Tra_Gui_No;
+                                }
+                            },
+                            {
+                                "mData": null, "sClass": "alignCenter",
+                                "render": function (data, type, full, meta) {
+                                    debugger
+                                    var Ven_Id = full.Ven_Id;
+                                    Ven_Id = (Ven_Id == undefined || Ven_Id == null || Ven_Id == 0) ? '' : Ven_Id;
+                                    return objBusPedido.grid.btnPrint("Pedido",full.Liq_Id,full.Ven_Id);
+                                }
+                            },
+                            {
+                                "mData": null, "sClass": "alignCenter",
+                                "render": function (data, type, full, meta) {
+                                    if (full.Liq_EstId == "PDE") {
+                                        var Ven_Id = full.Ven_Id;
+                                        Ven_Id = (Ven_Id == undefined || Ven_Id == null || Ven_Id == 0) ? '' : Ven_Id;
+                                        return objBusPedido.grid.btnPrint("Factura", full.Liq_Id, full.Ven_Id);
+                                    } else {
+                                        return '';
+                                    }
+                                    
+                                }
+                            }
+                        ],
+                        "fnRowCallback": function (row, data, index) {
+                            //debugger
+                        },
+                        "drawCallback": function (settings) {  
+                            objBusPedido.isOkUpdate = false;
+                            waitingDialog.hide();
+                        },
+                        "initComplete": function (settings, json) {
+                        },
+                        "fndrawCallback": function (settings) {
+
+                        }
+                    });
+                    /*[/Carga la tabla]*/
+                },
+                btnPrint: function (colName, Liq_Id, Ven_Id) {
+                    //debugger                   
+                    var _input = '<button title="Ver ' + colName + ' " id = "btnPrint" class="btn btn-xs btn-default btn-tabla"  ' +
+                                    ' data-colname="' + colName + '" ' +
+                                    ' data-liqId="' + Liq_Id + '" ' +
+                                    ' data-venId="' + Ven_Id + '" >' +
+                                    ( colName == 'Pedido' ? ' <span class="fa fa-print"></span>' :  ' <span class="fa fa-file-text-o text-success"></span>') +
+                                 '</button>';
+                    return _input;
+                },
+                cargaTabla: function () {
+                    waitingDialog.show("Espere por favor...")
+                    $('#tbBusPedido').DataTable().ajax.reload(function () {
+                        waitingDialog.hide();
+                    });
+                },                
+                Validar: function () {
+
+                }
+            },
+            Input :{
+                SoloNumeros: function (element) {
+                    //SOLO NUMEROS 
+                    $(element).keypress(function (e) {
+                        var keyCode = e.keyCode || e.which;
+                        var regex = /^[0-9]$/;
+                        var isValid = regex.test(String.fromCharCode(keyCode));
+                        if (!isValid) {
+                        }
+                        return isValid;
+                    });
+                }
+            },
+            general: {
+            }
+        };
+        //[Inicializamos]
+        $(document).ready(function () {
+            objBusPedido.Inicio();
+        });
+        //[/Inicializamos]
+    </script>
+}

@@ -3098,6 +3098,7 @@
     <Content Include="Views\Financiera\Generar_Saldos.cshtml" />
     <Content Include="Views\Financiera\Validar_Pagos.cshtml" />
     <Content Include="Views\Articulo\ArticuloPromocion.cshtml" />
+    <Content Include="Views\Pedido\BuscarPedido.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

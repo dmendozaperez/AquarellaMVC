@@ -683,5 +683,63 @@ namespace CapaDato.Pedido
             return ListNotaCredito;
         }
 
+        public List<Ent_Buscar_Pedido> ListarPedidoEstado(Ent_Buscar_Pedido ent)
+        {
+
+            List<Ent_Buscar_Pedido> Listar = new List<Ent_Buscar_Pedido>();
+            string sqlquery = "[USP_Leer_Liq_Guia]";
+            try
+            {
+                using (SqlConnection cn = new SqlConnection(Ent_Conexion.conexion))
+                {
+                    using (SqlCommand cmd = new SqlCommand(sqlquery, cn))
+                    {
+                        cmd.CommandType = CommandType.StoredProcedure;
+                        cmd.Parameters.AddWithValue("@liq_id", DbType.String).Value = ent.Liq_Id;
+                        using (SqlDataAdapter da = new SqlDataAdapter(cmd))
+                        {
+                            DataTable dt = new DataTable();
+                            da.Fill(dt);
+
+                            Listar = new List<Ent_Buscar_Pedido>();
+                            Listar = (from DataRow fila in dt.Rows
+                                      select new Ent_Buscar_Pedido()
+                                      {
+                                          lider = (fila["lider"] is DBNull) ? string.Empty : (string)(fila["lider"]),
+                                          Liq_Id = (fila["Liq_Id"] is DBNull) ? string.Empty : (string)(fila["Liq_Id"]),
+                                          fecha = (fila["fecha"] is DBNull) ? string.Empty : (string)(fila["fecha"]),
+                                          Liq_Fecha = (fila["Liq_Fecha"] is DBNull) ? (DateTime?)null : Convert.ToDateTime(fila["Liq_Fecha"]),
+                                          Bas_Id = (fila["Bas_Id"] is DBNull)? (int?)null : Convert.ToInt32(fila["Bas_Id"]),
+                                          nombres = (fila["nombres"] is DBNull) ? string.Empty : (string)(fila["nombres"]),
+                                          ubicacion = (fila["ubicacion"] is DBNull) ? string.Empty : (string)(fila["ubicacion"]),
+                                          Liq_EstId = (fila["Liq_EstId"] is DBNull) ? string.Empty : (string)(fila["Liq_EstId"]),
+                                          Est_Descripcion = (fila["Est_Descripcion"] is DBNull) ? string.Empty : (string)(fila["Est_Descripcion"]),
+                                          estado = (fila["estado"] is DBNull) ? string.Empty : (string)(fila["estado"]),
+                                          Liq_Igv = (fila["Liq_Igv"] is DBNull) ? (Decimal?)null : Convert.ToDecimal(fila["Liq_Igv"]),
+                                          desctogeneral = (fila["desctogeneral"] is DBNull) ? (Decimal?)null : Convert.ToDecimal(fila["desctogeneral"]),
+                                          cantidad = (fila["cantidad"] is DBNull) ? (int ?)null : Convert.ToInt32(fila["cantidad"]),
+                                          descuento = (fila["descuento"] is DBNull) ? (Decimal?)null : Convert.ToDecimal(fila["descuento"]),
+                                          ganancia = (fila["ganancia"] is DBNull) ? (Decimal?)null : Convert.ToDecimal(fila["ganancia"]),
+                                          _base = (fila["base"] is DBNull) ? (Decimal?)null : Convert.ToDecimal(fila["base"]),
+                                          valor = (fila["valor"] is DBNull) ? (Decimal?)null : Convert.ToDecimal(fila["valor"]),
+                                          Ven_Id = (fila["Ven_Id"] is DBNull) ? string.Empty : (string)(fila["Ven_Id"]),
+                                          Tra_Descripcion = (fila["Tra_Descripcion"] is DBNull) ? string.Empty : (string)(fila["Tra_Descripcion"]),
+                                          Tra_Gui_No = (fila["Tra_Gui_No"] is DBNull) ? string.Empty : (string)(fila["Tra_Gui_No"]),
+                                          Gru_Fecha = (fila["Gru_Fecha"] is DBNull) ? (DateTime?)null : Convert.ToDateTime(fila["Gru_Fecha"])
+
+                                      }
+                                    ).ToList();
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+            return Listar;
+        }
+
+
     }
 }

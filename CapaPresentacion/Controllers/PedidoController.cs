@@ -39,6 +39,8 @@ namespace CapaPresentacion.Controllers
         private string _session_customer = "_session_customer";
         private string _session_lnfo_liquidacion = "_session_lnfo_liquidacion";
         private string _session_notas_persona = "_session_notas_persona";
+        private string _session_ListarPedidoEstado = "_session_ListarPedidoEstado";
+
         private Dat_Cliente dat_cliente = new Dat_Cliente();
 
         private string _carga_inicial_editar = "_carga_inicial_editar";
@@ -2554,5 +2556,87 @@ namespace CapaPresentacion.Controllers
         //        aaData = result
         //    }, JsonRequestBehavior.AllowGet);
         //}
+
+        public ActionResult BuscarPedido()
+        {
+            Ent_Usuario _usuario = (Ent_Usuario)Session[Ent_Constantes.NameSessionUser];
+            string actionName = this.ControllerContext.RouteData.GetRequiredString("action");
+            string controllerName = this.ControllerContext.RouteData.GetRequiredString("controller");
+            string return_view = actionName + "|" + controllerName;
+
+            if (_usuario == null)
+            {
+                return RedirectToAction("Login", "Control", new { returnUrl = return_view });
+            }
+            else
+            {
+                Session[_session_ListarPedidoEstado] = null;
+                return View();
+            }
+        }
+        public JsonResult getListarPedidoEstado(Ent_jQueryDataTableParams param, string Liq_Id, bool isOkUpdate)
+        {
+            Ent_Buscar_Pedido Ent_Buscar_Pedido = new Ent_Buscar_Pedido();
+
+            if (isOkUpdate)
+            {
+                Ent_Buscar_Pedido.Liq_Id = Liq_Id;
+                Session[_session_ListarPedidoEstado] = datPedido.ListarPedidoEstado(Ent_Buscar_Pedido).ToList(); ;
+            }
+
+            /*verificar si esta null*/
+            if (Session[_session_ListarPedidoEstado] == null)
+            {
+                List<Ent_Buscar_Pedido> Lista_Buscar_Pedido = new List<Ent_Buscar_Pedido>();
+                Session[_session_ListarPedidoEstado] = Lista_Buscar_Pedido;
+            }
+
+            IQueryable<Ent_Buscar_Pedido> entDocTrans = ((List<Ent_Buscar_Pedido>)(Session[_session_ListarPedidoEstado])).AsQueryable();
+
+            //Manejador de filtros
+            int totalCount = entDocTrans.Count();
+            IEnumerable<Ent_Buscar_Pedido> filteredMembers = entDocTrans;
+            if (!string.IsNullOrEmpty(param.sSearch))
+            {
+                filteredMembers = entDocTrans
+                    .Where(m =>
+                        m.lider.ToUpper().Contains(param.sSearch.ToUpper())
+                     );
+            }
+
+            //Manejador de orden
+            var sortIdx = Convert.ToInt32(Request["iSortCol_0"]);
+
+            if (param.iSortingCols > 0)
+            {
+                if (Request["sSortDir_0"].ToString() == "asc")
+                {
+                    switch (sortIdx)
+                    {
+                        case 0: filteredMembers = filteredMembers.OrderBy(o => o.lider); break;
+                    }
+                }
+                else
+                {
+                    switch (sortIdx)
+                    {
+                        case 0: filteredMembers = filteredMembers.OrderByDescending(o => o.lider); break;
+                    }
+                }
+            }
+
+            var Result = filteredMembers
+                .Skip(param.iDisplayStart)
+                .Take(param.iDisplayLength);
+
+            //Se devuelven los resultados por json
+            return Json(new
+            {
+                sEcho = param.sEcho,
+                iTotalRecords = totalCount,
+                iTotalDisplayRecords = filteredMembers.Count(),
+                aaData = Result
+            }, JsonRequestBehavior.AllowGet);
+        }
     }
 }

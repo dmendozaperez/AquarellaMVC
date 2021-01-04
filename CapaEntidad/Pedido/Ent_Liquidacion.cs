@@ -62,4 +62,28 @@ namespace CapaEntidad.Pedido
         public decimal Percepcion { get; set; }
         public decimal Saldo { get; set; }
     }
+    public class Ent_Buscar_Pedido
+    {
+        public string lider { get; set; }
+        public string Liq_Id { get; set; }
+        public string fecha { get; set; }
+        public DateTime? Liq_Fecha { get; set; }
+        public int? Bas_Id { get; set; }
+        public string nombres { get; set; }
+        public string ubicacion { get; set; }
+        public string Liq_EstId { get; set; }
+        public string Est_Descripcion { get; set; }
+        public string estado { get; set; }
+        public Decimal? Liq_Igv { get; set; }
+        public Decimal? desctogeneral { get; set; }
+        public int? cantidad { get; set; }
+        public Decimal? descuento { get; set; }
+        public Decimal? ganancia { get; set; }
+        public Decimal? _base {get;set;}
+        public Decimal? valor { get; set; }
+        public string Ven_Id { get; set; }
+        public string Tra_Descripcion { get; set; }
+        public string Tra_Gui_No { get; set; }
+        public DateTime? Gru_Fecha { get; set; }
+    }
 }
