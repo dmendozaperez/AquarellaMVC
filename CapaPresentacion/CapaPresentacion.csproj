@@ -212,6 +212,20 @@
     <Compile Include="AspNetForms\ReportLiquidation.aspx.designer.cs">
       <DependentUpon>ReportLiquidation.aspx</DependentUpon>
     </Compile>
+    <Compile Include="AspNetForms\reportPicking.aspx.cs">
+      <DependentUpon>reportPicking.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="AspNetForms\reportPicking.aspx.designer.cs">
+      <DependentUpon>reportPicking.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="AspNetForms\reportPickingGrupo.aspx.cs">
+      <DependentUpon>reportPickingGrupo.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="AspNetForms\reportPickingGrupo.aspx.designer.cs">
+      <DependentUpon>reportPickingGrupo.aspx</DependentUpon>
+    </Compile>
     <Compile Include="Bll\Basico.cs" />
     <Compile Include="Bll\ExcelExportHelper.cs" />
     <Compile Include="Bll\ReportCredentials.cs" />
@@ -240,6 +254,8 @@
     <Compile Include="Models\Control\LoginViewModel.cs" />
     <Compile Include="Models\Crystal\Invoice.cs" />
     <Compile Include="Models\Crystal\Liquidation.cs" />
+    <Compile Include="Models\Crystal\Pedido_Lider_Grupo.cs" />
+    <Compile Include="Models\Crystal\Picking.cs" />
     <Compile Include="Models\Crystal\ReporteFacturacion.cs" />
     <Compile Include="Models\Documento_TransaccionViewModel.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -250,10 +266,22 @@
       <DependentUpon>InvoiceReport.rpt</DependentUpon>
       <SubType>Component</SubType>
     </Compile>
+    <Compile Include="RptsCrystal\liquidacion_grupo_consulta.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>liquidacion_grupo_consulta.rpt</DependentUpon>
+      <SubType>Component</SubType>
+    </Compile>
     <Compile Include="RptsCrystal\liquidationReport.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
       <DependentUpon>liquidationReport.rpt</DependentUpon>
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="RptsCrystal\pickingReport.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>pickingReport.rpt</DependentUpon>
       <SubType>Component</SubType>
     </Compile>
     <Compile Include="Service References\ws_clientedniruc\Reference.cs">
@@ -266,6 +294,8 @@
   <ItemGroup>
     <Content Include="AspNetForms\ReportInvoice.aspx" />
     <Content Include="AspNetForms\ReportLiquidation.aspx" />
+    <Content Include="AspNetForms\reportPicking.aspx" />
+    <Content Include="AspNetForms\reportPickingGrupo.aspx" />
     <Content Include="ContentSelect\bootstrap-select.css" />
     <Content Include="ContentSelect\bootstrap.css" />
     <Content Include="ContentSelect\bootstrap.min.css" />
@@ -3099,6 +3129,8 @@
     <Content Include="Views\Financiera\Validar_Pagos.cshtml" />
     <Content Include="Views\Articulo\ArticuloPromocion.cshtml" />
     <Content Include="Views\Pedido\BuscarPedido.cshtml" />
+    <Content Include="Views\Pedido\MarcacionPedido.cshtml" />
+    <Content Include="Views\Pedido\Anular_Pedido_Marcacion.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
@@ -3142,9 +3174,17 @@
       <Generator>CrystalDecisions.VSDesigner.CodeGen.ReportCodeGenerator</Generator>
       <LastGenOutput>InvoiceReport.cs</LastGenOutput>
     </EmbeddedResource>
+    <EmbeddedResource Include="RptsCrystal\liquidacion_grupo_consulta.rpt">
+      <Generator>CrystalDecisions.VSDesigner.CodeGen.ReportCodeGenerator</Generator>
+      <LastGenOutput>liquidacion_grupo_consulta.cs</LastGenOutput>
+    </EmbeddedResource>
     <EmbeddedResource Include="RptsCrystal\liquidationReport.rpt">
       <Generator>CrystalDecisions.VSDesigner.CodeGen.ReportCodeGenerator</Generator>
       <LastGenOutput>liquidationReport.cs</LastGenOutput>
+    </EmbeddedResource>
+    <EmbeddedResource Include="RptsCrystal\pickingReport.rpt">
+      <Generator>CrystalDecisions.VSDesigner.CodeGen.ReportCodeGenerator</Generator>
+      <LastGenOutput>pickingReport.cs</LastGenOutput>
     </EmbeddedResource>
   </ItemGroup>
   <PropertyGroup>

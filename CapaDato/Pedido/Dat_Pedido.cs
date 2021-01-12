@@ -685,7 +685,6 @@ namespace CapaDato.Pedido
 
         public List<Ent_Buscar_Pedido> ListarPedidoEstado(Ent_Buscar_Pedido ent)
         {
-
             List<Ent_Buscar_Pedido> Listar = new List<Ent_Buscar_Pedido>();
             string sqlquery = "[USP_Leer_Liq_Guia]";
             try
@@ -726,7 +725,6 @@ namespace CapaDato.Pedido
                                           Tra_Descripcion = (fila["Tra_Descripcion"] is DBNull) ? string.Empty : (string)(fila["Tra_Descripcion"]),
                                           Tra_Gui_No = (fila["Tra_Gui_No"] is DBNull) ? string.Empty : (string)(fila["Tra_Gui_No"]),
                                           Gru_Fecha = (fila["Gru_Fecha"] is DBNull) ? (DateTime?)null : Convert.ToDateTime(fila["Gru_Fecha"])
-
                                       }
                                     ).ToList();
                         }
@@ -740,6 +738,248 @@ namespace CapaDato.Pedido
             return Listar;
         }
 
+        public List<Ent_Picking> ListarPicking()
+        {
+            List<Ent_Picking> Listar = new List<Ent_Picking>();
+            string sqlquery = "[USP_Leer_LiqEmp]";
+            try
+            {
+                using (SqlConnection cn = new SqlConnection(Ent_Conexion.conexion))
+                {
+                    using (SqlCommand cmd = new SqlCommand(sqlquery, cn))
+                    {
+                        cmd.CommandType = CommandType.StoredProcedure;
+                        using (SqlDataAdapter da = new SqlDataAdapter(cmd))
+                        {
+                            DataTable dt = new DataTable();
+                            da.Fill(dt);
 
+                            Listar = new List<Ent_Picking>();
+                            Listar = (from DataRow fila in dt.Rows
+                                      select new Ent_Picking()
+                                      {
+                                          Are_Descripcion = (fila["Are_Descripcion"] is DBNull) ? string.Empty : (string)(fila["Are_Descripcion"]),
+                                          Liq_Id = (fila["Liq_Id"] is DBNull) ? string.Empty : (string)(fila["Liq_Id"]),
+                                          Liq_Fecha = (fila["Liq_Fecha"] is DBNull) ? (DateTime?)null : Convert.ToDateTime(fila["Liq_Fecha"]),
+                                          Liq_Fecha_Expiracion = (fila["Liq_Fecha_Expiracion"] is DBNull) ? (DateTime?)null : Convert.ToDateTime(fila["Liq_Fecha_Expiracion"]),
+                                          Liq_Basid = (fila["Liq_Basid"] is DBNull) ? (int?)null : Convert.ToInt32(fila["Liq_Basid"]),
+                                          Liq_Estid = (fila["Liq_Estid"] is DBNull) ? string.Empty : (string)(fila["Liq_Estid"]),
+                                          Est_Descripcion = (fila["Est_Descripcion"] is DBNull) ? string.Empty : (string)(fila["Est_Descripcion"]),
+                                          Nombres = (fila["Nombres"] is DBNull) ? string.Empty : (string)(fila["Nombres"]),
+                                          Bas_Direccion = (fila["Bas_Direccion"] is DBNull) ? string.Empty : (string)(fila["Bas_Direccion"]),
+                                          Datedesc = (fila["Datedesc"] is DBNull) ? string.Empty : (string)(fila["Datedesc"]),
+                                          Cleardate = (fila["Cleardate"] is DBNull) ? (DateTime?)null : Convert.ToDateTime(fila["Cleardate"]),
+                                          Cleardesc = (fila["Cleardesc"] is DBNull) ? string.Empty : (string)(fila["Cleardesc"]),
+                                          Dateclear = (fila["Dateclear"] is DBNull) ? (DateTime?)null : Convert.ToDateTime(fila["Dateclear"]),
+                                          Liq_Igv = (fila["Liq_Igv"] is DBNull) ? (Decimal?)null : Convert.ToDecimal(fila["Liq_Igv"]),
+                                          Cantidad = Convert.ToInt32(fila["Cantidad"]),
+                                          Pin_Employee = (fila["Pin_Employee"] is DBNull) ? -1 : Convert.ToInt32(fila["Pin_Employee"])
+                                      }
+                                    ).ToList();
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+            return Listar;
+        }
+
+        public Ent_Picking_info ListarPickingInfo(Ent_Picking_info Ent)
+        {
+            Ent_Picking_info Ent_Picking_info = new Ent_Picking_info();
+            List<Ent_Picking_info> Listar = new List<Ent_Picking_info>();
+            string sqlquery = "[USP_Leer_Info_Empaque]";
+            try
+            {
+                using (SqlConnection cn = new SqlConnection(Ent_Conexion.conexion))
+                {
+                    using (SqlCommand cmd = new SqlCommand(sqlquery, cn))
+                    {
+                        cmd.CommandType = CommandType.StoredProcedure;
+                        cmd.Parameters.AddWithValue("@liq_id", DbType.String).Value = Ent.Liq_Id;
+                        using (SqlDataAdapter da = new SqlDataAdapter(cmd))
+                        {
+                            DataTable dt = new DataTable();
+                            da.Fill(dt);
+
+                            Listar = new List<Ent_Picking_info>();
+                            Listar = (from DataRow fila in dt.Rows
+                                      select new Ent_Picking_info()
+                                      {
+                                          Liq_Id = (fila["Liq_Id"] is DBNull) ? string.Empty : (string)(fila["Liq_Id"]),
+                                          Datedesc = (fila["Datedesc"] is DBNull) ? string.Empty : (string)(fila["Datedesc"]),
+                                          Lhd_Expiration_Date = (fila["Lhd_Expiration_Date"] is DBNull) ? (DateTime?)null : Convert.ToDateTime(fila["Lhd_Expiration_Date"]),
+                                          Lhn_Customer = (fila["Lhn_Customer"] is DBNull) ? (int?)null : Convert.ToInt32(fila["Lhn_Customer"]),
+                                          Lhv_Status = (fila["Lhv_Status"] is DBNull) ? string.Empty : (string)(fila["Lhv_Status"]),
+                                          Stv_Description = (fila["Stv_Description"] is DBNull) ? string.Empty : (string)(fila["Stv_Description"]),
+                                          Datedesclear = (fila["Datedesclear"] is DBNull) ? string.Empty : (string)(fila["Datedesclear"]),
+                                          Dateclear = (fila["Dateclear"] is DBNull) ? (DateTime?)null : Convert.ToDateTime(fila["Dateclear"]),
+                                          Pick_Start = (fila["Pick_Start"] is DBNull) ?  (DateTime?)null : Convert.ToDateTime(fila["Pick_Start"]),
+                                          Pick_Startdesc = (fila["Pick_Startdesc"] is DBNull) ?string.Empty : (string)(fila["Pick_Startdesc"]),
+                                          Pin_Employee = (fila["Pin_Employee"] is DBNull) ? (int?)null : Convert.ToInt32(fila["Pin_Employee"]),
+                                          Nameemployee = (fila["Nameemployee"] is DBNull) ? string.Empty : (string)(fila["Nameemployee"]),
+                                          Noliq = (fila["Noliq"] is DBNull) ? (int?)null : Convert.ToInt32(fila["Noliq"]),
+                                          Ldn_Qty = (fila["Ldn_Qty"] is DBNull) ? (int?)null : Convert.ToInt32(fila["Ldn_Qty"])
+                                      }
+                                    ).ToList();
+                        }
+                    }
+                }
+                Ent_Picking_info = Listar.ElementAt(0);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+            return Ent_Picking_info;
+        }
+
+        public bool startPicking(Ent_Picking ent)
+        {
+            bool result = false;
+            string sqlquery = "USP_Insertar_EmpaqLiq";
+            SqlConnection cn = null;
+            SqlCommand cmd = null;
+            try
+            {
+                cn = new SqlConnection(Ent_Conexion.conexion);
+                if (cn.State == 0) cn.Open();
+                cmd = new SqlCommand(sqlquery, cn);
+                cmd.CommandTimeout = 0;
+                cmd.CommandType = CommandType.StoredProcedure;
+                cmd.Parameters.AddWithValue("@liq_id", DbType.String).Value = ent.Liq_Id;
+                cmd.Parameters.AddWithValue("@bas_id", DbType.Int32).Value = ent.Pin_Employee;
+                cmd.Parameters.AddWithValue("@emp_liq_fechafin", DBNull.Value);
+                cmd.ExecuteNonQuery();
+                result = true;
+            }
+            catch (Exception ex)
+            {
+                result = false;
+            }
+            return result;
+        }
+        public bool endPicking(Ent_Picking ent)
+        {
+            bool result = false;
+            string sqlquery = "USP_Finalizar_Empaque";
+            SqlConnection cn = null;
+            SqlCommand cmd = null;
+            try
+            {
+                cn = new SqlConnection(Ent_Conexion.conexion);
+                if (cn.State == 0) cn.Open();
+                cmd = new SqlCommand(sqlquery, cn);
+                cmd.CommandTimeout = 0;
+                cmd.CommandType = CommandType.StoredProcedure;
+                cmd.Parameters.AddWithValue("@liq_id", DbType.String).Value = ent.Liq_Id;
+                cmd.ExecuteNonQuery();
+                result = true;
+            }
+            catch (Exception ex)
+            {
+                result = false;
+            }
+            return result;
+        }
+
+        public DataTable get_pedido_lidergrupo()
+        {
+            string sqlquery = "USP_Reporte_Pedido_Lider_Grupo";
+            SqlConnection cn = null;
+            SqlCommand cmd = null;
+            SqlDataAdapter da = null;
+            DataTable dt = null;
+            try
+            {
+                cn = new SqlConnection(Ent_Conexion.conexion);
+                cmd = new SqlCommand(sqlquery, cn);
+                cmd.CommandTimeout = 0;
+                cmd.CommandType = CommandType.StoredProcedure;
+                da = new SqlDataAdapter(cmd);
+                dt = new DataTable();
+                da.Fill(dt);
+            }
+            catch
+            {
+                dt = null;
+            }
+            return dt;
+        }
+
+        public List<Ent_Picking> ListarAnularPicking()
+        {
+            List<Ent_Picking> Listar = new List<Ent_Picking>();
+            string sqlquery = "[USP_Leer_LiqEmp_Marcacion]";
+            try
+            {
+                using (SqlConnection cn = new SqlConnection(Ent_Conexion.conexion))
+                {
+                    using (SqlCommand cmd = new SqlCommand(sqlquery, cn))
+                    {
+                        cmd.CommandType = CommandType.StoredProcedure;
+                        using (SqlDataAdapter da = new SqlDataAdapter(cmd))
+                        {
+                            DataTable dt = new DataTable();
+                            da.Fill(dt);
+
+                            Listar = new List<Ent_Picking>();
+                            Listar = (from DataRow fila in dt.Rows
+                                      select new Ent_Picking()
+                                      {
+                                          Are_Descripcion = (fila["Are_Descripcion"] is DBNull) ? string.Empty : (string)(fila["Are_Descripcion"]),
+                                          Liq_Id = (fila["Liq_Id"] is DBNull) ? string.Empty : (string)(fila["Liq_Id"]),
+                                          Liq_Fecha = (fila["Liq_Fecha"] is DBNull) ? (DateTime?)null : Convert.ToDateTime(fila["Liq_Fecha"]),
+                                          Liq_Fecha_Expiracion = (fila["Liq_Fecha_Expiracion"] is DBNull) ? (DateTime?)null : Convert.ToDateTime(fila["Liq_Fecha_Expiracion"]),
+                                          Liq_Basid = (fila["Liq_Basid"] is DBNull) ? (int?)null : Convert.ToInt32(fila["Liq_Basid"]),
+                                          Liq_Estid = (fila["Liq_Estid"] is DBNull) ? string.Empty : (string)(fila["Liq_Estid"]),
+                                          Est_Descripcion = (fila["Est_Descripcion"] is DBNull) ? string.Empty : (string)(fila["Est_Descripcion"]),
+                                          Nombres = (fila["Nombres"] is DBNull) ? string.Empty : (string)(fila["Nombres"]),
+                                          Bas_Direccion = (fila["Bas_Direccion"] is DBNull) ? string.Empty : (string)(fila["Bas_Direccion"]),
+                                          Datedesc = (fila["Datedesc"] is DBNull) ? string.Empty : (string)(fila["Datedesc"]),
+                                          Cleardate = (fila["Cleardate"] is DBNull) ? (DateTime?)null : Convert.ToDateTime(fila["Cleardate"]),
+                                          Cleardesc = (fila["Cleardesc"] is DBNull) ? string.Empty : (string)(fila["Cleardesc"]),
+                                          Dateclear = (fila["Dateclear"] is DBNull) ? (DateTime?)null : Convert.ToDateTime(fila["Dateclear"]),
+                                          Liq_Igv = (fila["Liq_Igv"] is DBNull) ? (Decimal?)null : Convert.ToDecimal(fila["Liq_Igv"]),
+                                          Cantidad = Convert.ToInt32(fila["Cantidad"]),
+                                          Pin_Employee = (fila["Pin_Employee"] is DBNull) ? -1 : Convert.ToInt32(fila["Pin_Employee"])
+                                      }
+                                    ).ToList();
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+            return Listar;
+        }
+        public bool AnularPicking(Ent_Picking ent)
+        {
+            bool result = false;
+            string sqlquery = "USP_Anular_Liquidacion_Marcacion";
+            SqlConnection cn = null;
+            SqlCommand cmd = null;
+            try
+            {
+                cn = new SqlConnection(Ent_Conexion.conexion);
+                if (cn.State == 0) cn.Open();
+                cmd = new SqlCommand(sqlquery, cn);
+                cmd.CommandTimeout = 0;
+                cmd.CommandType = CommandType.StoredProcedure;
+                cmd.Parameters.AddWithValue("@liq_id", DbType.String).Value = ent.Liq_Id;
+                cmd.ExecuteNonQuery();
+                result = true;
+            }
+            catch (Exception ex)
+            {
+                result = false;
+            }
+            return result;
+        }
     }
 }

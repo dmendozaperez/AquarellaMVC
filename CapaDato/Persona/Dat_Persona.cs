@@ -159,5 +159,43 @@ namespace CapaDato.Persona
             }
             return info;
         }
+
+        public List<Ent_Persona> Listar_Usuario_tipo(Ent_Persona Ent)
+        {
+            List<Ent_Persona> Listar = new List<Ent_Persona>();
+            string sqlquery = "[USP_Leer_Usuario_Tipo]";
+            try
+            {
+                using (SqlConnection cn = new SqlConnection(Ent_Conexion.conexion))
+                {
+                    cn.Open();
+                    using (SqlCommand cmd = new SqlCommand(sqlquery, cn))
+                    {
+
+                        cmd.CommandType = CommandType.StoredProcedure;
+                        cmd.Parameters.AddWithValue("@usu_tip_id", DbType.String).Value = Ent.Usu_Tip_ID;
+                        using (SqlDataAdapter da = new SqlDataAdapter(cmd))
+                        {
+                            DataTable dt = new DataTable();
+                            da.Fill(dt);
+
+                            Listar = new List<Ent_Persona>();
+                            Listar = (from DataRow fila in dt.Rows
+                                      select new Ent_Persona()
+                                      {
+                                          Codigo = Convert.ToInt32(fila["Bas_Id"]),
+                                          Descripcion = fila["nombres"].ToString()
+                                      }
+                                    ).ToList();
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+            return Listar;
+        }
     }
 }

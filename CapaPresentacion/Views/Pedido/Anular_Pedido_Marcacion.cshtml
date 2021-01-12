@@ -1,0 +1,501 @@
+﻿@using Newtonsoft.Json;
+@{
+    ViewBag.Title = "Marcación de pedidos en bodega";
+    ViewBag.SubTitle = "";
+}
+<style>
+
+    .table thead {
+        background-color: #5799bf;
+        color: #fff;
+    }
+
+    .boton-xs-td {
+        padding-top: 5px !important;
+        padding-bottom: 5px !important;
+    }
+
+    .alignRight {
+        text-align: right;
+        vertical-align: middle;
+    }
+
+    .alignCenter {
+        text-align: center;
+        vertical-align: middle;
+    }
+
+    .control {
+        font-family: arial;
+        display: block;
+        position: relative;
+        padding-left: 28px;
+        margin-bottom: 4px;
+        padding-top: 2px;
+        cursor: pointer;
+        font-size: 14px;
+    }
+
+        .control input {
+            position: absolute;
+            z-index: -1;
+            opacity: 0;
+        }
+
+    .control_indicator {
+        position: absolute;
+        top: 3px;
+        left: 0;
+        height: 19px;
+        width: 20px;
+        background: #e6e6e6;
+        border: 1px solid #97a6af;
+        border-radius: 4px;
+    }
+
+    .control:hover input ~ .control_indicator,
+    .control input:focus ~ .control_indicator {
+        background: #cccccc;
+    }
+
+    .control input:checked ~ .control_indicator {
+        background: #156aac;
+    }
+
+    .control:hover input:not([disabled]):checked ~ .control_indicator,
+    .control input:checked:focus ~ .control_indicator {
+        background: #156aac;
+    }
+
+    .control input:disabled ~ .control_indicator {
+        background: #e6e6e6;
+        opacity: 0.6;
+        pointer-events: none;
+    }
+
+    .control_indicator:after {
+        box-sizing: unset;
+        content: '';
+        position: absolute;
+        display: none;
+    }
+
+    .control input:checked ~ .control_indicator:after {
+        display: block;
+    }
+
+    .control-checkbox .control_indicator:after {
+        left: 6px;
+        top: 2px;
+        width: 3px;
+        height: 8px;
+        border: solid #ffffff;
+        border-width: 0 2px 2px 0;
+        transform: rotate(45deg);
+    }
+
+    .control-checkbox input:disabled ~ .control_indicator:after {
+        border-color: #7b7b7b;
+    }
+</style>
+<p class="text-primary">Anulacion de pedidos en marcacion y para facturar en almacen.</p>
+<div class="box box-header box-primary">
+    <label style="color:#9c9c9c;font-weight:bold">Parametros de busqueda</label>
+    <div class="row">
+        <div class="col-md-7 text-left">
+            <label class="control control-checkbox">
+                <input id="chkAutomatica" type="checkbox" />
+                Actualizar marcación automáticamente.
+                <div class="control_indicator"></div>
+            </label>
+        </div>
+        <div class="col-md-5 text-right">
+            <div class="form-group">
+                <div class="input-group">
+                    <div class="input-group-btn">
+                        <button id="btnRefrescar" class="btn btn-primary" type="button" style="margin-left: 10px;">
+                            <i class="glyphicon glyphicon-refresh" style="color:#FFF"></i>
+                            &nbsp;&nbsp;Refrescar
+                        </button>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+@*[Modal AlertInfo]*@
+<div class="modal fade" id="myModalInfoTime" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" ng-app>
+    <div class="modal-dialog">
+        <div class="modal-content">
+            @*[cuerpo del modal]*@
+            <div class="modal-header modal-header-danger" style="background-color: #00D500 !important;">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="myModalLabel">Marcación de pedidos</h4>
+            </div>
+            <div class="modal-body">
+                <div id="divInfoTime">
+                    <label style="color:#9c9c9c;font-weight:bold">Nuevos pedidos para marcación</label>
+                    <div class="row">
+                        <div class="col-md-12">
+                            @*[cuerpo del form]*@
+                            <form role="form">
+                                <div class="row" style="margin-bottom: 15px;">
+                                    <div class="col-sm-12">
+                                        <div class="form-group alignCenter">
+                                            <label id="lblXIniciar"></label>
+                                        </div>
+                                    </div>
+                                </div>
+
+                            </form>
+                            @*[/cuerpo del form]*@
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer" style="margin-top:-30px">
+                <button id="btnCerrarInfo" type="button" class="btn btn-default" data-dismiss="modal">Cerrar</button>
+            </div>
+            @*[/cuerpo del modal]*@
+        </div>
+    </div>
+</div>
+@*[Modal AlertInfo]*@
+
+<div class="box box-body box-primary">
+    <br />
+    <div class="row">
+        <div class="col-md-12">
+            <div class="table-responsive">
+                <table id="tbPicking" class="table table-hover table-bordered compact">
+                    <thead>
+                        <tr>
+                            <th style="text-align: center;">Área</th>
+                            <th style="text-align: center;">Nro. Pedido</th>
+                            <th style="text-align: center;">Estado</th>
+                            <th style="text-align: center;">Cliente</th>
+                            <th style="text-align: center;">Fec. Pedido</th>
+                            <th style="text-align: center;">Unds</th>
+                            <th style="text-align: center;">Ubicación</th>
+                            <th style="text-align: center;">Anular</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td colspan='14'>No se encontraron resultados</td>
+                        </tr>
+                    </tbody>
+                    <tfoot>
+                        <tr>
+                            <th>Totales</th>
+                            <th><span class="text-bold alignRight" id="totCantPedido"></span></th>
+                            <th></th>
+                            <th></th>
+                            <th></th>
+                            <th><span class="text-bold alignRight" id="totCantUnid"></span></th>
+                            <th></th>
+                            <th></th>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="box box-header box-primary">
+    <label style="color:#9c9c9c;font-weight:bold">Información de totalizado</label>
+    <div class="row">
+        <div class="col-md-6">
+            @*[cuerpo del form]*@
+            <form role="form">
+                <div class="row">
+                    <div class="col-sm-8">
+                        <div class="form-group" style="margin-bottom: 0px;">
+                            <label>Número de liquidaciones en marcación:</label>
+                        </div>
+                    </div>
+                    <div class="col-sm-4">
+                        <div class="form-group" style="margin-bottom: 0px;">
+                            <label id="lblNroMarcado"></label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-sm-8">
+                        <div class="form-group" style="margin-bottom: 0px;">
+                            <label>Unidades en marcación:</label>
+                        </div>
+                    </div>
+                    <div class="col-sm-4">
+                        <div class="form-group" style="margin-bottom: 0px;">
+                            <label id="lblUniMarcado"></label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-sm-8">
+                        <div class="form-group" style="margin-bottom: 0px;">
+                            <label>Número de liquidaciones en espera por inico de marcación:</label>
+                        </div>
+                    </div>
+                    <div class="col-sm-4">
+                        <div class="form-group" style="margin-bottom: 0px;">
+                            <label id="lblNroNoMarcado"></label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-sm-8">
+                        <div class="form-group" style="margin-bottom: 0px;">
+                            <label>Unidades en espera por inico de marcación:</label>
+                        </div>
+                    </div>
+                    <div class="col-sm-4">
+                        <div class="form-group" style="margin-bottom: 0px;">
+                            <label id="lblUniNoMarcado"></label>
+                        </div>
+                    </div>
+                </div>
+            </form>
+            @*[/cuerpo del form]*@
+        </div>
+    </div>
+</div>
+<div id="DivFrame" style="display:none;"></div>
+@section scripts{
+    <script src="~/Scripts/Linkend/linq.min.js"></script>
+    <script>
+
+        var objAnularMarcar = {
+            Inicio: function () {
+                /*[Inicializamos variables]*/
+                this.isOkUpdate = true;
+                this.liq_id = 0;
+                this.nIntervId;
+                this.chkAutomatica = true;
+                this.NroNoMarcado = 0;
+                $("#chkAutomatica").attr("checked", "checked");
+                objAnularMarcar.grid.get();
+                //objMarcar.general.timeAlertInfo();
+                //objMarcar.general.refresarGrid();
+                this.ListarUsuario = function () { return @Html.Raw(Json.Encode(ViewBag.ListarUsuario)); }();
+                /*[/Inicializamos variables]*/
+
+                /*[Busqueda]*/
+                $("#btnRefrescar").click(function () {
+                    objAnularMarcar.isOkUpdate = true;
+                    objAnularMarcar.grid.cargaTabla();
+                    objAnularMarcar.general.timeAlertInfo();
+                });
+                /*[/Busqueda]*/
+
+                /*[Check automatica]*/
+                $('#chkAutomatica').change(function () {
+                    if (this.checked) {
+                        $('#chkAutomatica').attr("checked", "checked");
+                        objAnularMarcar.chkAutomatica = true;
+                        objAnularMarcar.general.refresarGrid();
+                    } else {
+                        objMarcar.chkAutomatica = false;
+                        $('#chkAutomatica').removeAttr("checked");
+                        clearInterval(objAnularMarcar.nIntervId);
+                    }
+                });
+                /*[/Check automatica]*/
+
+                /*[Modal Comentario]*/
+                $("#btnCerrarInfo").click(function () {
+                    //debugger;
+                    objAnularMarcar.isOkUpdate = true;
+                    objAnularMarcar.chkAutomatica = true;
+                    waitingDialog.hide();
+                    $('#tbPicking').DataTable().ajax.reload(function () { });
+                    objAnularMarcar.general.timeAlertInfo();
+                    $('#myModalInfoTime').modal('hide');
+                });
+                /*[/Modal Comentario]*/
+
+                /*[Time]*/
+                $('#tbPicking tbody').on('click', '#btnAnular', function (e) {
+                    //debugger;
+                    let _coltrg = $(this).data("colname")
+                    let Liq_Id = $(this).attr('data-Liq_Id');
+                    let Cliente = $(this).closest('tr').find('td.Cliente').html();
+
+                    if (_coltrg == "Anular") {
+                        swal({
+                            title: "Anular la marcación",
+                            icon: "warning",
+                            text: "¿Está seguro de ANULAR el pedido con número : : " + Liq_Id + ", perteneciente A : " + Cliente + "?",
+                            buttons: ["No", "Si"],
+                            dangerMode: true,
+                        }).then((cambiar) => {
+                            if (cambiar) {                                
+                                debugger;
+                                waitingDialog.show("Espere por favor...");
+                                debugger
+                                $.ajax({
+                                    type: "Post",
+                                    url: '@Url.Action("AnularPicking", "Pedido")',
+                                    data: { Liq_Id: Liq_Id},
+                                    async: false,
+                                    success: function (data) {
+                                        data = JSON.parse(data);
+                                        if (data.Success) {
+                                            objAnularMarcar.isOkUpdate = true;
+                                               swal({title: "Ok",text: data.Message,icon: "success"}).then((value) => {});
+                                                waitingDialog.hide();
+                                                $('#tbPicking').DataTable().ajax.reload(function () { });
+                                        }else{
+                                            swal({ title: "Alerta", text: data.Message, icon: "error" }).then((value) => { });
+                                                waitingDialog.hide();
+                                            }
+                                    },
+                                    error: function (xhr) {
+                                            waitingDialog.hide();
+                                            swal({ title: "Alerta", text: "Error al grabar.", icon: "error" }).then((value) => { });
+                                    }
+                                });
+                            }
+                        })
+                    }
+                })
+                /*[/Time]*/
+            },
+            grid: {
+                get: function () {
+                    /*[Carga la tabla]*/
+                    //debugger
+                    waitingDialog.show("Espere por favor...")
+                    $('#tbPicking').DataTable({
+                        "language": {
+                            "url": "../Scripts/DataTables/Spanish.json"
+                        },
+                        "fnServerData": function (sSource, aoData, fnCallback) {
+                            //debugger
+                            $.getJSON(sSource, aoData, function (json) {
+                                //debugger
+                                objAnularMarcar.NroNoMarcado = json.iNroNoMarcado;
+                                $("#lblXIniciar").html("Tiene " + (json.iNroNoMarcado == 1 ? " un nuevo pedido" : " " + json.iNroNoMarcado + " nuevos pedidos"));
+                                $("#totCantUnid").html(json.itotCantidad);
+                                $("#totCantPedido").html(json.itotCantPedido);
+                                $("#lblNroMarcado").html(json.iNroMarcado);
+                                $("#lblNroNoMarcado").html(json.iNroNoMarcado);
+                                $("#lblUniMarcado").html(json.iUniMarcado);
+                                $("#lblUniNoMarcado").html(json.iUniNoMarcado);
+                                fnCallback(json);
+                            });
+                        },
+                        "bServerSide": true,
+                        "bAutoWidth": false,
+                        "sAjaxSource": '@Url.Action("getListarAnularPicking", "Pedido")',
+                        "fnServerParams": function (aoData) {
+                            aoData.push({ "name": "isOkUpdate", "value": objAnularMarcar.isOkUpdate })
+                            aoData.push({ "name": "Liq_Id", "value": objAnularMarcar.Liq_Id })
+                        },
+                        "columnDefs": [{
+                            "orderable": false,
+                            "targets": [0, 1, 2, 3, 4, 5, 6, 7],
+
+                        }],
+                        // "searching": false,   //Busqueda
+                        "lengthChange": false, //Lista por cantidad
+                        "bDeferRender": true,
+                        "aoColumns": [
+                            { "sName": "Are_Descripcion", "mData": "Are_Descripcion", "sClass": "" },
+                            { "sName": "Liq_Id", "mData": "Liq_Id", "sClass": "alignCenter" },
+                            { "sName": "Datedesc", "mData": "Datedesc", "sClass": "" },
+                            { "sName": "Est_Descripcion", "mData": "Est_Descripcion", "sClass": "" },
+                            { "sName": "Nombres", "mData": "Nombres", "sClass": "Cliente" },
+                            { "sName": "Cantidad", "mData": "Cantidad", "sClass": "alignCenter" },
+                            { "sName": "Bas_Direccion", "mData": "Bas_Direccion", "sClass": "" },
+                            {
+                                "mData": null, "sClass": "alignCenter",
+                                "render": function (data, type, full, meta) {
+                                    return objAnularMarcar.grid.btnAnular("Anular", full.Liq_Id);
+                                }
+                            }
+                        ],
+                        "drawCallback": function (settings) {
+                            objAnularMarcar.isOkUpdate = false;
+                            waitingDialog.hide();
+                        },
+                        "fnFooterCallback": function (nRow, aaData, iStart, iEnd, aiDisplay) {
+                            var api = this.api();
+                            var size = 0;
+                        },
+                        "initComplete": function (settings, json) {
+                            //debugger
+                            objAnularMarcar.general.refresarGrid();
+                        }
+                    });
+                    /*[/Carga la tabla]*/
+                },
+                btnAnular: function (colName, Liq_Id) {
+                    //debugger
+                    var _input = '<button title="' + colName + ' " id = "btnAnular"   ' +
+                                    ' class="btn btn-xs btn-danger" ' +
+                                    ' data-Liq_Id="' + Liq_Id + '" ' +
+                                    ' data-colname="' + colName + '" >' +
+                                    ' <span class="glyphicon glyphicon-ban-circle" ></span>' +
+                                 '</button>';
+                    return _input;
+                },
+                cargaTabla: function () {
+                    waitingDialog.show("Espere por favor...")
+                    $('#tbPicking').DataTable().ajax.reload(function () {
+                        waitingDialog.hide();
+                    });
+                }
+            },
+            Input: {
+                SoloNumeros: function (element) {
+                    //SOLO NUMEROS
+                    $(element).keypress(function (e) {
+                        var keyCode = e.keyCode || e.which;
+                        var regex = /^[0-9]$/;
+                        var isValid = regex.test(String.fromCharCode(keyCode));
+                        if (!isValid) {
+                        }
+                        return isValid;
+                    });
+                }
+            },
+            general: {
+                timeAlertInfo: function () {
+                    //debugger
+                    objAnularMarcar.nIntervId = setInterval(objAnularMarcar.general.refresarGrid, 60000);
+                    console.log(objAnularMarcar.nIntervId);
+                    console.log("continua")
+                },
+                refresarGrid: function () {
+                    // debugger
+                    if (objAnularMarcar.chkAutomatica && objAnularMarcar.NroNoMarcado > 0) {
+                        // waitingDialog.show("Espere por favor...")
+                        objAnularMarcar.isOkUpdate = true;
+                        waitingDialog.hide();
+                        $('#tbPicking').DataTable().ajax.reload(function () { });
+                        let options = { "backdrop": "static", keyboard: true };
+                        $('#myModalInfoTime').modal(options);
+                        $('#myModalInfoTime').modal('show');
+                        clearInterval(objAnularMarcar.nIntervId);
+                    } else {
+                        objAnularMarcar.isOkUpdate = true;
+                        $('#tbPicking').DataTable().ajax.reload(function () { });
+                        console.log("continua")
+                    }
+                }
+            }
+        };
+        //[Inicializamos]
+        $(document).ready(function () {
+            objAnularMarcar.Inicio();
+        });
+        //[/Inicializamos]
+    </script>
+}

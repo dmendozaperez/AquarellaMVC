@@ -1,0 +1,922 @@
+﻿@using Newtonsoft.Json;
+@{
+    ViewBag.Title = "Marcación de pedidos en bodega";
+    ViewBag.SubTitle = "";
+}
+<style>
+    .table thead {
+        background-color: #5799bf;
+        color: #fff;
+    }
+
+    .boton-xs-td {
+        padding-top: 5px !important;
+        padding-bottom: 5px !important;
+    }
+
+    .alignRight {
+        text-align: right;
+        vertical-align: middle;
+    }
+
+    .alignCenter {
+        text-align: center;
+        vertical-align: middle;
+    }
+
+    .control {
+        font-family: arial;
+        display: block;
+        position: relative;
+        padding-left: 28px;
+        margin-bottom: 4px;
+        padding-top: 2px;
+        cursor: pointer;
+        font-size: 14px;
+    }
+    .control input {
+        position: absolute;
+        z-index: -1;
+        opacity: 0;
+    }
+    .control_indicator {
+        position: absolute;
+        top: 3px;
+        left: 0;
+        height: 19px;
+        width: 20px;
+        background: #e6e6e6;        
+        border: 1px solid #97a6af;
+        border-radius: 4px;
+    }
+    .control:hover input ~ .control_indicator,
+    .control input:focus ~ .control_indicator {
+        background: #cccccc;
+    }
+        
+    .control input:checked ~ .control_indicator {
+        background: #156aac;
+    }
+    .control:hover input:not([disabled]):checked ~ .control_indicator,
+    .control input:checked:focus ~ .control_indicator {
+        background: #156aac;
+    }
+   .control input:disabled ~ .control_indicator {
+        background: #e6e6e6;
+        opacity: 0.6;
+        pointer-events: none;
+    }
+    .control_indicator:after {
+        box-sizing: unset;
+        content: '';
+        position: absolute;
+        display: none;
+    }
+    .control input:checked ~ .control_indicator:after {
+        display: block;
+    }
+    .control-checkbox .control_indicator:after {
+        left: 6px;
+        top: 2px;
+        width: 3px;
+        height: 8px;
+        border: solid #ffffff;
+        border-width: 0 2px 2px 0;
+        transform: rotate(45deg);
+    }
+    .control-checkbox input:disabled ~ .control_indicator:after {
+        border-color: #7b7b7b;
+    }
+</style>
+<p class="text-primary">Asignacion de personal de marcacion a pedidos o liquidaciones en bodega.</p>
+<div class="box box-header box-primary">
+    <label style="color:#9c9c9c;font-weight:bold">Parametros de busqueda</label>
+    <div class="row">
+        <div class="col-md-7 text-left">
+
+            <label class="control control-checkbox">
+                <input id="chkAutomatica" type="checkbox"/>
+                Actualizar marcación automáticamente.
+                <div class="control_indicator"></div>
+            </label>
+        </div>
+        <div class="col-md-5 text-right" >
+            <div class="form-group" >
+                <div class="input-group">
+                    <div class="input-group-btn">
+                        <button id="btnImprimir" class="btn btn-default" type="button" style="margin-left: 10px;">
+                            <i class="fa fa-print"></i>
+                            &nbsp;&nbsp;Imprimir
+                        </button>
+                        <button id="btnRefrescar" class="btn btn-primary" type="button" style="margin-left: 10px;">
+                            <i class="glyphicon glyphicon-refresh" style="color:#FFF"></i>
+                            &nbsp;&nbsp;Refrescar
+                        </button>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+@*[Modal Info]*@
+<div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" ng-app>
+    <div class="modal-dialog">
+        <div class="modal-content">
+            @*[cuerpo del modal]*@
+            <div class="modal-header modal-header-danger">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="myModalLabel">Información de marcación de liquidación No</h4>
+            </div>
+            <div class="modal-body">
+               <div id="divInfo">
+                    <div class="row">
+                        <div class="col-md-12">
+                            @*[cuerpo del form]*@
+                            <form role="form">
+                                <div class="row">
+                                    <div class="col-sm-5">
+                                        <div class="form-group">
+                                            <label>Información sobre la marcación</label>
+                                        </div>
+                                    </div>
+
+                                </div>
+
+                                <div class="row">
+                                    <div class="col-sm-5">
+                                        <div class="form-group">
+                                            <h5>Fecha de creación de liquidación:</h5>
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-7">
+                                        <div class="form-group">
+                                            <input type="text" id="txtDatedesc" class="form-control input-sm" readonly="" style="max-width: 100%">
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="row">
+                                    <div class="col-sm-5">
+                                        <div class="form-group">
+                                            <h5>Fecha de liberación de la liquidación:</h5>
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-7">
+                                        <div class="form-group">
+                                            <input type="text" id="txtDatedesclear" class="form-control input-sm" readonly="" style="max-width: 100%">
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="row">
+                                    <div class="col-sm-5">
+                                        <div class="form-group">
+                                            <h5>Marcador:</h5>
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-7">
+                                        <div class="form-group">
+                                            <input type="text" id="txtNameemployee" class="form-control input-sm" readonly="" style="max-width: 100%">
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="row">
+                                    <div class="col-sm-5">
+                                        <div class="form-group">
+                                            <h5>Fecha exacta de incio de marcación:</h5>
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-7">
+                                        <div class="form-group">
+                                            <input type="text" id="txtPick_Startdesc" class="form-control input-sm" readonly="" style="max-width: 100%">
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="row">
+                                    <div class="col-sm-5">
+                                        <div class="form-group">
+                                            <h5>Tiempo corrido:</h5>
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-7">
+                                        <div class="form-group">
+                                            <input type="text" id="txtPick_Start" class="form-control input-sm" readonly="" style="max-width: 100%">
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="row">
+                                    <div class="col-sm-5">
+                                        <div class="form-group">
+                                            <h5>Número de liquidaciones asignAQUARELLAs a este marcador:</h5>
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-7">
+                                        <div class="form-group">
+                                            <input type="text" id="txtNoliq" class="form-control input-sm" readonly="" style="max-width: 100%">
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="row">
+                                    <div class="col-sm-5">
+                                        <div class="form-group">
+                                            <h5>Número total de pares asignados a este marcador:</h5>
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-7">
+                                        <div class="form-group">
+                                            <input type="text" id="txtLdn_Qty" class="form-control input-sm" readonly="" style="max-width: 100%">
+                                        </div>
+                                    </div>
+                                </div>                            
+                            
+                            </form>
+                            @*[/cuerpo del form]*@
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer" style="margin-top:-30px">
+                <button id="btnCerrar" type="button" class="btn btn-default" data-dismiss="modal">Cerrar</button>       
+            </div>
+            @*[/cuerpo del modal]*@
+        </div>
+    </div>
+</div>
+@*[/Modal Info]*@
+
+@*[Modal AlertInfo]*@
+<div class="modal fade" id="myModalInfoTime" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" ng-app>
+    <div class="modal-dialog">
+        <div class="modal-content">
+            @*[cuerpo del modal]*@
+            <div class="modal-header modal-header-danger" style="background-color: #00D500 !important;">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="myModalLabel">Marcación de pedidos</h4>
+            </div>
+            <div class="modal-body">               
+                <div id="divInfoTime">
+                    <label style="color:#9c9c9c;font-weight:bold">Nuevos pedidos para marcación</label>
+                    <div class="row">
+                        <div class="col-md-12">
+                            @*[cuerpo del form]*@
+                            <form role="form">
+                                <div class="row" style="margin-bottom: 15px;">
+                                    <div class="col-sm-12">
+                                        <div class="form-group alignCenter">
+                                            <label id="lblXIniciar"></label>
+                                        </div>
+                                    </div>
+                                </div>
+
+                            </form>
+                            @*[/cuerpo del form]*@
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer" style="margin-top:-30px">
+                <button id="btnCerrarInfo" type="button" class="btn btn-default" data-dismiss="modal">Cerrar</button>
+            </div>
+            @*[/cuerpo del modal]*@
+        </div>
+    </div>
+</div>
+@*[Modal AlertInfo]*@
+
+<div class="box box-body box-primary">
+    <br />
+    <div class="row">
+        <div class="col-md-12">
+            <div class="table-responsive">
+                <table id="tbPicking" class="table table-hover table-bordered compact">
+                    <thead>
+                        <tr>
+                            <th style="text-align: center;">Área</th>
+                            <th style="text-align: center;">Nro. Pedido</th>
+                            <th style="text-align: center;">Fec. Pedido</th>
+                            <th style="text-align: center;">Estado</th>
+                            <th style="text-align: center;">Cliente</th>
+                            <th style="text-align: center;">Liberación</th>
+                            <th style="text-align: center;">Unds</th>
+                            <th style="text-align: center;">Ubicación</th>
+                            <th style="text-align: center;">Marcación</th>
+                            <th style="text-align: center;">Inf</th>
+                            <th style="text-align: center;">Ini</th>
+                            <th style="text-align: center;">Fin</th>
+                            <th style="text-align: center;">Imp</th>
+                            <th style="text-align: center;">Excel</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td colspan='14'>No se encontraron resultados</td>
+                        </tr>
+                    </tbody>
+                    <tfoot>
+                        <tr>
+                            <th></th>
+                            <th></th>
+                            <th></th>
+                            <th></th>
+                            <th></th>
+                            <th>Total</th>
+                            <th><span class="text-bold alignRight" id="totCantidad"></span></th>
+                            <th></th>
+                            <th></th>
+                            <th></th>
+                            <th></th>
+                            <th></th>
+                            <th></th>
+                            <th></th>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="box box-header box-primary">
+    <label style="color:#9c9c9c;font-weight:bold">Información de totalizado</label>
+    <div class="row">
+        <div class="col-md-6">
+            @*[cuerpo del form]*@
+            <form role="form">
+                <div class="row">
+                    <div class="col-sm-8">
+                        <div class="form-group" style="margin-bottom: 0px;">
+                            <label>Número de liquidaciones en marcación:</label>
+                        </div>
+                    </div>
+                    <div class="col-sm-4">
+                        <div class="form-group" style="margin-bottom: 0px;">
+                            <label id="lblNroMarcado"></label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-sm-8">
+                        <div class="form-group" style="margin-bottom: 0px;">
+                            <label>Unidades en marcación:</label>
+                        </div>
+                    </div>
+                    <div class="col-sm-4">
+                        <div class="form-group" style="margin-bottom: 0px;">
+                            <label id="lblUniMarcado"></label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-sm-8">
+                        <div class="form-group" style="margin-bottom: 0px;">
+                            <label>Número de liquidaciones en espera por inico de marcación:</label>
+                        </div>
+                    </div>
+                    <div class="col-sm-4">
+                        <div class="form-group" style="margin-bottom: 0px;">
+                            <label id="lblNroNoMarcado"></label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-sm-8">
+                        <div class="form-group" style="margin-bottom: 0px;">
+                            <label >Unidades en espera por inico de marcación:</label>
+                        </div>
+                    </div>
+                    <div class="col-sm-4">
+                        <div class="form-group" style="margin-bottom: 0px;">
+                            <label id="lblUniNoMarcado"></label>
+                        </div>
+                    </div>
+                </div>
+            </form>
+            @*[/cuerpo del form]*@
+        </div>
+    </div>
+</div>
+<div id="DivFrame" style="display:none;"></div>
+@section scripts{
+    <script src="~/Scripts/Linkend/linq.min.js"></script>
+    <script>
+        var objMarcar = {
+            Inicio: function () {
+                /*[Inicializamos variables]*/
+                this.isOkUpdate = true;
+                this.liq_id = 0;
+                this.ddlEmpleado = -1;
+                this.ddlEmpleadoTxt = "";
+                this.nIntervId;
+                this.chkAutomatica = true;
+                this.NroNoMarcado = 0;
+                $("#chkAutomatica").attr("checked", "checked");
+                objMarcar.grid.get();
+                //objMarcar.general.timeAlertInfo();
+                //objMarcar.general.refresarGrid();
+                this.ListarUsuario = function () { return @Html.Raw(Json.Encode(ViewBag.ListarUsuario)); }();
+                /*[/Inicializamos variables]*/
+
+                /*[Busqueda]*/
+                $("#btnRefrescar").click(function () {
+                    objMarcar.isOkUpdate = true;
+                    objMarcar.grid.cargaTabla();
+                    objMarcar.general.timeAlertInfo();
+                });
+                /*[/Busqueda]*/
+
+                /*[btnImprimir Grupo]*/
+                $("#btnImprimir").click(function () {
+                    //waitingDialog.show("Espere por favor...");
+                    $.ajax({
+                        type: "Post",
+                        url: '@Url.Action("verPedidoGrupo", "Pedido")',
+                        data: {},
+                        success: function (data) {
+                            data = JSON.parse(data);
+                            if (data.Success) {
+                                swal({ title: "Ok", text: data.Message, icon: "success" }).then((value) => {
+                                    waitingDialog.show("Espere por favor...");
+                                    $("<iframe />", { id: "ifrReporte" }).attr("src", "../AspNetForms/reportPickingGrupo.aspx").appendTo('#DivFrame');
+                                    waitingDialog.hide();
+                                });
+                               
+                            } else {
+                                swal({ title: "Alerta", text: data.Message, icon: "error" }).then((value) => { });
+                                waitingDialog.hide();
+                            }
+                        },
+                        error: function (xhr) {
+                            waitingDialog.hide();
+                            toastr.error(xhr, 'Mensaje');
+                        }
+                    });
+                })
+
+                /*[Check automatica]*/
+                $('#chkAutomatica').change(function () {
+                    if (this.checked) {
+                        $('#chkAutomatica').attr("checked", "checked");
+                        objMarcar.chkAutomatica = true;
+                        objMarcar.general.refresarGrid();
+                    } else {
+                        objMarcar.chkAutomatica = false;
+                        $('#chkAutomatica').removeAttr("checked");
+                        clearInterval(objMarcar.nIntervId);
+                    }
+                });
+                /*[/Check automatica]*/
+
+                /*[Modal Comentario]*/
+                $('#tbPicking tbody').on('click', '#btnComentario', function (e) {
+                    //debugger
+                    let _coltrg = $(this).data("colname")
+                    var Liq_Id = $(this).attr('data-Liq_Id');
+                    let options = { "backdrop": "static", keyboard: true };
+
+                    waitingDialog.show("Espere por favor...");
+                    $.ajax({
+                        type: "Post",
+                        url: '@Url.Action("ajaxGetInfoPicking", "Pedido")',
+                        async: false,
+                        data: { Liq_Id: Liq_Id },
+                        success: function (data) {
+                            //debugger
+                            data = JSON.parse(data);
+                            if (data.Success) {
+                                $("#txtLiq_Id").val(data.Data.Liq_Id);
+                                $("#txtDatedesc").val(data.Data.Datedesc);
+                                $("#txtDatedesclear").val(data.Data.Datedesclear);
+                                $("#txtNameemployee").val(data.Data.Nameemployee);
+                                $("#txtPick_Startdesc").val(data.Data.Pick_Startdesc);
+                                $("#txtPick_Start").val(data.Data.TiempoCorrido);
+                                $("#txtNoliq").val(data.Data.Noliq);
+                                $("#txtLdn_Qty").val(data.Data.Ldn_Qty);
+                            }
+
+                            $('#myModal').modal(options);
+                            $('#myModal').modal('show');
+                            waitingDialog.hide();
+                        },
+                        error: function (xhr) {
+                            waitingDialog.hide();
+                            toastr.error(xhr, 'Mensaje');
+                        }
+                    });
+
+                })
+
+                $("#btnCerrar").click(function () {
+                    //debugger;
+                    waitingDialog.hide();
+                    $('#myModal').modal('hide');
+                });
+
+                $("#btnCerrarInfo").click(function () {
+                    //debugger;
+                    objMarcar.isOkUpdate = true;
+                    objMarcar.chkAutomatica = true;
+                    waitingDialog.hide();
+                    $('#tbPicking').DataTable().ajax.reload(function () { });
+                    objMarcar.general.timeAlertInfo();
+                    $('#myModalInfoTime').modal('hide');
+                });
+                /*[/Modal Comentario]*/
+
+                /*[Time]*/
+                $('#tbPicking tbody').on('click', '#btnTime', function (e) {
+                    //debugger;
+                    let _coltrg = $(this).data("colname")
+                    let Liq_Id = $(this).attr('data-Liq_Id');
+                    objMarcar.ddlEmpleado = $(this).closest('tr').find('td.ddlEmpleado #ddlEmpleado').val();
+                    let Cliente = $(this).closest('tr').find('td.Cliente').html();
+
+                    if (objMarcar.grid.ValidaDropdownlist(Liq_Id)) {
+                       // debugger
+                        if (_coltrg == "Inicio") {
+                            swal({
+                                title: "Iniciar la marcación",
+                                icon: "warning",
+                                text: "¿Está seguro de INICIAR la marcación de la liquidación número : " + Liq_Id + ", perteneciente A : " + Cliente + "?",
+                                buttons: ["No", "Si"],
+                                dangerMode: true,
+                            }).then((cambiar) => {
+                                if (cambiar) {
+                                    waitingDialog.show("Espere un momento por favor.")
+                                    $.ajax({
+                                        type: "Post",
+                                        url: '@Url.Action("startPicking", "Pedido")',
+                                        data: { Liq_Id: Liq_Id, Pin_Employee: objMarcar.ddlEmpleado },
+                                        async: false,
+                                        success: function (data) {
+                                            data = JSON.parse(data);
+                                            if (data.Success) {
+                                                objMarcar.isOkUpdate = true;
+                                                 swal({title: "Ok",text: data.Message,icon: "success"}).then((value) => {});
+                                                 waitingDialog.hide();
+                                                 $('#tbPicking').DataTable().ajax.reload(function () { });
+                                            }else{
+                                                swal({ title: "Alerta", text: data.Message, icon: "error" }).then((value) => { });
+                                                    waitingDialog.hide();
+                                             }
+                                        },
+                                        error: function (xhr) {
+                                                waitingDialog.hide();
+                                                swal({ title: "Alerta", text: "Error al grabar.", icon: "error" }).then((value) => { });
+                                        }
+                                    });
+                                }
+                            })
+                    }
+                    if (_coltrg == "Fin") {
+                        swal({
+                            title: "Finalizar la marcación",
+                            icon: "warning",
+                            text: "¿Está seguro de FINALIZAR la marcación de la liquidación número : " + Liq_Id + ", perteneciente A : " + Cliente + "?",
+                            buttons: ["No", "Si"],
+                            dangerMode: true,
+                        }).then((cambiar) => {
+                            if (cambiar) {
+                                waitingDialog.show("Espere un momento por favor.")
+                                $.ajax({
+                                    type: "Post",
+                                    url: '@Url.Action("endPicking", "Pedido")',
+                                    data: { Liq_Id: Liq_Id },
+                                    async: false,
+                                    success: function (data) {
+                                        data = JSON.parse(data);
+                                        if (data.Success) {
+                                            objMarcar.isOkUpdate = true;
+                                            swal({ title: "Ok", text: data.Message, icon: "success" }).then((value) => { });
+                                            waitingDialog.hide();
+                                            $('#tbPicking').DataTable().ajax.reload(function () { });
+                                        } else {
+                                            swal({ title: "Alerta", text: data.Message, icon: "error" }).then((value) => { });
+                                            waitingDialog.hide();
+                                        }
+
+                                    },
+                                    error: function (xhr) {
+                                        waitingDialog.hide();
+                                        swal({ title: "Alerta", text: "Error al grabar.", icon: "error" }).then((value) => { });
+                                    }
+                                });
+                            }
+                        })
+                    }
+                }
+                })
+                /*[/Time]*/
+
+                /*[btn Print]*/
+                $('#tbPicking tbody').on('click', '#btnPrint', function (e) {
+                    //debugger
+                    let _coltrg = $(this).data("colname")
+                    let Liq_Id = $(this).attr('data-Liq_Id');
+                    objMarcar.ddlEmpleado = $(this).closest('tr').find('td.ddlEmpleado #ddlEmpleado').val();
+                    objMarcar.ddlEmpleadoTxt = $(this).closest('tr').find('td.ddlEmpleado #ddlEmpleado option:selected').text();
+
+                    if (objMarcar.grid.ValidaDropdownlist(Liq_Id)) {
+                        if (_coltrg == "Print") {                           
+                            $.ajax({
+                                type: "Post",
+                                url: '@Url.Action("verPedido", "Pedido")',
+                                data: {
+                                    Liq_Id: Liq_Id,
+                                    Empleado: objMarcar.ddlEmpleadoTxt,
+                                    typeFile: _coltrg
+                                },
+                                success: function (data) {
+                                    data = JSON.parse(data);
+                                    if (data.Success) {
+                                        swal({ title: "Ok", text: data.Message, icon: "success" }).then((value) => {
+                                            waitingDialog.show("Espere por favor...");
+                                            $("<iframe />", { id: "Reporte" }).attr("src", "../AspNetForms/reportPicking.aspx").appendTo('#DivFrame');
+                                            waitingDialog.hide();
+                                        });                                        
+                                    } else {
+                                        swal({ title: "Alerta", text: data.Message, icon: "error" }).then((value) => { });
+                                        waitingDialog.hide();
+                                    }
+                                },
+                                error: function (xhr) {
+                                    waitingDialog.hide();
+                                    toastr.error(xhr, 'Mensaje');
+                                }
+                            });
+                        }
+                        if (_coltrg == "Excel") {                           
+                            $.ajax({
+                                type: "Post",
+                                url: '@Url.Action("verPedido", "Pedido")',
+                                data: {
+                                    Liq_Id: Liq_Id,
+                                    IdEmpleado: objMarcar.ddlEmpleado,
+                                    typeFile: _coltrg
+                                },
+                                success: function (data) {
+                                    data = JSON.parse(data);
+                                    if (data.Success) {
+                                        swal({ title: "Ok", text: data.Message, icon: "success" }).then((value) => {
+                                            waitingDialog.show("Espere por favor...");
+                                            $("<iframe />", { id: "Reporte" }).attr("src", "../AspNetForms/reportPicking.aspx").appendTo('#DivFrame');
+                                            waitingDialog.hide();
+                                        });                                        
+                                    } else {
+                                        swal({ title: "Alerta", text: data.Message, icon: "error" }).then((value) => { });
+                                        waitingDialog.hide();
+                                    }
+                                },
+                                error: function (xhr) {
+                                    waitingDialog.hide();
+                                    toastr.error(xhr, 'Mensaje');
+                                }
+                            });
+                        }
+                    }
+                })
+                /*[/btn Print]*/
+            },
+            grid: {
+                get: function () {
+                    /*[Carga la tabla]*/
+                    //debugger
+                    waitingDialog.show("Espere por favor...")
+                    $('#tbPicking').DataTable({
+                        "language": {
+                            "url": "../Scripts/DataTables/Spanish.json"
+                        },
+                        "fnServerData": function (sSource, aoData, fnCallback) {
+                            //debugger
+                            $.getJSON(sSource, aoData, function (json) {
+                                //debugger
+                                objMarcar.NroNoMarcado = json.iNroNoMarcado;
+                                $("#lblXIniciar").html("Tiene " + (json.iNroNoMarcado == 1 ? " un nuevo pedido" : " " + json.iNroNoMarcado  + " nuevos pedidos") + "  sin inicio o asignación de marcador.");
+                                $("#totCantidad").html(json.itotCantidad);
+                                $("#lblNroMarcado").html(json.iNroMarcado);
+                                $("#lblNroNoMarcado").html(json.iNroNoMarcado);
+                                $("#lblUniMarcado").html(json.iUniMarcado);
+                                $("#lblUniNoMarcado").html(json.iUniNoMarcado);
+
+                               // objMarcar.general.refresarGrid();
+                                fnCallback(json);
+                            });
+                        },
+                        "bServerSide": true,
+                        "bAutoWidth": false,
+                        "sAjaxSource": '@Url.Action("getListarPicking", "Pedido")',
+                        "fnServerParams": function (aoData) {
+                            aoData.push({ "name": "isOkUpdate", "value": objMarcar.isOkUpdate })
+                            aoData.push({ "name": "Liq_Id", "value": objMarcar.Liq_Id })
+                        },
+                        "columnDefs": [{
+                            "orderable": false,
+                            "targets": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13],
+
+                        }],
+                       // "searching": false,   //Busqueda
+                        "lengthChange": false, //Lista por cantidad
+                        "bDeferRender": true,
+                        "aoColumns": [
+                            { "sName": "Are_Descripcion", "mData": "Are_Descripcion", "sClass": "" },
+                            { "sName": "Liq_Id", "mData": "Liq_Id", "sClass": "alignCenter" },
+                            { "sName": "Datedesc", "mData": "Datedesc", "sClass": "" },
+                            { "sName": "Est_Descripcion", "mData": "Est_Descripcion", "sClass": "" },
+                            { "sName": "Nombres", "mData": "Nombres", "sClass": "Cliente" },
+                            { "sName": "Cleardesc", "mData": "Cleardesc", "sClass": "" },
+                            { "sName": "Cantidad", "mData": "Cantidad", "sClass": "alignCenter" },
+                            { "sName": "Bas_Direccion", "mData": "Bas_Direccion", "sClass": "" },
+                            {
+                                "mData": null,
+                                "sClass": "ddlEmpleado alignCenter",
+                                "render": function (data, type, full, meta) {
+                                    //debugger
+                                    let disabled = true;
+                                    let Pin_Employee = full.Pin_Employee;
+                                    if (Pin_Employee != -1) {
+                                        disabled = false;
+                                    }
+                                    return objMarcar.grid.dropdownlist(objMarcar.ListarUsuario, Pin_Employee, disabled);
+                                }
+                            },
+                            {
+                                "mData": null,
+                                "sClass": "alignCenter",
+                                "render": function (data, type, full, meta) {
+                                    let disabled = false;
+                                    let Pin_Employee = full.Pin_Employee;
+                                    if (Pin_Employee != -1) {
+                                        disabled = true;
+                                    }
+                                    return objMarcar.grid.btnComentario("Comentario", disabled, full.Liq_Id);
+                                }
+                            },
+                            {
+                                "mData": null, "sClass": "alignCenter",
+                                "render": function (data, type, full, meta) {
+                                    let disabled = true;
+                                    if (full.Pin_Employee != -1) {
+                                        disabled = false;
+                                    }
+                                    return objMarcar.grid.btnTime("Inicio", disabled, full.Liq_Id);
+                                }
+                            },
+                            {
+                                "mData": null, "sClass": "alignCenter",
+                                "render": function (data, type, full, meta) {
+                                    let disabled = false;
+                                    if (full.Pin_Employee != -1) {
+                                        disabled = true;
+                                    }
+                                    return objMarcar.grid.btnTime("Fin", disabled, full.Liq_Id);
+                                }
+                            },
+                            {
+                                "mData": null, "sClass": "alignCenter",
+                                "render": function (data, type, full, meta) {
+                                    return objMarcar.grid.btnPrint("Print",true,full.Liq_Id);
+                                }
+                            },
+                            {
+                                "mData": null, "sClass": "alignCenter",
+                                "render": function (data, type, full, meta) {
+                                    return objMarcar.grid.btnPrint("Excel", true,full.Liq_Id);
+                                }
+                            }
+                        ],
+                        "drawCallback": function (settings) {
+                            objMarcar.isOkUpdate = false;
+                            waitingDialog.hide();
+                        },
+                        "fnFooterCallback": function (nRow, aaData, iStart, iEnd, aiDisplay) {
+                            var api = this.api();
+                            var size = 0;
+                        },
+                        "initComplete": function (settings, json) {
+                            //debugger
+                            objMarcar.general.refresarGrid();
+                            //alert('DataTables has finished its initialisation.');
+                        }
+                    });
+                    /*[/Carga la tabla]*/
+                },
+                btnComentario: function (colName, disabled, Liq_Id) {
+                    //debugger
+                    var _input = '<button title="Ver ' + colName + ' " id = "btnComentario" class="btn btn-xs btn-default btn-tabla"  ' +
+                                    (disabled == false ? ' disabled = "disabled" ' : '') +
+                                    ' data-Liq_Id="' + Liq_Id + '" ' +
+                                    ' data-colname="' + colName + '" >' +
+                                    '<span class="glyphicon glyphicon-comment" ' +
+                                    (disabled == false ? 'style="color:#2A7D90" >' : 'style="color:#05A1C6" >') +
+                                    '</span>' +
+                                 '</button>';
+                    return _input;
+                },
+                btnTime: function (colName, disabled, Liq_Id) {
+                    //debugger
+                    var _input = '<button title="Ver ' + colName + ' " id = "btnTime"   ' +
+                                    (disabled == false ? ' disabled = "disabled"  ' : '  ') +
+                                    (colName == 'Inicio' ? ' class="btn btn-xs btn-success " ' : ' class="btn btn-xs btn-danger" ') +
+                                    ' data-Liq_Id="' + Liq_Id + '" ' +
+                                    ' data-colname="' + colName + '" >' +
+                                    (colName == 'Inicio' ? '<span class="glyphicon glyphicon-time" ></span>' : '<span class="glyphicon glyphicon-time"></span>') +
+                                 '</button>';
+                    return _input;
+                },
+                btnPrint: function (colName, disabled, Liq_Id) {
+                    //debugger
+                    var _input = '<button title="Ver ' + colName + ' " id = "btnPrint" class="btn btn-xs btn-default btn-tabla"  ' +
+                                    ' data-Liq_Id="' + Liq_Id + '" ' +
+                                    ' data-colname="' + colName + '" >' +
+                                    (colName == 'Print' ? ' <span class="fa fa-print"></span>' : ' <span class="fa fa-file-text-o text-success"></span>') +
+                                 '</button>';
+                    return _input;
+                },
+                cargaTabla: function () {
+                    waitingDialog.show("Espere por favor...")
+                    $('#tbPicking').DataTable().ajax.reload(function () {
+                        waitingDialog.hide();
+                    });
+                },
+                dropdownlist: function (Lista, Value, disabled) {
+                    var $select = $("<select id ='ddlEmpleado' class='form-control custom-input'></select>", {
+                        "id": "ddlUsuario",
+                        "value": Value
+                    });
+                    $.each(Lista, function (k, v) {
+                        var $option = $("<option></option>", {
+                            "text": v.Descripcion,
+                            "value": v.Codigo
+                        });
+                        if (v.Codigo == Value) {
+                            $option.attr("selected", "selected")
+                        }
+                        $select.append($option);
+                    });
+                    if (!disabled) {
+                        $select.attr("disabled", "disabled");
+                    }
+                    return $select.prop("outerHTML");
+                },
+                ValidaDropdownlist: function (Liq_Id) {
+                    debugger
+                    if (objMarcar.ddlEmpleado == undefined || objMarcar.ddlEmpleado == null || objMarcar.ddlEmpleado == 0 || objMarcar.ddlEmpleado == '-1') {
+                        swal({ title: "Alerta", text: "Seleccione el empleado encargado de la marcación para la liquidación No." + Liq_Id, icon: "error" }).then((value) => { });
+                        return false;
+                    }
+                    return true;
+                }
+            },
+            Input: {
+                SoloNumeros: function (element) {
+                    //SOLO NUMEROS
+                    $(element).keypress(function (e) {
+                        var keyCode = e.keyCode || e.which;
+                        var regex = /^[0-9]$/;
+                        var isValid = regex.test(String.fromCharCode(keyCode));
+                        if (!isValid) {
+                        }
+                        return isValid;
+                    });
+                }
+            },
+            general: {
+                timeAlertInfo: function () {
+                    //debugger
+                    objMarcar.nIntervId = setInterval(objMarcar.general.refresarGrid, 60000);
+                    console.log(objMarcar.nIntervId);
+                    console.log("continua")
+                },
+                refresarGrid: function () {
+                   // debugger
+                    if (objMarcar.chkAutomatica && objMarcar.NroNoMarcado > 0) {
+                        // waitingDialog.show("Espere por favor...")
+                        objMarcar.isOkUpdate = true;
+                        waitingDialog.hide();
+                        $('#tbPicking').DataTable().ajax.reload(function () { });
+                        let options = { "backdrop": "static", keyboard: true };
+                        $('#myModalInfoTime').modal(options);
+                        $('#myModalInfoTime').modal('show');
+                        clearInterval(objMarcar.nIntervId);
+                    } else {
+                        objMarcar.isOkUpdate = true;
+                        $('#tbPicking').DataTable().ajax.reload(function () { });
+                        console.log("continua")
+                    }
+                }
+            }
+        };
+        //[Inicializamos]
+        $(document).ready(function () {
+            objMarcar.Inicio();
+        });
+        //[/Inicializamos]
+    </script>
+}

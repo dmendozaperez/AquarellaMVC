@@ -80,5 +80,50 @@ namespace CapaPresentacion.Data.RptsCrystal
             return ds;
             
         }
+
+        public DataSet getLiquidationHdrInfo(string _noLiq)
+        {
+            string sqlquery = "USP_Leer_Liquidacion_Reporte";
+            SqlConnection cn = null;
+            SqlCommand cmd = null;
+            SqlDataAdapter da = null;
+            DataSet ds = null;
+            try
+            {
+
+                cn = new SqlConnection(Ent_Conexion.conexion);
+                cmd = new SqlCommand(sqlquery, cn);
+                cmd.CommandTimeout = 0;
+                cmd.CommandType = CommandType.StoredProcedure;
+                cmd.Parameters.AddWithValue("@liq_id", _noLiq);
+                da = new SqlDataAdapter(cmd);
+                ds = new DataSet();
+                da.Fill(ds);
+                return ds;
+            }
+            catch (Exception e) { throw new Exception(e.Message, e.InnerException); }
+        }
+
+        public DataSet getDtlPicking(string _noLiq)
+        {
+            string sqlquery = "USP_Leer_Empaque";
+            SqlConnection cn = null;
+            SqlCommand cmd = null;
+            SqlDataAdapter da = null;
+            DataSet ds = null;
+            try
+            {
+                cn = new SqlConnection(Ent_Conexion.conexion);
+                cmd = new SqlCommand(sqlquery, cn);
+                cmd.CommandTimeout = 0;
+                cmd.CommandType = CommandType.StoredProcedure;
+                cmd.Parameters.AddWithValue("@liq_id", _noLiq);
+                da = new SqlDataAdapter(cmd);
+                ds = new DataSet();
+                da.Fill(ds);
+                return ds;
+            }
+            catch (Exception e) { throw new Exception(e.Message, e.InnerException); }
+        }
     }
 }

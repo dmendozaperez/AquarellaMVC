@@ -86,4 +86,44 @@ namespace CapaEntidad.Pedido
         public string Tra_Gui_No { get; set; }
         public DateTime? Gru_Fecha { get; set; }
     }
+
+    public class Ent_Picking
+    {
+        public string Are_Descripcion { get; set; }
+        public string Liq_Id { get; set; }
+        public DateTime? Liq_Fecha { get; set; }
+        public DateTime? Liq_Fecha_Expiracion { get; set; }
+        public int? Liq_Basid { get; set; }
+        public string Liq_Estid { get; set; }
+        public string Est_Descripcion { get; set; }
+        public string Nombres { get; set; }
+        public string Bas_Direccion { get; set; }
+        public string Datedesc { get; set; }
+        public DateTime? Cleardate { get; set; }
+        public string Cleardesc { get; set; }
+        public DateTime? Dateclear { get; set; }
+        public Decimal? Liq_Igv { get; set; }
+        public int Cantidad { get; set; }
+        public int? Pin_Employee { get; set; }
+    }
+
+    public class Ent_Picking_info
+    {
+        public string Liq_Id { get; set; }
+        public string Datedesc { get; set; }
+        public DateTime? Lhd_Expiration_Date { get; set; }
+        public int? Lhn_Customer { get; set; }
+        public string Lhv_Status { get; set; }
+        public string Stv_Description { get; set; }
+        public string Datedesclear { get; set; }
+        public DateTime? Dateclear { get; set; }
+        public DateTime? Pick_Start { get; set; }
+        public string Pick_Startdesc { get; set; }
+        public int? Pin_Employee { get; set; }
+        public string Nameemployee { get; set; }
+        public int? Noliq { get; set; }
+        public int? Ldn_Qty { get; set; }
+        public string TiempoCorrido { get; set; }
+    }
 }
+    

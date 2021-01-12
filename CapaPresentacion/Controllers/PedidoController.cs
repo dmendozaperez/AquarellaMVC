@@ -22,6 +22,7 @@ using CapaPresentacion.Data.RptsCrystal;
 using CapaDato.Cliente;
 using CapaEntidad.Cliente;
 
+
 namespace CapaPresentacion.Controllers
 {
     public class PedidoController : Controller
@@ -40,6 +41,7 @@ namespace CapaPresentacion.Controllers
         private string _session_lnfo_liquidacion = "_session_lnfo_liquidacion";
         private string _session_notas_persona = "_session_notas_persona";
         private string _session_ListarPedidoEstado = "_session_ListarPedidoEstado";
+        private string _session_ListarPicking = "_session_ListarPicking";
 
         private Dat_Cliente dat_cliente = new Dat_Cliente();
 
@@ -2556,7 +2558,10 @@ namespace CapaPresentacion.Controllers
         //        aaData = result
         //    }, JsonRequestBehavior.AllowGet);
         //}
-
+        /// <summary>
+        /// Buscar pedios segun su estado
+        /// </summary>
+        /// <returns></returns>
         public ActionResult BuscarPedido()
         {
             Ent_Usuario _usuario = (Ent_Usuario)Session[Ent_Constantes.NameSessionUser];
@@ -2574,6 +2579,13 @@ namespace CapaPresentacion.Controllers
                 return View();
             }
         }
+        /// <summary>
+        /// getListarPedidoEstado lista de pedidos estaods
+        /// </summary>
+        /// <param name="param"></param>
+        /// <param name="Liq_Id"></param>
+        /// <param name="isOkUpdate"></param>
+        /// <returns></returns>
         public JsonResult getListarPedidoEstado(Ent_jQueryDataTableParams param, string Liq_Id, bool isOkUpdate)
         {
             Ent_Buscar_Pedido Ent_Buscar_Pedido = new Ent_Buscar_Pedido();
@@ -2638,5 +2650,389 @@ namespace CapaPresentacion.Controllers
                 aaData = Result
             }, JsonRequestBehavior.AllowGet);
         }
+
+        public ActionResult MarcacionPedido()
+        {
+            Ent_Usuario _usuario = (Ent_Usuario)Session[Ent_Constantes.NameSessionUser];
+            string actionName = this.ControllerContext.RouteData.GetRequiredString("action");
+            string controllerName = this.ControllerContext.RouteData.GetRequiredString("controller");
+            string return_view = actionName + "|" + controllerName;
+
+            if (_usuario == null)
+            {
+                return RedirectToAction("Login", "Control", new { returnUrl = return_view });
+            }
+            else
+            {
+                List<Ent_Persona> ListarUsuario = new List<Ent_Persona>();
+                ListarUsuario.Add(new Ent_Persona() { Codigo = -1, Descripcion = "-- Selecione --" });
+                Ent_Persona _EntU = new Ent_Persona();
+                _EntU.Usu_Tip_ID = "07";
+                ViewBag.ListarUsuario = ListarUsuario.Concat(datPersona.Listar_Usuario_tipo(_EntU));
+
+                return View();
+            }
+        }
+        /// <summary>
+        /// Lista de pedios con marcion y sin marcacion, y sus totales
+        /// </summary>
+        /// <param name="param"></param>
+        /// <param name="isOkUpdate"></param>
+        /// <returns></returns>
+        public JsonResult getListarPicking(Ent_jQueryDataTableParams param, bool isOkUpdate)
+        {
+            int NroMarcado = 0;
+            int NroNoMarcado = 0;
+            int UniMarcado = 0;
+            int UniNoMarcado = 0;
+            int totCantidad = 0;
+
+            if (isOkUpdate)
+            {
+                Session[_session_ListarPicking] = datPedido.ListarPicking().ToList();                
+            }
+            /*verificar si esta null*/
+            if (Session[_session_ListarPicking] == null)
+            {
+                List<Ent_Picking> _Ent_ListarPicking = new List<Ent_Picking>();
+                Session[_session_ListarPicking] = _Ent_ListarPicking;
+            }
+
+            IQueryable<Ent_Picking> entDocTrans = ((List<Ent_Picking>)(Session[_session_ListarPicking])).AsQueryable();            
+
+            if (entDocTrans.Count() > 0)
+            {
+                NroMarcado = entDocTrans.Count(a => a.Pin_Employee != -1);
+                UniMarcado = entDocTrans.Where(a => a.Pin_Employee != -1).Sum(a => a.Cantidad);
+                NroNoMarcado = entDocTrans.Count(a => a.Pin_Employee == -1);
+                UniNoMarcado = entDocTrans.Where(a => a.Pin_Employee == -1).Sum(a => a.Cantidad);
+                totCantidad = entDocTrans.Sum(a => a.Cantidad);
+            }           
+
+            //Manejador de filtros
+            int totalCount = entDocTrans.Count();
+            IEnumerable<Ent_Picking> filteredMembers = entDocTrans;
+            if (!string.IsNullOrEmpty(param.sSearch))
+            {
+                filteredMembers = entDocTrans
+                    .Where(m =>
+                        m.Liq_Id.ToUpper().Contains(param.sSearch.ToUpper())
+                     );
+            }
+
+            //Manejador de orden
+            var sortIdx = Convert.ToInt32(Request["iSortCol_0"]);
+
+            if (param.iSortingCols > 0)
+            {
+                if (Request["sSortDir_0"].ToString() == "asc")
+                {
+                    switch (sortIdx)
+                    {
+                        case 0: filteredMembers = filteredMembers.OrderBy(o => o.Liq_Id); break;
+                    }
+                }
+                else
+                {
+                    switch (sortIdx)
+                    {
+                        case 0: filteredMembers = filteredMembers.OrderByDescending(o => o.Liq_Id); break;
+                    }
+                }
+            }
+
+            var Result = filteredMembers
+                .Skip(param.iDisplayStart)
+                .Take(param.iDisplayLength);
+
+            //Se devuelven los resultados por json
+            return Json(new
+            {
+                sEcho = param.sEcho,
+                iTotalRecords = totalCount,
+                iTotalDisplayRecords = filteredMembers.Count(),
+                aaData = Result,
+                iNroMarcado = NroMarcado,
+                iNroNoMarcado = NroNoMarcado,
+                iUniMarcado = UniMarcado,
+                iUniNoMarcado = UniNoMarcado,
+                itotCantidad = totCantidad
+            }, JsonRequestBehavior.AllowGet);
+        }
+        /// <summary>
+        /// Muesta la informacion del pedido y control de tiempo.
+        /// </summary>
+        /// <param name="Liq_Id"></param>
+        /// <returns></returns>
+        public ActionResult ajaxGetInfoPicking(string Liq_Id)
+        {
+            JsonResponse objResult = new JsonResponse();
+            Ent_Picking_info _EntData = new Ent_Picking_info();
+            Ent_Picking_info _EntResult = new Ent_Picking_info();
+
+            _EntData.Liq_Id = Liq_Id;
+            try
+            {
+                _EntData = datPedido.ListarPickingInfo(_EntData);
+                _EntResult.Liq_Id = _EntData.Liq_Id;
+                _EntResult.Datedesc = _EntData.Datedesc;
+                _EntResult.Datedesclear = _EntData.Datedesclear;
+                _EntResult.Nameemployee = _EntData.Nameemployee;
+                _EntResult.Pick_Startdesc = _EntData.Pick_Startdesc;
+                TimeSpan timeSpan = DateTime.Now - Convert.ToDateTime(_EntData.Pick_Start);
+                _EntResult.Pick_Start = _EntData.Pick_Start;
+                _EntResult.TiempoCorrido = (timeSpan.Days > 0 ? (string)(" " + timeSpan.Days + " Dias - ") : (string)(" " + timeSpan.Hours + " Horas - " + timeSpan.Minutes + " Min - " + timeSpan.Seconds + " seg."));
+                _EntResult.Noliq = _EntData.Noliq;
+                _EntResult.Ldn_Qty = _EntData.Ldn_Qty;
+                objResult.Data = _EntResult;
+                if (objResult.Data == null)
+                {
+                    objResult.Success = false;
+                    objResult.Message = "No hay resultados";
+                }else
+                {
+                    objResult.Success = true;
+                }                
+            }
+            catch (Exception exc)
+            {
+                objResult.Success = false;
+                objResult.Message = "Error al anular";
+            }
+            var JSON = JsonConvert.SerializeObject(objResult);
+            return Json(JSON, JsonRequestBehavior.AllowGet);
+        }
+        /// <summary>
+        /// Inicia la marcacion del pedido
+        /// </summary>
+        /// <param name="Liq_Id"></param>
+        /// <param name="Pin_Employee"></param>
+        /// <returns></returns>
+        public ActionResult startPicking(string Liq_Id,int Pin_Employee)
+        {
+            bool Result = false;
+            JsonResponse objResult = new JsonResponse();
+            Ent_Picking _Ent = new Ent_Picking();
+            _Ent.Liq_Id = Liq_Id;
+            _Ent.Pin_Employee = Pin_Employee;
+            try
+            {
+                Result = datPedido.startPicking(_Ent);
+                if (Result)
+                {
+                    objResult.Success = true;
+                    objResult.Message = "Se ha iniciado la marcación para la liquidación No." + Liq_Id;
+                }
+                else
+                {
+                    objResult.Success = false;
+                    objResult.Message = "Error realizando el iniciado de marcación liq No." + Liq_Id;
+                }
+            }
+            catch (Exception ex)
+            {
+                objResult.Success = false;
+                objResult.Message = "Error realizando el iniciado de marcación liq No." + Liq_Id;
+            }
+
+            var JSON = JsonConvert.SerializeObject(objResult);
+
+            return Json(JSON, JsonRequestBehavior.AllowGet);
+        }
+        /// <summary>
+        /// Finaliza la marcacion del pedido.
+        /// </summary>
+        /// <param name="Liq_Id"></param>
+        /// <returns></returns>
+        public ActionResult endPicking(string Liq_Id)
+        {
+            bool Result = false;
+            JsonResponse objResult = new JsonResponse();
+            Ent_Picking _Ent = new Ent_Picking();
+            _Ent.Liq_Id = Liq_Id;
+            try
+            {
+                Result = datPedido.endPicking(_Ent);
+                if (Result)
+                {
+                    objResult.Success = true;
+                    objResult.Message = "Se ha finalizado la marcación para la liquidación No." + Liq_Id;
+                }
+                else
+                {
+                    objResult.Success = false;
+                    objResult.Message = "Error realizando la finalización de marcación liq No." + Liq_Id;
+                }
+            }
+            catch (Exception ex)
+            {
+                objResult.Success = false;
+                objResult.Message = "Error realizando la finalización de marcación liq No." + Liq_Id;
+            }
+
+            var JSON = JsonConvert.SerializeObject(objResult);
+
+            return Json(JSON, JsonRequestBehavior.AllowGet);
+        }
+        /// <summary>
+        /// Descarga archivo segun su tipo, Excel o PDF.
+        /// </summary>
+        /// <param name="Liq_Id"></param>
+        /// <param name="Empleado"></param>
+        /// <param name="typeFile"></param>
+        /// <returns></returns>
+        public ActionResult verPedido(string Liq_Id, string Empleado,string typeFile)
+        {
+            bool Result = false;
+            JsonResponse objResult = new JsonResponse();
+            try
+            {
+                Result = GetArchivo(Liq_Id, Empleado, typeFile);
+                if (Result)
+                {
+                    objResult.Success = true;
+                    objResult.Message = "Se generó correctamente el archivo";
+                }
+                else
+                {
+                    objResult.Success = false;
+                    objResult.Message = "Error al generar el archivo";
+                }
+            }
+            catch (Exception ex)
+            {
+                objResult.Success = false;
+                objResult.Message = "Error al generar el archivo";
+            }
+
+            var JSON = JsonConvert.SerializeObject(objResult);
+
+            return Json(JSON, JsonRequestBehavior.AllowGet);
+        }
+        /// <summary>
+        /// Metodo que genera los archivos
+        /// </summary>
+        /// <param name="Liq_Id"></param>
+        /// <param name="Empleado"></param>
+        /// <param name="typeFile"></param>
+        /// <returns></returns>
+        public bool GetArchivo(string Liq_Id,string Empleado, string typeFile)
+        {
+            bool resul = false;
+            Data_Cr_Aquarella datCrAq = new Data_Cr_Aquarella();
+
+            try
+            {
+                DataSet dsLiqInfo = datCrAq.getLiquidationHdrInfo(Liq_Id);
+                List<Picking> _liqValsReport = new List<Picking>();
+                if (dsLiqInfo == null || dsLiqInfo.Tables[0].Rows.Count == 0)
+                    return resul = false;
+
+                DataSet dsPickDtl = datCrAq.getDtlPicking(Liq_Id);
+
+                if (dsPickDtl == null || dsPickDtl.Tables[0].Rows.Count == 0)
+                    return resul = false;
+
+                DataRow dRow = dsLiqInfo.Tables[0].Rows[0];
+
+                foreach (DataRow dRowDtl in dsPickDtl.Tables[0].Rows)
+                {
+                    Picking objPickReport = new Picking("", dRow["almacen"].ToString(),
+                        dRow["alm_direccion"].ToString(), dRow["Alm_Telefono"].ToString(), "", dRow["Bas_Id"].ToString(),
+                        dRow["Bas_Documento"].ToString(), dRow["nombres"].ToString(), dRow["Bas_Direccion"].ToString(), dRow["Bas_Telefono"].ToString(),
+                        dRow["Bas_Celular"].ToString(), dRow["Bas_Correo"].ToString(), dRow["ubicacion"].ToString(), dRow["Liq_Id"].ToString(),
+                        dRow["estado"].ToString(), dRowDtl["tdv_article"].ToString(), dRowDtl["brv_description"].ToString(),
+                        string.Empty, dRowDtl["arv_name"].ToString(), dRowDtl["tdv_size"].ToString(), Convert.ToDecimal(dRowDtl["tdn_qty"]), dRowDtl["stv_descriptions"].ToString(),
+                        dRowDtl["po"].ToString(), Empleado, dRowDtl["instrucciones"].ToString(), dRow["lider"].ToString());
+
+                    _liqValsReport.Add(objPickReport);
+                }
+
+                this.HttpContext.Session["ReportName"] = "pickingReport.rpt";
+                this.HttpContext.Session["rptSource"] = _liqValsReport;
+                this.HttpContext.Session["Liq_Id"] = Liq_Id;
+                this.HttpContext.Session["typeFile"] = typeFile;
+                resul = true;
+            }
+            catch (Exception)
+            {
+                resul = false;
+            }
+            return resul;
+        }
+        /// <summary>
+        /// Genera archivo en grupo
+        /// </summary>
+        /// <returns></returns>
+        public ActionResult verPedidoGrupo()
+        {
+            bool Result = false;
+            JsonResponse objResult = new JsonResponse();
+            try
+            {
+                Result = PopulateValueCrystalReportI();
+                if (Result)
+                {
+                    objResult.Success = true;
+                    objResult.Message = "Se generó correctamente el archivo";
+                }
+                else
+                {
+                    objResult.Success = false;
+                    objResult.Message = "Error al generar el archivo";
+                }
+            }
+            catch (Exception ex)
+            {
+                objResult.Success = false;
+                objResult.Message = "Error al generar el archivo :" + ex.Message;
+            }
+
+            var JSON = JsonConvert.SerializeObject(objResult);
+
+            return Json(JSON, JsonRequestBehavior.AllowGet);
+        }
+        /// <summary>
+        /// Descarga pdf, por grupos de pedidos.
+        /// </summary>
+        /// <returns></returns>
+        public bool PopulateValueCrystalReportI()
+        {
+            bool result = false;
+            try
+            {
+                List<Pedido_Lider_Grupo> _ventaValues = new List<Pedido_Lider_Grupo>();
+                DataTable dtventa = datPedido.get_pedido_lidergrupo();
+
+                if (dtventa.Rows.Count > 0)
+                {                 
+
+                    foreach (DataRow dataRow in (InternalDataCollectionBase)dtventa.Rows)
+                    {
+                        string lider = dataRow["lider"].ToString();
+                        string lider_documento = dataRow["lider_documento"].ToString();
+                        string promotor = dataRow["promotor"].ToString();
+                        string promotor_doc = dataRow["promotor_doc"].ToString();
+                        string liq_id = dataRow["liq_id"].ToString();
+                        Decimal cantidad = Convert.ToDecimal(dataRow["cantidad"].ToString());
+                        string lider_direccion = dataRow["lider_direccion"].ToString();
+                        _ventaValues.Add(new Pedido_Lider_Grupo(lider, lider_documento, promotor, promotor_doc, liq_id, cantidad, lider_direccion));
+                    }
+
+                    this.HttpContext.Session["rptSourceGrp"] = _ventaValues;
+                    this.HttpContext.Session["ReportNameGrp"] = "liquidacion_grupo_consulta.rpt";
+                    result = true;
+                }
+                else
+                {
+                    result = false;
+                }                
+            }
+            catch (Exception)
+            {
+                result = false;
+            }
+            return result;
+        }        
     }
 }

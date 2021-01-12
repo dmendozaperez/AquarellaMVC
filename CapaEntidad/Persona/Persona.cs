@@ -54,6 +54,8 @@ namespace CapaEntidad.Persona
         public string bas_provincia { get; set; }
         public string lider_provincia { get; set; }
         public string lider_bas_tipo_dis { get; set; }
-
+        //Campo adicionales
+        public int Codigo { get; set; }
+        public string Descripcion { get; set; }
     }
 }
