@@ -21,7 +21,8 @@ using CapaPresentacion.Models.Crystal;
 using CapaPresentacion.Data.RptsCrystal;
 using CapaDato.Cliente;
 using CapaEntidad.Cliente;
-
+using System.IO;
+using System.Text;
 
 namespace CapaPresentacion.Controllers
 {
@@ -42,6 +43,8 @@ namespace CapaPresentacion.Controllers
         private string _session_notas_persona = "_session_notas_persona";
         private string _session_ListarPedidoEstado = "_session_ListarPedidoEstado";
         private string _session_ListarPicking = "_session_ListarPicking";
+        private string _session_ListarPedidoDespacho = "_session_ListarPedidoDespacho";
+        private string _session_ListarPedidoDespacho_Excel = "_session_ListarPedidoDespacho_Excel";
 
         private Dat_Cliente dat_cliente = new Dat_Cliente();
 
@@ -3033,6 +3036,406 @@ namespace CapaPresentacion.Controllers
                 result = false;
             }
             return result;
-        }        
+        }
+        /// <summary>
+        /// Anular Pedido marcados.
+        /// </summary>
+        /// <returns></returns>
+        public ActionResult Anular_Pedido_Marcacion()
+        {
+            Ent_Usuario _usuario = (Ent_Usuario)Session[Ent_Constantes.NameSessionUser];
+            string actionName = this.ControllerContext.RouteData.GetRequiredString("action");
+            string controllerName = this.ControllerContext.RouteData.GetRequiredString("controller");
+            string return_view = actionName + "|" + controllerName;
+
+            if (_usuario == null)
+            {
+                return RedirectToAction("Login", "Control", new { returnUrl = return_view });
+            }
+            else
+            {
+                return View();
+            }
+        }
+
+        /// <summary>
+        /// Lista de pedios con marcion y sin marcacion, y sus totales
+        /// </summary>
+        /// <param name="param"></param>
+        /// <param name="isOkUpdate"></param>
+        /// <returns></returns>
+        public JsonResult getListarAnularPicking(Ent_jQueryDataTableParams param, bool isOkUpdate)
+        {
+            int NroMarcado = 0;
+            int NroNoMarcado = 0;
+            int UniMarcado = 0;
+            int UniNoMarcado = 0;
+            int totCantidad = 0;
+            int totCantPedido = 0;
+            if (isOkUpdate)
+            {
+                Session[_session_ListarPicking] = datPedido.ListarAnularPicking().ToList();
+            }
+            /*verificar si esta null*/
+            if (Session[_session_ListarPicking] == null)
+            {
+                List<Ent_Picking> _Ent_ListarPicking = new List<Ent_Picking>();
+                Session[_session_ListarPicking] = _Ent_ListarPicking;
+            }
+
+            IQueryable<Ent_Picking> entDocTrans = ((List<Ent_Picking>)(Session[_session_ListarPicking])).AsQueryable();
+
+            if (entDocTrans.Count() > 0)
+            {
+                NroMarcado = entDocTrans.Count(a => a.Pin_Employee != -1);
+                UniMarcado = entDocTrans.Where(a => a.Pin_Employee != -1).Sum(a => a.Cantidad);
+                NroNoMarcado = entDocTrans.Count(a => a.Pin_Employee == -1);
+                UniNoMarcado = entDocTrans.Where(a => a.Pin_Employee == -1).Sum(a => a.Cantidad);
+                totCantidad = entDocTrans.Sum(a => a.Cantidad);
+                totCantPedido = entDocTrans.Count();
+            }
+
+            //Manejador de filtros
+            int totalCount = entDocTrans.Count();
+            IEnumerable<Ent_Picking> filteredMembers = entDocTrans;
+            if (!string.IsNullOrEmpty(param.sSearch))
+            {
+                filteredMembers = entDocTrans
+                    .Where(m =>
+                        m.Liq_Id.ToUpper().Contains(param.sSearch.ToUpper())
+                     );
+            }
+
+            //Manejador de orden
+            var sortIdx = Convert.ToInt32(Request["iSortCol_0"]);
+
+            if (param.iSortingCols > 0)
+            {
+                if (Request["sSortDir_0"].ToString() == "asc")
+                {
+                    switch (sortIdx)
+                    {
+                        case 0: filteredMembers = filteredMembers.OrderBy(o => o.Liq_Id); break;
+                    }
+                }
+                else
+                {
+                    switch (sortIdx)
+                    {
+                        case 0: filteredMembers = filteredMembers.OrderByDescending(o => o.Liq_Id); break;
+                    }
+                }
+            }
+
+            var Result = filteredMembers
+                .Skip(param.iDisplayStart)
+                .Take(param.iDisplayLength);
+
+            //Se devuelven los resultados por json
+            return Json(new
+            {
+                sEcho = param.sEcho,
+                iTotalRecords = totalCount,
+                iTotalDisplayRecords = filteredMembers.Count(),
+                aaData = Result,
+                iNroMarcado = NroMarcado,
+                iNroNoMarcado = NroNoMarcado,
+                iUniMarcado = UniMarcado,
+                iUniNoMarcado = UniNoMarcado,
+                itotCantidad = totCantidad,
+                itotCantPedido = totCantPedido
+            }, JsonRequestBehavior.AllowGet);
+        }
+
+        /// <summary>
+        /// Anular la marcacion del pedido
+        /// </summary>
+        /// <param name="Liq_Id"></param>
+        /// <returns></returns>
+        public ActionResult AnularPicking(string Liq_Id)
+        {
+            bool Result = false;
+            JsonResponse objResult = new JsonResponse();
+            Ent_Picking _Ent = new Ent_Picking();
+            _Ent.Liq_Id = Liq_Id;
+            try
+            {
+                Result = datPedido.AnularPicking(_Ent);
+                //Result = true;
+                if (Result)
+                {
+                    objResult.Success = true;
+                    objResult.Message = "Se Anulo la marcación para la liquidación No." + Liq_Id;
+                }
+                else
+                {
+                    objResult.Success = false;
+                    objResult.Message = "Error al anular el pedido  No." + Liq_Id;
+                }
+            }
+            catch (Exception ex)
+            {
+                objResult.Success = false;
+                objResult.Message = "Error al anular el pedido  No." + Liq_Id;
+            }
+
+            var JSON = JsonConvert.SerializeObject(objResult);
+
+            return Json(JSON, JsonRequestBehavior.AllowGet);
+        }
+
+        /// <summary>
+        /// Vista de liquidacion vs despacho
+        /// </summary>
+        /// <returns></returns>
+        public ActionResult LiquidacionVsDespacho()
+        {
+            Ent_Usuario _usuario = (Ent_Usuario)Session[Ent_Constantes.NameSessionUser];
+            string actionName = this.ControllerContext.RouteData.GetRequiredString("action");
+            string controllerName = this.ControllerContext.RouteData.GetRequiredString("controller");
+            string return_view = actionName + "|" + controllerName;
+
+            if (_usuario == null)
+            {
+                return RedirectToAction("Login", "Control", new { returnUrl = return_view });
+            }
+            else
+            {
+                Ent_Pedido_Despacho _Ent_Pedido_Despacho = new Ent_Pedido_Despacho();
+                ViewBag._Ent_Pedido_Despacho = _Ent_Pedido_Despacho;
+                return View();
+            }
+        }
+
+        /// <summary>
+        /// Lista de liquidacion vs despacho
+        /// </summary>
+        /// <param name="param"></param>
+        /// <param name="FechaInicio"></param>
+        /// <param name="FechaFin"></param>
+        /// <param name="isOkUpdate"></param>
+        /// <param name="isOkchkPSD"></param>
+        /// <returns></returns>
+        public JsonResult getListaPedDespAjax(Ent_jQueryDataTableParams param, string FechaInicio, string FechaFin, bool isOkUpdate, bool isOkchkPSD)
+        {
+            Ent_Pedido_Despacho Ent_Pedido_Despacho = new Ent_Pedido_Despacho();
+            int totCantParReal = 0, totCantParDes = 0, totCantParSD = 0;
+            if (isOkUpdate)
+            {
+                Ent_Pedido_Despacho.FechaInicio = DateTime.Parse(FechaInicio);
+                Ent_Pedido_Despacho.FechaFin = DateTime.Parse(FechaFin);
+                Session[_session_ListarPedidoDespacho] = (isOkchkPSD == true ? datPedido.ListarPedidoDespacho(Ent_Pedido_Despacho).Where(x => x.Saldo > 0).ToList() : datPedido.ListarPedidoDespacho(Ent_Pedido_Despacho).ToList());
+            }
+
+            /*verificar si esta null*/
+            if (Session[_session_ListarPedidoDespacho] == null)
+            {
+                List<Ent_Pedido_Despacho> _ListarPedidoDespacho = new List<Ent_Pedido_Despacho>();
+                Session[_session_ListarPedidoDespacho] = _ListarPedidoDespacho;
+            }
+
+            IQueryable<Ent_Pedido_Despacho> entDocTrans = ((List<Ent_Pedido_Despacho>)(Session[_session_ListarPedidoDespacho])).AsQueryable();
+
+            if (entDocTrans.Count() > 0)
+            {
+                totCantParReal = entDocTrans.Sum(a => a.PedOriginal);
+                totCantParDes = entDocTrans.Sum(a => a.Pedi_Despachado);
+                totCantParSD = entDocTrans.Sum(a => a.Saldo);
+            }
+            //Manejador de filtros
+            int totalCount = entDocTrans.Count();
+            IEnumerable<Ent_Pedido_Despacho> filteredMembers = entDocTrans;
+            if (!string.IsNullOrEmpty(param.sSearch))
+            {
+                filteredMembers = entDocTrans.Where(
+                        m =>
+                         m.Liq.ToUpper().Contains(param.sSearch.ToUpper()) ||
+                         m.Ven_Id.ToUpper().Contains(param.sSearch.ToUpper()) ||
+                         m.Articulo.ToUpper().Contains(param.sSearch.ToUpper())
+                );
+            }
+            var sortIdx = Convert.ToInt32(Request["iSortCol_0"]);
+
+            if (param.iSortingCols > 0)
+            {
+                if (Request["sSortDir_0"].ToString() == "asc")
+                {
+                    switch (sortIdx)
+                    {
+                        case 0: filteredMembers = filteredMembers.OrderBy(o => o.Liq); break;
+                        case 1: filteredMembers = filteredMembers.OrderBy(o => o.Ven_Id); break;
+                        case 2: filteredMembers = filteredMembers.OrderBy(o => o.Articulo); break;
+                    }
+                }
+                else
+                {
+                    switch (sortIdx)
+                    {
+                        case 0: filteredMembers = filteredMembers.OrderByDescending(o => o.Liq); break;
+                        case 1: filteredMembers = filteredMembers.OrderByDescending(o => o.Ven_Id); break;
+                        case 2: filteredMembers = filteredMembers.OrderByDescending(o => o.Articulo); break;
+                    }
+                }
+            }
+
+            var Result = filteredMembers
+                .Skip(param.iDisplayStart)
+                .Take(param.iDisplayLength);
+
+            //Se devuelven los resultados por json
+            return Json(new
+            {
+                sEcho = param.sEcho,
+                iTotalRecords = totalCount,
+                iTotalDisplayRecords = filteredMembers.Count(),
+                aaData = Result,
+                itotCantParReal = totCantParReal,
+                itotCantParDes =totCantParDes,
+                itotCantParSD = totCantParSD,
+            }, JsonRequestBehavior.AllowGet);
+        }
+        /// <summary>
+        /// Se arma el reporte en excel
+        /// </summary>
+        /// <param name="_Ent"></param>
+        /// <returns></returns>
+        public ActionResult get_exporta_ListaPedDesp_excel(Ent_Pedido_Despacho _Ent)
+        {
+            JsonResponse objResult = new JsonResponse();
+            try
+            {
+                Session[_session_ListarPedidoDespacho_Excel] = null;
+                string cadena = "";
+                if (Session[_session_ListarPedidoDespacho] != null)
+                {
+
+                    List<Ent_Pedido_Despacho> _ListarPedidoDespacho = (List<Ent_Pedido_Despacho>)Session[_session_ListarPedidoDespacho];
+                    if (_ListarPedidoDespacho.Count == 0)
+                    {
+                        objResult.Success = false;
+                        objResult.Message = "No hay filas para exportar";
+                    }
+                    else
+                    {
+                        cadena = get_html_ListarPedidoDespacho_str((List<Ent_Pedido_Despacho>)Session[_session_ListarPedidoDespacho], _Ent);
+                        if (cadena.Length == 0)
+                        {
+                            objResult.Success = false;
+                            objResult.Message = "Error del formato html";
+                        }
+                        else
+                        {
+                            objResult.Success = true;
+                            objResult.Message = "Se genero el excel correctamente";
+                            Session[_session_ListarPedidoDespacho_Excel] = cadena;
+                        }
+                    }
+                }
+                else
+                {
+                    objResult.Success = false;
+                    objResult.Message = "No hay filas para exportar";
+                }
+
+            }
+            catch (Exception ex)
+            {
+                objResult.Success = false;
+                objResult.Message = "No hay filas para exportar";
+            }
+
+            var JSON = JsonConvert.SerializeObject(objResult);
+
+            return Json(JSON, JsonRequestBehavior.AllowGet);
+        }
+        /// <summary>
+        /// Formato excel
+        /// </summary>
+        /// <param name="_ListarPedidoDespacho"></param>
+        /// <param name="_Ent"></param>
+        /// <returns></returns>
+        public string get_html_ListarPedidoDespacho_str(List<Ent_Pedido_Despacho> _ListarPedidoDespacho, Ent_Pedido_Despacho _Ent)
+        {
+            StringBuilder sb = new StringBuilder();
+            int totCantParReal = 0, totCantParDes = 0, totCantParSD = 0;
+            try
+            {
+                var Lista = _ListarPedidoDespacho.ToList();
+                totCantParReal = Lista.Sum(a => a.PedOriginal);
+                totCantParDes = Lista.Sum(a => a.Pedi_Despachado);
+                totCantParSD = Lista.Sum(a => a.Saldo);
+
+                sb.Append("<div><table cellspacing='0' style='width: 1000px' rules='all' border='0' style='border-collapse:collapse;'><tr><td Colspan='8'></td></tr><tr><td Colspan='8' valign='middle' align='center' style='vertical-align: middle;font-size: 16.0pt;font-weight: bold;color:#285A8F'>REPORTE DE LIQUIDACION VS DESPACHO</td></tr><tr><td Colspan='8'  valign='middle' align='center' style='font-size: 10.0pt;font-weight: bold;vertical-align: middle'>Desde el " + String.Format("{0:dd/MM/yyyy}", _Ent.FechaInicio) + " hasta el " + String.Format("{0:dd/MM/yyyy}", _Ent.FechaFin) + "</td></tr></table>");
+
+                sb.Append("<table  border='1' bgColor='#ffffff' borderColor='#FFFFFF' cellSpacing='2' cellPadding='2' style='font-size:10.0pt; font-family:Calibri; background:white;width: 1000px'><tr  bgColor='#5799bf'>\n");
+                sb.Append("<tr bgColor='#1E77AB'>\n");
+                sb.Append("<th style='text-align: center; font-weight:bold;font-size:11.0pt;'><font color='#FFFFFF'>Nro. Pedido</font></th>\n");
+                sb.Append("<th style='text-align: center; font-weight:bold;font-size:11.0pt;'><font color='#FFFFFF'>Nro. Venta</font></th>\n");
+                sb.Append("<th style='text-align: center; font-weight:bold;font-size:11.0pt;'><font color='#FFFFFF'>Fec. Venta</font></th>\n");
+                sb.Append("<th style='text-align: center; font-weight:bold;font-size:11.0pt;'><font color='#FFFFFF'>Articulo</font></th>\n");
+                sb.Append("<th style='text-align: center; font-weight:bold;font-size:11.0pt;'><font color='#FFFFFF'>Talla</font></th>\n");
+                sb.Append("<th style='text-align: center; font-weight:bold;font-size:11.0pt;'><font color='#FFFFFF'>Pares Real</font></th>\n");
+                sb.Append("<th style='text-align: center; font-weight:bold;font-size:11.0pt;'><font color='#FFFFFF'>Pares Desp.</font></th>\n");
+                sb.Append("<th style='text-align: center; font-weight:bold;font-size:11.0pt;'><font color='#FFFFFF'>Pares S/D</font></th>\n");
+                sb.Append("</tr>\n");
+
+                foreach (var item in Lista)
+                {
+                    sb.Append("<tr>\n");
+                    sb.Append("<td align='center'>" + item.Liq + "</td>\n");
+                    sb.Append("<td align='center'>" + item.Ven_Id + "</td>\n");
+                    sb.Append("<td >" + item.Fecha + "</td>\n");
+                    sb.Append("<td align='center'>" + item.Articulo + "</td>\n");
+                    sb.Append("<td align='center'>" + item.Talla + "</td>\n");
+                    sb.Append("<td align='center'>" + item.PedOriginal + "</td>\n");
+                    sb.Append("<td align='center'>" + item.Pedi_Despachado + "</td>\n");
+                    sb.Append("<td align='center'>" + item.Saldo + "</td>\n");
+                    sb.Append("</tr>\n");
+                }
+
+                sb.Append("<tfoot>\n");
+                sb.Append("<tr bgcolor='#085B8C'>\n");
+                sb.Append("<td colspan='4'></td>\n");
+                sb.Append("<td style='text-align:left;font-weight:bold;font-size:11.0pt; '><font color='#FFFFFF'>Totales</font></td>\n");
+                sb.Append("<td style='text-align:center;font-weight: bold;font-size:11.0pt; '><font color='#FFFFFF'>" + String.Format("{0:n0}", totCantParReal)  + "</font></td>\n");
+                sb.Append("<td style='text-align:center;font-weight: bold;font-size:11.0pt; '><font color='#FFFFFF'>" + String.Format("{0:n0}", totCantParDes)  + "</font></td>\n");
+                sb.Append("<td style='text-align:center;font-weight: bold;font-size:11.0pt; '><font color='#FFFFFF'>" + String.Format("{0:n0}", totCantParSD) + "</font></td>\n");
+                sb.Append("</tr>\n");
+                sb.Append("</tfoot>\n");
+                sb.Append("</table></div>");
+            }
+            catch
+            {
+
+            }
+            return sb.ToString();
+        }
+
+        /// <summary>
+        /// Exportamos el excel
+        /// </summary>
+        /// <returns></returns>
+        public ActionResult ListaListaPedDespExcel()
+        {
+            string NombreArchivo = "liquidespacho";
+            String style = style = @"<style> .textmode { mso-number-format:\@; } </script> ";
+            try
+            {
+                Response.Clear();
+                Response.Buffer = true;
+                Response.ContentType = "application/vnd.ms-excel";
+                Response.AddHeader("Content-Disposition", "attachment;filename=" + NombreArchivo + ".xls");
+                Response.Charset = "UTF-8";
+                Response.ContentEncoding = Encoding.Default;
+                Response.Write(style);
+                Response.Write(Session[_session_ListarPedidoDespacho_Excel].ToString());
+                Response.End();
+            }
+            catch
+            {
+
+            }
+            return Json(new { estado = 0, mensaje = 1 });
+        }
     }
 }

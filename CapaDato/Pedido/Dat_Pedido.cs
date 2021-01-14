@@ -981,5 +981,48 @@ namespace CapaDato.Pedido
             }
             return result;
         }
+
+        public List<Ent_Pedido_Despacho> ListarPedidoDespacho(Ent_Pedido_Despacho Ent)
+        {
+            List<Ent_Pedido_Despacho> Listar = new List<Ent_Pedido_Despacho>();
+            string sqlquery = "[USP_Leer_PedYLiq_Despacho]";
+            try
+            {
+                using (SqlConnection cn = new SqlConnection(Ent_Conexion.conexion))
+                {
+                    using (SqlCommand cmd = new SqlCommand(sqlquery, cn))
+                    {
+                        cmd.CommandType = CommandType.StoredProcedure;
+                        cmd.Parameters.AddWithValue("@fecha_inicio", DbType.DateTime).Value = Ent.FechaInicio;
+                        cmd.Parameters.AddWithValue("@fecha_final", DbType.DateTime).Value = Ent.FechaFin;
+                        using (SqlDataAdapter da = new SqlDataAdapter(cmd))
+                        {
+                            DataTable dt = new DataTable();
+                            da.Fill(dt);
+
+                            Listar = new List<Ent_Pedido_Despacho>();
+                            Listar = (from DataRow fila in dt.Rows
+                                      select new Ent_Pedido_Despacho()
+                                      {
+                                          Liq = (string)fila["Liq"],
+                                          Ven_Id = (string)fila["Ven_Id"],
+                                          Fecha = (string)fila["Fecha"],
+                                          Articulo = (string)fila["Articulo"],
+                                          Talla = (string)fila["Talla"],
+                                          PedOriginal = Convert.ToInt32(fila["PedOriginal"]),
+                                          Pedi_Despachado = Convert.ToInt32(fila["Pedi_Despachado"]),
+                                          Saldo = Convert.ToInt32(fila["Saldo"])
+                                      }
+                                    ).ToList();
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+            return Listar;
+        }
     }
 }

@@ -125,5 +125,19 @@ namespace CapaEntidad.Pedido
         public int? Ldn_Qty { get; set; }
         public string TiempoCorrido { get; set; }
     }
+
+    public class Ent_Pedido_Despacho
+    {
+        public string Liq { get; set; }
+        public string Ven_Id { get; set; }
+        public string Fecha { get; set; }
+        public string Articulo { get; set; }
+        public string Talla { get; set; }
+        public int PedOriginal { get; set; }
+        public int Pedi_Despachado { get; set; }
+        public int Saldo { get; set; }
+        public DateTime FechaInicio { get; set; }
+        public DateTime FechaFin { get; set; }
+    }
 }
     

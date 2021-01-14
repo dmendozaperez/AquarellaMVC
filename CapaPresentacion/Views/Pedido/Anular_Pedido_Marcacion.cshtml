@@ -1,6 +1,6 @@
 ﻿@using Newtonsoft.Json;
 @{
-    ViewBag.Title = "Marcación de pedidos en bodega";
+    ViewBag.Title = "Anular pedidos en Marcación y para facturar en almacen.";
     ViewBag.SubTitle = "";
 }
 <style>
@@ -97,6 +97,7 @@
     .control-checkbox input:disabled ~ .control_indicator:after {
         border-color: #7b7b7b;
     }
+
 </style>
 <p class="text-primary">Anulacion de pedidos en marcacion y para facturar en almacen.</p>
 <div class="box box-header box-primary">
@@ -117,9 +118,9 @@
                             <i class="glyphicon glyphicon-refresh" style="color:#FFF"></i>
                             &nbsp;&nbsp;Refrescar
                         </button>
+                       
                     </div>
                 </div>
-
             </div>
         </div>
     </div>
@@ -270,7 +271,6 @@
 @section scripts{
     <script src="~/Scripts/Linkend/linq.min.js"></script>
     <script>
-
         var objAnularMarcar = {
             Inicio: function () {
                 /*[Inicializamos variables]*/
@@ -281,8 +281,8 @@
                 this.NroNoMarcado = 0;
                 $("#chkAutomatica").attr("checked", "checked");
                 objAnularMarcar.grid.get();
-                //objMarcar.general.timeAlertInfo();
-                //objMarcar.general.refresarGrid();
+                //objAnularMarcar.general.timeAlertInfo();
+                //objAnularMarcar.general.refresarGrid();
                 this.ListarUsuario = function () { return @Html.Raw(Json.Encode(ViewBag.ListarUsuario)); }();
                 /*[/Inicializamos variables]*/
 
@@ -335,15 +335,13 @@
                             buttons: ["No", "Si"],
                             dangerMode: true,
                         }).then((cambiar) => {
-                            if (cambiar) {                                
-                                debugger;
+                            if (cambiar) {      
                                 waitingDialog.show("Espere por favor...");
-                                debugger
                                 $.ajax({
                                     type: "Post",
                                     url: '@Url.Action("AnularPicking", "Pedido")',
                                     data: { Liq_Id: Liq_Id},
-                                    async: false,
+                                   // async: false,
                                     success: function (data) {
                                         data = JSON.parse(data);
                                         if (data.Success) {
@@ -450,19 +448,6 @@
                     waitingDialog.show("Espere por favor...")
                     $('#tbPicking').DataTable().ajax.reload(function () {
                         waitingDialog.hide();
-                    });
-                }
-            },
-            Input: {
-                SoloNumeros: function (element) {
-                    //SOLO NUMEROS
-                    $(element).keypress(function (e) {
-                        var keyCode = e.keyCode || e.which;
-                        var regex = /^[0-9]$/;
-                        var isValid = regex.test(String.fromCharCode(keyCode));
-                        if (!isValid) {
-                        }
-                        return isValid;
                     });
                 }
             },
