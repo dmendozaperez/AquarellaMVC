@@ -25,7 +25,7 @@
         vertical-align: middle;
     }
 
-.control {
+    .control {
         font-family: arial;
         display: block;
         position: relative;
@@ -97,7 +97,6 @@
     .control-checkbox input:disabled ~ .control_indicator:after {
         border-color: #7b7b7b;
     }
-
 </style>
 <p class="text-primary">Consulte entre un rango de fechas, todos los despachos detallado por articulo.</p>
 <div class="box box-header box-primary">
@@ -206,20 +205,16 @@
                     autoclose: true,
                     todayHighlight: true
                 }).datepicker("setDate", "0");
-
                 $("#datepickerFin").datepicker({
                     autoclose: true,
                     todayHighlight: true
                 }).datepicker("setDate", "0");
-
                 this.isOkUpdate = true;
                 this.isOkchkPSD = false;
                 this.FechaInicio = $("#dtpFechaInicio").val();
                 this.FechaFin = $("#dtpFechaFin").val();
-
                 objPedDes.grid.get();
                 /*[/Inicializamos variables]*/
-
                 /*[btn Exportar y buscar]*/
                 $("#btnExportar").click(function () {
                     objPedDes.FechaInicio = $("#dtpFechaInicio").val();
@@ -227,7 +222,6 @@
                     waitingDialog.show("Espere por favor...")
                     objPedDes.generaal.exportar();
                 })
-
                 $("#btnBuscar").click(function () {
                     objPedDes.isOkUpdate = true;
                     objPedDes.FechaInicio = $("#dtpFechaInicio").val();
@@ -235,19 +229,18 @@
                     objPedDes.generaal.consultar();
                 })
                 /*[btn Exportar y buscar]*/
-
                 /*[Check Filtrar pares sin despachar]*/
                 $('#chkPSD').change(function () {
                     objPedDes.isOkUpdate = true;
                     if (this.checked) {
-                        $('#chkPSD').attr("checked", "checked");                        
+                        $('#chkPSD').attr("checked", "checked");
                         objPedDes.isOkchkPSD = true;
                         objPedDes.FechaInicio = $("#dtpFechaInicio").val();
                         objPedDes.FechaFin = $("#dtpFechaFin").val();
                         objPedDes.generaal.consultar();
                     } else {
                         $('#chkPSD').removeAttr("checked");
-                        objPedDes.isOkchkPSD = false;                    
+                        objPedDes.isOkchkPSD = false;
                         objPedDes.FechaInicio = $("#dtpFechaInicio").val();
                         objPedDes.FechaFin = $("#dtpFechaFin").val();
                         objPedDes.generaal.consultar();
@@ -304,7 +297,6 @@
                         },
                         "drawCallback": function (settings) {
                             objPedDes.isOkUpdate = false;
-
                             var table = $('#tbPedDes').dataTable();
                             var data = table.fnGetData();
                             if (data.length == 0) {
@@ -314,7 +306,6 @@
                                 $("#btnExportar").removeClass("disabled");
                                 $("#btnExportar").removeAttr("disabled");
                             }
-
                             if ($('#chkPSD').is(':checked')) {
                                 objPedDes.isOkchkPSD = true;
                             } else {
@@ -352,7 +343,7 @@
                         objPedDes.grid.cargaTabla();
                     }
                 },
-                exportar: function () {                    
+                exportar: function () {
                     var _Ent = function () { return @Html.Raw(Json.Encode(ViewBag._Ent_Pedido_Despacho)); }();
                     _Ent.FechaInicio = objPedDes.FechaInicio;
                     _Ent.FechaFin = objPedDes.FechaFin;
@@ -380,7 +371,6 @@
                 FormatDecimal: function (numero, decimales, separadorDecimal, separadorMiles) {
                     //debugger
                     var partes, array;
-
                     if (!isFinite(numero) || isNaN(numero = parseFloat(numero))) {
                         return "";
                     }
@@ -412,7 +402,6 @@
                         array.splice(i, 0, separadorMiles);
                     }
                     numero = array.join("");
-
                     if (partes.length > 1) {
                         numero += separadorDecimal + partes[1];
                     }
@@ -420,7 +409,6 @@
                 },
             }
         };
-
         $(document).ready(function () {
             objPedDes.Inicio();
         });

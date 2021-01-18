@@ -1,0 +1,365 @@
+﻿@model CapaPresentacion.Models.Lista_Cuenta_ContablesViewModel
+
+@{
+    ViewBag.Title = "Consulta de liquidaciones activas en bodega";
+    ViewBag.SubTitle = "";
+}
+<style>
+    .table thead {
+        background-color: #5799bf;
+        color: #fff;
+    }
+
+    .boton-xs-td {
+        padding-top: 5px !important;
+        padding-bottom: 5px !important;
+    }
+
+    .alignRight {
+        text-align: right;
+        vertical-align: middle;
+    }
+
+    .alignCenter {
+        text-align: center;
+        vertical-align: middle;
+    }
+</style>
+<p class="text-primary">Información acerca del ciclo de vida de una liquidación en bodega; podrá encontrar una liquidación en cualquiera de las etapas del ciclo de vida del pedido, quiere decir que podrá ubicar el estado en el cual se encuentren las diferentes liquidaciones, siendo los estados: separado, en marcación o en proceso de facturación.</p>
+<div class="box box-header box-primary">
+    <h3 class="box-title danger" style="color:#9c9c9c;font-weight:bold">Parametro de Busqueda</h3>
+    <br />
+    <br />
+    <div class="row">
+        <div class="col-sm-3">
+
+        </div>
+        <div class="col-md-3">
+        </div>
+        <div class="col-md-6">
+            <div class="col-md-5" style="padding-right: 0px;">
+
+            </div>
+            <div class="col-md-5">
+                <label for="" style="color: #3d566e;">Estado</label>                
+                <select id='ddlEstado' class='form-control custom-input'>
+                    <option value="-1">Seleccione estado</option>
+                </select>
+            </div>
+            <div class="col-md-2 text-right" style="padding:0px">
+                <button id="btnRefrescar" type="submit" title="Consultar" class="btn btn-primary" style="margin-top: 23px;">
+                    <i class="glyphicon glyphicon-refresh" style="color:#FFF"></i>
+                    &nbsp;&nbsp;Refrescar
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="box box-body box-primary">
+    <div class="row">
+        <div class="col-md-6">
+
+        </div>
+        <div class="col-md-6 text-right">
+            <button id="btnExportar" title="Actualizar" class="btn btn-primary .disabled" disabled>
+                <span class="glyphicon glyphicon-export"></span>&nbsp;&nbsp;Exportar Lista
+            </button>
+        </div>
+    </div>
+    <br />
+    <div class="row">
+        <div class="col-md-12">
+            <div class="table-responsive">
+                <table id="tbTabla" class="table table-hover table-bordered compact">
+                    <thead>
+                        <tr>
+                            <th style="text-align: center;">Asesor</th>
+                            <th style="text-align: center;">Área</th>
+                            <th style="text-align: center;">Cliente</th>
+                            <th style="text-align: center;">Doc. CLiente</th>
+                            <th style="text-align: center;">Ubicación</th>
+                            <th style="text-align: center;">Nro. Liq</th>
+                            <th style="text-align: center;">Estado</th>
+                            <th style="text-align: center;">Fecha</th>
+                            <th style="text-align: center;">Expiración</th>
+                            <th style="text-align: center;">Liberación</th>
+                            <th style="text-align: center;">Unds</th>
+                            <th style="text-align: center;">Uds. Emp</th>
+                            <th style="text-align: center;">Valor</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td colspan='8'>No se encontraron resultados</td>
+                        </tr>
+                    </tbody>
+                    <tfoot>
+                        <tr>
+                            <th></th>
+                            <th></th>
+                            <th></th>
+                            <th></th>
+                            <th></th>
+                            <th></th>
+                            <th></th>
+                            <th></th>
+                            <th></th>
+                            <th>Totales</th>
+                            <th><span class="text-bold alignRight" id="lbltotalpares"></span></th>
+                            <th><span class="text-bold alignRight" id="lblPaq_Cantidad"></span></th>
+                            <th><span class="text-bold alignRight" id="lblliq_value"></span></th>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section scripts{
+    <script>
+        //debugger
+        var objPedFac = {
+            Inicio: function () {
+                //debugger
+                /*[Inicializamos variables]*/
+                this.isOkUpdate = true;
+                this.isOkEstado = false;
+                this.ddlEstado = "-1";
+                objPedFac.grid.get();
+                /*[/Inicializamos variables]*/
+
+                /*[btn Exportar y refrescar]*/
+                $("#btnExportar").click(function () {
+                    objPedFac.FechaInicio = $("#dtpFechaInicio").val();
+                    objPedFac.FechaFin = $("#dtpFechaFin").val();
+                    waitingDialog.show("Espere por favor...")
+                    objPedFac.generaal.exportar();
+                }) 
+                $("#btnRefrescar").click(function () {
+                    objPedFac.isOkUpdate = true;
+                    objPedFac.isOkEstado = false;
+                    objPedFac.ddlEstado = "-1";
+                    objPedFac.grid.cargaTabla();
+                    objPedFac.generaal.timeAlertInfo();
+                });     
+                /*[/btn Exportar y refrescar]*/
+
+                /*[Select]*/
+                $("#ddlEstado").change(function () {
+                    //objPedFac.isOkUpdate = true;
+                    if(this.value==-1){
+                        objPedFac.isOkEstado = false;
+                        objPedFac.ddlEstado = "-1";
+                        objPedFac.grid.cargaTabla();
+                    } else {
+                        objPedFac.isOkEstado = true;
+                        objPedFac.ddlEstado = this.value
+                        objPedFac.grid.cargaTabla();
+                    }
+                })
+                /*[/Select]*/
+
+            },
+            grid: {
+                get: function () {
+                   // debugger
+                    waitingDialog.show("Espere por favor...")
+                    $('#tbTabla').DataTable({
+                        "language": {
+                            "url": "../Scripts/DataTables/Spanish.json"
+                        },
+                        "fnServerData": function (sSource, aoData, fnCallback) {
+                            $.getJSON(sSource, aoData, function (json) {
+                                $("#lbltotalpares").html(objPedFac.generaal.FormatDecimal(json.itotalpares, 0, '.', ','));
+                                $("#lblPaq_Cantidad").html(objPedFac.generaal.FormatDecimal(json.iPaq_Cantidad, 0, '.', ','));
+                                $("#lblliq_value").html(objPedFac.generaal.FormatDecimal(json.iliq_value, 2, '.', ','));
+                                objPedFac.generaal.dropdownlist.Limpia();
+                                objPedFac.generaal.dropdownlist.Llena(json.lListaEstado)
+                                fnCallback(json);
+                            });
+                        },
+                        "bServerSide": true,
+                        "bAutoWidth": false,
+                        "sAjaxSource": '@Url.Action("getListarPedidoFacturacionAjax", "Pedido")',
+                        "fnServerParams": function (aoData) {
+                            //debugger;
+                            aoData.push({ "name": "isOkUpdate", "value": objPedFac.isOkUpdate });
+                            aoData.push({ "name": "isOkEstado", "value": objPedFac.isOkEstado });
+                            aoData.push({ "name": "ddlEstado", "value": objPedFac.ddlEstado });
+                        },
+                        "bFilter": true,
+                        "bdestroy": true,
+                        "start": 0,
+                        "columnDefs": [{
+                            "orderable": false,
+                            "targets": [7,8,9,10,11,12],
+                        }],
+                        "bDeferRender": true,
+                        "aoColumns": [
+                            { "sName": "Asesor", "mData": "Asesor", "sClass": "" },
+                            { "sName": "Are_Descripcion", "mData": "Are_Descripcion", "sClass": "" },
+                            { "sName": "Nombres", "mData": "Nombres", "sClass": "" },
+                            { "sName": "Dni_Promotor", "mData": "Dni_Promotor", "sClass": "alignCenter" },
+                            { "sName": "Ubicacion", "mData": "Ubicacion", "sClass": "" },
+                            { "sName": "Liq_Id", "mData": "Liq_Id", "sClass": "alignCenter" },
+                            { "sName": "Liq_Estid", "mData": "Liq_Estid", "sClass": "alignCenter" },
+                            //{ "sName": "Liq_Fecha", "mData": "Liq_Fecha", "sClass": "" },
+                            {
+                                "mData": null,
+                                "sClass": "alignCenter",
+                                "render": function (Data, type, full, meta) {
+                                    //debugger;
+                                    var Liq_Fecha = (full.Liq_Fecha == undefined || full.Liq_Fecha == null || full.Liq_Fecha == 0) ? ' ' : new Date(parseInt(full.Liq_Fecha.replace("/Date(", "").replace(")/", ""), 10));
+                                    return (Liq_Fecha == undefined || Liq_Fecha == null || Liq_Fecha == 0) ? ' ' : (Liq_Fecha.getDate() < 10 ? "0" + Liq_Fecha.getDate() : Liq_Fecha.getDate()) + "/" + ((Liq_Fecha.getMonth() + 1) < 10 ? "0" + (Liq_Fecha.getMonth() + 1) : (Liq_Fecha.getMonth() + 1)) + "/" + Liq_Fecha.getFullYear();//Liq_Fecha.toLocaleDateString();
+                                }
+                            },
+                            //{ "sName": "Liq_Fecha_Expiracion", "mData": "Liq_Fecha_Expiracion", "sClass": "" },
+                            {
+                                "mData": null,
+                                "sClass": "alignCenter",
+                                "render": function (Data, type, full, meta) {
+                                    debugger;
+                                    var Liq_Fecha_Expiracion = (full.Liq_Fecha_Expiracion == undefined || full.Liq_Fecha_Expiracion == null || full.Liq_Fecha_Expiracion == 0) ? ' ' : new Date(parseInt(full.Liq_Fecha_Expiracion.replace("/Date(", "").replace(")/", ""), 10));
+
+                                    debugger
+                                    return (Liq_Fecha_Expiracion == undefined || Liq_Fecha_Expiracion == null || Liq_Fecha_Expiracion == 0) ? ' ' : (Liq_Fecha_Expiracion.getDate() < 10 ? "0" + Liq_Fecha_Expiracion.getDate() : Liq_Fecha_Expiracion.getDate()) + "/" + ((Liq_Fecha_Expiracion.getMonth() + 1) < 10 ? "0" + (Liq_Fecha_Expiracion.getMonth() + 1) : (Liq_Fecha_Expiracion.getMonth() + 1)) + "/" + Liq_Fecha_Expiracion.getFullYear(); //Liq_Fecha_Expiracion.toLocaleDateString();
+                                }
+                            },
+                            { "sName": "Fecha_Grupo", "mData": "Fecha_Grupo", "sClass": "" },
+                            { "sName": "Totalpares", "mData": "Totalpares", "sClass": "alignRight" },
+                            { "sName": "Paq_Cantidad", "mData": "Paq_Cantidad", "sClass": "alignRight" },
+                            { "sName": "Liq_Value", "mData": "Liq_Value", "sClass": "alignRight" }
+                        ],
+                        "fnRowCallback": function (row, data, index) {
+                        },
+                        "drawCallback": function (settings) {
+                            objPedFac.isOkUpdate = false;
+                            var table = $('#tbTabla').dataTable();
+                            var data = table.fnGetData();
+                            if (data.length == 0) {
+                                $("#btnExportar").addClass("disabled");
+                                $("#btnExportar").attr('disabled', 'disabled');
+                            } else {
+                                $("#btnExportar").removeClass("disabled");
+                                $("#btnExportar").removeAttr("disabled");
+                            }                           
+
+                            if (objPedFac.ddlEstado == "-1") {
+                                objPedFac.isOkEstado = false;
+                            } else {
+                                objPedFac.isOkEstado = true;
+                            }
+                            waitingDialog.hide();
+                        },
+                        "initComplete": function (settings, json) {
+                        }
+                    });
+                },
+                cargaTabla: function () {
+                    //debugger
+                    waitingDialog.show("Espere por favor...")
+                    $('#tbTabla').DataTable().ajax.reload(function () {
+                        waitingDialog.hide();
+                    });
+                },
+            },
+            generaal: {
+                Validar : function(){
+                    return true;
+                },
+                consultar: function () {
+                    //debugger
+                    if (objPedFac.generaal.Validar()) {
+                        objPedFac.grid.cargaTabla();
+                    }
+                },
+                exportar: function () {
+                    $.ajax({
+                        type: "POST",
+                        url: '@Url.Action("get_exporta_ListaPedFac_excel", "Pedido")',
+                        data : {},
+                        success: function (data) {
+                            data = JSON.parse(data);
+                            waitingDialog.hide();
+                            if (data.Success) {
+                                toastr.success(data.Message);
+                                window.location = '@Url.Action("ListaPedFacExcel")';
+                            }
+                            else {
+                                toastr.error(data.Message, "Alerta");
+                            }
+                        },
+                        error: function (XMLHttpRequest, textStatus, errorThrown) {
+                            waitingDialog.hide();
+                            toastr.error("Error al consultar.", "Alerta");
+                        }
+                    });
+                },
+                FormatDecimal: function (numero, decimales, separadorDecimal, separadorMiles) {
+                    //debugger
+                    var partes, array;
+                    if (!isFinite(numero) || isNaN(numero = parseFloat(numero))) {
+                        return "";
+                    }
+                    if (typeof decimales === "undefined") {
+                        decimales = 2;
+                    }
+                    if (typeof separadorDecimal === "undefined") {
+                        separadorDecimal = ".";
+                    }
+                    if (typeof separadorMiles === "undefined") {
+                        separadorMiles = ",";
+                    }
+                    // Redondeamos
+                    if (!isNaN(parseInt(decimales))) {
+                        if (decimales >= 0) {
+                            numero = numero.toFixed(decimales);
+                        } else {
+                            numero = (
+                                Math.round(numero / Math.pow(10, Math.abs(decimales))) * Math.pow(10, Math.abs(decimales))
+                            ).toFixed();
+                        }
+                    } else {
+                        numero = numero.toString();
+                    }
+                    // Damos formato
+                    partes = numero.split(".", 2);
+                    array = partes[0].split("");
+                    for (var i = array.length - 3; i > 0 && array[i - 1] !== "-"; i -= 3) {
+                        array.splice(i, 0, separadorMiles);
+                    }
+                    numero = array.join("");
+                    if (partes.length > 1) {
+                        numero += separadorDecimal + partes[1];
+                    }
+                    return numero;
+                },
+                dropdownlist: {
+                    Llena: function (Lista) {
+                        var $select = $("#ddlEstado");
+                        $.each(Lista, function (k, v) {
+                            var $option = $("<option></option>", {
+                                "text": v.Descripcion,
+                                "value": v.Codigo
+                            });
+                            if (v.Codigo == objPedFac.ddlEstado) {
+                                $option.attr("selected", "selected")
+                            }
+                            $select.append($option);
+                        });
+                        return $select.prop("outerHTML");
+                    },
+                    Limpia: function () {
+                        $('#ddlEstado').find('option').remove().end()
+                        .append('<option value="-1">Seleccione estado</option>').val('-1');
+                    }
+                }
+            }
+        };
+        $(document).ready(function () {
+            objPedFac.Inicio();
+        });
+    </script>
+}

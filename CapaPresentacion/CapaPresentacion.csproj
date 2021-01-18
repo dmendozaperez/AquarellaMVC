@@ -3132,6 +3132,7 @@
     <Content Include="Views\Pedido\MarcacionPedido.cshtml" />
     <Content Include="Views\Pedido\Anular_Pedido_Marcacion.cshtml" />
     <Content Include="Views\Pedido\LiquidacionVsDespacho.cshtml" />
+    <Content Include="Views\Pedido\PedidoFacturacion.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

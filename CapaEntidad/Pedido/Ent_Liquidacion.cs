@@ -139,5 +139,34 @@ namespace CapaEntidad.Pedido
         public DateTime FechaInicio { get; set; }
         public DateTime FechaFin { get; set; }
     }
+
+    public class Ent_Pedido_Facturacion
+    {
+        public string Liq_Id { get; set; }
+        public string Asesor { get; set; }
+        public string Fecha { get; set; }
+        public DateTime? Liq_Fecha { get; set; }
+        public int? Bas_Id { get; set; }
+        public string Liq_Estid { get; set; }
+        public string Fechaexpira { get; set; }
+        public DateTime? Liq_Fecha_Expiracion { get; set; }
+        public Decimal? Liq_Igv { get; set; }
+        public string Liq_Gruid { get; set; }
+        public string Nombres { get; set; }
+        public string Dni_Promotor { get; set; }
+        public string Ubicacion { get; set; }
+        public int Totalpares { get; set; }
+        public int Paq_Cantidad { get; set; }
+        public Decimal Liq_Value { get; set; }
+        public string Are_Id { get; set; }
+        public string Are_Descripcion { get; set; }
+        public string Liq_Guiaid { get; set; }
+        public string Tra_Gui_No { get; set; }
+        public string Tra_Descripcion { get; set; }
+        public string Fecha_Grupo { get; set; }
+        public DateTime? Gru_Fecha { get; set; }
+        public string Codigo { get; set; }
+        public string Descripcion { get; set; }
+    }
 }
     

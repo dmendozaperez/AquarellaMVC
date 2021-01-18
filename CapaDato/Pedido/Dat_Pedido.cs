@@ -1024,5 +1024,61 @@ namespace CapaDato.Pedido
             }
             return Listar;
         }
+        public List<Ent_Pedido_Facturacion> ListarPedidoFacturacion(Ent_Pedido_Facturacion _Ent)
+        {
+            List<Ent_Pedido_Facturacion> Listar = new List<Ent_Pedido_Facturacion>();
+            string sqlquery = "[USP_Leer_Liquidacion_Activos]";
+            try
+            {
+                using (SqlConnection cn = new SqlConnection(Ent_Conexion.conexion))
+                {
+                    using (SqlCommand cmd = new SqlCommand(sqlquery, cn))
+                    {
+                        cmd.CommandType = CommandType.StoredProcedure;
+                        cmd.Parameters.AddWithValue("@are_id", DbType.String).Value = _Ent.Are_Id;
+                        using (SqlDataAdapter da = new SqlDataAdapter(cmd))
+                        {
+                            DataTable dt = new DataTable();
+                            da.Fill(dt);
+
+                            Listar = new List<Ent_Pedido_Facturacion>();
+                            Listar = (from DataRow fila in dt.Rows
+                                      select new Ent_Pedido_Facturacion()
+                                      {
+                                          Liq_Id = (fila["Liq_Id"] is DBNull) ? string.Empty : (string)(fila["Liq_Id"]),
+                                          Asesor = (fila["Asesor"] is DBNull) ? string.Empty : (string)(fila["Asesor"]),
+                                          Fecha = (fila["Fecha"] is DBNull) ? string.Empty : (string)(fila["Fecha"]),
+                                          Liq_Fecha = (fila["Liq_Fecha"] is DBNull) ? (DateTime?)null : Convert.ToDateTime(fila["Liq_Fecha"]),
+                                          Bas_Id = (fila["Bas_Id"] is DBNull) ? (int?)null : Convert.ToInt32(fila["Bas_Id"]),
+                                          Liq_Estid = (fila["Liq_Estid"] is DBNull) ? string.Empty : (string)(fila["Liq_Estid"]),
+                                          Fechaexpira = (fila["Fechaexpira"] is DBNull) ? string.Empty : (string)(fila["Fechaexpira"]),
+                                          Liq_Fecha_Expiracion = (fila["Liq_Fecha_Expiracion"] is DBNull) ? (DateTime?)null : Convert.ToDateTime(fila["Liq_Fecha_Expiracion"]),
+                                          Liq_Igv = (fila["Liq_Igv"] is DBNull) ? (Decimal?)null : Convert.ToDecimal(fila["Liq_Igv"]),
+                                          Liq_Gruid = (fila["Liq_Gruid"] is DBNull) ? string.Empty : (string)(fila["Liq_Gruid"]),
+                                          Nombres = (fila["Nombres"] is DBNull) ? string.Empty : (string)(fila["Nombres"]),
+                                          Dni_Promotor = (fila["Dni_Promotor"] is DBNull) ? string.Empty : (string)(fila["Dni_Promotor"]),
+                                          Ubicacion = (fila["Ubicacion"] is DBNull) ? string.Empty : (string)(fila["Ubicacion"]),
+                                          Totalpares = Convert.ToInt32(fila["Totalpares"]),
+                                          Paq_Cantidad =  Convert.ToInt32(fila["Paq_Cantidad"]),
+                                          Liq_Value = Convert.ToDecimal(fila["Liq_Value"]),
+                                          Are_Id = (fila["Are_Id"] is DBNull) ? string.Empty : (string)(fila["Are_Id"]),
+                                          Are_Descripcion = (fila["Are_Descripcion"] is DBNull) ? string.Empty : (string)(fila["Are_Descripcion"]),
+                                          Liq_Guiaid = (fila["Liq_Guiaid"] is DBNull) ? string.Empty : (string)(fila["Liq_Guiaid"]),
+                                          Tra_Gui_No = (fila["Tra_Gui_No"] is DBNull) ? string.Empty : (string)(fila["Tra_Gui_No"]),
+                                          Tra_Descripcion = (fila["Tra_Descripcion"] is DBNull) ? string.Empty : (string)(fila["Tra_Descripcion"]),
+                                          Fecha_Grupo = (fila["Fecha_Grupo"] is DBNull) ? string.Empty : (string)(fila["Fecha_Grupo"]),
+                                          Gru_Fecha = (fila["Gru_Fecha"] is DBNull) ? (DateTime?)null : Convert.ToDateTime(fila["Gru_Fecha"])
+                                      }
+                                    ).ToList();
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+            return Listar;
+        }
     }
 }
