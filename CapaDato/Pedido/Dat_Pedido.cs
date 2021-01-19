@@ -1080,5 +1080,52 @@ namespace CapaDato.Pedido
             }
             return Listar;
         }
+        public List<Ent_Consultar_Pedido> ListarConsultarPedido(Ent_Consultar_Pedido _Ent)
+        {
+            List<Ent_Consultar_Pedido> Listar = new List<Ent_Consultar_Pedido>();
+            string sqlquery = "[USP_Leer_Consulta_LiqDoc]";
+            try
+            {
+                using (SqlConnection cn = new SqlConnection(Ent_Conexion.conexion))
+                {
+                    using (SqlCommand cmd = new SqlCommand(sqlquery, cn))
+                    {
+                        cmd.CommandType = CommandType.StoredProcedure;
+                        cmd.Parameters.AddWithValue("@bas_documento", DbType.String).Value = _Ent.Bas_Documento;
+                        using (SqlDataAdapter da = new SqlDataAdapter(cmd))
+                        {
+                            DataTable dt = new DataTable();
+                            da.Fill(dt);
+
+                            Listar = new List<Ent_Consultar_Pedido>();
+                            Listar = (from DataRow fila in dt.Rows
+                                      select new Ent_Consultar_Pedido()
+                                      {
+                                          NroDNI = (fila["Dni o Ruc"] is DBNull) ? string.Empty : (string)(fila["Dni o Ruc"]),
+                                          Cliente = (fila["Cliente"] is DBNull) ? string.Empty : (string)(fila["Cliente"]),
+                                          NroPedido = (fila["Nro Pedido"] is DBNull) ? string.Empty : (string)(fila["Nro Pedido"]),
+                                          FecPedido = (fila["F.Pedido"] is DBNull) ? string.Empty : (string)(fila["F.Pedido"]),
+                                          Total = (fila["Total"] is DBNull) ? (Decimal?)null : Convert.ToDecimal(fila["Total"]),
+                                          Estado = (fila["Estado"] is DBNull) ? string.Empty : (string)(fila["Estado"]),
+                                          NroLiquidacion = (fila["Nro Liquidacion"] is DBNull) ? string.Empty : (string)(fila["Nro Liquidacion"]),
+                                          FecLiquidacion = (fila["F.Liquidacion"] is DBNull) ? string.Empty : (string)(fila["F.Liquidacion"]),
+                                          NroDoc = (fila["Nro.Doc"] is DBNull) ? string.Empty : (string)(fila["Nro.Doc"]),
+                                          FecDoc = (fila["F.Doc"] is DBNull) ? string.Empty : (string)(fila["F.Doc"]),
+                                          NroNC = (fila["Nro.NC"] is DBNull) ? string.Empty : (string)(fila["Nro.NC"]),
+                                          FecNC = (fila["F.NC"] is DBNull) ? string.Empty : (string)(fila["F.NC"]),
+                                          Stv_Description = (fila["Stv_Description"] is DBNull) ? string.Empty : (string)(fila["Stv_Description"])
+                                      }
+                                    ).ToList();
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+            return Listar;
+        }
+
     }
 }

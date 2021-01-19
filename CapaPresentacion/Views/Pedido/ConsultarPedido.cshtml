@@ -1,0 +1,296 @@
+﻿@using Newtonsoft.Json;
+@{
+    ViewBag.Title = "Consulta de Pedido por Dni o Ruc";
+    ViewBag.SubTitle = "";
+}
+<style>
+    .table thead {
+        background-color: #5799bf;
+        color: #fff;
+    }
+
+    .boton-xs-td {
+        padding-top: 5px !important;
+        padding-bottom: 5px !important;
+    }
+
+    .alignRight {
+        text-align: right;
+        vertical-align: middle;
+    }
+
+    .alignCenter {
+        text-align: center;
+        vertical-align: middle;
+    }
+
+   .table .ColC1 {
+        color: #000 !important;
+        background-color: #7FCCF4;        
+        font-weight: bold;
+        vertical-align: middle;
+    }
+
+   .table .ColC2 {
+        color: #000 !important;
+        background-color: #B1DEF6;        
+        font-weight: bold;
+        vertical-align: middle;
+    }
+
+</style>
+<p class="text-primary">Busqueda de historial de pedido por Dni o Ruc.</p>
+<div class="box box-body box-primary">
+    <h3 class="box-title danger" style="color:#9c9c9c;font-weight:bold">Parametro de Busqueda</h3>
+    <div class="row">
+        <div class="col-md-8">
+        </div>
+        <div class="col-md-4 text-right" style="margin-top: 10px;">
+            <div class="form-group" style="margin-bottom: 0px;">
+                <div class="input-group">
+                    <input id="txtBas_Documento" type="text" class="form-control" style="max-width: 100%" />
+                    <div class="input-group-btn">
+                        <button id="btnBuscar" class="btn btn-primary" type="button">
+                            <i class="glyphicon glyphicon-search" style="color:#FFF"></i>
+                            &nbsp;&nbsp;Buscar
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="box box-body box-primary">
+    <div class="row">
+        <div class="col-md-6">
+        </div>
+        <div class="col-md-6 text-right">
+            <button id="btnExportar" title="Actualizar" class="btn btn-success disabled" disabled>
+                <span class="glyphicon glyphicon-export"></span>&nbsp;&nbsp;Exportar Lista
+            </button>
+        </div>
+    </div>
+    <br />
+    <div class="row">
+        <div class="col-md-12">
+            <div class="table-responsive">
+                <table id="tbTabla" class="table table-hover table-bordered compact">
+                    <thead>
+                        <tr>
+                            <th style="text-align: center;">Dni o Ruc</th>
+                            <th style="text-align: center;">Cliente</th>
+                            <th style="text-align: center;">Nro. Pedido</th>
+                            <th style="text-align: center;">Fec. Pedido</th>
+                            <th style="text-align: center;">Total</th>
+                            <th style="text-align: center;">Estado</th>
+                            <th style="text-align: center;">Nro. Liquidacion</th>
+                            <th style="text-align: center;">Fec. Liquidacion</th>
+                            <th style="text-align: center;">Nro. Doc</th>
+                            <th style="text-align: center;">Fec. Doc</th>
+                            <th style="text-align: center;">Nro. NC</th>
+                            <th style="text-align: center;">Fec. NC</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td colspan='12'>No se encontraron resultados</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section scripts{
+    <script src="~/Scripts/Linkend/linq.min.js"></script>
+    <script>
+        var objConPedido = {
+            Inicio: function () {
+                /*[Inicializamos variables]*/
+                this.isOkUpdate = false;
+                this.Bas_Documento = "";
+                objConPedido.grid.get();
+                objConPedido.Input.SoloNumeros($("#txtBas_Documento"));
+
+                /*[/Inicializamos variables]*/
+
+                /*[Busqueda]*/
+                $("#btnBuscar").click(function () {
+                    objConPedido.isOkUpdate = true;
+                    objConPedido.Bas_Documento = $("#txtBas_Documento").val();
+                    objConPedido.grid.Consultar();
+                });
+
+                $("#txtBas_Documento").keyup(function (e) {
+                    if (e.keyCode == 13) {
+                        objConPedido.isOkUpdate = true;
+                        objConPedido.Bas_Documento = $("#txtBas_Documento").val();
+                        objConPedido.grid.Consultar();
+                    }
+                });
+                /*[/Busqueda]*/
+
+                /*[btn Print]*/
+                $("#btnExportar").click(function () {
+                    waitingDialog.show("Espere por favor...")
+                    objConPedido.general.exportar();
+                })
+                /*[/btn Print]*/
+            },
+            grid: {
+                get: function () {
+                    /*[Carga la tabla]*/
+                    waitingDialog.show("Espere por favor...")
+                    $('#tbTabla').DataTable({
+                        "language": {
+                            "url": "../Scripts/DataTables/Spanish.json"
+                        },
+                        "bServerSide": true,
+                        "bAutoWidth": false,
+                        "sAjaxSource": '@Url.Action("getListarConsultaPedido", "Pedido")',
+                        "fnServerParams": function (aoData) {
+                            aoData.push({ "name": "isOkUpdate", "value": objConPedido.isOkUpdate }),
+                            aoData.push({ "name": "Bas_Documento", "value": objConPedido.Bas_Documento })
+                        },
+                        //"start": 0,
+                        "columnDefs": [{
+                            "orderable": false,
+                            "targets": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10,11]
+                        }],
+                        "searching": false,   //Busqueda
+                        "lengthChange": true, //Lista por cantidad
+                        "bDeferRender": true,
+                        "aoColumns": [
+                            { "sName": "NroDNI", "mData": "NroDNI", "sClass": "alignCenter NroDNI" },
+                            { "sName": "Cliente", "mData": "Cliente", "sClass": "Cliente" },
+                            { "sName": "NroPedido", "mData": "NroPedido", "sClass": "alignCenter" },
+                            { "sName": "FecPedido", "mData": "FecPedido", "sClass": "alignCenter" },
+                            //{ "sName": "Total", "mData": "Total", "sClass": "alignRight" },
+                            //MontoFac
+                            {
+                                "sName": null, "sClass": "alignRight",
+                                "render": function (Data, type, full, meta) {
+                                    let Total = parseFloat(full.Total);
+                                    return (Total == undefined || Total == null || Total == 0) ? ' ' : "S/ " + Total.toFixed(2);
+                                }
+                            },
+                            { "sName": "Estado", "mData": "Estado", "sClass": "" },
+                            { "sName": "NroLiquidacion", "mData": "NroLiquidacion", "sClass": "alignRight" },
+                            { "sName": "FecLiquidacion", "mData": "FecLiquidacion", "sClass": "alignCenter" },
+                            { "sName": "NroDoc", "mData": "NroDoc", "sClass": "alignCenter" },
+                            { "sName": "FecDoc", "mData": "FecDoc", "sClass": "alignCenter" },
+                            { "sName": "NroNC", "mData": "NroNC", "sClass": "alignCenter" },
+                            { "sName": "FecNC", "mData": "FecNC", "sClass": "alignCenter" }
+                        ],
+                        "fnRowCallback": function (row, data, index) {
+                            //debugger
+                        },
+                        "drawCallback": function (settings) {
+                            objConPedido.isOkUpdate = false;
+                            waitingDialog.hide();
+                            var table = $('#tbTabla').dataTable();
+                            var data = table.fnGetData();
+                            if (data.length == 0) {
+                                $("#btnExportar").addClass("disabled");
+                                $("#btnExportar").attr('disabled', 'disabled');
+                            } else {
+                                $("#btnExportar").removeClass("disabled");
+                                $("#btnExportar").removeAttr("disabled");
+                                $("#tbTabla td:nth-child(1)").addClass("ColC2");
+                                $("#tbTabla td:nth-child(2)").addClass("ColC2");
+                            }
+                            objConPedido.grid.MergeGridCells("NroDNI");
+                            objConPedido.grid.MergeGridCells("Cliente");
+                        },
+                        "initComplete": function (settings, json) {
+                        },
+                        "fndrawCallback": function (settings) {
+
+                        }
+                    });
+                    /*[/Carga la tabla]*/
+                },
+                cargaTabla: function () {
+                    waitingDialog.show("Espere por favor...")
+                    $('#tbTabla').DataTable().ajax.reload(function () {
+                        waitingDialog.hide();
+                    });
+                },
+                Validar: function () {
+                    debugger
+                    if (objConPedido.Bas_Documento == undefined || objConPedido.Bas_Documento == null || objConPedido.Bas_Documento == 0 || objConPedido.Bas_Documento == '') {
+                        swal({ title: "Alerta", text: "Debe ingresar un nro de documento.", icon: "error" }).then((value) => { });
+                        return false;
+                    }
+                    return true;
+                },
+                Consultar: function () {
+                    if (objConPedido.grid.Validar()) {
+                        objConPedido.grid.cargaTabla()
+                    }
+                },
+                MergeGridCells: function (clasS) {
+                    var topMatchTd;
+                    var previousValue = "";
+                    var rowSpan = 1;
+                    $('#tbTabla .' + clasS).each(function () {
+                        if ($(this).text() == previousValue) {
+                            rowSpan++;
+                            $(topMatchTd).attr('rowspan', rowSpan);
+                            $(this).remove();
+                        }
+                        else {
+                            topMatchTd = $(this);
+                            rowSpan = 1;
+                        }
+                        previousValue = $(this).text();
+                    });
+                }
+            },
+            Input :{
+                SoloNumeros: function (element) {
+                    //SOLO NUMEROS
+                    $(element).keypress(function (e) {
+                        var keyCode = e.keyCode || e.which;
+                        var regex = /^[0-9]$/;
+                        var isValid = regex.test(String.fromCharCode(keyCode));
+                        if (!isValid) {
+                        }
+                        return isValid;
+                    });
+                },
+            },
+            general: {
+                    exportar: function () {
+                        $.ajax({
+                            type: "POST",
+                            url: '@Url.Action("get_exporta_ListaConPedido_excel", "Pedido")',
+                            data : {},
+                            success: function (data) {
+                                data = JSON.parse(data);
+                                waitingDialog.hide();
+                                if (data.Success) {
+                                    toastr.success(data.Message);
+                                    window.location = '@Url.Action("ListaConPedExcel")';
+                                }
+                                else {
+                                    toastr.error(data.Message, "Alerta");
+                                }
+                                waitingDialog.hide();
+                            },
+                            error: function (XMLHttpRequest, textStatus, errorThrown) {
+                                waitingDialog.hide();
+                                toastr.error("Error al consultar.", "Alerta");
+                            }
+                        });
+                    }
+            }
+        };
+        //[Inicializamos]
+        $(document).ready(function () {
+            objConPedido.Inicio();
+        });
+        //[/Inicializamos]
+    </script>
+}

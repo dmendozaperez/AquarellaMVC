@@ -47,6 +47,8 @@ namespace CapaPresentacion.Controllers
         private string _session_ListarPedidoDespacho_Excel = "_session_ListarPedidoDespacho_Excel";
         private string _session_ListarPedidoFacturacion = "_session_ListarPedidoFacturacion";
         private string _session_ListarPedidoFacturacion_Excel = "_session_ListarPedidoFacturacion_Excel";
+        private string _session_ListarConsultarPedido = "_session_ListarConsultarPedido";
+        private string _session_ListarConsultarPedido_Excel = "_session_ListarConsultarPedido_Excel";
 
         private Dat_Cliente dat_cliente = new Dat_Cliente();
 
@@ -3696,5 +3698,242 @@ namespace CapaPresentacion.Controllers
             }
             return Json(new { estado = 0, mensaje = 1 });
         }
+        #region <CONSULTA DE PEDIDOS>
+        /// <summary>
+        /// CONSULTAR PEDIDO POR MEDIO DE DNI O RUC
+        /// </summary>
+        /// <returns></returns>
+        public ActionResult ConsultarPedido()
+        {
+            Session[_session_ListarConsultarPedido] = null;
+            Ent_Usuario _usuario = (Ent_Usuario)Session[Ent_Constantes.NameSessionUser];
+            string actionName = this.ControllerContext.RouteData.GetRequiredString("action");
+            string controllerName = this.ControllerContext.RouteData.GetRequiredString("controller");
+            string return_view = actionName + "|" + controllerName;
+
+            if (_usuario == null)
+            {
+                return RedirectToAction("Login", "Control", new { returnUrl = return_view });
+            }
+            else
+            {
+                return View();
+            }
+        }
+        /// <summary>
+        /// Lista de consulta de pedidos por DNI o RUC
+        /// </summary>
+        /// <param name="param"></param>
+        /// <param name="isOkUpdate"></param>
+        /// <param name="isOkEstado"></param>
+        /// <param name="ddlEstado"></param>
+        /// <returns></returns>
+        public JsonResult getListarConsultaPedido(Ent_jQueryDataTableParams param, bool isOkUpdate, string Bas_Documento)
+        {
+            Ent_Consultar_Pedido Ent_ConsultarPedido = new Ent_Consultar_Pedido();
+
+            if (isOkUpdate)
+            {
+                Ent_ConsultarPedido.Bas_Documento = Bas_Documento;
+                Session[_session_ListarConsultarPedido] = datPedido.ListarConsultarPedido(Ent_ConsultarPedido).ToList();
+            }
+
+            /*verificar si esta null*/
+            if (Session[_session_ListarConsultarPedido] == null)
+            {
+                List<Ent_Consultar_Pedido> _ListarConsultarPedido = new List<Ent_Consultar_Pedido>();
+                Session[_session_ListarConsultarPedido] = _ListarConsultarPedido;
+            }
+
+            IQueryable<Ent_Consultar_Pedido> entDocTrans = ((List<Ent_Consultar_Pedido>)(Session[_session_ListarConsultarPedido])).AsQueryable();
+
+            //Manejador de filtros
+            int totalCount = entDocTrans.Count();
+            IEnumerable<Ent_Consultar_Pedido> filteredMembers = entDocTrans;
+            if (!string.IsNullOrEmpty(param.sSearch))
+            {
+                filteredMembers = entDocTrans.Where(
+                        m =>
+                         m.NroDNI.ToUpper().Contains(param.sSearch.ToUpper()) ||
+                         m.Cliente.ToUpper().Contains(param.sSearch.ToUpper()) ||
+                         m.NroPedido.ToUpper().Contains(param.sSearch.ToUpper()) ||
+                         m.Estado.ToUpper().Contains(param.sSearch.ToUpper()) ||
+                         m.NroDoc.ToUpper().Contains(param.sSearch.ToUpper()) ||
+                         m.NroNC.ToUpper().Contains(param.sSearch.ToUpper()) ||
+                         m.NroLiquidacion.ToUpper().Contains(param.sSearch.ToUpper())
+                );
+            }
+            var sortIdx = Convert.ToInt32(Request["iSortCol_0"]);
+
+            if (param.iSortingCols > 0)
+            {
+                if (Request["sSortDir_0"].ToString() == "asc")
+                {
+                    switch (sortIdx)
+                    {
+                        case 0: filteredMembers = filteredMembers.OrderBy(o => o.NroDNI); break;
+                    }
+                }
+                else
+                {
+                    switch (sortIdx)
+                    {
+                        case 0: filteredMembers = filteredMembers.OrderByDescending(o => o.NroDNI); break;
+                    }
+                }
+            }
+
+            var Result = filteredMembers
+                .Skip(param.iDisplayStart)
+                .Take(param.iDisplayLength);
+
+            //Se devuelven los resultados por json
+            return Json(new
+            {
+                sEcho = param.sEcho,
+                iTotalRecords = totalCount,
+                iTotalDisplayRecords = filteredMembers.Count(),
+                aaData = Result
+            }, JsonRequestBehavior.AllowGet);
+        }
+
+        /// <summary>
+        /// Se arma el reporte en excel de Lista de consulta de pedidos por DNI o RUC
+        /// </summary>
+        /// <param name="_Ent"></param>
+        /// <returns></returns>
+        public ActionResult get_exporta_ListaConPedido_excel()
+        {
+            JsonResponse objResult = new JsonResponse();
+            try
+            {
+                Session[_session_ListarConsultarPedido_Excel] = null;
+                string cadena = "";
+                if (Session[_session_ListarConsultarPedido] != null)
+                {
+
+                    List<Ent_Consultar_Pedido> _ListarConsultarPedido = (List<Ent_Consultar_Pedido>)Session[_session_ListarConsultarPedido];
+                    if (_ListarConsultarPedido.Count == 0)
+                    {
+                        objResult.Success = false;
+                        objResult.Message = "No hay filas para exportar";
+
+                    }
+                    else
+                    {
+                        cadena = get_html_ListarConsultarPedido_str((List<Ent_Consultar_Pedido>)Session[_session_ListarConsultarPedido]);
+                        if (cadena.Length == 0)
+                        {
+                            objResult.Success = false;
+                            objResult.Message = "Error del formato html";
+                        }
+                        else
+                        {
+                            objResult.Success = true;
+                            objResult.Message = "Se genero el excel correctamente";
+                            Session[_session_ListarPedidoFacturacion_Excel] = cadena;
+                        }
+                    }
+                }
+                else
+                {
+                    objResult.Success = false;
+                    objResult.Message = "No hay filas para exportar";
+                }
+
+            }
+            catch (Exception ex)
+            {
+                objResult.Success = false;
+                objResult.Message = "No hay filas para exportar";
+            }
+
+            var JSON = JsonConvert.SerializeObject(objResult);
+
+            return Json(JSON, JsonRequestBehavior.AllowGet);
+        }
+
+        /// <summary>
+        /// Formato excel
+        /// </summary>
+        /// <param name="_ListarPedidoDespacho"></param>
+        /// <param name="_Ent"></param>
+        /// <returns></returns>
+        public string get_html_ListarConsultarPedido_str(List<Ent_Consultar_Pedido> _ListarConsultarPedido)
+        {
+            StringBuilder sb = new StringBuilder();
+            var Lista = _ListarConsultarPedido.ToList();
+            var ClienteTitulo = _ListarConsultarPedido.Select(x => new { Cliente = x.Cliente,NroDNI = x.NroDNI }).Distinct();
+
+            try
+            {
+                sb.Append("<div><table cellspacing='0' style='width: 1000px' rules='all' border='0' style='border-collapse:collapse;'><tr><td Colspan='13'></td></tr><tr><td Colspan='13' valign='middle' align='center' style='vertical-align: middle;font-size: 16.0pt;font-weight: bold;color:#285A8F'>HISTORIAL DE LOS PEDIDOS DEL CLIENTE '" + ClienteTitulo.ElementAt(0).Cliente.ToUpper() + "'</td></tr><tr><td Colspan='13' valign='middle' align='center' style='vertical-align: middle;font-size: 11.0pt;font-weight: bold;color:#000000'> DNI/RUC " + ClienteTitulo.ElementAt(0).NroDNI + "</td></tr></table>");
+                sb.Append("<table  border='1' bgColor='#ffffff' borderColor='#FFFFFF' cellSpacing='2' cellPadding='2' style='font-size:10.0pt; font-family:Calibri; background:white;width: 1000px'><tr  bgColor='#5799bf'>\n");
+                sb.Append("<tr bgColor='#1E77AB'>\n");
+                sb.Append("<th style='text-align: center; font-weight:bold;font-size:11.0pt;'><font color='#FFFFFF'>Nro. Pedido</font></th>\n");
+                sb.Append("<th style='text-align: center; font-weight:bold;font-size:11.0pt;'><font color='#FFFFFF'>Fec. Pedid</font></th>\n");
+                sb.Append("<th style='text-align: center; font-weight:bold;font-size:11.0pt;'><font color='#FFFFFF'>Total</font></th>\n");
+                sb.Append("<th style='text-align: center; font-weight:bold;font-size:11.0pt;'><font color='#FFFFFF'>Est. Pedido</font></th>\n");
+                sb.Append("<th style='text-align: center; font-weight:bold;font-size:11.0pt;'><font color='#FFFFFF'>Nro. Liquidacion</font></th>\n");
+                sb.Append("<th style='text-align: center; font-weight:bold;font-size:11.0pt;'><font color='#FFFFFF'>Fec. Liquidacion</font></th>\n");
+                sb.Append("<th style='text-align: center; font-weight:bold;font-size:11.0pt;'><font color='#FFFFFF'>Nro. Doc</font></th>\n");
+                sb.Append("<th style='text-align: center; font-weight:bold;font-size:11.0pt;'><font color='#FFFFFF'>Fec. Doc</font></th>\n");
+                sb.Append("<th style='text-align: center; font-weight:bold;font-size:11.0pt;'><font color='#FFFFFF'>Nro. NC</font></th>\n");
+                sb.Append("<th style='text-align: center; font-weight:bold;font-size:11.0pt;'><font color='#FFFFFF'>Fec. NC</font></th>\n");
+                sb.Append("<th style='text-align: center; font-weight:bold;font-size:11.0pt;'><font color='#FFFFFF'>Est. NC</font></th>\n");
+                
+                sb.Append("</tr>\n");
+
+                foreach (var item in Lista)
+                {
+                    sb.Append("<td align='Center'>" + item.NroPedido + "</td>\n");
+                    sb.Append("<td align='Center'>" + item.FecPedido + "</td>\n");
+                    sb.Append("<td>" + item.Total + "</td>\n");
+                    sb.Append("<td>" + item.Estado + "</td>\n");
+                    sb.Append("<td align='Center'>" + item.NroLiquidacion + "</td>\n");
+                    sb.Append("<td align='Center'>" + item.FecLiquidacion + "</td>\n");
+                    sb.Append("<td align='Center'>" + item.NroDoc + "</td>\n");
+                    sb.Append("<td align='Center'>" + item.FecDoc + "</td>\n");
+                    sb.Append("<td align='Center'>" + item.NroNC + "</td>\n");
+                    sb.Append("<td align='Center'>" + item.FecNC + "</td>\n");
+                    sb.Append("<td align='Right'>" + item.Stv_Description + "</td>\n");
+                    sb.Append("</tr>\n");
+                }
+                sb.Append("</table></div>");
+            }
+            catch
+            {
+
+            }
+            return sb.ToString();
+        }
+
+        /// <summary>
+        /// Exportamos el excel
+        /// </summary>
+        /// <returns></returns>
+        public ActionResult ListaConPedExcel()
+        {
+            string NombreArchivo = "HistorialPedido";
+            String style = style = @"<style> .textmode { mso-number-format:\@; } </script> ";
+            try
+            {
+                Response.Clear();
+                Response.Buffer = true;
+                Response.ContentType = "application/vnd.ms-excel";
+                Response.AddHeader("Content-Disposition", "attachment;filename=" + NombreArchivo + ".xls");
+                Response.Charset = "UTF-8";
+                Response.ContentEncoding = Encoding.Default;
+                Response.Write(style);
+                Response.Write(Session[_session_ListarPedidoFacturacion_Excel].ToString());
+                Response.End();
+            }
+            catch
+            {
+
+            }
+            return Json(new { estado = 0, mensaje = 1 });
+        }
+        #endregion
     }
 }
