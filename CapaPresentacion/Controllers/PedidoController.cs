@@ -3507,14 +3507,38 @@ namespace CapaPresentacion.Controllers
                 {
                     switch (sortIdx)
                     {
-                        case 0: filteredMembers = filteredMembers.OrderBy(o => o.Liq_Id); break;
+                        case 0: filteredMembers = filteredMembers.OrderBy(o => o.Asesor); break;
+                        case 1: filteredMembers = filteredMembers.OrderBy(o => o.Are_Descripcion); break;
+                        case 2: filteredMembers = filteredMembers.OrderBy(o => o.Nombres); break;
+                        case 3: filteredMembers = filteredMembers.OrderBy(o => o.Dni_Promotor); break;
+                        case 4: filteredMembers = filteredMembers.OrderBy(o => o.Ubicacion); break;
+                        case 5: filteredMembers = filteredMembers.OrderBy(o => o.Liq_Id); break;
+                        case 6: filteredMembers = filteredMembers.OrderBy(o => o.Liq_Estid); break;
+                        case 7: filteredMembers = filteredMembers.OrderBy(o => o.Liq_Fecha); break;
+                        case 8: filteredMembers = filteredMembers.OrderBy(o => o.Liq_Fecha_Expiracion); break;
+                        case 9: filteredMembers = filteredMembers.OrderBy(o => o.Fecha_Grupo); break;
+                        case 10: filteredMembers = filteredMembers.OrderBy(o => o.Totalpares); break;
+                        case 11: filteredMembers = filteredMembers.OrderBy(o => o.Paq_Cantidad); break;
+                        case 12: filteredMembers = filteredMembers.OrderBy(o => o.Liq_Value); break;
                     }
                 }
                 else
                 {
                     switch (sortIdx)
                     {
-                        case 0: filteredMembers = filteredMembers.OrderByDescending(o => o.Liq_Id); break;
+                        case  0 : filteredMembers = filteredMembers.OrderByDescending(o => o.Asesor); break;
+                        case  1 : filteredMembers = filteredMembers.OrderByDescending(o => o.Are_Descripcion); break;
+                        case  2 : filteredMembers = filteredMembers.OrderByDescending(o => o.Nombres); break;
+                        case  3 : filteredMembers = filteredMembers.OrderByDescending(o => o.Dni_Promotor); break;
+                        case  4 : filteredMembers = filteredMembers.OrderByDescending(o => o.Ubicacion); break;
+                        case  5 : filteredMembers = filteredMembers.OrderByDescending(o => o.Liq_Id); break;
+                        case  6 : filteredMembers = filteredMembers.OrderByDescending(o => o.Liq_Estid); break;
+                        case  7 : filteredMembers = filteredMembers.OrderByDescending(o => o.Liq_Fecha); break;
+                        case  8 : filteredMembers = filteredMembers.OrderByDescending(o => o.Liq_Fecha_Expiracion); break;
+                        case  9 : filteredMembers = filteredMembers.OrderByDescending(o => o.Fecha_Grupo); break;
+                        case  10 : filteredMembers = filteredMembers.OrderByDescending(o => o.Totalpares); break;
+                        case  11 : filteredMembers = filteredMembers.OrderByDescending(o => o.Paq_Cantidad); break;
+                        case  12 : filteredMembers = filteredMembers.OrderByDescending(o => o.Liq_Value); break;
                     }
                 }
             }
