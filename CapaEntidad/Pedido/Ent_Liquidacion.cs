@@ -168,5 +168,23 @@ namespace CapaEntidad.Pedido
         public string Codigo { get; set; }
         public string Descripcion { get; set; }
     }
+
+    public class Ent_Consultar_Pedido
+    {
+        public string NroDNI { get; set; }
+        public string Cliente { get; set; }
+        public string NroPedido { get; set; }
+        public string FecPedido { get; set; }
+        public Decimal? Total { get; set;}
+        public string Estado { get; set; }
+        public string NroLiquidacion { get; set;}
+        public string FecLiquidacion { get; set; }
+        public string NroDoc { get; set;}
+        public string FecDoc { get; set; }
+        public string NroNC { get; set;}
+        public string FecNC { get; set; }
+        public string Stv_Description { get; set; }
+        public string Bas_Documento { get; set; }
+    }
 }
     
