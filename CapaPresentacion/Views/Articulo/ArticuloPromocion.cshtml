@@ -614,6 +614,18 @@
             } else{
                 var tipo_oferta_array=function () { return @Html.Raw(Json.Encode(ViewBag.oferta)); }();
 
+                $("#datepickerini").datepicker({
+                    autoclose: true,
+                    todayHighlight: true
+
+                }).datepicker("setDate","0");
+
+
+                $("#datepickerfin").datepicker({
+                    autoclose: true,
+                    todayHighlight: true
+                }).datepicker("setDate", "0");
+
                 $("#dwtipo_promo").prop("disabled", true);
 
                 $("#dcpromoid").html('ID: ' + tipo_oferta_array.Ofe_Id);
