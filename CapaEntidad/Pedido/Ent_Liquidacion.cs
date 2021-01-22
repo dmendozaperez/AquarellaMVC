@@ -160,7 +160,7 @@ namespace CapaEntidad.Pedido
         public Decimal Liq_Value { get; set; }
         public string Are_Id { get; set; }
         public string Are_Descripcion { get; set; }
-        public string Liq_Guiaid { get; set; }
+        public int? Liq_Guiaid { get; set; }
         public string Tra_Gui_No { get; set; }
         public string Tra_Descripcion { get; set; }
         public string Fecha_Grupo { get; set; }

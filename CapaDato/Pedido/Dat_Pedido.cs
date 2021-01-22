@@ -1063,7 +1063,7 @@ namespace CapaDato.Pedido
                                           Liq_Value = Convert.ToDecimal(fila["Liq_Value"]),
                                           Are_Id = (fila["Are_Id"] is DBNull) ? string.Empty : (string)(fila["Are_Id"]),
                                           Are_Descripcion = (fila["Are_Descripcion"] is DBNull) ? string.Empty : (string)(fila["Are_Descripcion"]),
-                                          Liq_Guiaid = (fila["Liq_Guiaid"] is DBNull) ? string.Empty : (string)(fila["Liq_Guiaid"]),
+                                          Liq_Guiaid = (fila["Liq_Guiaid"] is DBNull) ? (int?)null : Convert.ToInt32(fila["Liq_Guiaid"]),
                                           Tra_Gui_No = (fila["Tra_Gui_No"] is DBNull) ? string.Empty : (string)(fila["Tra_Gui_No"]),
                                           Tra_Descripcion = (fila["Tra_Descripcion"] is DBNull) ? string.Empty : (string)(fila["Tra_Descripcion"]),
                                           Fecha_Grupo = (fila["Fecha_Grupo"] is DBNull) ? string.Empty : (string)(fila["Fecha_Grupo"]),
