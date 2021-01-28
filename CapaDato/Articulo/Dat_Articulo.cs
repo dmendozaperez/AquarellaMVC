@@ -39,7 +39,8 @@ namespace CapaDato.Articulo
                                           Descripcion = fila["descripcion"].ToString(),
                                           PrecioIgv = Convert.ToDecimal(fila["precioigv"].ToString()),
                                           PrecioSinIgv = Convert.ToDecimal(fila["preciosinigv"].ToString()),
-                                          Costo = Convert.ToDecimal(fila["costo"].ToString())
+                                          Costo = Convert.ToDecimal(fila["costo"].ToString()),
+                                          Temporada = (fila["temporada"] is DBNull) ? string.Empty : (string)(fila["temporada"]),
                                       }
                                     ).ToList();
                         }

@@ -48,5 +48,6 @@ namespace CapaEntidad.Articulo
         public Decimal PrecioIgv { get; set; }
         public Decimal PrecioSinIgv { get; set; }
         public Decimal Costo { get; set; }
+        public string Temporada { get; set; }
     }
 }

@@ -29,7 +29,7 @@
             </button>
         </div>
         <div class="col-md-6 text-right">
-            <button id="btnExportar" title="Actualizar" class="btn btn-primary">
+            <button id="btnExportar" title="Actualizar" class="btn btn-success">
                 <span class="glyphicon glyphicon-export"></span>&nbsp;&nbsp;Exportar Lista
             </button>
         </div>
@@ -49,6 +49,7 @@
                             <th>Precio Inc(Igv)</th>
                             <th>Precio Sin(Igv)</th>
                             <th>Precio Costo</th>
+                            <th>Temporada</th>
                         </tr>
                     </thead>
                     <tbody data-bind="foreach:"></tbody>
@@ -61,7 +62,7 @@
                             <th>Articulo</th>
                             <th>Precio Inc(Igv)</th>
                             <th>Precio Sin(Igv)</th>
-                            <th>Precio Costo</th>
+                            <th>Temporada</th>
                         </tr>
                     </tfoot>
                 </table>
@@ -161,7 +162,8 @@
                             "render": function (data, type, full, meta) {
                                 return "S/" + data.toFixed(2)
                             }
-                        }
+                        },
+                        { "sName": "Temporada", "mData": "Temporada" }
                 ]
             });
         })

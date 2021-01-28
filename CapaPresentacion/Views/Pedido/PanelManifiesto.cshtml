@@ -286,13 +286,23 @@
                             {
                                 "mData": null, "sClass": "alignCenter",
                                 "render": function (data, type, full, meta) {
-                                    return objManifiesto.grid.btnAccion("Editar", full.IdManifiesto);
+                                    debugger
+                                    let disabled = true
+                                    if (full.Est_Id == "MD")
+                                    {
+                                        disabled = false;
+                                    }
+                                    return objManifiesto.grid.btnAccion("Editar", disabled,full.IdManifiesto);
                                 }
                             },
                             {
                                 "mData": null, "sClass": "alignCenter",
                                 "render": function (data, type, full, meta) {
-                                    return objManifiesto.grid.btnAccion("Anular", full.IdManifiesto);
+                                    let disabled = true
+                                    if (full.Est_Id == "MD") {
+                                        disabled = false;
+                                    }
+                                    return objManifiesto.grid.btnAccion("Anular",disabled, full.IdManifiesto);
                                 }
                             }
                         ],
@@ -313,12 +323,12 @@
                         waitingDialog.hide();
                     });
                 },
-                btnAccion: function (colName, Id) {
+                btnAccion: function (colName,disabled, Id) {
                     //debugger
                     var _input = '<button title="' + colName + ' " id = "btnAccion"' +
-                                    //(disabled == false ? ' disabled = "disabled"  ' : '  ') +
+                                    (disabled == false ? ' disabled = "disabled"  ' : '  ') +
                                     (colName == 'Editar' ? ' class="btn btn-xs btn-success " ' : ' class="btn btn-xs btn-danger" ') +
-                                    ' data-Id="' + Id + '" ' +
+                                    (disabled == false ? ' ' : ' data-Id="' + Id + '" ') +
                                     ' data-colname="' + colName + '" >' +
                                     (colName == 'Editar' ? '<span class="glyphicon glyphicon-pencil" ></span>' : '<span class="glyphicon glyphicon-ban-circle"></span>') +
                                  '</button>';

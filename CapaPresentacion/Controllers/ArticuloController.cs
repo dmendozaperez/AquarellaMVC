@@ -1389,7 +1389,7 @@ namespace CapaPresentacion.Controllers
             {
                 sb.Append("<div><table cellspacing='0' rules='all' border='1' style='border-collapse:collapse;'><td Colspan='7' valign='middle' align='center' style='font-size: 18px;font-weight: bold;color:#285A8F'>LISTA DE PRECIOS DE LOS ARTICULOS - CATALOGO - BATA</td></table>");
                 sb.Append("<Table border='1' bgColor='#ffffff' borderColor='#000000' cellSpacing='2' cellPadding='2' style='font-size:10.0pt; font-family:Calibri; background:white;'>");
-                sb.Append("<tr bgcolor = '#C0C0C0' height = 40><th>Categoría</th><th>Sub Categoría</th><th>Marca</th><th>Descripción</th><th>IdArticulo</th><th>Precio Inc(Igv)</th><th>Precio Sin(Igv)</th>\n");
+                sb.Append("<tr bgcolor = '#C0C0C0' height = 40><th>Categoría</th><th>Sub Categoría</th><th>Marca</th><th>Descripción</th><th>IdArticulo</th><th>Precio Inc(Igv)</th><th>Precio Sin(Igv)</th><th>Temporada</th>\n");
 
                 if (_usuario.usu_tip_id == "04" || _usuario.usu_tip_id == "06")
                 {
@@ -1411,6 +1411,7 @@ namespace CapaPresentacion.Controllers
                     {
                         sb.Append("<td align='right'>" + "S/ " + Convert.ToDecimal(string.Format("{0:F2}", item.Costo)) + "</td>");
                     }
+                    sb.Append("<td>" + item.Temporada + "</td>");
                     sb.Append("</tr>\n");
                 }                
                 sb.Append("</table></div>");             
