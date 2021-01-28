@@ -186,5 +186,34 @@ namespace CapaEntidad.Pedido
         public string Stv_Description { get; set; }
         public string Bas_Documento { get; set; }
     }
+
+    public class Ent_Manifiesto_Pedidos
+    {
+        public int IdManifiesto { get; set; }
+        public string Fecha_Manifiesto { get; set; }
+        public string Est_Id { get; set; }
+        public string Est_Descripcion { get; set; }
+        //Campos adicionales
+        public Decimal IdUsuario { get; set; }
+        public DateTime FechaInicio { get; set; }
+        public DateTime FechaFin { get; set; }
+    }
+
+    public class Ent_Manifiesto_Editar
+    {
+        public string Guia { get; set; }
+        public string Doc { get; set; }
+        public string Lider { get; set; }
+        public int? Pares { get; set; }
+        public string Promotor { get; set; }
+        public string Agencia { get; set; }
+        public string Destino { get; set; }
+        public int? Items { get; set; }
+        //Campos adicionales
+        public Decimal IdUsuario { get; set; }
+        public int IdManifiesto { get; set; }
+        public string Estado { get; set; }
+        public string Descripcion { get; set; }
+    }
 }
     

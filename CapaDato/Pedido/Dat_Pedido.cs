@@ -1127,5 +1127,271 @@ namespace CapaDato.Pedido
             return Listar;
         }
 
+        public List<Ent_Manifiesto_Pedidos> ListarManifiesto(Ent_Manifiesto_Pedidos _Ent)
+        {
+            List<Ent_Manifiesto_Pedidos> Listar = new List<Ent_Manifiesto_Pedidos>();
+            string sqlquery = "[USP_Consultar_Manifiesto]";
+            try
+            {
+                using (SqlConnection cn = new SqlConnection(Ent_Conexion.conexion))
+                {
+                    using (SqlCommand cmd = new SqlCommand(sqlquery, cn))
+                    {
+                        cmd.CommandType = CommandType.StoredProcedure;
+                        cmd.Parameters.AddWithValue("@fecha_desde", DbType.DateTime).Value = _Ent.FechaInicio;
+                        cmd.Parameters.AddWithValue("@fecha_hasta", DbType.DateTime).Value = _Ent.FechaFin;
+                        cmd.Parameters.AddWithValue("@IdManifiesto", DbType.Int32).Value = _Ent.IdManifiesto;
+                        using (SqlDataAdapter da = new SqlDataAdapter(cmd))
+                        {
+                            DataTable dt = new DataTable();
+                            da.Fill(dt);
+
+                            Listar = new List<Ent_Manifiesto_Pedidos>();
+                            Listar = (from DataRow fila in dt.Rows
+                                      select new Ent_Manifiesto_Pedidos()
+                                      {
+                                          IdManifiesto = Convert.ToInt32(fila["IdManifiesto"]),
+                                          Fecha_Manifiesto = (string)(fila["Fecha_Manifiesto"]),
+                                          Est_Id = (string)(fila["Est_Id"]),
+                                          Est_Descripcion = (string)(fila["Est_Descripcion"])
+                                      }
+                                    ).ToList();
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+            return Listar;
+        }
+
+        public bool bAnularManifiesto(Ent_Manifiesto_Pedidos _Ent)
+        {
+            string sqlquery = "USP_Anular_Manifiesto";
+            SqlConnection cn = null;
+            SqlCommand cmd = null;
+            Boolean _valida = false;
+            try
+            {
+                cn = new SqlConnection(Ent_Conexion.conexion);
+                if (cn.State == 0) cn.Open();
+                cmd = new SqlCommand(sqlquery, cn);
+                cmd.CommandTimeout = 0;
+                cmd.CommandType = CommandType.StoredProcedure;
+                cmd.Parameters.AddWithValue("@usuario", _Ent.IdUsuario);
+                cmd.Parameters.AddWithValue("@idmanifiesto", _Ent.IdManifiesto);
+                cmd.ExecuteNonQuery();
+                _valida = true;
+            }
+            catch
+            {
+                _valida = false;
+                throw;
+            }
+            return _valida;
+        }
+
+        public List<Ent_Manifiesto_Editar> ListarManifiestoEditar(Ent_Manifiesto_Editar _Ent)
+        {
+            List<Ent_Manifiesto_Editar> Listar = new List<Ent_Manifiesto_Editar>();
+            string sqlquery = "[USP_Consulta_Manifiesto]";
+            try
+            {
+                using (SqlConnection cn = new SqlConnection(Ent_Conexion.conexion))
+                {
+                    using (SqlCommand cmd = new SqlCommand(sqlquery, cn))
+                    {
+                        cmd.CommandType = CommandType.StoredProcedure;
+                        cmd.Parameters.AddWithValue("@IdManifiesto", DbType.Int32).Value = _Ent.IdManifiesto;
+                        using (SqlDataAdapter da = new SqlDataAdapter(cmd))
+                        {
+                            DataTable dt = new DataTable();
+                            da.Fill(dt);
+
+                            Listar = new List<Ent_Manifiesto_Editar>();
+                            Listar = (from DataRow fila in dt.Rows
+                                      select new Ent_Manifiesto_Editar()
+                                      {
+                                          Guia = (fila["Guia"] is DBNull) ? string.Empty : (string)(fila["Guia"]),
+                                          Doc = (fila["Doc"] is DBNull) ? string.Empty : (string)(fila["Doc"]),
+                                          Lider = (fila["Lider"] is DBNull) ? string.Empty : (string)(fila["Lider"]),
+                                          Pares = (fila["Pares"] is DBNull) ? (int?)null : Convert.ToInt32(fila["Pares"]),
+                                          Promotor = (fila["Promotor"] is DBNull) ? string.Empty : (string)(fila["Promotor"]),
+                                          Agencia = (fila["Agencia"] is DBNull) ? string.Empty : (string)(fila["Agencia"]),
+                                          Destino = (fila["Destino"] is DBNull) ? string.Empty : (string)(fila["Destino"]),
+                                          Items = (fila["Items"] is DBNull) ? (int?)null : Convert.ToInt32(fila["Items"])
+                                      }
+                                    ).ToList();
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+            return Listar;
+        }
+
+        public Ent_Manifiesto_Editar ManifiestoAgregarDoc(Ent_Manifiesto_Editar Ent)
+        {
+            Ent_Manifiesto_Editar _Ent = new Ent_Manifiesto_Editar();
+            string sqlquery = "USP_Manifiesto_AgregarXDoc";
+            try
+            {
+                using (SqlConnection cn = new SqlConnection(Ent_Conexion.conexion))
+                {
+                    using (SqlCommand cmd = new SqlCommand(sqlquery, cn))
+                    {
+                        cmd.CommandTimeout = 0;
+                        cmd.CommandType = CommandType.StoredProcedure;
+                        cmd.Parameters.AddWithValue("@doc", DbType.Int32).Value = Ent.Doc;
+                        using (SqlDataAdapter da = new SqlDataAdapter(cmd))
+                        {
+                            DataSet ds = new DataSet();
+                            da.Fill(ds);
+
+                            DataTable dt_Mensaje = ds.Tables[0];                          
+
+                            _Ent = new Ent_Manifiesto_Editar();
+                            _Ent.Estado = dt_Mensaje.Rows[0]["Estado"].ToString();
+                            _Ent.Descripcion = dt_Mensaje.Rows[0]["Descripcion"].ToString();
+                            if (_Ent.Estado=="0")
+                            {
+                                DataTable dt_Docuemnto = ds.Tables[1];
+                                _Ent.Guia = dt_Docuemnto.Rows[0]["Guia"].ToString();
+                                _Ent.Doc = dt_Docuemnto.Rows[0]["Doc"].ToString();
+                                _Ent.Lider = dt_Docuemnto.Rows[0]["Lider"].ToString();
+                                _Ent.Promotor = dt_Docuemnto.Rows[0]["Promotor"].ToString();
+                                _Ent.Pares = Convert.ToInt32(dt_Docuemnto.Rows[0]["Pares"]);
+                                _Ent.Agencia = dt_Docuemnto.Rows[0]["Agencia"].ToString();
+                                _Ent.Destino = dt_Docuemnto.Rows[0]["Destino"].ToString();
+                            }
+                        }
+                    }
+                }
+            }
+            catch (Exception exc)
+            {
+                throw exc;
+            }
+            return _Ent;
+        }
+        public bool RegistrarManifiesto(Ent_Manifiesto_Editar _Ent, DataTable _dtManifiesto, ref int IdManifiesto)
+        {
+            string sqlquery = "USP_Insertar_Modifica_Manifiesto";
+            SqlConnection cn = null;
+            SqlCommand cmd = null;
+            bool Result = false;
+            try
+            {
+                cn = new SqlConnection(Ent_Conexion.conexion);
+                if (cn.State == 0) cn.Open();
+                cmd = new SqlCommand(sqlquery, cn);
+                cmd.CommandTimeout = 0;
+                cmd.CommandType = CommandType.StoredProcedure;
+                cmd.Parameters.AddWithValue("@estado", Convert.ToInt32(_Ent.Estado));
+                cmd.Parameters.AddWithValue("@usuario", _Ent.IdUsuario);
+                cmd.Parameters.AddWithValue("@Tmp_Manifiesto_Detalle", _dtManifiesto);
+                cmd.Parameters.Add("@idmanifiesto", SqlDbType.VarChar, 10);
+                cmd.Parameters["@idmanifiesto"].Value = _Ent.IdManifiesto;
+                cmd.Parameters["@idmanifiesto"].Direction = ParameterDirection.InputOutput;
+                cmd.ExecuteNonQuery();
+                IdManifiesto = Convert.ToInt32(cmd.Parameters["@idmanifiesto"].Value);
+                Result = true;
+            }
+            catch
+            {
+                Result = false;
+                throw;
+            }
+            if (cn.State == ConnectionState.Open) cn.Close();
+            return Result;
+        }
+        public int Correlativo_Manifiesto()
+        {
+            string sqlquery = "USP_Correlativo_Manifiesto";
+            SqlConnection cn = null;
+            SqlCommand cmd = null;
+            int IdManifiesto = 0;
+            try
+            {
+                cn = new SqlConnection(Ent_Conexion.conexion);
+                if (cn.State == 0) cn.Open();
+                cmd = new SqlCommand(sqlquery, cn);
+                cmd.CommandTimeout = 0;
+                cmd.CommandType = CommandType.StoredProcedure;
+                cmd.Parameters.Add("@idmanifiesto", SqlDbType.Decimal);
+                cmd.Parameters["@idmanifiesto"].Direction = ParameterDirection.Output;
+                cmd.ExecuteNonQuery();
+
+                IdManifiesto = Convert.ToInt32(cmd.Parameters["@idmanifiesto"].Value);
+            }
+            catch
+            {
+                IdManifiesto = 0;
+                throw;
+            }
+            return IdManifiesto;
+        }
+
+        public  int Valida_Manifiesto(DataTable dt, ref string Descripcion)
+        {
+            string sqlquery = "USP_Valida_Manifiesto";
+            SqlConnection cn = null;
+            SqlCommand cmd = null;
+            int _estado = 0;
+            try
+            {
+                cn = new SqlConnection(Ent_Conexion.conexion);
+                if (cn.State == 0) cn.Open();
+                cmd = new SqlCommand(sqlquery, cn);
+                cmd.CommandTimeout = 0;
+                cmd.CommandType = CommandType.StoredProcedure;
+                cmd.Parameters.AddWithValue("@Tmp_Manifiesto_Detalle", dt);
+                cmd.Parameters.Add("@estado", SqlDbType.Decimal);
+                cmd.Parameters.Add("@descripcion", SqlDbType.VarChar, 100);
+
+                cmd.Parameters["@estado"].Direction = ParameterDirection.Output;
+                cmd.Parameters["@descripcion"].Direction = ParameterDirection.Output;
+
+                cmd.ExecuteNonQuery();
+
+                _estado = Convert.ToInt32(cmd.Parameters["@estado"].Value);
+                Descripcion = (string)cmd.Parameters["@descripcion"].Value;
+            }
+            catch
+            {
+                throw;
+            }
+            return _estado;
+        }
+        public DataSet Reporte_Manifiesto(Ent_Manifiesto_Editar _Ent)
+        {
+            string sqlquery = "USP_Reporte_Manifiesto";
+            SqlConnection cn = null;
+            SqlCommand cmd = null;
+            SqlDataAdapter da = null;
+            DataSet ds = null;
+            try
+            {
+                cn = new SqlConnection(Ent_Conexion.conexion);
+                cmd = new SqlCommand(sqlquery, cn);
+                cmd.CommandTimeout = 0;
+                cmd.CommandType = CommandType.StoredProcedure;
+                cmd.Parameters.AddWithValue("@idmanifiesto", _Ent.IdManifiesto);
+                da = new SqlDataAdapter(cmd);
+                ds = new DataSet();
+                da.Fill(ds);
+            }
+            catch
+            {
+                ds = null;
+                throw;
+            }
+            return ds;
+        }
     }
 }

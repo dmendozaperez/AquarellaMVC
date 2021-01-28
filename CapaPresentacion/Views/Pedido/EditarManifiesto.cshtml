@@ -1,0 +1,389 @@
+﻿@model CapaEntidad.Pedido.Ent_Manifiesto_Editar
+@{
+    ViewBag.Title = "Editar Manifiesto Nro : " + @Model.IdManifiesto;
+    ViewBag.SubTitle = "";
+}
+<style>
+    .table thead {
+        background-color: #5799bf;
+        color: #fff;
+    }
+
+    .boton-xs-td {
+        padding-top: 5px !important;
+        padding-bottom: 5px !important;
+    }
+
+    .alignRight {
+        text-align: right;
+        vertical-align: middle;
+    }
+
+    .alignCenter {
+        text-align: center;
+        vertical-align: middle;
+    }
+</style>
+<p class="text-primary">Edita su manifiesto, mediante el numero de documento factura o boleta, ; use la tecla Enter para la adición de sus referencias.</p>
+<div class="box box-header box-primary">
+    <div class="row">
+        <div class="col-md-6">
+            <a href="@Url.Action("PanelManifiesto", "Pedido")" class="btn btn-danger" id="btnCancelar" style="width: 120px;"><i class="glyphicon glyphicon-floppy-remove"></i>&nbsp;&nbsp;Regresar</a>
+        </div>
+    </div>
+</div>
+<div class="box box-body box-primary">
+    <div class="row">
+        <div class="col-md-3">
+            <div class="form-group" style="margin-bottom: 0px;">
+                <div class="input-group">
+                    <input id="txtNroDocumento" type="text" class="form-control" style="max-width: 100%" placeholder="Número de documento" />
+                    <div class="input-group-btn">
+                        <button id="btnAgregar" class="btn btn-success" type="button">
+                            <i class="glyphicon glyphicon-plus" style="color:#FFF"></i>
+                            &nbsp;&nbsp;Agregar
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-5">
+        </div>
+        <div class="col-md-4 text-right"> 
+            <button id="btnGenerar" class="btn btn-primary" type="button" style="width: 120px;">
+                <i class="glyphicon glyphicon-floppy-disk" style="color:#FFF"></i>
+                &nbsp;&nbsp;Generar
+            </button>
+        </div>
+    </div>
+    <br />
+    <div class="row">
+        <div class="col-md-12">
+            <div class="table-responsive">
+                <table id="tbTabla" class="table table-hover table-bordered compact">
+                    <thead>
+                        <tr>
+                            <th style="text-align: center;">Nro. de Guia</th>
+                            <th style="text-align: center;">Nro. de Docuemnto</th>
+                            <th style="text-align: center;">Lider</th>
+                            <th style="text-align: center;">Promotor</th>
+                            <th style="text-align: center;">Pares</th>
+                            <th style="text-align: center;">Agencia</th>
+                            <th style="text-align: center;">Destino</th>
+                            <th style="text-align: center; width:70px;">Anular</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td colspan='6'>No se encontraron resultados</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section scripts{
+    <script>
+        //debugger
+        var objManifiestoEdit = {
+            Inicio: function () {
+                debugger
+                /*[Inicializamos variables]*/
+                this.isOkUpdate = false;
+                this.IdManifiesto = "@Model.IdManifiesto";
+                this.selectedAnular = [];
+                this.ListarManifiesto = function () { return @Html.Raw(Json.Encode(ViewBag.ListarManifiesto)); }();
+                this._LisDoc = "";
+                objManifiestoEdit.grid.get();
+                /*[/Inicializamos variables]*/
+
+                /*[Busqueda]*/
+                $("#btnAgregar").click(function () {
+                    objManifiestoEdit.NroDocumento = $("#txtNroDocumento").val();
+                    objManifiestoEdit.generaal.Agregar();
+                });
+
+                $("#txtNroDocumento").keyup(function (e) {
+                    if (e.keyCode == 13) {
+                        objManifiestoEdit.NroDocumento = $("#txtNroDocumento").val();
+                        objManifiestoEdit.generaal.Agregar();
+                    }
+                });
+                /*[/Busqueda]*/
+
+                /*[Generar]*/
+                $("#btnGenerar").click(function () {
+                    objManifiestoEdit.generaal.Registrar();
+                });
+                /*[/Generar]*/
+
+
+                /*[btn Editar y Anular]*/
+                $('#tbTabla tbody').on('click', '#btnAccion', function (e) {
+                    debugger;
+                    let _coltrg = $(this).data("colname")
+                    let Id = $(this).attr('data-Id');
+                    let Cliente = $(this).closest('tr').find('td.Cliente').html();
+                    let tbTabla = $('#tbTabla').DataTable();
+
+                    // Cargamos los datos que vamos a eliminar
+                    let tr = $(this).closest('tr').index();
+                    let row = $('#tbTabla').DataTable().row(tr);
+                    let DataAnular = row.data();
+                    //
+                    //debugger
+                    if (_coltrg == "Anular") {
+                        debugger
+                        swal({
+                            title: "Anular el manifiesto",
+                            icon: "warning",
+                            text: "¿Está seguro de ANULAR el documento con número : " + Id + " ?",
+                            buttons: ["No", "Si"],
+                            dangerMode: true,
+                        }).then((cambiar) => {
+                            if (cambiar) {
+                                debugger
+                                waitingDialog.show("Espere un momento por favor.")
+                                $.ajax({
+                                    type: "POST",
+                                    url: '@Url.Action("ManifiestosEditAnular", "Pedido")',
+                                    data: { Doc: Id },
+                                    success: function (data) {
+                                        data = JSON.parse(data);
+                                        if (data.Success) {
+                                            swal({ title: "Ok", text: data.Message, icon: "success" }).then((value) => { });
+                                            objManifiestoEdit.selectedAnular.push(DataAnular);
+                                            objManifiestoEdit.isOkUpdate = false;
+                                            $('#tbTabla').DataTable().ajax.reload(function () { });
+                                            waitingDialog.hide();
+                                        } else {
+                                            swal({ title: "Alerta", text: data.Message, icon: "error" }).then((value) => { });
+                                            waitingDialog.hide();
+                                        }
+                                    },
+                                    error: function (XMLHttpRequest, textStatus, errorThrown) {
+                                        waitingDialog.hide();
+                                        toastr.error("Error al consultar.", "Alerta");
+                                    }
+                                });
+                            }
+                        })
+                    }
+
+                })
+                /*[btn Editar y Anular]*/
+
+            },
+            grid: {
+                get: function () {
+                    //debugger
+                    waitingDialog.show("Espere por favor...")
+                    $('#tbTabla').DataTable({
+                        "language": {
+                            "url": "../Scripts/DataTables/Spanish.json"
+                        },
+                        //"fnServerData": function (sSource, aoData, fnCallback) {
+                        //},
+                        "bServerSide": true,
+                        "bAutoWidth": false,
+                        "sAjaxSource": '@Url.Action("getListaManifiestosEditAjax", "Pedido")',
+                        "fnServerParams": function (aoData) {
+                            //debugger;_LisSaldo
+                            aoData.push({ "name": "isOkUpdate", "value": objManifiestoEdit.isOkUpdate });
+                            aoData.push({ "name": "IdManifiesto", "value": objManifiestoEdit.IdManifiesto });
+                            aoData.push({ "name": "_LisDoc", "value": objManifiestoEdit._LisDoc });
+
+                        },
+                        "bFilter": true,
+                        "bdestroy": true,
+                        "start": 0,
+                        "columnDefs": [{
+                            "orderable": false,
+                            "targets": [7],
+                        }],
+                        "bDeferRender": true,
+                        "aoColumns": [
+                            { "sName": "Guia", "mData": "Guia", "sClass": "alignCenter" },
+                            { "sName": "Doc", "mData": "Doc", "sClass": "alignCenter" },
+                            { "sName": "Lider", "mData": "Lider", "sClass": "" },
+                            { "sName": "Promotor", "mData": "Promotor", "sClass": "" },
+                            { "sName": "Pares", "mData": "Pares", "sClass": "alignCenter" },
+                            { "sName": "Agencia", "mData": "Agencia", "sClass": "" },
+                            { "sName": "Destino", "mData": "Destino", "sClass": "" },
+                            {
+                                "mData": null, "sClass": "alignCenter",
+                                "render": function (data, type, full, meta) {
+                                    return objManifiestoEdit.grid.btnAccion("Anular", full.Doc);
+                                }
+                            }
+                        ],
+                        "fnRowCallback": function (row, data, index) {
+                        },
+                        "drawCallback": function (settings) {
+                            var table = $('#tbTabla').dataTable();
+                            var data = table.fnGetData();
+                            if (data.length == 0) {
+                                $("#btnGenerar").addClass("disabled");
+                                $("#btnGenerar").attr('disabled', 'disabled');
+                            } else {
+                                $("#btnGenerar").removeClass("disabled");
+                                $("#btnGenerar").removeAttr("disabled");
+                            }
+                            objManifiestoEdit.isOkUpdate = false;
+                            waitingDialog.hide();
+                        },
+                        "initComplete": function (settings, json) {
+                        }
+                    });
+                },
+                cargaTabla: function () {
+                    //debugger
+                    waitingDialog.show("Espere por favor...")
+                    $('#tbTabla').DataTable().ajax.reload(function () {
+                        waitingDialog.hide();
+                    });
+                },
+                btnAccion: function (colName, Id) {
+                    //debugger
+                    var _input = '<button title="' + colName + ' " id = "btnAccion"' +
+                                    ' class="btn btn-xs btn-danger" ' +
+                                    ' data-Id="' + Id + '" ' +
+                                    ' data-colname="' + colName + '" >' +
+                                    '<span class="glyphicon glyphicon-ban-circle"></span>' +
+                                 '</button>';
+                    return _input;
+                }
+            },
+            generaal: {
+                Validar : function(){
+                    //debugger;
+                    if (objManifiestoEdit.NroDocumento == undefined || objManifiestoEdit.NroDocumento == null || objManifiestoEdit.NroDocumento == 0 || objManifiestoEdit.NroDocumento == '') {
+                        toastr.error("El nro de documento no puede estar vacio", "Alerta");
+                        $('#txtNroDocumento').focus();
+                        return false;
+                    }
+                    return true;
+                },
+                Agregar: function () {
+                    debugger
+                    if (objManifiestoEdit.generaal.Validar()) {
+                        debugger
+                        let _Ent = function () { return @Html.Raw(Json.Encode(ViewBag.Manifiesto)); }();
+                        waitingDialog.show("Espere un momento por favor.")
+                        let indexAnular = objManifiestoEdit.selectedAnular.findIndex(C => C.Doc == objManifiestoEdit.NroDocumento);
+                        let indexSelect = objManifiestoEdit.ListarManifiesto.findIndex(C => C.Doc == objManifiestoEdit.NroDocumento);
+                        //Validamos si exite en el
+                        if (indexAnular >-1) {
+                            if (indexSelect > -1) {
+                                debugger
+                                _Ent.Guia = objManifiestoEdit.ListarManifiesto[indexSelect].Guia;
+                                _Ent.Doc = objManifiestoEdit.ListarManifiesto[indexSelect].Doc;
+                                _Ent.Lider = objManifiestoEdit.ListarManifiesto[indexSelect].Lider;
+                                _Ent.Promotor = objManifiestoEdit.ListarManifiesto[indexSelect].Promotor;
+                                _Ent.Pares = objManifiestoEdit.ListarManifiesto[indexSelect].Pares;
+                                _Ent.Agencia = objManifiestoEdit.ListarManifiesto[indexSelect].Agencia;
+                                _Ent.Destino = objManifiestoEdit.ListarManifiesto[indexSelect].Destino;
+                                _Ent.Items = objManifiestoEdit.ListarManifiesto[indexSelect].Items;
+                                //Borramos el item de la listra
+                                objManifiestoEdit.selectedAnular.splice(indexAnular, 1);
+                                objManifiestoEdit.generaal.AgregarItem(false, _Ent);
+                                return;
+                            }
+                        }
+                        objManifiestoEdit.generaal.AgregarItem(true, _Ent);
+                    }
+                },
+                AgregarItem: function (isOk, _Ent) {
+                    $.ajax({
+                        type: "POST",
+                        url: '@Url.Action("ManifiestosEditAgregar", "Pedido")',
+                        data: {
+                            Doc: objManifiestoEdit.NroDocumento,
+                            isOk: isOk,
+                            _Ent: _Ent
+                        },
+                        success: function (data) {
+                            data = JSON.parse(data);
+                            if (data.Success) {
+                                objManifiestoEdit.isOkUpdate = false;
+                                swal({ title: "Ok", text: data.Message, icon: "success" }).then((value) => { $('#txtNroDocumento').val("") });
+                                $('#tbTabla').DataTable().ajax.reload(function () { });
+                                waitingDialog.hide();
+                            } else {
+                                swal({ title: "Alerta", text: data.Message, icon: "error" }).then((value) => { $('#txtNroDocumento').focus(); });
+                                waitingDialog.hide();
+                            }
+                        },
+                        error: function (XMLHttpRequest, textStatus, errorThrown) {
+                            waitingDialog.hide();
+                            toastr.error("Error al consultar.", "Alerta");
+                        }
+                    });
+                },
+                ValidarRegistrar: function () {
+                    var table = $('#tbTabla').dataTable();
+                    var data = table.fnGetData();
+                    if (data.length == 0) {
+                        toastr.error("El manifiesto no puede estar vacio", "Alerta");
+                        return false;
+                    }
+                    return true;
+                },
+                Registrar: function () {
+                    if (objManifiestoEdit.generaal.ValidarRegistrar()) {
+                        swal({
+                            title: "Actualizar el manifiesto",
+                            icon: "warning",
+                            text: "¿Está seguro de ACTUALIZAR el manifiesto con número : " + objManifiestoEdit.IdManifiesto + " ?",
+                            buttons: ["No", "Si"],
+                            dangerMode: true,
+                        }).then((cambiar) => {
+                            if (cambiar) {
+                                debugger
+                                waitingDialog.show("Espere un momento por favor.")
+                                $.ajax({
+                                    type: "POST",
+                                    url: '@Url.Action("ActualizarManifiesto", "Pedido")',
+                                    data: {
+                                        IdManifiesto: objManifiestoEdit.IdManifiesto,
+                                        Estado: 2
+                                    },
+                                    success: function (data) {
+                                        data = JSON.parse(data);
+                                        if (data.Success) {
+                                            waitingDialog.hide();
+                                            $("#btnCancelar").addClass("disabled");
+                                            $("#btnCancelar").attr('disabled', 'disabled');
+                                            $("#btnGenerar").addClass("disabled");
+                                            $("#btnGenerar").attr('disabled', 'disabled');
+                                            $("#btnAgregar").addClass("disabled");
+                                            $("#btnAgregar").attr('disabled', 'disabled');
+
+                                            swal({ title: "Ok", text: data.Message, icon: "success" }).then((value) => {
+                                                setTimeout(function () { 
+                                                    window.location = '@Url.Action("PanelManifiesto", "Pedido")';
+                                                }, 500)
+                                            });
+                                        } else {
+                                            swal({ title: "Alerta", text: data.Message, icon: "error" }).then((value) => { });
+                                            waitingDialog.hide();
+                                        }
+                                    },
+                                    error: function (XMLHttpRequest, textStatus, errorThrown) {
+                                        waitingDialog.hide();
+                                        toastr.error("Error al generar.", "Alerta");
+                                    }
+                                });
+                            }
+                        })
+                    }
+                }
+            }
+        };
+        $(document).ready(function () {
+            objManifiestoEdit.Inicio();
+        });
+    </script>
+}

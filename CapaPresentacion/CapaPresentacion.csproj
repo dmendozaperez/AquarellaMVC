@@ -212,6 +212,13 @@
     <Compile Include="AspNetForms\ReportLiquidation.aspx.designer.cs">
       <DependentUpon>ReportLiquidation.aspx</DependentUpon>
     </Compile>
+    <Compile Include="AspNetForms\reportManifiesto.aspx.cs">
+      <DependentUpon>reportManifiesto.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="AspNetForms\reportManifiesto.aspx.designer.cs">
+      <DependentUpon>reportManifiesto.aspx</DependentUpon>
+    </Compile>
     <Compile Include="AspNetForms\reportPicking.aspx.cs">
       <DependentUpon>reportPicking.aspx</DependentUpon>
       <SubType>ASPXCodeBehind</SubType>
@@ -254,6 +261,7 @@
     <Compile Include="Models\Control\LoginViewModel.cs" />
     <Compile Include="Models\Crystal\Invoice.cs" />
     <Compile Include="Models\Crystal\Liquidation.cs" />
+    <Compile Include="Models\Crystal\Manifiesto_Reports.cs" />
     <Compile Include="Models\Crystal\Pedido_Lider_Grupo.cs" />
     <Compile Include="Models\Crystal\Picking.cs" />
     <Compile Include="Models\Crystal\ReporteFacturacion.cs" />
@@ -278,6 +286,12 @@
       <DependentUpon>liquidationReport.rpt</DependentUpon>
       <SubType>Component</SubType>
     </Compile>
+    <Compile Include="RptsCrystal\manifiestoReport.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>manifiestoReport.rpt</DependentUpon>
+      <SubType>Component</SubType>
+    </Compile>
     <Compile Include="RptsCrystal\pickingReport.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
@@ -294,6 +308,7 @@
   <ItemGroup>
     <Content Include="AspNetForms\ReportInvoice.aspx" />
     <Content Include="AspNetForms\ReportLiquidation.aspx" />
+    <Content Include="AspNetForms\reportManifiesto.aspx" />
     <Content Include="AspNetForms\reportPicking.aspx" />
     <Content Include="AspNetForms\reportPickingGrupo.aspx" />
     <Content Include="ContentSelect\bootstrap-select.css" />
@@ -3134,12 +3149,16 @@
     <Content Include="Views\Pedido\LiquidacionVsDespacho.cshtml" />
     <Content Include="Views\Pedido\PedidoFacturacion.cshtml" />
     <Content Include="Views\Pedido\ConsultarPedido.cshtml" />
+    <Content Include="Views\Pedido\PanelManifiesto.cshtml" />
+    <Content Include="Views\Pedido\EditarManifiesto.cshtml" />
+    <Content Include="Views\Pedido\NuevoManifiesto.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
     <Folder Include="Content\TarjetaCss\" />
     <Folder Include="Cupones\" />
     <Folder Include="RptsCrystal\Rep\" />
+    <Folder Include="Util\" />
     <Folder Include="Views\Shared\Menu\" />
     <Folder Include="Views\Usuario\" />
   </ItemGroup>
@@ -3184,6 +3203,10 @@
     <EmbeddedResource Include="RptsCrystal\liquidationReport.rpt">
       <Generator>CrystalDecisions.VSDesigner.CodeGen.ReportCodeGenerator</Generator>
       <LastGenOutput>liquidationReport.cs</LastGenOutput>
+    </EmbeddedResource>
+    <EmbeddedResource Include="RptsCrystal\manifiestoReport.rpt">
+      <Generator>CrystalDecisions.VSDesigner.CodeGen.ReportCodeGenerator</Generator>
+      <LastGenOutput>manifiestoReport.cs</LastGenOutput>
     </EmbeddedResource>
     <EmbeddedResource Include="RptsCrystal\pickingReport.rpt">
       <Generator>CrystalDecisions.VSDesigner.CodeGen.ReportCodeGenerator</Generator>

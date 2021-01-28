@@ -49,6 +49,8 @@ namespace CapaPresentacion.Controllers
         private string _session_ListarPedidoFacturacion_Excel = "_session_ListarPedidoFacturacion_Excel";
         private string _session_ListarConsultarPedido = "_session_ListarConsultarPedido";
         private string _session_ListarConsultarPedido_Excel = "_session_ListarConsultarPedido_Excel";
+        private string _session_ListarManifiesto = "_session_ListarManifiesto";
+        private string _session_ListarManifiestoEditar = "_session_ListarManifiestoEditar";
 
         private Dat_Cliente dat_cliente = new Dat_Cliente();
 
@@ -3958,6 +3960,617 @@ namespace CapaPresentacion.Controllers
             }
             return Json(new { estado = 0, mensaje = 1 });
         }
+        #endregion
+
+
+        #region <MANIFIESTOS, Creación y modificación de manifiesto>
+        /// <summary>
+        /// Panle de manifiesto
+        /// </summary>
+        /// <returns></returns>
+        public ActionResult PanelManifiesto() {
+
+            Ent_Usuario _usuario = (Ent_Usuario)Session[Ent_Constantes.NameSessionUser];
+            string actionName = this.ControllerContext.RouteData.GetRequiredString("action");
+            string controllerName = this.ControllerContext.RouteData.GetRequiredString("controller");
+            string return_view = actionName + "|" + controllerName;
+
+            if (_usuario == null)
+            {
+                return RedirectToAction("Login", "Control", new { returnUrl = return_view });
+            }
+            else
+            {
+                return View();
+            }
+        }
+        /// <summary>
+        /// lista de manifiestos
+        /// </summary>
+        /// <create>Juilliand R. Damian Gomez</create>
+        /// <param name="param"></param>
+        /// <param name="isOkUpdate"></param>
+        /// <param name="FechaInicio"></param>
+        /// <param name="FechaFin"></param>
+        /// <param name="IdManifiesto"></param>
+        /// <returns></returns>
+        public JsonResult getListaManifiestospAjax(Ent_jQueryDataTableParams param, bool isOkUpdate, string FechaInicio, string FechaFin,int IdManifiesto)
+        {
+            Ent_Manifiesto_Pedidos Ent_Manifiesto = new Ent_Manifiesto_Pedidos();
+
+            if (isOkUpdate)
+            {
+                Ent_Manifiesto.FechaInicio = DateTime.Parse(FechaInicio);
+                Ent_Manifiesto.FechaFin = DateTime.Parse(FechaFin);
+                Ent_Manifiesto.IdManifiesto = IdManifiesto;
+                Session[_session_ListarManifiesto] = datPedido.ListarManifiesto(Ent_Manifiesto).ToList();
+            }
+
+            /*verificar si esta null*/
+            if (Session[_session_ListarManifiesto] == null)
+            {
+                List<Ent_Manifiesto_Pedidos> _ListaManifiestos = new List<Ent_Manifiesto_Pedidos>();
+                Session[_session_ListarManifiesto] = _ListaManifiestos;
+            }
+
+            IQueryable<Ent_Manifiesto_Pedidos> entDocTransEs = ((List<Ent_Manifiesto_Pedidos>)(Session[_session_ListarManifiesto])).AsQueryable();
+            var entDocTrans = entDocTransEs.OrderByDescending(x => x.IdManifiesto).ToList();
+            //Manejador de filtros
+            int totalCount = entDocTrans.Count();
+            IEnumerable<Ent_Manifiesto_Pedidos> filteredMembers = entDocTrans;
+            if (!string.IsNullOrEmpty(param.sSearch))
+            {
+                filteredMembers = entDocTrans.Where(
+                        m =>
+                         m.IdManifiesto.ToString().ToUpper().Contains(param.sSearch.ToUpper()) ||
+                         m.Fecha_Manifiesto.ToString().ToUpper().Contains(param.sSearch.ToUpper()) ||
+                         m.Est_Descripcion.ToString().ToUpper().Contains(param.sSearch.ToUpper()) 
+
+                );
+            }
+            var sortIdx = Convert.ToInt32(Request["iSortCol_0"]);
+
+            if (param.iSortingCols > 0)
+            {
+                if (Request["sSortDir_0"].ToString() == "desc")
+                {
+                    switch (sortIdx)
+                    {
+                        case 0: filteredMembers = filteredMembers.OrderBy(o => o.IdManifiesto); break;
+                        case 1: filteredMembers = filteredMembers.OrderBy(o => o.Fecha_Manifiesto); break;
+                        case 2: filteredMembers = filteredMembers.OrderBy(o => o.Est_Descripcion); break;
+                    }
+                }
+                else
+                {
+                    switch (sortIdx)
+                    {
+                        case 0: filteredMembers = filteredMembers.OrderByDescending(o => o.IdManifiesto); break;
+                        case 1: filteredMembers = filteredMembers.OrderByDescending(o => o.Fecha_Manifiesto); break;
+                        case 2: filteredMembers = filteredMembers.OrderByDescending(o => o.Est_Descripcion); break;
+                    }
+                }
+            }
+
+            var Result = filteredMembers
+                .Skip(param.iDisplayStart)
+                .Take(param.iDisplayLength);
+
+            //Se devuelven los resultados por json
+            return Json(new
+            {
+                sEcho = param.sEcho,
+                iTotalRecords = totalCount,
+                iTotalDisplayRecords = filteredMembers.Count(),
+                aaData = Result
+            }, JsonRequestBehavior.AllowGet);
+        }
+        /// <summary>
+        /// Anula el manifiesto del panel principal
+        /// </summary>
+        /// <create>Juilliand R. Damian Gomez</create>        
+        /// <param name="Id"></param>
+        /// <returns></returns>
+        public ActionResult AnularManifiesto(int Id)
+        {
+            bool Result = false;
+            Ent_Usuario _usuario = (Ent_Usuario)Session[Ent_Constantes.NameSessionUser];
+            JsonResponse objResult = new JsonResponse();
+            Ent_Manifiesto_Pedidos _Ent = new Ent_Manifiesto_Pedidos();
+            _Ent.IdUsuario = _usuario.usu_id;
+            _Ent.IdManifiesto = Id;
+            try
+            {
+                Result = datPedido.bAnularManifiesto(_Ent);
+                if (Result)
+                {
+                    objResult.Success = true;
+                    objResult.Message = "Se ANULO el manifiesto número " + Id;
+                }
+                else
+                {
+                    objResult.Success = false;
+                    objResult.Message = "Hubo un problema, no se ANULO el manifiesto número " + Id;
+                }
+            }
+            catch (Exception ex)
+            {
+                objResult.Success = false;
+                objResult.Message = "Hubo un problema, no se ANULO el manifiesto número " + Id;
+            }
+
+            var JSON = JsonConvert.SerializeObject(objResult);
+
+            return Json(JSON, JsonRequestBehavior.AllowGet);
+        }
+        /// <summary>
+        /// Vista donde se edita el manifiesto.
+        /// </summary>
+        /// <create>Juilliand R. Damian Gomez</create>        
+        /// <param name="Id"></param>
+        /// <returns></returns>
+        public ActionResult EditarManifiesto(int Id)
+        {
+            Session[_session_ListarManifiestoEditar] = null;
+            Ent_Manifiesto_Editar objModel = new Ent_Manifiesto_Editar();
+            objModel.IdManifiesto = Id;
+            Ent_Usuario _usuario = (Ent_Usuario)Session[Ent_Constantes.NameSessionUser];
+            string actionName = this.ControllerContext.RouteData.GetRequiredString("action");
+            string controllerName = this.ControllerContext.RouteData.GetRequiredString("controller");
+            string return_view = actionName + "|" + controllerName;
+
+            if (_usuario == null)
+            {
+                return RedirectToAction("Login", "Control", new { returnUrl = return_view });
+            }
+            else
+            {
+                Session[_session_ListarManifiestoEditar] = datPedido.ListarManifiestoEditar(objModel).ToList();
+                //List<Ent_Manifiesto_Editar> ListarManifiesto = new List<Ent_Manifiesto_Editar>();
+                ViewBag.ListarManifiesto = datPedido.ListarManifiestoEditar(objModel).ToList();
+                Ent_Manifiesto_Editar Manifiesto = new Ent_Manifiesto_Editar();
+                ViewBag.Manifiesto = Manifiesto;
+                return View(objModel);
+            }
+        }
+        /// <summary>
+        /// Vista donde se crea un nuevo manifiesto.
+        /// </summary>
+        /// <create>Juilliand R. Damian Gomez</create>        
+        /// <param name="Id"></param>
+        /// <returns></returns>
+        public ActionResult NuevoManifiesto()
+        {
+            Session[_session_ListarManifiestoEditar] = null;
+            Ent_Manifiesto_Editar objModel = new Ent_Manifiesto_Editar();
+            objModel.IdManifiesto = datPedido.Correlativo_Manifiesto();
+            Ent_Usuario _usuario = (Ent_Usuario)Session[Ent_Constantes.NameSessionUser];
+            string actionName = this.ControllerContext.RouteData.GetRequiredString("action");
+            string controllerName = this.ControllerContext.RouteData.GetRequiredString("controller");
+            string return_view = actionName + "|" + controllerName;
+
+            if (_usuario == null)
+            {
+                return RedirectToAction("Login", "Control", new { returnUrl = return_view });
+            }
+            else
+            {
+
+                List<Ent_Manifiesto_Editar> _ListaManifiestos = new List<Ent_Manifiesto_Editar>();
+                Session[_session_ListarManifiestoEditar] = _ListaManifiestos;
+
+                Ent_Manifiesto_Editar Manifiesto = new Ent_Manifiesto_Editar();
+                ViewBag.Manifiesto = Manifiesto;
+                return View(objModel);
+            }
+        }
+        /// <summary>
+        /// Lista de los documento del manifieso.
+        /// </summary>
+        /// <create>Juilliand R. Damian Gomez</create>  
+        /// <param name="param"></param>
+        /// <param name="isOkUpdate"></param>
+        /// <param name="IdManifiesto"></param>        
+        /// <returns></returns>
+        public JsonResult getListaManifiestosEditAjax(Ent_jQueryDataTableParams param, bool isOkUpdate, int IdManifiesto)
+        {
+            Ent_Manifiesto_Editar Ent_Manifiesto = new Ent_Manifiesto_Editar();
+
+            //if (isOkUpdate)
+            //{
+            //    Ent_Manifiesto.IdManifiesto = IdManifiesto;
+            //    Session[_session_ListarManifiestoEditar] = datPedido.ListarManifiestoEditar(Ent_Manifiesto).ToList();               
+            //}
+
+            /*verificar si esta null*/
+            if (Session[_session_ListarManifiestoEditar] == null)
+            {
+                List<Ent_Manifiesto_Editar> _ListaManifiestos = new List<Ent_Manifiesto_Editar>();
+                Session[_session_ListarManifiestoEditar] = _ListaManifiestos;
+            }
+
+            IQueryable<Ent_Manifiesto_Editar> entDocTransEs = ((List<Ent_Manifiesto_Editar>)(Session[_session_ListarManifiestoEditar])).AsQueryable();
+            var entDocTrans = entDocTransEs.OrderByDescending(x => x.Items).ToList();
+            //Manejador de filtros
+            int totalCount = entDocTrans.Count();
+            IEnumerable<Ent_Manifiesto_Editar> filteredMembers = entDocTrans;
+            if (!string.IsNullOrEmpty(param.sSearch))
+            {
+                filteredMembers = entDocTrans.Where(
+                        m =>
+                         m.Guia.ToUpper().Contains(param.sSearch.ToUpper()) ||
+                         m.Doc.ToUpper().Contains(param.sSearch.ToUpper()) ||
+                         m.Lider.ToUpper().Contains(param.sSearch.ToUpper())||
+                         m.Promotor.ToUpper().Contains(param.sSearch.ToUpper()) 
+                );
+            }
+            var sortIdx = Convert.ToInt32(Request["iSortCol_0"]);
+
+            if (param.iSortingCols > 0)
+            {
+                if (Request["sSortDir_0"].ToString() == "asc")
+                {
+                    switch (sortIdx)
+                    {
+                        case 0: filteredMembers = filteredMembers.OrderBy(o => o.IdManifiesto); break;
+                        case 1: filteredMembers = filteredMembers.OrderBy(o => o.Doc); break;
+                        case 2: filteredMembers = filteredMembers.OrderBy(o => o.Lider); break;
+                        case 3: filteredMembers = filteredMembers.OrderBy(o => o.Promotor); break;
+                    }
+                }
+                else
+                {
+                    switch (sortIdx)
+                    {
+                        case 0: filteredMembers = filteredMembers.OrderByDescending(o => o.IdManifiesto); break;
+                        case 1: filteredMembers = filteredMembers.OrderByDescending(o => o.Doc); break;
+                        case 2: filteredMembers = filteredMembers.OrderByDescending(o => o.Lider); break;
+                        case 3: filteredMembers = filteredMembers.OrderByDescending(o => o.Promotor); break;
+                    }
+                }
+            }
+
+            var Result = filteredMembers
+                .Skip(param.iDisplayStart)
+                .Take(param.iDisplayLength);
+
+            //Se devuelven los resultados por json
+            return Json(new
+            {
+                sEcho = param.sEcho,
+                iTotalRecords = totalCount,
+                iTotalDisplayRecords = filteredMembers.Count(),
+                aaData = Result
+            }, JsonRequestBehavior.AllowGet);
+        }
+        /// <summary>
+        /// Metodo que quita un documento del manifiesto
+        /// <create>Juilliand R. Damian Gomez</create>  
+        /// </summary>
+        /// <param name="Doc"></param>
+        /// <returns></returns>
+        public ActionResult ManifiestosEditAnular(string Doc)
+        {
+            JsonResponse objResult = new JsonResponse();
+            try
+            {
+                List<Ent_Manifiesto_Editar> ListManifiestoEditar = (List<Ent_Manifiesto_Editar>)Session[_session_ListarManifiestoEditar];
+                int index = ListManifiestoEditar.FindIndex((Predicate<Ent_Manifiesto_Editar>)(item => item.Doc == Doc));
+                ListManifiestoEditar.RemoveAt(index);
+                Session[_session_ListarManifiestoEditar] = ListManifiestoEditar;
+
+                objResult.Success = true;
+                objResult.Message = "Se ANULO el docuemnto número : " + Doc;
+            }
+            catch (Exception ex)
+            {
+                objResult.Success = false;
+                objResult.Message = "Se ANULO el docuemnto número : " + Doc;
+            }
+
+            var JSON = JsonConvert.SerializeObject(objResult);
+            return Json(JSON, JsonRequestBehavior.AllowGet);
+        }
+        /// <summary>
+        /// Metodo que agrega a la lista un documento.
+        /// </summary>
+        /// <create>Juilliand R. Damian Gomez</create>          
+        /// <param name="Doc"></param>
+        /// <param name="isOk"></param>
+        /// <param name="_Ent"></param>
+        /// <returns></returns>
+        public ActionResult ManifiestosEditAgregar(string Doc,bool isOk, Ent_Manifiesto_Editar _Ent)
+        {
+            JsonResponse objResult = new JsonResponse();
+            Ent_Manifiesto_Editar entResult = new Ent_Manifiesto_Editar();
+            Ent_Manifiesto_Editar entData = new Ent_Manifiesto_Editar();
+            List<Ent_Manifiesto_Editar> ListManifiestoEditar = (List<Ent_Manifiesto_Editar>)Session[_session_ListarManifiestoEditar];
+            var isExists = ListManifiestoEditar.Where(x => x.Doc == Doc).Count();
+            entData.Doc = Doc;
+            try
+            {
+                entData = datPedido.ManifiestoAgregarDoc(entData);
+                if (isOk)
+                {
+                    if (isExists > 0)
+                    {
+                        objResult.Success = false;
+                        objResult.Message = "El Documento " + Doc  + " ya existe en la lista";
+                    }
+                    else
+                    {
+                       if(entData.Estado == "0")
+                        {
+                        
+                            entResult.Guia = entData.Guia;
+                            entResult.Doc = entData.Doc;
+                            entResult.Lider = entData.Lider;
+                            entResult.Promotor = entData.Promotor;
+                            entResult.Pares = entData.Pares;
+                            entResult.Agencia = entData.Agencia;
+                            entResult.Destino = entData.Destino;
+                            entResult.Items = ListManifiestoEditar.Count() + 1;
+                            ListManifiestoEditar.Add(entResult);
+                            Session[_session_ListarManifiestoEditar] = ListManifiestoEditar;
+                            objResult.Success = true;
+                            objResult.Message = entData.Descripcion;
+
+                        }
+                        else if (entData.Estado == "1")
+                        {
+                            objResult.Success = false;
+                            objResult.Message = entData.Descripcion;
+                        }
+                        else if (entData.Estado == "-1")
+                        {
+                            objResult.Success = false;
+                            objResult.Message = entData.Descripcion;
+                        }
+                    }
+                }
+                else
+                {
+                    entResult.Guia = _Ent.Guia;
+                    entResult.Doc = _Ent.Doc;
+                    entResult.Lider = _Ent.Lider;
+                    entResult.Promotor = _Ent.Promotor;
+                    entResult.Pares = _Ent.Pares;
+                    entResult.Agencia = _Ent.Agencia;
+                    entResult.Destino = _Ent.Destino;
+                    entResult.Items = _Ent.Items;
+                    ListManifiestoEditar.Add(entResult);
+                    Session[_session_ListarManifiestoEditar] = ListManifiestoEditar;
+                    objResult.Success = true;
+                    objResult.Message = "El numero de documento esta disponible...";
+                }                   
+            }
+            catch (Exception ex)
+            {
+                objResult.Success = false;
+                objResult.Message = "Error al agregar documento.";
+            }
+            var JSON = JsonConvert.SerializeObject(objResult);
+            return Json(JSON, JsonRequestBehavior.AllowGet);
+        }
+        /// <summary>
+        /// Metodo donde se actualiza el manifiesto.
+        /// </summary>
+        /// <create>Juilliand R. Damian Gomez</create>  
+        /// <param name="IdManifiesto"></param>
+        /// <param name="Estado"></param>
+        /// <returns></returns>
+        public ActionResult ActualizarManifiesto(int IdManifiesto, string Estado)
+        {
+            JsonResponse objResult = new JsonResponse();
+            List<Ent_Manifiesto_Editar> ListManifiestoEditar = (List<Ent_Manifiesto_Editar>)Session[_session_ListarManifiestoEditar];
+            Ent_Usuario _usuario = (Ent_Usuario)Session[Ent_Constantes.NameSessionUser];
+            Ent_Manifiesto_Editar _Ent = new Ent_Manifiesto_Editar();
+            _Ent.IdManifiesto = IdManifiesto;
+            _Ent.Estado = Estado;
+            _Ent.IdUsuario = _usuario.usu_id;
+            int _Id = 0;
+            bool Result = false;
+
+            DataTable dtManifiesto = new DataTable();
+            dtManifiesto.Columns.Add("Man_Det_VenID", typeof(String));
+            dtManifiesto.Columns.Add("Man_Det_Items", typeof(Decimal));
+            dtManifiesto.Columns.Add("Man_Det_Lider", typeof(string));
+            dtManifiesto.Columns.Add("Man_Det_Promotor", typeof(string));
+            dtManifiesto.Columns.Add("Man_Det_Agencia", typeof(string));
+            dtManifiesto.Columns.Add("Man_Det_Destino", typeof(string));
+            try
+            {
+
+                foreach (Ent_Manifiesto_Editar item in ListManifiestoEditar)
+                {
+                    dtManifiesto.Rows.Add(
+                        item.Doc,
+                        item.Items,
+                        item.Lider,
+                        item.Promotor,
+                        item.Agencia,
+                        item.Destino);
+                }
+
+                Result = datPedido.RegistrarManifiesto(_Ent, dtManifiesto, ref _Id);
+                if (Result==true)
+                {
+                    objResult.Success = true;
+                    objResult.Message = "Se registro correctamente el manifiesto.";
+                }
+                else
+                {
+                    objResult.Success = false;
+                    objResult.Message = "Hubo un problerma con la actualizacion, por favor consulte con sistemas";
+                }
+
+            }
+            catch (Exception)
+            {
+                objResult.Success = false;
+                objResult.Message = "Hubo un problerma con la actualizacion, por favor consulte con sistemas";
+                throw;
+            }
+            
+            var JSON = JsonConvert.SerializeObject(objResult);
+            return Json(JSON, JsonRequestBehavior.AllowGet);
+        }
+        /// <summary>
+        /// Metodo donde se registra un nuevo manifiesto.
+        /// </summary>
+        /// <create>Juilliand R. Damian Gomez</create>  
+        /// <param name="IdManifiesto"></param>
+        /// <param name="Estado"></param>
+        /// <returns></returns>
+        public ActionResult RegistrarManifiesto(int IdManifiesto, string Estado)
+        {
+            JsonResponse objResult = new JsonResponse();
+            List<Ent_Manifiesto_Editar> ListManifiestoEditar = (List<Ent_Manifiesto_Editar>)Session[_session_ListarManifiestoEditar];
+            Ent_Usuario _usuario = (Ent_Usuario)Session[Ent_Constantes.NameSessionUser];
+            Ent_Manifiesto_Editar _Ent = new Ent_Manifiesto_Editar();
+            _Ent.IdManifiesto = IdManifiesto;
+            _Ent.Estado = Estado;
+            _Ent.IdUsuario = _usuario.usu_id;
+            int _Id = 0;
+            int _Val = 0;
+            string Descripcion = "";
+            bool Result = false;
+
+            DataTable dtManifiesto = new DataTable();
+            dtManifiesto.Columns.Add("Man_Det_VenID", typeof(String));
+            dtManifiesto.Columns.Add("Man_Det_Items", typeof(Decimal));
+            dtManifiesto.Columns.Add("Man_Det_Lider", typeof(string));
+            dtManifiesto.Columns.Add("Man_Det_Promotor", typeof(string));
+            dtManifiesto.Columns.Add("Man_Det_Agencia", typeof(string));
+            dtManifiesto.Columns.Add("Man_Det_Destino", typeof(string));
+            try
+            {
+
+                foreach (Ent_Manifiesto_Editar item in ListManifiestoEditar)
+                {
+                    dtManifiesto.Rows.Add(
+                        item.Doc,
+                        item.Items,
+                        item.Lider,
+                        item.Promotor,
+                        item.Agencia,
+                        item.Destino);
+                }
+
+                _Val = datPedido.Valida_Manifiesto(dtManifiesto, ref Descripcion);
+                if (_Val==1)
+                {
+                    objResult.Success = false;
+                    objResult.Message = Descripcion;
+                }
+                else
+                {
+                    Result = datPedido.RegistrarManifiesto(_Ent, dtManifiesto, ref _Id);
+                    if (Result == true)
+                    {
+                        objResult.Success = true;
+                        objResult.Message = "Se registro correctamente el manifiesto.";
+                    }
+                    else
+                    {
+                        objResult.Success = false;
+                        objResult.Message = "Hubo un problerma al registrar el manifiesto, por favor consulte con sistemas";
+                    }
+                }
+            }
+            catch (Exception)
+            {
+                objResult.Success = false;
+                objResult.Message = "Hubo un problerma al registrar el manifiesto, por favor consulte con sistemas";
+                throw;
+            }
+
+            var JSON = JsonConvert.SerializeObject(objResult);
+            return Json(JSON, JsonRequestBehavior.AllowGet);
+        }
+        /// <summary>
+        /// Metodo donde de se crear el archivo.
+        /// </summary>
+        /// <param name="Id"></param>
+        /// <returns></returns>
+        public ActionResult verManifiesto(int Id)
+        {
+            bool Result = false;
+            JsonResponse objResult = new JsonResponse();
+            try
+            {
+                Result = verManifiestoCrystalReport(Id);
+                if (Result)
+                {
+                    objResult.Success = true;
+                    objResult.Message = "Se generó correctamente el archivo";
+                }
+                else
+                {
+                    objResult.Success = false;
+                    objResult.Message = "Error al generar el archivo";
+                }
+            }
+            catch (Exception ex)
+            {
+                objResult.Success = false;
+                objResult.Message = "Error al generar el archivo :" + ex.Message;
+            }
+
+            var JSON = JsonConvert.SerializeObject(objResult);
+
+            return Json(JSON, JsonRequestBehavior.AllowGet);
+        }
+        /// <summary>
+        /// Metodo que carga la informacion al archivo de manifiesto.
+        /// </summary>
+        /// <param name="Id"></param>
+        /// <returns></returns>
+        public bool verManifiestoCrystalReport(int Id)
+        {
+            bool result = false;
+            try
+            {
+                List<Manifiesto_Reports> _ventaValues = new List<Manifiesto_Reports>();
+                Ent_Manifiesto_Editar _Ent = new Ent_Manifiesto_Editar();
+                _Ent.IdManifiesto = Id;
+                DataSet dsManInfo = datPedido.Reporte_Manifiesto(_Ent);
+
+                if (dsManInfo == null)
+                    return false;
+                DataSet dsManDtl = new DataSet();
+                dsManDtl.Tables.Add(dsManInfo.Tables[1].Copy());
+
+                if (dsManDtl == null)
+                    return false;
+
+                DataRow dRow = dsManInfo.Tables[0].Rows[0];
+
+                foreach (DataRow dRowDtl in dsManDtl.Tables[0].Rows)
+                {
+                    Decimal idman = Convert.ToDecimal(dRow["IdManifiesto"].ToString());
+                    DateTime fechaman = Convert.ToDateTime(dRow["Man_Fecha"]);
+                    string guiaman = dRowDtl["guia"].ToString();
+                    string docman = dRowDtl["doc"].ToString();
+                    string liderman = dRowDtl["lider"].ToString();
+                    string promotorman = dRowDtl["promotor"].ToString();
+                    Int32 paresman = Convert.ToInt32(dRowDtl["pares"]);
+                    string agenciaman = dRowDtl["agencia"].ToString();
+                    string destinoman = dRowDtl["destino"].ToString();
+                    string tipo_despacho = dRowDtl["Desp_Des"].ToString();
+                    _ventaValues.Add(new Manifiesto_Reports(idman, fechaman, guiaman, docman, liderman, promotorman, paresman, agenciaman, destinoman, tipo_despacho));
+                }            
+                this.HttpContext.Session["rptSourceMan"] = _ventaValues;
+                this.HttpContext.Session["ReportNameMan"] = "manifiestoReport.rpt";
+                result = true;
+            }
+            catch (Exception)
+            {
+                result = false;
+            }
+            return result;
+        }
+
         #endregion
     }
 }
