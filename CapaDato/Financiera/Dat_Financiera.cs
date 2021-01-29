@@ -213,5 +213,86 @@ namespace CapaDato.Financiera
             }
             return Listar;
         }
+        public List<Ent_Operacion_Gratuita> Listar_ConceptoOG()
+        {
+            List<Ent_Operacion_Gratuita> Listar = new List<Ent_Operacion_Gratuita>();
+            string sqlquery = "[USP_Leer_Lista_Concepto_Gratuito]";
+            try
+            {
+                using (SqlConnection cn = new SqlConnection(Ent_Conexion.conexion))
+                {
+                    using (SqlCommand cmd = new SqlCommand(sqlquery, cn))
+                    {
+                        cmd.CommandType = CommandType.StoredProcedure;
+                        using (SqlDataAdapter da = new SqlDataAdapter(cmd))
+                        {
+                            DataTable dt = new DataTable();
+                            da.Fill(dt);
+
+                            Listar = new List<Ent_Operacion_Gratuita>();
+                            Listar = (from DataRow dr in dt.Rows
+                                      select new Ent_Operacion_Gratuita()
+                                      {
+                                          Codigo = Convert.ToString(dr["Con_Id"]),
+                                          Descripcion = Convert.ToString(dr["Con_Descripcion"])
+                                      }
+                                    ).ToList();
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+            return Listar;
+        }
+        public List<Ent_Operacion_Gratuita> Listar_Liquidacion_Gratuita(Ent_Operacion_Gratuita _Ent)
+        {
+            List<Ent_Operacion_Gratuita> Listar = new List<Ent_Operacion_Gratuita>();
+            string sqlquery = "[USP_Leer_Liquidacion_Gratuita]";
+            try
+            {
+                using (SqlConnection cn = new SqlConnection(Ent_Conexion.conexion))
+                {
+                    using (SqlCommand cmd = new SqlCommand(sqlquery, cn))
+                    {
+                        cmd.CommandType = CommandType.StoredProcedure;
+                        cmd.Parameters.AddWithValue("@tipo", DbType.String).Value = _Ent.Tipo;
+                        cmd.Parameters.AddWithValue("@fecha_inicio", DbType.DateTime).Value = _Ent.FechaInicio;
+                        cmd.Parameters.AddWithValue("@fecha_final", DbType.DateTime).Value = _Ent.FechaFin;
+                                                
+                        using (SqlDataAdapter da = new SqlDataAdapter(cmd))
+                        {
+                            DataTable dt = new DataTable();
+                            da.Fill(dt);
+
+                            Listar = new List<Ent_Operacion_Gratuita>();
+                            Listar = (from DataRow dr in dt.Rows
+                                      select new Ent_Operacion_Gratuita()
+                                      {
+                                          Tipo = Convert.ToString(dr["Tipo"]),
+                                          Fecha = Convert.ToString(dr["Fecha"]),
+                                          TipoDocumento = Convert.ToString(dr["TipoDocumento"]),
+                                          NroDocumento = Convert.ToString(dr["NroDocumento"]),
+                                          Doc_cliente = Convert.ToString(dr["Doc_cliente"]),
+                                          Cliente = Convert.ToString(dr["Cliente"]),
+                                          EstadoDescripcion = Convert.ToString(dr["EstadoDescripcion"]),
+                                          SubTotal = Convert.ToDecimal(dr["SubTotal"]),
+                                          IGV = Convert.ToDecimal(dr["IGV"]),
+                                          Total = Convert.ToDecimal(dr["Total"])
+                                      }
+                                    ).ToList();
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+            return Listar;
+        }
+
     }
 }

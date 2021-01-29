@@ -63,4 +63,24 @@ namespace CapaEntidad.Financiera
         public string Con_Id { get; set; }
         public string Are_Id { get; set; }
     }
+
+    public class Ent_Operacion_Gratuita
+    {
+        public string Tipo { get; set; }
+        public string Fecha { get; set; }
+        public string TipoDocumento { get; set; }
+        public string NroDocumento { get; set; }
+        public string Doc_cliente { get; set; }
+        public string Cliente { get; set; }
+        public string EstadoDescripcion { get; set; }
+        public Decimal SubTotal { get; set; }
+        public Decimal IGV { get; set; }
+        public Decimal Total { get; set; }
+        //Campos adicionales
+        public DateTime FechaInicio { get; set; }
+        public DateTime FechaFin { get; set; }
+        public string Codigo { get; set; }
+        public string Descripcion { get; set; }
+        public string TipoNombre { get; set; }
+    }
 }

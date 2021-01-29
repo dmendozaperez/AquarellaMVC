@@ -48,6 +48,8 @@ namespace CapaPresentacion.Controllers
         private string _session_ListarVentaSemanal_Excel = "_session_ListarVentaSemanal_Excel";
         private string _session_listSaldosAnticipos = "_session_listSaldosAnticipos";
         private string _session_ListarValidarPagos = "_session_ListarValidarPagos";
+        private string _session_ListarOpeGratuitas = "_session_ListarOpeGratuitas";
+        private string _session_ListarOpeGratuitas_Excel = "_session_ListarOpeGratuitas_Excel";
         // GET: Financiera
         public ActionResult Index()
         {
@@ -2472,7 +2474,263 @@ namespace CapaPresentacion.Controllers
                 JSON = JsonConvert.SerializeObject(objResult);
                 return Json(JSON, JsonRequestBehavior.AllowGet);
             }
-        }   
+        }
+        #endregion
+
+        #region <CONSULTA DE OPERACIONES GRATUITAS>
+        /// <summary>
+        /// Consulta de Operaciones Gratuitas
+        /// </summary>
+        /// <create>Juilliand R. Damian Gomez </create>
+        /// <update></update>
+        /// <returns></returns>
+        public ActionResult OpeGratuitas()
+        {
+            Ent_Usuario _usuario = (Ent_Usuario)Session[Ent_Constantes.NameSessionUser];
+            string actionName = this.ControllerContext.RouteData.GetRequiredString("action");
+            string controllerName = this.ControllerContext.RouteData.GetRequiredString("controller");
+            string return_view = actionName + "|" + controllerName;
+
+            if (_usuario == null)
+            {
+                return RedirectToAction("Login", "Control", new { returnUrl = return_view });
+            }
+            else
+            {
+                Ent_Operacion_Gratuita EntOpeGratuita = new Ent_Operacion_Gratuita();
+                ViewBag.EntOpeGratuita = EntOpeGratuita;
+                ViewBag.Listar_ConceptoOG = datFinanciera.Listar_ConceptoOG();
+                return View("OperacionesGratuitas");
+            }
+        }
+        /// <summary>
+        /// lista de Operaciones Gratuitas
+        /// </summary>
+        /// <create>Juilliand R. Damian Gomez </create>
+        /// <param name="param"></param>
+        /// <param name="isOkUpdate"></param>
+        /// <param name="FechaInicio"></param>
+        /// <param name="FechaFin"></param>
+        /// <param name="Tipo"></param>
+        /// <returns></returns>
+        public JsonResult getListOpeGratuitastAjax(Ent_jQueryDataTableParams param, bool isOkUpdate, string FechaInicio, string FechaFin, string Tipo)
+        {
+            Ent_Operacion_Gratuita EntOpeGratuita = new Ent_Operacion_Gratuita();
+
+            if (isOkUpdate)
+            {
+                EntOpeGratuita.FechaInicio = DateTime.Parse(FechaInicio);
+                EntOpeGratuita.FechaFin = DateTime.Parse(FechaFin);
+                EntOpeGratuita.Tipo = Tipo;
+                Session[_session_ListarOpeGratuitas] = datFinanciera.Listar_Liquidacion_Gratuita(EntOpeGratuita).ToList();
+            }
+
+            /*verificar si esta null*/
+            if (Session[_session_ListarOpeGratuitas] == null)
+            {
+                List<Ent_Operacion_Gratuita> _ListarOpeGratuitas = new List<Ent_Operacion_Gratuita>();
+                Session[_session_ListarOpeGratuitas] = _ListarOpeGratuitas;
+            }
+
+            IQueryable<Ent_Operacion_Gratuita> entDocTrans = ((List<Ent_Operacion_Gratuita>)(Session[_session_ListarOpeGratuitas])).AsQueryable();
+            //Manejador de filtros
+            int totalCount = entDocTrans.Count();
+            IEnumerable<Ent_Operacion_Gratuita> filteredMembers = entDocTrans;
+            if (!string.IsNullOrEmpty(param.sSearch))
+            {
+                filteredMembers = entDocTrans.Where(
+                        m =>
+                            m.Tipo.ToUpper().Contains(param.sSearch.ToUpper()) ||
+                            m.Fecha.ToUpper().Contains(param.sSearch.ToUpper()) ||
+                            m.TipoDocumento.ToUpper().Contains(param.sSearch.ToUpper()) ||
+                            m.NroDocumento.ToUpper().Contains(param.sSearch.ToUpper()) ||
+                            m.Doc_cliente.ToUpper().Contains(param.sSearch.ToUpper()) ||
+                            m.Cliente.ToUpper().Contains(param.sSearch.ToUpper())
+                );
+            }
+            var sortIdx = Convert.ToInt32(Request["iSortCol_0"]);
+
+            if (param.iSortingCols > 0)
+            {
+                if (Request["sSortDir_0"].ToString() == "asc")
+                {
+                    switch (sortIdx)
+                    {
+                        case 0: filteredMembers = filteredMembers.OrderBy(o => o.Tipo); break;
+                        case 1: filteredMembers = filteredMembers.OrderBy(o => o.Fecha); break;
+                        case 2: filteredMembers = filteredMembers.OrderBy(o => o.TipoDocumento); break;
+                        case 3: filteredMembers = filteredMembers.OrderBy(o => o.NroDocumento); break;
+                        case 4: filteredMembers = filteredMembers.OrderBy(o => o.Doc_cliente); break;
+                        case 5: filteredMembers = filteredMembers.OrderBy(o => o.Cliente); break;
+                        case 6: filteredMembers = filteredMembers.OrderBy(o => o.SubTotal); break;
+                        case 7: filteredMembers = filteredMembers.OrderBy(o => o.IGV); break;
+                        case 8: filteredMembers = filteredMembers.OrderBy(o => o.Total); break;
+                    }
+                }
+                else
+                {
+                    switch (sortIdx)
+                    {
+                        case 0: filteredMembers = filteredMembers.OrderByDescending(o => o.Tipo); break;
+                        case 1: filteredMembers = filteredMembers.OrderByDescending(o => o.Fecha); break;
+                        case 2: filteredMembers = filteredMembers.OrderByDescending(o => o.TipoDocumento); break;
+                        case 3: filteredMembers = filteredMembers.OrderByDescending(o => o.NroDocumento); break;
+                        case 4: filteredMembers = filteredMembers.OrderByDescending(o => o.Doc_cliente); break;
+                        case 5: filteredMembers = filteredMembers.OrderByDescending(o => o.Cliente); break;
+                        case 6: filteredMembers = filteredMembers.OrderByDescending(o => o.SubTotal); break;
+                        case 7: filteredMembers = filteredMembers.OrderByDescending(o => o.IGV); break;
+                        case 8: filteredMembers = filteredMembers.OrderByDescending(o => o.Total); break;
+                    }
+                }
+            }
+
+            var Result = filteredMembers
+                .Skip(param.iDisplayStart)
+                .Take(param.iDisplayLength);
+
+            //Se devuelven los resultados por json
+            return Json(new
+            {
+                sEcho = param.sEcho,
+                iTotalRecords = totalCount,
+                iTotalDisplayRecords = filteredMembers.Count(),
+                aaData = Result
+            }, JsonRequestBehavior.AllowGet);
+        }
+        /// <summary>
+        /// Crea el archivo en excel
+        /// </summary>
+        /// <create>Juilliand R. Damian Gomez </create>
+        /// <param name="_Ent"></param>
+        /// <returns></returns>
+        public ActionResult get_exporta_ListarOpeGratuitas_excel(Ent_Operacion_Gratuita _Ent)
+        {
+            JsonResponse objResult = new JsonResponse();
+            try
+            {
+                Session[_session_ListarOpeGratuitas_Excel] = null;
+                string cadena = "";
+                if (Session[_session_ListarOpeGratuitas] != null)
+                {
+
+                    List<Ent_Operacion_Gratuita> _ListarOpeGratuitas = (List<Ent_Operacion_Gratuita>)Session[_session_ListarOpeGratuitas];
+                    if (_ListarOpeGratuitas.Count == 0)
+                    {
+                        objResult.Success = false;
+                        objResult.Message = "No hay filas para exportar";
+
+                    }
+                    else
+                    {
+                        cadena = get_html_ListarOpeGratuitas_str((List<Ent_Operacion_Gratuita>)Session[_session_ListarOpeGratuitas], _Ent);
+                        if (cadena.Length == 0)
+                        {
+                            objResult.Success = false;
+                            objResult.Message = "Error del formato html";
+                        }
+                        else
+                        {
+                            objResult.Success = true;
+                            objResult.Message = "Se genero el excel correctamente";
+                            Session[_session_ListarOpeGratuitas_Excel] = cadena;
+                        }
+                    }
+                }
+                else
+                {
+                    objResult.Success = false;
+                    objResult.Message = "No hay filas para exportar";
+                }
+
+            }
+            catch (Exception ex)
+            {
+                objResult.Success = false;
+                objResult.Message = "No hay filas para exportar";
+            }
+
+            var JSON = JsonConvert.SerializeObject(objResult);
+
+            return Json(JSON, JsonRequestBehavior.AllowGet);
+        }
+        /// <summary>
+        /// Armamos el archivo excel
+        /// </summary>
+        /// <create>Juilliand R. Damian Gomez </create>
+        /// <param name="_ListarOpeGratuitas"></param>
+        /// <param name="_Ent"></param>
+        /// <returns></returns>
+        public string get_html_ListarOpeGratuitas_str(List<Ent_Operacion_Gratuita> _ListarOpeGratuitas, Ent_Operacion_Gratuita _Ent)
+        {
+            StringBuilder sb = new StringBuilder();
+            var Lista = _ListarOpeGratuitas.ToList();
+            //var ClienteTitulo = _ListarOpeGratuitas.Select(x => new { Cliente = x.Cliente, NroDNI = x.NroDNI }).Distinct();
+
+            try
+            {
+                sb.Append("<div><table cellspacing='0' style='width: 1000px' rules='all' border='0' style='border-collapse:collapse;'><tr><td Colspan='9'></td></tr><tr><td Colspan='9' valign='middle' align='center' style='vertical-align: middle;font-size: 16.0pt;font-weight: bold;color:#285A8F'>CONSULTA DE OPERACIONES GRATUITAS " + (_Ent.Tipo=="-1"? "" : " ' " + _Ent.TipoNombre.ToUpper()+" ' ") + " </td></tr><tr><td Colspan='9' valign='middle' align='center' style='vertical-align: middle;font-size: 11.0pt;font-weight: bold;color:#000000'>Desde el " + String.Format("{0:dd/MM/yyyy}", _Ent.FechaInicio) + " hasta el " + String.Format("{0:dd/MM/yyyy}", _Ent.FechaFin) + "</td></tr></table>");
+                sb.Append("<table  border='1' bgColor='#ffffff' borderColor='#FFFFFF' cellSpacing='2' cellPadding='2' style='font-size:10.0pt; font-family:Calibri; background:white;width: 1000px'><tr  bgColor='#5799bf'>\n");
+                sb.Append("<tr bgColor='#1E77AB'>\n");
+                sb.Append("<th style='text-align: center; font-weight:bold;font-size:11.0pt;'><font color='#FFFFFF'>Tipo</font></th>\n");
+                sb.Append("<th style='text-align: center; font-weight:bold;font-size:11.0pt;'><font color='#FFFFFF'>Fecha</font></th>\n");
+                sb.Append("<th style='text-align: center; font-weight:bold;font-size:11.0pt;'><font color='#FFFFFF'>Tipo Documento</font></th>\n");
+                sb.Append("<th style='text-align: center; font-weight:bold;font-size:11.0pt;'><font color='#FFFFFF'>Nro Documento</font></th>\n");
+                sb.Append("<th style='text-align: center; font-weight:bold;font-size:11.0pt;'><font color='#FFFFFF'>Doc. cliente</font></th>\n");
+                sb.Append("<th style='text-align: center; font-weight:bold;font-size:11.0pt;'><font color='#FFFFFF'>Cliente</font></th>\n");
+                sb.Append("<th style='text-align: center; font-weight:bold;font-size:11.0pt;'><font color='#FFFFFF'>Sub Total</font></th>\n");
+                sb.Append("<th style='text-align: center; font-weight:bold;font-size:11.0pt;'><font color='#FFFFFF'>IGV</font></th>\n");
+                sb.Append("<th style='text-align: center; font-weight:bold;font-size:11.0pt;'><font color='#FFFFFF'>Total</font></th>\n");
+                sb.Append("</tr>\n");
+
+                foreach (var item in Lista)
+                {
+                    sb.Append("<td align='Center'>" + item.Tipo + "</td>\n");
+                    sb.Append("<td align='Center'>" + item.Fecha + "</td>\n");
+                    sb.Append("<td align=''>" + item.TipoDocumento + "</td>\n");
+                    sb.Append("<td align='Center'>" + item.NroDocumento + "</td>\n");
+                    sb.Append("<td align='Center'>" + item.Doc_cliente+ "</td>\n");
+                    sb.Append("<td align=''>" + item.Cliente + "</td>\n");
+                    sb.Append("<td align='Right'>" + "S/ " + string.Format("{0:F2}", item.SubTotal) + "</td>\n");
+                    sb.Append("<td align='Right'>" + "S/ " + string.Format("{0:F2}", item.IGV) + "</td>\n");
+                    sb.Append("<td align='Right'>" + "S/ " + string.Format("{0:F2}", item.Total) + "</td>\n");
+                    sb.Append("</tr>\n");
+                }
+                sb.Append("</table></div>");
+            }
+            catch
+            {
+
+            }
+            return sb.ToString();
+        }
+
+        /// <summary>
+        /// Exportamos el excel
+        /// </summary>
+        /// <create>Juilliand R. Damian Gomez </create>
+        /// <returns>xlx</returns>
+        public ActionResult ListarOpeGratuitasExcel()
+        {
+            string NombreArchivo = "OPeracionesGratuitas";
+            String style = style = @"<style> .textmode { mso-number-format:\@; } </script> ";
+            try
+            {
+                Response.Clear();
+                Response.Buffer = true;
+                Response.ContentType = "application/vnd.ms-excel";
+                Response.AddHeader("Content-Disposition", "attachment;filename=" + NombreArchivo + ".xls");
+                Response.Charset = "UTF-8";
+                Response.ContentEncoding = Encoding.Default;
+                Response.Write(style);
+                Response.Write(Session[_session_ListarOpeGratuitas_Excel].ToString());
+                Response.End();
+            }
+            catch
+            {
+
+            }
+            return Json(new { estado = 0, mensaje = 1 });
+        }
         #endregion
     }
 }
