@@ -4,7 +4,6 @@ using CapaDato.Pedido;
 using CapaDato.Persona;
 using CapaEntidad.Control;
 using CapaEntidad.Financiera;
-
 using CapaEntidad.General;
 using CapaEntidad.Menu;
 using CapaEntidad.Pedido;
@@ -50,6 +49,8 @@ namespace CapaPresentacion.Controllers
         private string _session_ListarValidarPagos = "_session_ListarValidarPagos";
         private string _session_ListarOpeGratuitas = "_session_ListarOpeGratuitas";
         private string _session_ListarOpeGratuitas_Excel = "_session_ListarOpeGratuitas_Excel";
+        private string _session_ListarSaldoCliente = "_session_ListarSaldoCliente";
+        private string _session_ListarSaldoCliente_Excel = "_session_ListarSaldoCliente_Excel";
         // GET: Financiera
         public ActionResult Index()
         {
@@ -2684,6 +2685,7 @@ namespace CapaPresentacion.Controllers
 
                 foreach (var item in Lista)
                 {
+                    sb.Append("<tr>\n");
                     sb.Append("<td align='Center'>" + item.Tipo + "</td>\n");
                     sb.Append("<td align='Center'>" + item.Fecha + "</td>\n");
                     sb.Append("<td align=''>" + item.TipoDocumento + "</td>\n");
@@ -2731,6 +2733,266 @@ namespace CapaPresentacion.Controllers
             }
             return Json(new { estado = 0, mensaje = 1 });
         }
+        #endregion
+
+        #region <CONSULTA DE SALDO DE CLIENTES>
+        /// <summary>
+        /// Consulte entre un rango de fechas, todas los saldos realizAQUARELLAs por los clientes.
+        /// </summary>
+        /// <create>Juilliand R. Damián Gómez<create>
+        /// <update></update>
+        /// <returns></returns>
+        public ActionResult Saldo_Cliente()
+        {
+            Ent_Usuario _usuario = (Ent_Usuario)Session[Ent_Constantes.NameSessionUser];
+            string actionName = this.ControllerContext.RouteData.GetRequiredString("action");
+            string controllerName = this.ControllerContext.RouteData.GetRequiredString("controller");
+            string return_view = actionName + "|" + controllerName;
+
+            if (_usuario == null)
+            {
+                return RedirectToAction("Login", "Control", new { returnUrl = return_view });
+            }
+            else
+            {
+                Ent_Saldo_Cliente EnSaldCliente = new Ent_Saldo_Cliente();
+                ViewBag.Listar_ConceptoSC = datFinanciera.Listar_Concepto_Saldo().Where(x => x.Codigo == "90" || x.Codigo == "98" || x.Codigo == "9F" || x.Codigo == "9INT");
+                ViewBag.ListarCLiente = datFinanciera.Leer_Clientes_Saldo();
+                ViewBag.EnSaldCliente = EnSaldCliente;
+                return View();
+            }
+        }
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <create>Juilliand R. Damian Gomez </create>
+        /// <update></update> 
+        /// <param name="param"></param>
+        /// <param name="isOkUpdate"></param>
+        /// <param name="FechaInicio"></param>
+        /// <param name="FechaFin"></param>
+        /// <param name="Cod_Id"></param>
+        /// <param name="Bas_Id"></param>
+        /// <returns></returns>
+        public JsonResult getLisSaldoClientesAjax(Ent_jQueryDataTableParams param, bool isOkUpdate, string FechaInicio, string FechaFin, string Cod_Id, int Bas_Id)
+        {
+            Ent_Saldo_Cliente EntSaldoCliente = new Ent_Saldo_Cliente();
+
+            if (isOkUpdate)
+            {
+                EntSaldoCliente.Bas_Id = Bas_Id;
+                EntSaldoCliente.Cod_Id = Cod_Id;
+                EntSaldoCliente.FechaInicio = DateTime.Parse(FechaInicio);
+                EntSaldoCliente.FechaFin = DateTime.Parse(FechaFin);
+                EntSaldoCliente.Usu_Tipo = string.Empty;
+                Session[_session_ListarSaldoCliente] = datFinanciera.Leer_Saldos_Pendientes(EntSaldoCliente).ToList();
+            }
+
+            /*verificar si esta null*/
+            if (Session[_session_ListarSaldoCliente] == null)
+            {
+                List<Ent_Saldo_Cliente> _ListarSaldoCliente = new List<Ent_Saldo_Cliente>();
+                Session[_session_ListarSaldoCliente] = _ListarSaldoCliente;
+            }
+
+            IQueryable<Ent_Saldo_Cliente> entDocTrans = ((List<Ent_Saldo_Cliente>)(Session[_session_ListarSaldoCliente])).AsQueryable();
+            //Manejador de filtros
+            int totalCount = entDocTrans.Count();
+            IEnumerable<Ent_Saldo_Cliente> filteredMembers = entDocTrans;
+            if (!string.IsNullOrEmpty(param.sSearch))
+            {
+                filteredMembers = entDocTrans.Where(
+                        m =>
+                            m.Asesor.ToUpper().Contains(param.sSearch.ToUpper()) ||
+                            m.Dniruc.ToUpper().Contains(param.sSearch.ToUpper()) ||
+                            m.Lider.ToUpper().Contains(param.sSearch.ToUpper()) ||
+                            m.Cliente.ToUpper().Contains(param.sSearch.ToUpper()) ||
+                            m.Concepto.ToUpper().Contains(param.sSearch.ToUpper()) ||
+                            m.Documento.ToUpper().Contains(param.sSearch.ToUpper())
+                );
+            }
+            var sortIdx = Convert.ToInt32(Request["iSortCol_0"]);
+
+            if (param.iSortingCols > 0)
+            {
+                if (Request["sSortDir_0"].ToString() == "asc")
+                {
+                    switch (sortIdx)
+                    {
+                        case 0: filteredMembers = filteredMembers.OrderBy(o => o.Asesor); break;
+                        case 1: filteredMembers = filteredMembers.OrderBy(o => o.Dniruc); break;
+                        case 2: filteredMembers = filteredMembers.OrderBy(o => o.Lider); break;
+                        case 3: filteredMembers = filteredMembers.OrderBy(o => o.Cliente); break;
+                        case 4: filteredMembers = filteredMembers.OrderBy(o => o.Concepto); break;
+                        case 5: filteredMembers = filteredMembers.OrderBy(o => o.Documento); break;
+                        case 6: filteredMembers = filteredMembers.OrderBy(o => o.Monto); break;
+                    }
+                }
+                else
+                {
+                    switch (sortIdx)
+                    {
+                        case 0: filteredMembers = filteredMembers.OrderByDescending(o => o.Asesor); break;
+                        case 1: filteredMembers = filteredMembers.OrderByDescending(o => o.Dniruc); break;
+                        case 2: filteredMembers = filteredMembers.OrderByDescending(o => o.Lider); break;
+                        case 3: filteredMembers = filteredMembers.OrderByDescending(o => o.Cliente); break;
+                        case 4: filteredMembers = filteredMembers.OrderByDescending(o => o.Concepto); break;
+                        case 5: filteredMembers = filteredMembers.OrderByDescending(o => o.Documento); break;
+                        case 6: filteredMembers = filteredMembers.OrderByDescending(o => o.Monto); break;
+                    }
+                }
+            }
+
+            var Result = filteredMembers
+                .Skip(param.iDisplayStart)
+                .Take(param.iDisplayLength);
+
+            //Se devuelven los resultados por json
+            return Json(new
+            {
+                sEcho = param.sEcho,
+                iTotalRecords = totalCount,
+                iTotalDisplayRecords = filteredMembers.Count(),
+                aaData = Result
+            }, JsonRequestBehavior.AllowGet);
+        }
+        /// <summary>
+        /// Crea el archivo en excel
+        /// </summary>
+        /// <create>Juilliand R. Damian Gomez </create>
+        /// <update></update>       
+        /// <param name="_Ent"></param>
+        /// <returns></returns>
+        public ActionResult get_exporta_ListarSaldoCliente_excel(Ent_Saldo_Cliente _Ent)
+        {
+            JsonResponse objResult = new JsonResponse();
+            try
+            {
+                Session[_session_ListarSaldoCliente_Excel] = null;
+                string cadena = "";
+                if (Session[_session_ListarSaldoCliente] != null)
+                {
+
+                    List<Ent_Saldo_Cliente> _ListarSaldoCliente = (List<Ent_Saldo_Cliente>)Session[_session_ListarSaldoCliente];
+                    if (_ListarSaldoCliente.Count == 0)
+                    {
+                        objResult.Success = false;
+                        objResult.Message = "No hay filas para exportar";
+
+                    }
+                    else
+                    {
+                        cadena = get_html_ListarSaldoCliente_str((List<Ent_Saldo_Cliente>)Session[_session_ListarSaldoCliente], _Ent);
+                        if (cadena.Length == 0)
+                        {
+                            objResult.Success = false;
+                            objResult.Message = "Error del formato html";
+                        }
+                        else
+                        {
+                            objResult.Success = true;
+                            objResult.Message = "Se genero el excel correctamente";
+                            Session[_session_ListarSaldoCliente_Excel] = cadena;
+                        }
+                    }
+                }
+                else
+                {
+                    objResult.Success = false;
+                    objResult.Message = "No hay filas para exportar";
+                }
+
+            }
+            catch (Exception ex)
+            {
+                objResult.Success = false;
+                objResult.Message = "No hay filas para exportar";
+            }
+
+            var JSON = JsonConvert.SerializeObject(objResult);
+
+            return Json(JSON, JsonRequestBehavior.AllowGet);
+        }
+        /// <summary>
+        /// Armamos el archivo excel
+        /// </summary>
+        /// <create>Juilliand R. Damian Gomez </create>
+        /// <update></update>
+        /// <param name="_ListarOpeGratuitas"></param>
+        /// <param name="_Ent"></param>
+        /// <returns></returns>
+        public string get_html_ListarSaldoCliente_str(List<Ent_Saldo_Cliente> _ListarSaldoCliente, Ent_Saldo_Cliente _Ent)
+        {
+            StringBuilder sb = new StringBuilder();
+            var Lista = _ListarSaldoCliente.ToList();
+            try
+            {
+                sb.Append("<div><table cellspacing='0' style='width: 1000px' rules='all' border='0' style='border-collapse:collapse;'><tr><td Colspan='9'></td></tr><tr><td Colspan='9' valign='middle' align='center' style='vertical-align: middle;font-size: 16.0pt;font-weight: bold;color:#285A8F'>REPORTE DE SALDO DE CLIENTES  </td></tr><tr><td Colspan='9' valign='middle' align='center' style='vertical-align: middle;font-size: 10.0pt;font-weight: bold;color:#000000'>Desde el " + String.Format("{0:dd/MM/yyyy}", _Ent.FechaInicio) + " hasta el " + String.Format("{0:dd/MM/yyyy}", _Ent.FechaFin) + "</td></tr></table>");
+                sb.Append("<table  border='1' bgColor='#ffffff' borderColor='#FFFFFF' cellSpacing='2' cellPadding='2' style='font-size:10.0pt; font-family:Calibri; background:white;width: 1000px'><tr  bgColor='#5799bf'>\n");
+                sb.Append("<tr bgColor='#1E77AB'>\n");
+                sb.Append("<th style='text-align: center; font-weight:bold;font-size:11.0pt;'><font color='#FFFFFF'>Asesor</font></th>\n");
+                sb.Append("<th style='text-align: center; font-weight:bold;font-size:11.0pt;'><font color='#FFFFFF'>Lider</font></th>\n");
+                sb.Append("<th style='text-align: center; font-weight:bold;font-size:11.0pt;'><font color='#FFFFFF'>Dni/Ruc (Promotor)</font></th>\n");
+                sb.Append("<th style='text-align: center; font-weight:bold;font-size:11.0pt;'><font color='#FFFFFF'>Promotor</font></th>\n");
+                sb.Append("<th style='text-align: center; font-weight:bold;font-size:11.0pt;'><font color='#FFFFFF'>Concepto</font></th>\n");
+                sb.Append("<th style='text-align: center; font-weight:bold;font-size:11.0pt;'><font color='#FFFFFF'>Documento</font></th>\n");
+                sb.Append("<th style='text-align: center; font-weight:bold;font-size:11.0pt;'><font color='#FFFFFF'>Fec. Transacción</font></th>\n");
+                sb.Append("<th style='text-align: center; font-weight:bold;font-size:11.0pt;'><font color='#FFFFFF'>Fec. Documento</font></th>\n");
+                sb.Append("<th style='text-align: center; font-weight:bold;font-size:11.0pt;'><font color='#FFFFFF'>Monto</font></th>\n");
+                sb.Append("</tr>\n");
+
+                foreach (var item in Lista)
+                {
+                    sb.Append("<tr>\n");
+                    sb.Append("<td align=''>" + item.Asesor + "</td>\n");
+                    sb.Append("<td align=''>" + item.Lider + "</td>\n");
+                    sb.Append("<td align='Center'>" + item.Dniruc + "</td>\n");
+                    sb.Append("<td align=''>" + item.Cliente + "</td>\n");
+                    sb.Append("<td align=''>" + item.Concepto + "</td>\n");
+                    sb.Append("<td align='Center'>" + item.Documento + "</td>\n");
+                    sb.Append("<td align='Center'>" + String.Format("{0:dd/MM/yyyy}", item.Fecha_Transac) + "</td>\n");
+                    sb.Append("<td align='Center'>" + String.Format("{0:dd/MM/yyyy}", item.Fecha_Doc) + "</td>\n");
+                    sb.Append("<td align='Right'>" + "S/ " + string.Format("{0:F2}", item.Monto) + "</td>\n");
+                    sb.Append("</tr>\n");
+                }
+                sb.Append("</table></div>");
+            }
+            catch
+            {
+
+            }
+            return sb.ToString();
+        }
+
+        /// <summary>
+        /// Exportamos el excel
+        /// </summary>
+        /// <create>Juilliand R. Damian Gomez </create>
+        /// <update></update>
+        /// <returns>xlx</returns>
+        public ActionResult ListarSaldoClienteExcel()
+        {
+            string NombreArchivo = "ComisionLider";
+            String style = style = @"<style> .textmode { mso-number-format:\@; } </script> ";
+            try
+            {
+                Response.Clear();
+                Response.Buffer = true;
+                Response.ContentType = "application/vnd.ms-excel";
+                Response.AddHeader("Content-Disposition", "attachment;filename=" + NombreArchivo + ".xls");
+                Response.Charset = "UTF-8";
+                Response.ContentEncoding = Encoding.Default;
+                Response.Write(style);
+                Response.Write(Session[_session_ListarSaldoCliente_Excel].ToString());
+                Response.End();
+            }
+            catch
+            {
+
+            }
+            return Json(new { estado = 0, mensaje = 1 });
+        }
+
         #endregion
     }
 }

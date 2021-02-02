@@ -213,6 +213,10 @@ namespace CapaDato.Financiera
             }
             return Listar;
         }
+        /// <summary>
+        /// lista los concepos de las operaciones gratuitas 
+        /// </summary>
+        /// <returns></returns>
         public List<Ent_Operacion_Gratuita> Listar_ConceptoOG()
         {
             List<Ent_Operacion_Gratuita> Listar = new List<Ent_Operacion_Gratuita>();
@@ -293,6 +297,126 @@ namespace CapaDato.Financiera
             }
             return Listar;
         }
+        public List<Ent_Saldo_Cliente> Leer_Clientes_Saldo()
+        {
+            List<Ent_Saldo_Cliente> listar = null;
+            string sqlquery = "USP_Leer_Lista_Clientes";
+            try
+            {
+                using (SqlConnection cn = new SqlConnection(Ent_Conexion.conexion))
+                {
+                    using (SqlCommand cmd = new SqlCommand(sqlquery, cn))
+                    {
+                        cmd.CommandTimeout = 0;
+                        cmd.CommandType = CommandType.StoredProcedure;
+                        using (SqlDataAdapter da = new SqlDataAdapter(cmd))
+                        {
+                            DataTable dt = new DataTable();
+                            da.Fill(dt);
+                            listar = new List<Ent_Saldo_Cliente>();
+                            listar = (from DataRow fila in dt.Rows
+                                      select new Ent_Saldo_Cliente()
+                                      {
+                                          Codigo = fila["Bas_Id"].ToString(),
+                                          Descripcion = fila["nombres"].ToString()
+                                      }
+                                   ).ToList();
+                        }
+                    }
+                }
+            }
+            catch (Exception exc)
+            {
 
+                listar = new List<Ent_Saldo_Cliente>();
+            }
+            return listar;
+        }
+        /// <summary>
+        /// lista los concepos de los saldos de los clientes
+        /// </summary>
+        /// <returns></returns>
+        public List<Ent_Saldo_Cliente> Listar_Concepto_Saldo()
+        {
+            List<Ent_Saldo_Cliente> Listar = new List<Ent_Saldo_Cliente>();
+            string sqlquery = "[USP_Leer_Lista_Concepto]";
+            try
+            {
+                using (SqlConnection cn = new SqlConnection(Ent_Conexion.conexion))
+                {
+                    using (SqlCommand cmd = new SqlCommand(sqlquery, cn))
+                    {
+                        cmd.CommandType = CommandType.StoredProcedure;
+                        using (SqlDataAdapter da = new SqlDataAdapter(cmd))
+                        {
+                            DataTable dt = new DataTable();
+                            da.Fill(dt);
+
+                            Listar = new List<Ent_Saldo_Cliente>();
+                            Listar = (from DataRow dr in dt.Rows
+                                      select new Ent_Saldo_Cliente()
+                                      {
+                                          Codigo = Convert.ToString(dr["Con_Id"]),
+                                          Descripcion = Convert.ToString(dr["Con_Descripcion"])
+                                      }
+                                    ).ToList();
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+            return Listar;
+        }
+        public List<Ent_Saldo_Cliente> Leer_Saldos_Pendientes(Ent_Saldo_Cliente _Ent)
+        {
+            List<Ent_Saldo_Cliente> Listar = null;
+            string sqlquery = "[USP_Leer_Saldos_Pendientes]";
+            try
+            {
+                using (SqlConnection cn = new SqlConnection(Ent_Conexion.conexion))
+                {
+                    using (SqlCommand cmd = new SqlCommand(sqlquery, cn))
+                    {
+                        cmd.CommandType = CommandType.StoredProcedure;
+                        cmd.Parameters.AddWithValue("@BAS_ID", DbType.Int32).Value = _Ent.Bas_Id;
+                        cmd.Parameters.AddWithValue("@CON_ID", DbType.String).Value = _Ent.Cod_Id;
+                        cmd.Parameters.AddWithValue("@fecha_ini", DbType.DateTime).Value = _Ent.FechaInicio;
+                        cmd.Parameters.AddWithValue("@fecha_fin", DbType.DateTime).Value = _Ent.FechaFin;
+                        cmd.Parameters.AddWithValue("@Usu_Tipo", DbType.String).Value = _Ent.Usu_Tipo;
+
+                        using (SqlDataAdapter da = new SqlDataAdapter(cmd))
+                        {
+                            DataTable dt = new DataTable();
+                            da.Fill(dt);
+
+                            Listar = new List<Ent_Saldo_Cliente>();
+                            Listar = (from DataRow fila in dt.Rows
+                                      select new Ent_Saldo_Cliente()
+                                      {
+                                          Asesor = (fila["Asesor"] is DBNull) ? string.Empty : (string)(fila["Asesor"]),
+                                          Dniruc = (fila["Dniruc"] is DBNull) ? string.Empty : (string)(fila["Dniruc"]),
+                                          Lider = (fila["Lider"] is DBNull) ? string.Empty : (string)(fila["Lider"]),
+                                          Cliente = (fila["Cliente"] is DBNull) ? string.Empty : (string)(fila["Cliente"]),
+                                          Concepto = (fila["Concepto"] is DBNull) ? string.Empty : (string)(fila["Concepto"]),
+                                          Documento = (fila["Documento"] is DBNull) ? string.Empty : (string)(fila["Documento"]),
+                                          Fecha_Transac = (fila["Fecha_Transac"] is DBNull) ? (DateTime?)null : Convert.ToDateTime(fila["Fecha_Transac"]),
+                                          Fecha_Doc = (fila["Fecha_Doc"] is DBNull) ? (DateTime?)null : Convert.ToDateTime(fila["Fecha_Doc"]),
+                                          Monto = (fila["Monto"] is DBNull) ? (Decimal?)null : Convert.ToDecimal(fila["Monto"]),
+                                          Valida = (fila["Valida"] is DBNull) ? string.Empty : (string)(fila["Valida"])
+                                      }
+                                    ).ToList();
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Listar = new List<Ent_Saldo_Cliente>();
+            }
+            return Listar;
+        }
     }
 }

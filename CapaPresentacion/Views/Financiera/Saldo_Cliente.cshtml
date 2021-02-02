@@ -1,0 +1,318 @@
+﻿@{
+    ViewBag.Title = "Consulta de Saldo de clientes";
+    ViewBag.SubTitle = "";
+}
+<style>
+    .table thead {
+        background-color: #5799bf;
+        color: #fff;
+    }
+
+    .boton-xs-td {
+        padding-top: 5px !important;
+        padding-bottom: 5px !important;
+    }
+
+    .alignRight {
+        text-align: right;
+        vertical-align: middle;
+    }
+
+    .alignCenter {
+        text-align: center;
+        vertical-align: middle;
+    }
+</style>
+<p class="text-primary">Consulte entre un rango de fechas, todas los saldos realizAQUARELLAs por los clientes.</p>
+<div class="box box-header box-primary">
+    <h3 class="box-title danger" style="color:#9c9c9c;font-weight:bold">Parametro de Busqueda</h3>
+    <br />
+    <br />
+    <div class="row">
+        <div class="col-md-6" style="padding-left: 0px;">
+            <div class="col-md-7">
+                <label for="" style="color: #3d566e;">Cliente</label>
+                <div class="form-group">
+                    @Html.DropDownList("ddlClientes", new SelectList(ViewBag.ListarCLiente, "Codigo", "Descripcion", "-1"), "Selecione", new { @class = "form-control selectpicker", @data_live_search = "true", @id = "ddlClientes", @name = "ddlClientes", @style = "max-width: 100%" })
+                </div>
+            </div>
+            <div class="col-md-5" style="padding-left: 0px; padding-right: 0px;">
+                <label for="" style="color: #3d566e;">Concepto</label>
+                <div class="form-group">
+                    @Html.DropDownList("ddlConceptos", new SelectList(ViewBag.Listar_ConceptoSC, "Codigo", "Descripcion", "-1"), new { @class = "selectpicker", @data_live_search = "true", multiple = "multiple", @id = "ddlConceptos", @name = "ddlConceptos", @data_actions_box = "true", @data_selected_text_format = "count > 2", @style = "width:auto;" })
+
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6" style="padding-left: 0px;">
+            <div class="col-md-5" style="padding-right: 0px;">
+                <div>
+                    <label for="dtpFechaNotaCredito" style="color: #3d566e;">Fecha de Inicio</label>
+                    <div id="datepickerIni" class="input-group date" data-date-format="dd/mm/yyyy">
+                        <input id="dtpFechaInicio" type="text" class="form-control input-sm ui-cell-input" disabled style="max-width: 100%" />
+                        <span class="input-group-addon btn btn-xs btn-default" style="padding: 4px 5px;">
+                            <i class="glyphicon glyphicon-calendar" height="20" width="20" style="color:#ff9f3f"></i>
+                        </span>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-5">
+                <label for="dtpFechaNotaCredito" style="color: #3d566e;">Fecha de Cierre</label>
+                <div id="datepickerFin" class="input-group date" data-date-format="dd/mm/yyyy">
+                    <input id="dtpFechaFin" type="text" class="form-control input-sm ui-cell-input" disabled style="max-width: 100%" />
+                    <span class="input-group-addon btn btn-xs btn-default" style="padding: 4px 5px;">
+                        <i class="glyphicon glyphicon-calendar" height="20" width="20" style="color:#ff9f3f"></i>
+                    </span>
+                </div>
+            </div>
+            <div class="col-md-2 text-right" style="padding:0px">
+                <button id="btnBuscar" type="submit" title="Consultar" class="btn btn-primary" style="margin-top: 22px;">
+                    <span class="glyphicon glyphicon-search"></span>&nbsp;&nbsp;Buscar
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="box box-body box-primary">
+    <div class="row">
+        <div class="col-md-6">
+
+        </div>
+        <div class="col-md-6 text-right">
+            <button id="btnExportar" title="Actualizar" class="btn btn-success disabled" disabled>
+                <span class="glyphicon glyphicon-export"></span>&nbsp;&nbsp;Exportar Lista
+            </button>
+        </div>
+    </div>
+    <br />
+    <div class="row">
+        <div class="col-md-12">
+            <div class="table-responsive">
+                <table id="TbTabla" class="table table-hover table-bordered compact">
+                    <thead>
+                        <tr>
+                            <th style="text-align: center;">Asesor</th>
+                            <th style="text-align: center;">Lider</th>
+                            <th style="text-align: center;">Dni/Ruc (Promotor)</th>
+                            <th style="text-align: center;">Promotor</th>
+                            <th style="text-align: center;">Concepto</th>
+                            <th style="text-align: center;">Documento</th>
+                            <th style="text-align: center;">Fec. Transacción</th>
+                            <th style="text-align: center;">Fec. Documento</th>
+                            <th style="text-align: center;">Monto</th>
+
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td colspan='9'>No se encontraron resultados</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section scripts{
+    <script>
+ 		var objSaldoCliente = {
+            Inicio: function () {
+                debugger
+                /*[Inicializamos variables]*/
+                var date = new Date();
+
+                $("#datepickerIni").datepicker({
+                    autoclose: true,
+                    todayHighlight: true
+                }).datepicker("setDate", "01/" + (date.getMonth() + 1) +"/"+ date.getFullYear());
+
+                $("#datepickerFin").datepicker({
+                    autoclose: true,
+                    todayHighlight: true
+                }).datepicker("setDate", "0");
+
+                this.isOkUpdate = true;
+                this.FechaInicio = $("#dtpFechaInicio").val();
+                this.FechaFin = $("#dtpFechaFin").val();
+                this.Cod_Id = "-1";
+                this.Bas_Id = -1;
+                this.Tabla = $('#TbTabla');
+
+                objSaldoCliente.grid.get();
+                /*[/Inicializamos variables]*/
+
+                /*[btn Exportar y buscar]*/
+                $("#btnExportar").click(function () {
+                    objSaldoCliente.FechaInicio = $("#dtpFechaInicio").val();
+                    objSaldoCliente.FechaFin = $("#dtpFechaFin").val();
+                    objSaldoCliente.Cod_Id = $("#ddlConceptos").val();
+                    waitingDialog.show("Espere por favor...")
+                    objSaldoCliente.generaal.exportar();
+                })
+                $("#btnBuscar").click(function () {
+                    debugger
+                    objSaldoCliente.isOkUpdate = true;
+                    objSaldoCliente.FechaInicio = $("#dtpFechaInicio").val();
+                    objSaldoCliente.FechaFin = $("#dtpFechaFin").val();                    
+                    objSaldoCliente.Bas_Id = $("#ddlClientes").val();
+                    var CodConArray = $("#ddlConceptos").val();
+                    var CodConString = "";
+                    for (const key in CodConArray) {
+                        debugger
+                        CodConString+=CodConArray[key] + ",";
+                    }
+                    objSaldoCliente.Cod_Id = CodConString.slice(0, -1);
+                    objSaldoCliente.generaal.consultar();
+                })
+                /*[btn Exportar y buscar]*/
+            },
+            grid: {
+                get: function () {
+                    debugger
+                    objSaldoCliente.Tabla.DataTable({
+                        "language": {
+                            "url": "../Scripts/DataTables/Spanish.json"
+                        },
+                        //"fnServerData": function (sSource, aoData, fnCallback) {
+                        //},
+                        "bServerSide": true,
+                        "bAutoWidth": false,
+                        "sAjaxSource": '@Url.Action("getLisSaldoClientesAjax", "Financiera")',
+                        "fnServerParams": function (aoData) {
+                            debugger;
+                            aoData.push({ "name": "isOkUpdate", "value": objSaldoCliente.isOkUpdate });
+                            aoData.push({ "name": "FechaInicio", "value": objSaldoCliente.FechaInicio });
+                            aoData.push({ "name": "FechaFin", "value": objSaldoCliente.FechaFin });
+                            aoData.push({ "name": "Cod_Id", "value": objSaldoCliente.Cod_Id });
+                            aoData.push({ "name": "Bas_Id", "value": objSaldoCliente.Bas_Id });
+                        },
+                        "bFilter": true,
+                        "bdestroy": true,
+                        "start": 0,
+                        "columnDefs": [{
+                            "orderable": false,
+                            "targets": [],
+                        }],
+                        "bDeferRender": true,
+                        "aoColumns": [
+                            { "sName": "Asesor", "mData": "Asesor", "sClass": "" },
+                            { "sName": "Lider", "mData": "Lider", "sClass": "" },
+                            { "sName": "Dniruc", "mData": "Dniruc", "sClass": "alignCenter" },
+                            { "sName": "Cliente", "mData": "Cliente", "sClass": "" },
+                            { "sName": "Concepto", "mData": "Concepto", "sClass": "alignCenter" },
+                            { "sName": "Documento", "mData": "Documento", "sClass": "" },
+                            //{ "sName": "Fecha_Transac", "mData": "Fecha_Transac", "sClass": "alignCenter" },
+                            {
+                                "mData": null,
+                                "sClass": "alignCenter",
+                                "render": function (Data, type, full, meta) {
+                                    //debugger;
+                                    var Fecha_Transac = (full.Fecha_Transac == undefined || full.Fecha_Transac == null || full.Fecha_Transac == 0) ? ' ' : new Date(parseInt(full.Fecha_Transac.replace("/Date(", "").replace(")/", ""), 10));
+                                    return (Fecha_Transac == undefined || Fecha_Transac == null || Fecha_Transac == 0) ? ' ' : (Fecha_Transac.getDate() < 10 ? "0" + Fecha_Transac.getDate() : Fecha_Transac.getDate()) + "/" + ((Fecha_Transac.getMonth() + 1) < 10 ? "0" + (Fecha_Transac.getMonth() + 1) : (Fecha_Transac.getMonth() + 1)) + "/" + Fecha_Transac.getFullYear();//Fecha_Transac.toLocaleDateString();
+                                }
+                            },
+                            //{ "sName": "Fecha_Doc", "mData": "Fecha_Doc", "sClass": "alignCenter" },
+                           {
+                               "mData": null,
+                               "sClass": "alignCenter",
+                               "render": function (Data, type, full, meta) {
+                                   //debugger;
+                                   var Fecha_Doc = (full.Fecha_Doc == undefined || full.Fecha_Doc == null || full.Fecha_Doc == 0) ? ' ' : new Date(parseInt(full.Fecha_Doc.replace("/Date(", "").replace(")/", ""), 10));
+                                   return (Fecha_Doc == undefined || Fecha_Doc == null || Fecha_Doc == 0) ? ' ' : (Fecha_Doc.getDate() < 10 ? "0" + Fecha_Doc.getDate() : Fecha_Doc.getDate()) + "/" + ((Fecha_Doc.getMonth() + 1) < 10 ? "0" + (Fecha_Doc.getMonth() + 1) : (Fecha_Doc.getMonth() + 1)) + "/" + Fecha_Doc.getFullYear();//Fecha_Doc.toLocaleDateString();
+                               }
+                           },
+                            //{ "sName": "Monto", "mData": "Monto", "sClass": "" },
+                            {
+                                "sName": "Monto", "mData": "Monto", "sClass": "alignRight",
+                                "render": function (Data, type, full, meta) {
+                                    let Monto = full.Monto;
+                                    return (Monto == undefined || Monto == null || Monto == 0) ? ' ' : 'S/ ' + Monto.toFixed(2);
+                                }
+                            },
+
+                        ],
+                        "fnRowCallback": function (row, data, index) {
+                        },
+                        "drawCallback": function (settings) {
+                            objSaldoCliente.isOkUpdate = false;
+                            var table = objSaldoCliente.Tabla.dataTable();
+                            var data = table.fnGetData();
+                            if (data.length == 0) {
+                                $("#btnExportar").addClass("disabled");
+                                $("#btnExportar").attr('disabled', 'disabled');
+                            } else {
+                                $("#btnExportar").removeClass("disabled");
+                                $("#btnExportar").removeAttr("disabled");
+                            }
+                        },
+                        "initComplete": function (settings, json) {
+                        }
+                    });
+                },
+                cargaTabla: function () {
+                    debugger
+                    waitingDialog.show("Espere por favor...")
+                    objSaldoCliente.Tabla.DataTable().ajax.reload(function () {
+                        waitingDialog.hide();
+                    });
+                },
+            },
+            generaal: {
+                Validar : function(){
+                    debugger;
+                    if (objSaldoCliente.Bas_Id == "" || objSaldoCliente.Bas_Id == null || objSaldoCliente.Bas_Id ==0 || objSaldoCliente.Bas_Id == undefined){
+                        objSaldoCliente.Bas_Id = "-1";
+                    }
+                    if (objSaldoCliente.FechaInicio == undefined || objSaldoCliente.FechaInicio == null || objSaldoCliente.FechaInicio.length == 0 || objSaldoCliente.FechaInicio == '') {
+                        toastr.error("La fecha de Inicio no puede estar vacio", "Alerta");
+                        return false;
+                    }
+                    if (objSaldoCliente.FechaFin == undefined || objSaldoCliente.FechaFin == null || objSaldoCliente.FechaFin.length == 0 || objSaldoCliente.FechaFin == '') {
+                        toastr.error("La fecha de Fin no puede estar vacio", "Alerta");
+                        return false;
+                    }
+                    return true;
+                },
+                consultar: function () {
+                    debugger
+                    if (objSaldoCliente.generaal.Validar()) {
+                        objSaldoCliente.grid.cargaTabla();
+                    }
+                },
+                exportar: function () {
+                    var _Ent = function () { return @Html.Raw(Json.Encode(ViewBag.EnSaldCliente)); }();
+                    _Ent.FechaInicio = objSaldoCliente.FechaInicio;
+                    _Ent.FechaFin = objSaldoCliente.FechaFin;
+                    _Ent.Cod_Id = objSaldoCliente.Cod_Id;
+                    //_Ent.TipoNombre = objSaldoCliente.TipoTxt;
+                    $.ajax({
+                        type: "POST",
+                        url: '@Url.Action("get_exporta_ListarSaldoCliente_excel", "Financiera")',
+                        data : {_Ent:_Ent},
+                        success: function (data) {
+                            data = JSON.parse(data);
+                            waitingDialog.hide();
+                            if (data.Success) {
+                                toastr.success(data.Message);
+                                window.location = '@Url.Action("ListarSaldoClienteExcel")';
+                            }
+                            else {
+                                toastr.error(data.Message, "Alerta");
+                            }
+                        },
+                        error: function (XMLHttpRequest, textStatus, errorThrown) {
+                            waitingDialog.hide();
+                            toastr.error("Error al exportar excel.", "Alerta");
+                        }
+                    });
+                }
+            }
+        };
+        $(document).ready(function () {
+            objSaldoCliente.Inicio();
+        });
+    </script>
+}

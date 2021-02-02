@@ -81,4 +81,6 @@ namespace CapaEntidad.Cliente
         public string _bas_Agencia_Direccion { get; set; }
         public string _bas_Referencia { get; set; }
     }
+
+ 
 }

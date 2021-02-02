@@ -3153,6 +3153,7 @@
     <Content Include="Views\Pedido\EditarManifiesto.cshtml" />
     <Content Include="Views\Pedido\NuevoManifiesto.cshtml" />
     <Content Include="Views\Financiera\OperacionesGratuitas.cshtml" />
+    <Content Include="Views\Financiera\Saldo_Cliente.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

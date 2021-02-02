@@ -83,4 +83,25 @@ namespace CapaEntidad.Financiera
         public string Descripcion { get; set; }
         public string TipoNombre { get; set; }
     }
+    public class Ent_Saldo_Cliente
+    {
+        public string Asesor { get; set; }
+        public string Dniruc { get; set; }
+        public string Lider { get; set; }
+        public string Cliente { get; set; }
+        public string Concepto { get; set; }
+        public string Documento { get; set; }
+        public DateTime? Fecha_Transac { get; set; }
+        public DateTime? Fecha_Doc { get; set; }
+        public Decimal? Monto { get; set; }
+        public string Valida { get; set; }
+        //Campos Adicionales
+        public string Codigo { get; set; }
+        public string Descripcion { get; set; }
+        public DateTime FechaInicio { get; set; }
+        public DateTime FechaFin { get; set; }
+        public int Bas_Id { get; set; }
+        public string Cod_Id { get; set; }
+        public string Usu_Tipo { get; set; }
+    }
 }
