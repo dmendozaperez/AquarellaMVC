@@ -3154,6 +3154,7 @@
     <Content Include="Views\Pedido\NuevoManifiesto.cshtml" />
     <Content Include="Views\Financiera\OperacionesGratuitas.cshtml" />
     <Content Include="Views\Financiera\Saldo_Cliente.cshtml" />
+    <Content Include="Views\Financiera\Mov_Venta_Pagos.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

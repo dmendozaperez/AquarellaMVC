@@ -51,6 +51,8 @@ namespace CapaPresentacion.Controllers
         private string _session_ListarOpeGratuitas_Excel = "_session_ListarOpeGratuitas_Excel";
         private string _session_ListarSaldoCliente = "_session_ListarSaldoCliente";
         private string _session_ListarSaldoCliente_Excel = "_session_ListarSaldoCliente_Excel";
+        private string _session_ListarMovimientosPagos = "_session_ListarMovimientosPagos";
+        private string _session_ListarMovimientosPagos_Excel = "_session_ListarMovimientosPagos_Excel";
         // GET: Financiera
         public ActionResult Index()
         {
@@ -2992,6 +2994,402 @@ namespace CapaPresentacion.Controllers
             }
             return Json(new { estado = 0, mensaje = 1 });
         }
+        #endregion
+        #region <MOVIMIENTO DE VENTAS-PAGOS>
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <create>Juilliand R. Damian Gomez </create>
+        /// <update></update> 
+        /// <returns></returns>
+        public ActionResult Mov_Venta_Pagos()
+        {
+            Ent_Usuario _usuario = (Ent_Usuario)Session[Ent_Constantes.NameSessionUser];
+            string actionName = this.ControllerContext.RouteData.GetRequiredString("action");
+            string controllerName = this.ControllerContext.RouteData.GetRequiredString("controller");
+            string return_view = actionName + "|" + controllerName;
+
+            if (_usuario == null)
+            {
+                return RedirectToAction("Login", "Control", new { returnUrl = return_view });
+            }
+            else
+            {
+                Ent_Movimientos_Pagos EntMovimientosPagos = new Ent_Movimientos_Pagos();
+                ViewBag.EntMovimientosPagos = EntMovimientosPagos;
+                return View();
+            }
+        }
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <create>Juilliand R. Damian Gomez </create>
+        /// <update></update> 
+        /// <param name="param"></param>
+        /// <param name="isOkUpdate"></param>
+        /// <param name="FechaInicio"></param>
+        /// <param name="FechaFin"></param>
+        /// <returns></returns>
+        public JsonResult getLisMovimientosPagosAjax(Ent_jQueryDataTableParams param, bool isOkUpdate, string FechaInicio, string FechaFin)
+        {
+            Ent_Movimientos_Pagos EntMovimientosPagos = new Ent_Movimientos_Pagos();
+
+            if (isOkUpdate)
+            {
+                EntMovimientosPagos.FechaInicio = DateTime.Parse(FechaInicio);
+                EntMovimientosPagos.FechaFin = DateTime.Parse(FechaFin);                
+                Session[_session_ListarMovimientosPagos] = datFinanciera.Listar_Movimientos_Pagos(EntMovimientosPagos).ToList();
+            }
+
+            /*verificar si esta null*/
+            if (Session[_session_ListarMovimientosPagos] == null)
+            {
+                List<Ent_Movimientos_Pagos> _ListarMovimientosPagos = new List<Ent_Movimientos_Pagos>();
+                Session[_session_ListarMovimientosPagos] = _ListarMovimientosPagos;
+            }
+
+            IQueryable<Ent_Movimientos_Pagos> entDocTrans = ((List<Ent_Movimientos_Pagos>)(Session[_session_ListarMovimientosPagos])).AsQueryable();
+            //Manejador de filtros
+            int totalCount = entDocTrans.Count();
+            IEnumerable<Ent_Movimientos_Pagos> filteredMembers = entDocTrans;
+            if (!string.IsNullOrEmpty(param.sSearch))
+            {
+                filteredMembers = entDocTrans.Where(
+                        m =>
+                        m.Fecha_Op.ToUpper().Contains(param.sSearch.ToUpper()) ||
+                        m.Des_Operacion.ToUpper().Contains(param.sSearch.ToUpper()) ||
+                        m.Op_Monto.ToString().ToUpper().Contains(param.sSearch.ToUpper()) ||
+                        m.Op_Numero.ToUpper().Contains(param.sSearch.ToUpper()) ||
+                        m.Fecha_Op2.ToUpper().Contains(param.sSearch.ToUpper()) ||
+                        m.Dni_Ruc.ToUpper().Contains(param.sSearch.ToUpper()) ||
+                        m.Cliente.ToUpper().Contains(param.sSearch.ToUpper())
+                );
+            }
+            var sortIdx = Convert.ToInt32(Request["iSortCol_0"]);
+
+            if (param.iSortingCols > 0)
+            {
+                if (Request["sSortDir_0"].ToString() == "asc")
+                {
+                    switch (sortIdx)
+                    {
+                        case 0: filteredMembers = filteredMembers.OrderBy(o => o.Fecha_Op); break;
+                        case 1: filteredMembers = filteredMembers.OrderBy(o => o.Des_Operacion); break;
+                        case 2: filteredMembers = filteredMembers.OrderBy(o => o.Op_Monto); break;
+                        case 3: filteredMembers = filteredMembers.OrderBy(o => o.Op_Numero); break;
+                        case 4: filteredMembers = filteredMembers.OrderBy(o => o.Fecha_Op2); break;
+                        case 5: filteredMembers = filteredMembers.OrderBy(o => o.Dni_Ruc); break;
+                        case 6: filteredMembers = filteredMembers.OrderBy(o => o.Cliente); break;
+                        case 7: filteredMembers = filteredMembers.OrderBy(o => o.Fecha_Doc); break;
+                        case 8: filteredMembers = filteredMembers.OrderBy(o => o.Num_Doc); break;
+                        case 9: filteredMembers = filteredMembers.OrderBy(o => o.Importe_Doc); break;
+                        case 10: filteredMembers = filteredMembers.OrderBy(o => o.Fecha_Ncredito); break;
+                        case 11: filteredMembers = filteredMembers.OrderBy(o => o.Num_Ncredito); break;
+                        case 12: filteredMembers = filteredMembers.OrderBy(o => o.Importe_Ncredito); break;
+                        case 13: filteredMembers = filteredMembers.OrderBy(o => o.Fecha_Ncredito2); break;
+                        case 14: filteredMembers = filteredMembers.OrderBy(o => o.Num_Ncredito2); break;
+                        case 15: filteredMembers = filteredMembers.OrderBy(o => o.Importe_Ncredito2); break;
+                        case 16: filteredMembers = filteredMembers.OrderBy(o => o.Fecha_Ncredito3); break;
+                        case 17: filteredMembers = filteredMembers.OrderBy(o => o.Num_Ncredito3); break;
+                        case 18: filteredMembers = filteredMembers.OrderBy(o => o.Importe_Ncredito3); break;
+                        case 19: filteredMembers = filteredMembers.OrderBy(o => o.Fecha_Ncredito4); break;
+                        case 20: filteredMembers = filteredMembers.OrderBy(o => o.Num_Ncredito4); break;
+                        case 21: filteredMembers = filteredMembers.OrderBy(o => o.Importe_Ncredito4); break;
+                        case 22: filteredMembers = filteredMembers.OrderBy(o => o.Fecha_Ncredito5); break;
+                        case 23: filteredMembers = filteredMembers.OrderBy(o => o.Num_Ncredito5); break;
+                        case 24: filteredMembers = filteredMembers.OrderBy(o => o.Importe_Ncredito5); break;
+                        case 25: filteredMembers = filteredMembers.OrderBy(o => o.Fecha_Ncredito6); break;
+                        case 26: filteredMembers = filteredMembers.OrderBy(o => o.Num_Ncredito6); break;
+                        case 27: filteredMembers = filteredMembers.OrderBy(o => o.Importe_Ncredito6); break;
+                        case 28: filteredMembers = filteredMembers.OrderBy(o => o.Fecha_Ncredito7); break;
+                        case 29: filteredMembers = filteredMembers.OrderBy(o => o.Num_Ncredito7); break;
+                        case 30: filteredMembers = filteredMembers.OrderBy(o => o.Importe_Ncredito7); break;
+                        case 31: filteredMembers = filteredMembers.OrderBy(o => o.Base_Imponible); break;
+                        case 32: filteredMembers = filteredMembers.OrderBy(o => o.Percepcion); break;
+                        case 33: filteredMembers = filteredMembers.OrderBy(o => o.Total); break;
+                        case 34: filteredMembers = filteredMembers.OrderBy(o => o.Fecha_Saldo_Ant); break;
+                        case 35: filteredMembers = filteredMembers.OrderBy(o => o.Importe_Saldo_Ant); break;
+                        case 36: filteredMembers = filteredMembers.OrderBy(o => o.Pagar); break;
+                        case 37: filteredMembers = filteredMembers.OrderBy(o => o.Deposito); break;
+                        case 38: filteredMembers = filteredMembers.OrderBy(o => o.Saldo_Favor); break;
+                        case 39: filteredMembers = filteredMembers.OrderBy(o => o.Ajuste); break;
+                    }
+                }
+                else
+                {
+                    switch (sortIdx)
+                    {
+                        case 0: filteredMembers = filteredMembers.OrderByDescending(o => o.Fecha_Op); break;
+                        case 1: filteredMembers = filteredMembers.OrderByDescending(o => o.Des_Operacion); break;
+                        case 2: filteredMembers = filteredMembers.OrderByDescending(o => o.Op_Monto); break;
+                        case 3: filteredMembers = filteredMembers.OrderByDescending(o => o.Op_Numero); break;
+                        case 4: filteredMembers = filteredMembers.OrderByDescending(o => o.Fecha_Op2); break;
+                        case 5: filteredMembers = filteredMembers.OrderByDescending(o => o.Dni_Ruc); break;
+                        case 6: filteredMembers = filteredMembers.OrderByDescending(o => o.Cliente); break;
+                        case 7: filteredMembers = filteredMembers.OrderByDescending(o => o.Fecha_Doc); break;
+                        case 8: filteredMembers = filteredMembers.OrderByDescending(o => o.Num_Doc); break;
+                        case 9: filteredMembers = filteredMembers.OrderByDescending(o => o.Importe_Doc); break;
+                        case 10: filteredMembers = filteredMembers.OrderByDescending(o => o.Fecha_Ncredito); break;
+                        case 11: filteredMembers = filteredMembers.OrderByDescending(o => o.Num_Ncredito); break;
+                        case 12: filteredMembers = filteredMembers.OrderByDescending(o => o.Importe_Ncredito); break;
+                        case 13: filteredMembers = filteredMembers.OrderByDescending(o => o.Fecha_Ncredito2); break;
+                        case 14: filteredMembers = filteredMembers.OrderByDescending(o => o.Num_Ncredito2); break;
+                        case 15: filteredMembers = filteredMembers.OrderByDescending(o => o.Importe_Ncredito2); break;
+                        case 16: filteredMembers = filteredMembers.OrderByDescending(o => o.Fecha_Ncredito3); break;
+                        case 17: filteredMembers = filteredMembers.OrderByDescending(o => o.Num_Ncredito3); break;
+                        case 18: filteredMembers = filteredMembers.OrderByDescending(o => o.Importe_Ncredito3); break;
+                        case 19: filteredMembers = filteredMembers.OrderByDescending(o => o.Fecha_Ncredito4); break;
+                        case 20: filteredMembers = filteredMembers.OrderByDescending(o => o.Num_Ncredito4); break;
+                        case 21: filteredMembers = filteredMembers.OrderByDescending(o => o.Importe_Ncredito4); break;
+                        case 22: filteredMembers = filteredMembers.OrderByDescending(o => o.Fecha_Ncredito5); break;
+                        case 23: filteredMembers = filteredMembers.OrderByDescending(o => o.Num_Ncredito5); break;
+                        case 24: filteredMembers = filteredMembers.OrderByDescending(o => o.Importe_Ncredito5); break;
+                        case 25: filteredMembers = filteredMembers.OrderByDescending(o => o.Fecha_Ncredito6); break;
+                        case 26: filteredMembers = filteredMembers.OrderByDescending(o => o.Num_Ncredito6); break;
+                        case 27: filteredMembers = filteredMembers.OrderByDescending(o => o.Importe_Ncredito6); break;
+                        case 28: filteredMembers = filteredMembers.OrderByDescending(o => o.Fecha_Ncredito7); break;
+                        case 29: filteredMembers = filteredMembers.OrderByDescending(o => o.Num_Ncredito7); break;
+                        case 30: filteredMembers = filteredMembers.OrderByDescending(o => o.Importe_Ncredito7); break;
+                        case 31: filteredMembers = filteredMembers.OrderByDescending(o => o.Base_Imponible); break;
+                        case 32: filteredMembers = filteredMembers.OrderByDescending(o => o.Percepcion); break;
+                        case 33: filteredMembers = filteredMembers.OrderByDescending(o => o.Total); break;
+                        case 34: filteredMembers = filteredMembers.OrderByDescending(o => o.Fecha_Saldo_Ant); break;
+                        case 35: filteredMembers = filteredMembers.OrderByDescending(o => o.Importe_Saldo_Ant); break;
+                        case 36: filteredMembers = filteredMembers.OrderByDescending(o => o.Pagar); break;
+                        case 37: filteredMembers = filteredMembers.OrderByDescending(o => o.Deposito); break;
+                        case 38: filteredMembers = filteredMembers.OrderByDescending(o => o.Saldo_Favor); break;
+                        case 39: filteredMembers = filteredMembers.OrderByDescending(o => o.Ajuste); break;
+                    }
+                }
+            }
+
+            var Result = filteredMembers
+                .Skip(param.iDisplayStart)
+                .Take(param.iDisplayLength);
+
+            //Se devuelven los resultados por json
+            return Json(new
+            {
+                sEcho = param.sEcho,
+                iTotalRecords = totalCount,
+                iTotalDisplayRecords = filteredMembers.Count(),
+                aaData = Result
+            }, JsonRequestBehavior.AllowGet);
+        }
+        /// <summary>
+        /// Crea el archivo en excel
+        /// </summary>
+        /// <create>Juilliand R. Damian Gomez </create>
+        /// <update></update>       
+        /// <param name="_Ent"></param>
+        /// <returns></returns>
+        public ActionResult get_exporta_ListarMovimientosPagos_excel(Ent_Movimientos_Pagos _Ent)
+        {
+            JsonResponse objResult = new JsonResponse();
+            try
+            {
+                Session[_session_ListarMovimientosPagos_Excel] = null;
+                string cadena = "";
+                if (Session[_session_ListarMovimientosPagos] != null)
+                {
+
+                    List<Ent_Movimientos_Pagos> _ListarMovimientosPagos = (List<Ent_Movimientos_Pagos>)Session[_session_ListarMovimientosPagos];
+                    if (_ListarMovimientosPagos.Count == 0)
+                    {
+                        objResult.Success = false;
+                        objResult.Message = "No hay filas para exportar";
+
+                    }
+                    else
+                    {
+                        cadena = get_html_ListarMovimientosPagos_str((List<Ent_Movimientos_Pagos>)Session[_session_ListarMovimientosPagos], _Ent);
+                        if (cadena.Length == 0)
+                        {
+                            objResult.Success = false;
+                            objResult.Message = "Error del formato html";
+                        }
+                        else
+                        {
+                            objResult.Success = true;
+                            objResult.Message = "Se genero el excel correctamente";
+                            Session[_session_ListarMovimientosPagos_Excel] = cadena;
+                        }
+                    }
+                }
+                else
+                {
+                    objResult.Success = false;
+                    objResult.Message = "No hay filas para exportar";
+                }
+
+            }
+            catch (Exception ex)
+            {
+                objResult.Success = false;
+                objResult.Message = "No hay filas para exportar";
+            }
+
+            var JSON = JsonConvert.SerializeObject(objResult);
+
+            return Json(JSON, JsonRequestBehavior.AllowGet);
+        }
+        /// <summary>
+        /// Armamos el archivo excel
+        /// </summary>
+        /// <create>Juilliand R. Damian Gomez </create>
+        /// <update></update>
+        /// <param name="_ListarOpeGratuitas"></param>
+        /// <param name="_Ent"></param>
+        /// <returns></returns>
+        public string get_html_ListarMovimientosPagos_str(List<Ent_Movimientos_Pagos> _ListarMovimientosPagos, Ent_Movimientos_Pagos _Ent)
+        {
+            StringBuilder sb = new StringBuilder();
+            var Lista = _ListarMovimientosPagos.ToList();
+            try
+            {
+                sb.Append("<div><table cellspacing='0' style='width: 1000px' rules='all' border='0' style='border-collapse:collapse;'><tr><td Colspan='9'></td></tr><tr><td Colspan='9' valign='middle' align='center' style='vertical-align: middle;font-size: 16.0pt;font-weight: bold;color:#285A8F'>REPORTE DE MOVIMIENTOS DE VENTAS Y PAGOS</td></tr><tr><td Colspan='9' valign='middle' align='center' style='vertical-align: middle;font-size: 10.0pt;font-weight: bold;color:#000000'>Desde el " + String.Format("{0:dd/MM/yyyy}", _Ent.FechaInicio) + " hasta el " + String.Format("{0:dd/MM/yyyy}", _Ent.FechaFin) + "</td></tr></table>");
+                sb.Append("<table  border='1' bgColor='#ffffff' borderColor='#FFFFFF' cellSpacing='2' cellPadding='2' style='font-size:10.0pt; font-family:Calibri; background:white;width: 1000px'><tr  bgColor='#5799bf'>\n");
+                sb.Append("<tr bgColor='#5799bf'>\n");
+                sb.Append("<th colspan='7'></th>\n");
+                sb.Append("<th colspan='3' style='text-align: center;'><font color='#FFFFFF'>Ticket</font></th>\n");
+                sb.Append("<th colspan='3' style='text-align: center;'><font color='#FFFFFF'>Nota de Credito 1</font></th>\n");
+                sb.Append("<th colspan='3' style='text-align: center;'><font color='#FFFFFF'>Nota de Credito 2</font></th>\n");
+                sb.Append("<th colspan='3' style='text-align: center;'><font color='#FFFFFF'>Nota de Credito 3</font></th>\n");
+                sb.Append("<th colspan='3' style='text-align: center;'><font color='#FFFFFF'>Nota de Credito 4</font></th>\n");
+                sb.Append("<th colspan='3' style='text-align: center;'><font color='#FFFFFF'>Nota de Credito 5</font></th>\n");
+                sb.Append("<th colspan='3' style='text-align: center;'><font color='#FFFFFF'>Nota de Credito 6</font></th>\n");
+                sb.Append("<th colspan='3' style='text-align: center;'><font color='#FFFFFF'>Nota de Credito 7</font></th>\n");
+                sb.Append("<th colspan='3'></th>\n");
+                sb.Append("<th colspan='2' style='text-align: center;'><font color='#FFFFFF'>Saldo Anterior</font></th>\n");
+                sb.Append("<th colspan='4'></th>\n");
+                sb.Append("</tr>\n");
+                sb.Append("<tr bgColor='#5799bf'>\n");
+                sb.Append("<th style='text-align: center;'><font color='#FFFFFF'>Fecha</font></th>\n");
+                sb.Append("<th style='text-align: center;'><font color='#FFFFFF'>Des. Operación</font></th>\n");
+                sb.Append("<th style='text-align: center;'><font color='#FFFFFF'>Monto</font></th>\n");
+                sb.Append("<th style='text-align: center;'><font color='#FFFFFF'>Num. Operación</font></th>\n");
+                sb.Append("<th style='text-align: center;'><font color='#FFFFFF'>Fecha</font></th>\n");
+                sb.Append("<th style='text-align: center;'><font color='#FFFFFF'>Dni/Ruc</font></th>\n");
+                sb.Append("<th style='text-align: center;'><font color='#FFFFFF'>Nombre/Razon Social</font></th>\n");
+                sb.Append("<th style='text-align: center;'><font color='#FFFFFF'>Fecha</font></th>\n");
+                sb.Append("<th style='text-align: center;'><font color='#FFFFFF'>Num. Documento</font></th>\n");
+                sb.Append("<th style='text-align: center;'><font color='#FFFFFF'>Importe</font></th>\n");
+                sb.Append("<th style='text-align: center;'><font color='#FFFFFF'>Fecha</font></th>\n");
+                sb.Append("<th style='text-align: center;'><font color='#FFFFFF'>Num. Documento</font></th>\n");
+                sb.Append("<th style='text-align: center;'><font color='#FFFFFF'>Importe</font></th>\n");
+                sb.Append("<th style='text-align: center;'><font color='#FFFFFF'>Fecha</font></th>\n");
+                sb.Append("<th style='text-align: center;'><font color='#FFFFFF'>Num. Documento</font></th>\n");
+                sb.Append("<th style='text-align: center;'><font color='#FFFFFF'>Importe</font></th>\n");
+                sb.Append("<th style='text-align: center;'><font color='#FFFFFF'>Fecha</font></th>\n");
+                sb.Append("<th style='text-align: center;'><font color='#FFFFFF'>Num. Documento</font></th>\n");
+                sb.Append("<th style='text-align: center;'><font color='#FFFFFF'>Importe</font></th>\n");
+                sb.Append("<th style='text-align: center;'><font color='#FFFFFF'>Fecha</font></th>\n");
+                sb.Append("<th style='text-align: center;'><font color='#FFFFFF'>Num. Documento</font></th>\n");
+                sb.Append("<th style='text-align: center;'><font color='#FFFFFF'>Importe</font></th>\n");
+                sb.Append("<th style='text-align: center;'><font color='#FFFFFF'>Fecha</font></th>\n");
+                sb.Append("<th style='text-align: center;'><font color='#FFFFFF'>Num. Documento</font></th>\n");
+                sb.Append("<th style='text-align: center;'><font color='#FFFFFF'>Importe</font></th>\n");
+                sb.Append("<th style='text-align: center;'><font color='#FFFFFF'>Fecha</font></th>\n");
+                sb.Append("<th style='text-align: center;'><font color='#FFFFFF'>Num. Documento</font></th>\n");
+                sb.Append("<th style='text-align: center;'><font color='#FFFFFF'>Importe</font></th>\n");
+                sb.Append("<th style='text-align: center;'><font color='#FFFFFF'>Fecha</font></th>\n");
+                sb.Append("<th style='text-align: center;'><font color='#FFFFFF'>Num. Documento</font></th>\n");
+                sb.Append("<th style='text-align: center;'><font color='#FFFFFF'>Importe</font></th>\n");
+                sb.Append("<th style='text-align: center;'><font color='#FFFFFF'>Base Imponible</font></th>\n");
+                sb.Append("<th style='text-align: center;'><font color='#FFFFFF'>Percepción 2%</font></th>\n");
+                sb.Append("<th style='text-align: center;'><font color='#FFFFFF'>Tot. Ticket</font></th>\n");
+                sb.Append("<th style='text-align: center;'><font color='#FFFFFF'>Fecha</font></th>\n");
+                sb.Append("<th style='text-align: center;'><font color='#FFFFFF'>Importe</font></th>\n");
+                sb.Append("<th style='text-align: center;'><font color='#FFFFFF'>A Pagar</font></th>\n");
+                sb.Append("<th style='text-align: center;'><font color='#FFFFFF'>Deposito</font></th>\n");
+                sb.Append("<th style='text-align: center;'><font color='#FFFFFF'>Saldo Favor</font></th>\n");
+                sb.Append("<th style='text-align: center;'><font color='#FFFFFF'>Ajuste</font></th>\n");
+                sb.Append("</tr>\n");
+
+                foreach (var item in Lista)
+                {
+                    sb.Append("<tr>\n");
+                    sb.Append("<td align='Center'>" + item.Fecha_Op + "</td>\n");
+                    sb.Append("<td align=''>" + item.Des_Operacion + "</td>\n");
+                    sb.Append("<td align='right'>" + "S/ " + string.Format("{0:F2}", item.Op_Monto) + "</td>\n");
+                    sb.Append("<td align='Center'>" + item.Op_Numero + "</td>\n");
+                    sb.Append("<td align='Center'>" + item.Fecha_Op2 + "</td>\n");
+                    sb.Append("<td align='Center'>" + item.Dni_Ruc + "</td>\n");
+                    sb.Append("<td align=''>" + item.Cliente + "</td>\n");
+                    sb.Append("<td align='Center'>" + item.Fecha_Doc + "</td>\n");
+                    sb.Append("<td align=''>" + item.Num_Doc + "</td>\n");
+                    sb.Append("<td align='right'>" + (item.Importe_Doc == null ? " " :  "S/ " + string.Format("{0:F2}", item.Importe_Doc)) + "</td>\n");
+                    sb.Append("<td align='Center'>" + item.Fecha_Ncredito + "</td>\n");
+                    sb.Append("<td align=''>" + item.Num_Ncredito + "</td>\n");
+                    sb.Append("<td align='right'>" + (item.Importe_Ncredito == null ? " " : "S/ " + string.Format("{0:F2}", item.Importe_Ncredito)) + "</td>\n");
+                    sb.Append("<td align='Center'>" + item.Fecha_Ncredito2 + "</td>\n");
+                    sb.Append("<td align=''>" + item.Num_Ncredito2 + "</td>\n");
+                    sb.Append("<td align='right'>" + (item.Importe_Ncredito2 == null ? " " : "S/ " + string.Format("{0:F2}", item.Importe_Ncredito2)) + "</td>\n");
+                    sb.Append("<td align='Center'>" + item.Fecha_Ncredito3 + "</td>\n");
+                    sb.Append("<td align=''>" + item.Num_Ncredito3 + "</td>\n");
+                    sb.Append("<td align='right'>" + (item.Importe_Ncredito3 == null ? " " : "S/ " + string.Format("{0:F2}", item.Importe_Ncredito3)) + "</td>\n");
+                    sb.Append("<td align='Center'>" + item.Fecha_Ncredito4 + "</td>\n");
+                    sb.Append("<td align=''>" + item.Num_Ncredito4 + "</td>\n");
+                    sb.Append("<td align='right'>" + (item.Importe_Ncredito4 == null ? " " : "S/ " + string.Format("{0:F2}", item.Importe_Ncredito4) )+ "</td>\n");
+                    sb.Append("<td align='Center'>" + item.Fecha_Ncredito5 + "</td>\n");
+                    sb.Append("<td align=''>" + item.Num_Ncredito5 + "</td>\n");
+                    sb.Append("<td align='right'>" + (item.Importe_Ncredito5 == null ? " " : "S/ " + string.Format("{0:F2}", item.Importe_Ncredito5)) + "</td>\n");
+                    sb.Append("<td align='Center'>" + item.Fecha_Ncredito6 + "</td>\n");
+                    sb.Append("<td align=''>" + item.Num_Ncredito6 + "</td>\n");
+                    sb.Append("<td align='right'>" + (item.Importe_Ncredito6 == null ? " " : "S/ " + string.Format("{0:F2}", item.Importe_Ncredito6)) + "</td>\n");
+                    sb.Append("<td align='Center'>" + item.Fecha_Ncredito7 + "</td>\n");
+                    sb.Append("<td align=''>" + item.Num_Ncredito7 + "</td>\n");
+                    sb.Append("<td align='right'>" + (item.Importe_Ncredito7 == null ? " " :"S/ " + string.Format("{0:F2}", item.Importe_Ncredito7)) + "</td>\n");
+                    sb.Append("<td align='right'>" + (item.Base_Imponible == null ? " " :"S/ " + string.Format("{0:F2}", item.Base_Imponible)) + "</td>\n");
+                    sb.Append("<td align='right'>" + (item.Percepcion == null ? " " :"S/ " + string.Format("{0:F2}", item.Percepcion)) + "</td>\n");
+                    sb.Append("<td align='right'>" + (item.Total == null ? " " : "S/ " + string.Format("{0:F2}", item.Total)) + "</td>\n");
+                    sb.Append("<td align='Center'>" + item.Fecha_Saldo_Ant + "</td>\n");
+                    sb.Append("<td align='right'>" + (item.Importe_Saldo_Ant == null ? " " :"S/ " + string.Format("{0:F2}", item.Importe_Saldo_Ant)) + "</td>\n");
+                    sb.Append("<td align='right'>" + (item.Pagar == null ? " " :"S/ " + string.Format("{0:F2}",item.Pagar)) + "</td>\n");
+                    sb.Append("<td align='right'>" + (item.Deposito == null ? " " :"S/ " + string.Format("{0:F2}",item.Deposito)) + "</td>\n");
+                    sb.Append("<td align='right'>" + (item.Saldo_Favor == null ? " " :"S/ " + string.Format("{0:F2}",item.Saldo_Favor))+ "</td>\n");
+                    sb.Append("<td align='right'>" + (item.Ajuste == null ? " " : "S/ " + string.Format("{0:F2}", item.Ajuste)) + "</td>\n");
+                    sb.Append("</tr>\n");
+                }
+                sb.Append("</table></div>");
+            }
+            catch
+            {
+
+            }
+            return sb.ToString();
+        }
+
+        /// <summary>
+        /// Exportamos el excel
+        /// </summary>
+        /// <create>Juilliand R. Damian Gomez </create>
+        /// <update></update>
+        /// <returns>xlx</returns>
+        public ActionResult ListarMovimientosPagosExcel()
+        {
+            string NombreArchivo = "MovimientosPagos";
+            String style = style = @"<style> .textmode { mso-number-format:\@; } </script> ";
+            try
+            {
+                Response.Clear();
+                Response.Buffer = true;
+                Response.ContentType = "application/vnd.ms-excel";
+                Response.AddHeader("Content-Disposition", "attachment;filename=" + NombreArchivo + ".xls");
+                Response.Charset = "UTF-8";
+                Response.ContentEncoding = Encoding.Default;
+                Response.Write(style);
+                Response.Write(Session[_session_ListarMovimientosPagos_Excel].ToString());
+                Response.End();
+            }
+            catch
+            {
+
+            }
+            return Json(new { estado = 0, mensaje = 1 });
+        }
+
+
 
         #endregion
     }

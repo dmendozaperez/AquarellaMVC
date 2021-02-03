@@ -418,5 +418,81 @@ namespace CapaDato.Financiera
             }
             return Listar;
         }
+        public List<Ent_Movimientos_Pagos> Listar_Movimientos_Pagos(Ent_Movimientos_Pagos _Ent)
+        {
+            List<Ent_Movimientos_Pagos> Listar = null;
+            string sqlquery = "[USP_Movimiento_Pagos]";
+            try
+            {
+                using (SqlConnection cn = new SqlConnection(Ent_Conexion.conexion))
+                {
+                    using (SqlCommand cmd = new SqlCommand(sqlquery, cn))
+                    {
+                        cmd.CommandType = CommandType.StoredProcedure;
+                        cmd.Parameters.AddWithValue("@fecha_ini", DbType.DateTime).Value = _Ent.FechaInicio;
+                        cmd.Parameters.AddWithValue("@fecha_fin", DbType.DateTime).Value = _Ent.FechaFin;
+                        using (SqlDataAdapter da = new SqlDataAdapter(cmd))
+                        {
+                            DataTable dt = new DataTable();
+                            da.Fill(dt);
+                            Listar = new List<Ent_Movimientos_Pagos>();
+                            Listar = (from DataRow fila in dt.Rows
+                                      select new Ent_Movimientos_Pagos()
+                                      {
+                                          Pag_Id = (fila["Pag_Id"] is DBNull) ? string.Empty : (string)(fila["Pag_Id"]),
+                                          Fecha_Op = (fila["Fecha_Op"] is DBNull) ? string.Empty : (string)(fila["Fecha_Op"]),
+                                          Des_Operacion = (fila["Des_Operacion"] is DBNull) ? string.Empty : (string)(fila["Des_Operacion"]),
+                                          Op_Monto = (fila["Op_Monto"] is DBNull) ? (Decimal?)null : Convert.ToDecimal(fila["Op_Monto"]),
+                                          Op_Numero = (fila["Op_Numero"] is DBNull) ? string.Empty : (string)(fila["Op_Numero"]),
+                                          Fecha_Op2 = (fila["Fecha_Op2"] is DBNull) ? string.Empty : (string)(fila["Fecha_Op2"]),
+                                          Dni_Ruc = (fila["Dni_Ruc"] is DBNull) ? string.Empty : (string)(fila["Dni_Ruc"]),
+                                          Cliente = (fila["Cliente"] is DBNull) ? string.Empty : (string)(fila["Cliente"]),
+                                          Fecha_Doc = (fila["Fecha_Doc"] is DBNull) ? string.Empty : (string)(fila["Fecha_Doc"]),
+                                          Num_Doc = (fila["Num_Doc"] is DBNull) ? string.Empty : (string)(fila["Num_Doc"]),
+                                          Importe_Doc = (fila["Importe_Doc"] is DBNull) ? (Decimal?)null : Convert.ToDecimal(fila["Importe_Doc"]),
+                                          Fecha_Ncredito = (fila["Fecha_Ncredito"] is DBNull) ? string.Empty : (string)(fila["Fecha_Ncredito"]),
+                                          Num_Ncredito = (fila["Num_Ncredito"] is DBNull) ? string.Empty : (string)(fila["Num_Ncredito"]),
+                                          Importe_Ncredito = (fila["Importe_Ncredito"] is DBNull) ? (Decimal?)null : Convert.ToDecimal(fila["Importe_Ncredito"]),
+                                          Fecha_Ncredito2 = (fila["Fecha_Ncredito2"] is DBNull) ? string.Empty : (string)(fila["Fecha_Ncredito2"]),
+                                          Num_Ncredito2 = (fila["Num_Ncredito2"] is DBNull) ? string.Empty : (string)(fila["Num_Ncredito2"]),
+                                          Importe_Ncredito2 = (fila["Importe_Ncredito2"] is DBNull) ? (Decimal?)null : Convert.ToDecimal(fila["Importe_Ncredito2"]),
+                                          Fecha_Ncredito3 = (fila["Fecha_Ncredito3"] is DBNull) ? string.Empty : (string)(fila["Fecha_Ncredito3"]),
+                                          Num_Ncredito3 = (fila["Num_Ncredito3"] is DBNull) ? string.Empty : (string)(fila["Num_Ncredito3"]),
+                                          Importe_Ncredito3 = (fila["Importe_Ncredito3"] is DBNull) ? (Decimal?)null : Convert.ToDecimal(fila["Importe_Ncredito3"]),
+                                          Fecha_Ncredito4 = (fila["Fecha_Ncredito4"] is DBNull) ? string.Empty : (string)(fila["Fecha_Ncredito4"]),
+                                          Num_Ncredito4 = (fila["Num_Ncredito4"] is DBNull) ? string.Empty : (string)(fila["Num_Ncredito4"]),
+                                          Importe_Ncredito4 = (fila["Importe_Ncredito4"] is DBNull) ? (Decimal?)null : Convert.ToDecimal(fila["Importe_Ncredito4"]),
+                                          Fecha_Ncredito5 = (fila["Fecha_Ncredito5"] is DBNull) ? string.Empty : (string)(fila["Fecha_Ncredito5"]),
+                                          Num_Ncredito5 = (fila["Num_Ncredito5"] is DBNull) ? string.Empty : (string)(fila["Num_Ncredito5"]),
+                                          Importe_Ncredito5 = (fila["Importe_Ncredito5"] is DBNull) ? (Decimal?)null : Convert.ToDecimal(fila["Importe_Ncredito5"]),
+                                          Fecha_Ncredito6 = (fila["Fecha_Ncredito6"] is DBNull) ? string.Empty : (string)(fila["Fecha_Ncredito6"]),
+                                          Num_Ncredito6 = (fila["Num_Ncredito6"] is DBNull) ? string.Empty : (string)(fila["Num_Ncredito6"]),
+                                          Importe_Ncredito6 = (fila["Importe_Ncredito6"] is DBNull) ? (Decimal?)null : Convert.ToDecimal(fila["Importe_Ncredito6"]),
+                                          Fecha_Ncredito7 = (fila["Fecha_Ncredito7"] is DBNull) ? string.Empty : (string)(fila["Fecha_Ncredito7"]),
+                                          Num_Ncredito7 = (fila["Num_Ncredito7"] is DBNull) ? string.Empty : (string)(fila["Num_Ncredito7"]),
+                                          Importe_Ncredito7 = (fila["Importe_Ncredito7"] is DBNull) ? (Decimal?)null : Convert.ToDecimal(fila["Importe_Ncredito7"]),
+                                          Base_Imponible = (fila["Base_Imponible"] is DBNull) ? (Decimal?)null : Convert.ToDecimal(fila["Base_Imponible"]),
+                                          Percepcion = (fila["Percepcion"] is DBNull) ? (Decimal?)null : Convert.ToDecimal(fila["Percepcion"]),
+                                          Total = (fila["Total"] is DBNull) ? (Decimal?)null : Convert.ToDecimal(fila["Total"]),
+                                          Fecha_Saldo_Ant = (fila["Fecha_Saldo_Ant"] is DBNull) ? string.Empty : (string)(fila["Fecha_Saldo_Ant"]),
+                                          Importe_Saldo_Ant = (fila["Importe_Saldo_Ant"] is DBNull) ? (Decimal?)null : Convert.ToDecimal(fila["Importe_Saldo_Ant"]),
+                                          Pagar = (fila["Pagar"] is DBNull) ? (Decimal?)null : Convert.ToDecimal(fila["Pagar"]),
+                                          Deposito = (fila["Deposito"] is DBNull) ? (Decimal?)null : Convert.ToDecimal(fila["Deposito"]),
+                                          Saldo_Favor = (fila["Saldo_Favor"] is DBNull) ? (Decimal?)null : Convert.ToDecimal(fila["Saldo_Favor"]),
+                                          Ajuste = (fila["Ajuste"] is DBNull) ? (Decimal?)null : Convert.ToDecimal(fila["Ajuste"]),
+                                          Items_Mov = (fila["Items_Mov"] is DBNull) ? (Decimal?)null : Convert.ToDecimal(fila["Items_Mov"]),
+                                          Grupo = (fila["Grupo"] is DBNull) ? string.Empty : (string)(fila["Grupo"])
+                                      }
+                                    ).ToList();
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Listar = new List<Ent_Movimientos_Pagos>();
+            }
+            return Listar;
+        }
     }
 }

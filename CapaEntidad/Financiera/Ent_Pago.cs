@@ -104,4 +104,53 @@ namespace CapaEntidad.Financiera
         public string Cod_Id { get; set; }
         public string Usu_Tipo { get; set; }
     }
+    public class Ent_Movimientos_Pagos
+    {
+        public string Pag_Id { get; set; }
+        public string Fecha_Op { get; set; }
+        public string Des_Operacion { get; set; }
+        public Decimal? Op_Monto { get; set; }
+        public string Op_Numero { get; set; }
+        public string Fecha_Op2 { get; set; }
+        public string Dni_Ruc { get; set; }
+        public string Cliente { get; set; }
+        public string Fecha_Doc { get; set; }
+        public string Num_Doc { get; set; }
+        public Decimal? Importe_Doc { get; set; }
+        public string Fecha_Ncredito { get; set; }
+        public string Num_Ncredito { get; set; }
+        public Decimal? Importe_Ncredito { get; set; }
+        public string Fecha_Ncredito2 { get; set; }
+        public string Num_Ncredito2 { get; set; }
+        public Decimal? Importe_Ncredito2 { get; set; }
+        public string Fecha_Ncredito3 { get; set; }
+        public string Num_Ncredito3 { get; set; }
+        public Decimal? Importe_Ncredito3 { get; set; }
+        public string Fecha_Ncredito4 { get; set; }
+        public string Num_Ncredito4 { get; set; }
+        public Decimal? Importe_Ncredito4 { get; set; }
+        public string Fecha_Ncredito5 { get; set; }
+        public string Num_Ncredito5 { get; set; }
+        public Decimal? Importe_Ncredito5 { get; set; }
+        public string Fecha_Ncredito6 { get; set; }
+        public string Num_Ncredito6 { get; set; }
+        public Decimal? Importe_Ncredito6 { get; set; }
+        public string Fecha_Ncredito7 { get; set; }
+        public string Num_Ncredito7 { get; set; }
+        public Decimal? Importe_Ncredito7 { get; set; }
+        public Decimal? Base_Imponible { get; set; }
+        public Decimal? Percepcion { get; set; }
+        public Decimal? Total { get; set; }
+        public string Fecha_Saldo_Ant { get; set; }
+        public Decimal? Importe_Saldo_Ant { get; set; }
+        public Decimal? Pagar { get; set; }
+        public Decimal? Deposito { get; set; }
+        public Decimal? Saldo_Favor { get; set; }
+        public Decimal? Ajuste { get; set; }
+        public Decimal? Items_Mov { get; set; }
+        public string Grupo { get; set; }
+        //campo adicionales de buscqueda
+        public DateTime FechaInicio { get; set; }
+        public DateTime FechaFin { get; set; }
+    }
 }
