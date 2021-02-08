@@ -1,5 +1,6 @@
 ﻿using CapaEntidad.General;
 using CapaEntidad.Util;
+using CapaEntidad.Control;
 using CapaDato.Facturacion;
 using CapaEntidad.Facturacion;
 using System;
@@ -21,26 +22,37 @@ namespace CapaPresentacion.Controllers
         #region <CONSULTA DE VENTAS POR CATEGORIA>
         public ActionResult Ventas_Categoria()
         {
-            ViewBag.Data = "Value,Value1,Value2,Value3";
-            ViewBag.ObjectName = "Test,Test1,Test2,Test3";
-            Ent_Movimientos_Ventas EntMovimientosVentas = new Ent_Movimientos_Ventas();
-            ViewBag.EntMovimientosVentas = EntMovimientosVentas;
-            ViewBag.ListarTipoArticulo = datFacturacion.ListarTipoArticulo();
-            return View();
+            Ent_Usuario _usuario = (Ent_Usuario)Session[Ent_Constantes.NameSessionUser];
+            string actionName = this.ControllerContext.RouteData.GetRequiredString("action");
+            string controllerName = this.ControllerContext.RouteData.GetRequiredString("controller");
+            string return_view = actionName + "|" + controllerName;
+
+            if (_usuario == null)
+            {
+                return RedirectToAction("Login", "Control", new { returnUrl = return_view });
+            }
+            else
+            {
+                Ent_Movimientos_Ventas EntMovimientosVentas = new Ent_Movimientos_Ventas();
+                ViewBag.EntMovimientosVentas = EntMovimientosVentas;
+                ViewBag.ListarTipoArticulo = datFacturacion.ListarTipoArticulo();
+                return View();
+            }
+
         }
         /// <summary>
-        /// ListarVenPorCategoria
+        /// 
         /// </summary>
         /// <create>Juilliand R. Damian Gomez </create>
         /// <update></update> 
         /// <param name="param"></param>
         /// <param name="isOkUpdate"></param>
+        /// <param name="isOkSemanal"></param>
         /// <param name="FechaInicio"></param>
         /// <param name="FechaFin"></param>
-        /// <param name="Cod_Id"></param>
-        /// <param name="Bas_Id"></param>
+        /// <param name="TipoArticulo"></param>
         /// <returns></returns>
-        public JsonResult getLisMovimientosVentaAjax(Ent_jQueryDataTableParams param, bool isOkUpdate, bool isOkSemanal,bool isOkChart,string FechaInicio, string FechaFin, string TipoArticulo)
+        public JsonResult getLisMovimientosVentaAjax(Ent_jQueryDataTableParams param, bool isOkUpdate, bool isOkSemanal,string FechaInicio, string FechaFin, string TipoArticulo)
         {
             Ent_Movimientos_Ventas EntMovimientosVentas = new Ent_Movimientos_Ventas();
             Decimal? Ventas = 0, Podv = 0, Pventas = 0, Pventasneto = 0, Pmargen = 0, Pmargenpor = 0;
