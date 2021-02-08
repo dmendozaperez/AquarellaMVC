@@ -1,0 +1,721 @@
+﻿@{
+    ViewBag.Title = "Consulta de ventas por categoría";
+    ViewBag.SubTitle = "";
+}
+<style>
+    .table thead {
+        background-color: #5799bf;
+        color: #fff;
+    }
+
+    .boton-xs-td {
+        padding-top: 5px !important;
+        padding-bottom: 5px !important;
+    }
+
+    .alignRight {
+        text-align: right;
+        vertical-align: middle;
+    }
+
+    .alignCenter {
+        text-align: center;
+        vertical-align: middle;
+    }
+    /*[style checkbox]*/
+       .control {
+        font-family: arial;
+        display: block;
+        position: relative;
+        padding-left: 28px;
+        margin-bottom: 4px;
+        padding-top: 2px;
+        cursor: pointer;
+        font-size: 12px;
+    }
+
+    .control input {
+        position: absolute;
+        z-index: -1;
+        opacity: 0;
+    }
+
+    .control_indicator {
+        position: absolute;
+        top: 3px;
+        left: 0;
+        height: 19px;
+        width: 20px;
+        background: #e6e6e6;
+        border: 1px solid #97a6af;
+        border-radius: 4px;
+    }
+
+    /*.control:hover input ~ .control_indicator,
+    .control input:focus ~ .control_indicator {
+        background: #cccccc;
+    }*/
+
+    .control input:checked ~ .control_indicator {
+        background: #156aac;
+    }
+
+    .control input:checked ~ .control_indicator .CheckboxTT{
+        background: #156aac;
+    }
+
+    /*.control:hover input:not([disabled]):checked ~ .control_indicator,
+    .control input:checked:focus ~ .control_indicator {
+        background: #156aac;
+    }*/
+
+    /*.control input:disabled ~ .control_indicator {
+        background: #e6e6e6;
+        opacity: 0.6;
+        pointer-events: none;
+    }*/
+
+    .control_indicator:after {
+        box-sizing: unset;
+        content: '';
+        position: absolute;
+        display: none;
+    }
+
+    .control input:checked ~ .control_indicator:after {
+        display: block;
+    }
+
+    .control-checkbox .control_indicator:after {
+        left: 6px;
+        top: 2px;
+        width: 3px;
+        height: 8px;
+        border: solid #ffffff;
+        border-width: 0 2px 2px 0;
+        transform: rotate(45deg);
+    }
+
+    .control-checkbox .control_indicator .checkedTrue {
+        left: 6px;
+        top: 2px;
+        width: 3px;
+        height: 8px;
+        border: solid #ffffff;
+        border-width: 0 2px 2px 0;
+        transform: rotate(45deg);
+    }
+
+    .control-checkbox input:disabled ~ .control_indicator:after {
+        border-color: #7b7b7b;
+    }
+    /*[/style checkbox]*/
+
+</style>
+<p class="text-primary">Información de ventas por categoría y semana, opcional, dado que podrá obviar y generar la información por sólo categorías, sin semana.</p>
+<div class="box box-header box-primary">
+    <h3 class="box-title danger" style="color:#9c9c9c;font-weight:bold">Parametro de Busqueda</h3>
+    <br />
+    <br />
+    <div class="row">
+        <div class="col-md-12">
+            <div class="col-md-3 text-left">
+
+            </div>
+            <div class="col-md-2" style="padding-right: 0px;">
+                <label for="" style="color: #3d566e;">Tipo Articulo</label>
+                <div class="form-group">
+                    @Html.DropDownList("ddlTipoArticulo", new SelectList(ViewBag.ListarTipoArticulo, "Codigo", "Descripcion", null), new { @class = "form-control ", @id = "ddlTipoArticulo", @name = "ddlTipoArticulo" })
+                </div>
+            </div>
+            <div class="col-md-3" style="padding-right: 0px;">
+                <label for="dtpFechaIni" style="color: #3d566e;">Fecha de Inicio</label>
+                <div id="datepickerIni" class="input-group date" data-date-format="dd/mm/yyyy">
+                    <input id="dtpFechaInicio" type="text" class="form-control input-sm ui-cell-input" disabled style="max-width: 100%" />
+                    <span class="input-group-addon btn btn-xs btn-default" style="padding: 4px 5px;">
+                        <i class="glyphicon glyphicon-calendar" height="20" width="20" style="color:#ff9f3f"></i>
+                    </span>
+                </div>  
+            </div>
+            <div class="col-md-3" style=" padding-right: 0px;">
+                <label for="dtpFechaFin" style="color: #3d566e; " >Fecha de Cierre</label>
+                <div id="datepickerFin" class="input-group date" data-date-format="dd/mm/yyyy">
+                    <input id="dtpFechaFin" type="text" class="form-control input-sm ui-cell-input" disabled style="max-width: 100%" />
+                    <span class="input-group-addon btn btn-xs btn-default" style="padding: 4px 5px;">
+                        <i class="glyphicon glyphicon-calendar" height="20" width="20" style="color:#ff9f3f"></i>
+                    </span>
+                </div>
+            </div>
+            <div class="col-md-1 text-right" style="padding:0px">
+                <button id="btnBuscar" type="submit" title="Consultar" class="btn btn-primary" style="margin-top: 22px;">
+                    <span class="glyphicon glyphicon-search"></span>&nbsp;&nbsp;Buscar
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-12">
+        <div class="nav-tabs-custom">
+            <ul class="nav nav-tabs">
+                <li class="active"><a href="#tab_1" data-toggle="tab" aria-expanded="false">Información general de ventas</a></li>
+                <li class=""><a href="#tab_2" data-toggle="tab" aria-expanded="false">Gráfico Barras</a></li>
+                <li class=""><a href="#tab_3" data-toggle="tab" aria-expanded="false">Gráfico Pastel</a></li>
+            </ul>
+            <div class="tab-content">
+                <div class="tab-pane active" id="tab_1">
+                    <h5 class="text-bold">Opciones de consulta</h5>
+                    @*<p class="text-info">Sub titulo</p>*@
+                    <div class="row">
+                        <div class="col-md-8">
+                            <label class="control control-checkbox">
+                                <input id="chkAgrupar" type="checkbox" />
+                                <p class="text-muted"> Agrupar:	Seleccione para ver las ventas por semana, no chequeado mostrará las ventas netas por categorías entre las fechas establecidas.</p>
+                                <div class="control_indicator"></div>
+                            </label>
+                        </div>
+                        <div class="col-md-4 text-right">
+                            <button id="btnExportar" title="Actualizar" class="btn btn-success disabled" disabled>
+                                <span class="glyphicon glyphicon-export"></span>&nbsp;&nbsp;Exportar Lista
+                            </button>
+                        </div>
+                    </div>
+                    <br />
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="table-responsive">
+                                <table id="TbTabla" class="table table-hover table-bordered compact">
+                                    <thead>
+                                        <tr>
+                                            <th style="text-align: center;">Año</th>
+                                            <th style="text-align: center;">Semana</th>
+                                            <th style="text-align: center;">Categoría</th>
+                                            <th style="text-align: center;">Unidades</th>
+                                            <th style="text-align: center;">Costo Std</th>
+                                            <th style="text-align: center;">Ventas Bruto</th>
+                                            <th style="text-align: center;">Ventas Neta</th>
+                                            <th style="text-align: center;">Margen</th>
+                                            <th style="text-align: center;">Margen %</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td colspan='40'>No se encontraron resultados</td>
+                                        </tr>
+                                    </tbody>
+                                    <tfoot>
+                                        <tr>
+                                            <th></th>
+                                            <th></th>
+                                            <th>Totales</th>
+                                            <th><span class="text-bold alignRight" id="lblVentas"></span></th>
+                                            <th><span class="text-bold alignRight" id="lblPodv"></span></th>
+                                            <th><span class="text-bold alignRight" id="lblPventas"></span></th>
+                                            <th><span class="text-bold alignRight" id="lblPventasneto"></span></th>
+                                            <th><span class="text-bold alignRight" id="lblPmargen"></span></th>
+                                            <th><span class="text-bold alignRight" id="lblPmargenpor"></span></th>
+                                        </tr>
+                                    </tfoot>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="tab-pane" id="tab_2">
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="col-md-2">
+                            </div>
+                            <div class="col-md-8">
+                                <p class="text-center">
+                                    <strong id=""> Venta Neta por Categoría</strong>
+                                </p>
+                                <div class="chart">
+                                    <canvas id="ChartBar" style="height: 310px; width:400px"></canvas>
+                                </div>
+                            </div>
+                            <!-- /.chart-responsive -->
+                            <div class="col-md-2">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+    
+                <div class="tab-pane" id="tab_3">
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="col-md-2">
+                            </div>
+                            <div class="col-md-8">
+                                <p class="text-center">
+                                    <strong id=""> Venta Neta por Categoría</strong>
+                                </p>
+                                <div class="chart">
+                                    <canvas id="ChartPie" style="height: px; width:500px"></canvas>
+                                </div>
+                            </div>
+                            <div class="col-md-2">
+                            </div>
+                            <!-- /.chart-responsive -->
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+            <!-- /.tab-content -->
+        </div>
+    </div>
+</div>
+
+@section scripts{
+    <script>
+        var objVentXCategoria = {
+            Inicio: function () {
+                //debugger
+                /*[Inicializamos variables]*/
+                var date = new Date();
+
+                $("#datepickerIni").datepicker({
+                    autoclose: true,
+                    todayHighlight: true
+                }).datepicker("setDate", "0");
+
+                $("#datepickerFin").datepicker({
+                    autoclose: true,
+                    todayHighlight: true
+                }).datepicker("setDate", "0");
+
+                this.isOkUpdate = true;
+                this.isOkSemanal = false;
+                this.isOkChart = false;
+                this.FechaInicio = $("#dtpFechaInicio").val();
+                this.FechaFin = $("#dtpFechaFin").val();
+                this.TipoArticulo = $("#ddlTipoArticulo").val();
+                this.Descripcion = "";
+                this.ChartBar;
+                this.ChartPie;
+                var dataV = { Success: false, Data :{}};
+                objVentXCategoria.generaal.GetChartBar(dataV);
+                objVentXCategoria.generaal.GetChartPie(dataV);
+
+                $("#chkAgrupar").attr('checked', true);
+                this.Tabla = $('#TbTabla');
+
+                objVentXCategoria.grid.get();
+                /*[/Inicializamos variables]*/
+
+                /*[btn Exportar y buscar]*/
+                $("#btnExportar").click(function () {
+                    objVentXCategoria.FechaInicio = $("#dtpFechaInicio").val();
+                    objVentXCategoria.FechaFin = $("#dtpFechaFin").val();
+                    objVentXCategoria.Cod_Id = $("#ddlConceptos").val();
+                    waitingDialog.show("Espere por favor...")
+                    objVentXCategoria.generaal.exportar();
+                })
+                $("#btnBuscar").click(function () {
+                    //debugger
+                    if ($("#chkAgrupar").is(':checked')) {
+                        objVentXCategoria.isOkUpdate = true;
+                        objVentXCategoria.isOkSemanal = false;
+                        objVentXCategoria.FechaInicio = $("#dtpFechaInicio").val();
+                        objVentXCategoria.FechaFin = $("#dtpFechaFin").val();
+                        objVentXCategoria.TipoArticulo = $("#ddlTipoArticulo").val();
+                        objVentXCategoria.Descripcion = "VENTAS POR SEMANA";
+                        objVentXCategoria.generaal.consultar();
+                    }
+                    else {
+                        var element = $("#chkAgrupar");
+                        element.click();
+                    }
+                })
+                /*[btn Exportar y buscar]*/
+
+                /*[Check automatica]*/
+                $('#chkAgrupar').change(function () {
+                    if (this.checked) {
+                        objVentXCategoria.isOkUpdate = true;
+                        objVentXCategoria.isOkSemanal = false;
+                        $("#chkAgrupar").attr('checked', true);
+                        objVentXCategoria.FechaInicio = $("#dtpFechaInicio").val();
+                        objVentXCategoria.FechaFin = $("#dtpFechaFin").val();
+                        objVentXCategoria.TipoArticulo = $("#ddlTipoArticulo").val();
+                        objVentXCategoria.Descripcion = "VENTAS POR SEMANA";
+                        objVentXCategoria.generaal.consultar();
+                    } else {
+                        objVentXCategoria.isOkUpdate = false;
+                        objVentXCategoria.isOkSemanal = true;
+                        $("#chkAgrupar").attr('checked', false);
+                        objVentXCategoria.FechaInicio = $("#dtpFechaInicio").val();
+                        objVentXCategoria.FechaFin = $("#dtpFechaFin").val();
+                        objVentXCategoria.TipoArticulo = $("#ddlTipoArticulo").val();
+                        objVentXCategoria.Descripcion = "VENTAS NETAS POR CATEGORÍA";
+                        objVentXCategoria.generaal.consultar();
+                    }
+                });
+                /*[/Check automatica]*/
+            },
+            grid: {
+                get: function () {
+                    //debugger
+                    objVentXCategoria .Tabla.DataTable({
+                        "language": {
+                            "url": "../Scripts/DataTables/Spanish.json"
+                        },
+                        "fnServerData": function (sSource, aoData, fnCallback) {
+                            $.getJSON(sSource, aoData, function (json) {
+                                //debugger
+                                var data = JSON.parse(json.jsonChart);
+                                /*[Creacion de los charts]*/
+                                objVentXCategoria.ChartBar.destroy();
+                                objVentXCategoria.ChartPie.destroy();
+                                objVentXCategoria.generaal.GetChartBar(data);
+                                objVentXCategoria.generaal.GetChartPie(data);
+                                /*[/Creacion de los charts]*/
+
+                                $("#lblVentas").html(objVentXCategoria.generaal.FormatDecimal(json.dVentas, 0, '.', ','));
+                                $("#lblPodv").html("S/ " + objVentXCategoria.generaal.FormatDecimal(json.dPodv, 2, '.', ','));
+                                $("#lblPventas").html("S/ " + objVentXCategoria.generaal.FormatDecimal(json.dPventas, 2, '.', ','));
+                                $("#lblPventasneto").html("S/ " + objVentXCategoria.generaal.FormatDecimal(json.dPventasneto, 2, '.', ','));
+                                $("#lblPmargen").html("S/ " + objVentXCategoria.generaal.FormatDecimal(json.dPmargen, 2, '.', ','));
+                                $("#lblPmargenpor").html(objVentXCategoria.generaal.FormatDecimal((json.dPmargenpor*100), 2, '.', ',') + "%");
+                                fnCallback(json);
+                            });
+                        },
+                        "bServerSide": true,
+                        "bAutoWidth": false,
+                        "sAjaxSource": '@Url.Action("getLisMovimientosVentaAjax", "Facturacion")',
+                        "fnServerParams": function (aoData) {
+                            //debugger;
+                            aoData.push({ "name": "isOkUpdate", "value": objVentXCategoria.isOkUpdate });
+                            aoData.push({ "name": "isOkSemanal", "value": objVentXCategoria.isOkSemanal });
+                            aoData.push({ "name": "isOkChart", "value": objVentXCategoria.isOkChart });                            
+                            aoData.push({ "name": "FechaInicio", "value": objVentXCategoria .FechaInicio });
+                            aoData.push({ "name": "FechaFin", "value": objVentXCategoria .FechaFin });
+                            aoData.push({ "name": "TipoArticulo", "value": objVentXCategoria .TipoArticulo });
+                        },
+                        "bFilter": true,
+                        "bdestroy": true,
+                        "start": 0,
+                        "columnDefs": [{
+                            "orderable": false,
+                            "targets": [],
+                        }],
+                        "bDeferRender": true,
+                        "aoColumns": [
+                                //Anno
+                                {
+                                    "mData": null,
+                                    "sClass": "alignCenter",
+                                    "render": function (Data, type, full, meta) {
+                                        let Anno = full.Anno;
+                                        return (Anno == undefined || Anno == null || Anno == 0) ? ' ' :  Anno;
+                                    }
+                                },
+                                //Can_Week_No
+                                {
+                                    "mData": null,
+                                    "sClass": "alignCenter",
+                                    "render": function (Data, type, full, meta) {
+                                        let Can_Week_No = full.Can_Week_No;
+                                        return (Can_Week_No == undefined || Can_Week_No == null || Can_Week_No == 0) ? ' ' : Can_Week_No;
+                                    }
+                                },
+                                { "sName": "Mcv_Description", "mData": "Mcv_Description", "sClass": "" },
+                                { "sName": "Ventas", "mData": "Ventas", "sClass": "alignCenter" },
+                                //Podv
+                                {
+                                    "mData": null,
+                                    "sClass": "alignRight",
+                                    "render": function (Data, type, full, meta) {
+                                        let Monto = full.Podv;
+                                        return (Monto == undefined || Monto == null || Monto == 0) ? ' ' : 'S/ ' + Monto.toFixed(2);
+                                    }
+                                },
+                                //Pventas
+                                {
+                                    "mData": null,
+                                    "sClass": "alignRight",
+                                    "render": function (Data, type, full, meta) {
+                                        let Monto = full.Pventas;
+                                        return (Monto == undefined || Monto == null || Monto == 0) ? ' ' : 'S/ ' + Monto.toFixed(2);
+                                    }
+                                },
+                                //Pventasneto
+                                {
+                                    "mData": null,
+                                    "sClass": "alignRight",
+                                    "render": function (Data, type, full, meta) {
+                                        let Monto = full.Pventasneto;
+                                        return (Monto == undefined || Monto == null || Monto == 0) ? ' ' : 'S/ ' + Monto.toFixed(2);
+                                    }
+                                },
+                                //Pmargen
+                                {
+                                    "mData": null,
+                                    "sClass": "alignRight",
+                                    "render": function (Data, type, full, meta) {
+                                        let Monto = full.Pmargen;
+                                        return (Monto == undefined || Monto == null || Monto == 0) ? ' ' : 'S/ ' + Monto.toFixed(2);
+                                    }
+                                },
+                                //Pmargenpor
+                                {
+                                    "mData": null,
+                                    "sClass": "alignRight",
+                                    "render": function (Data, type, full, meta) {
+                                        let percent = full.Pmargenpor;
+                                        return (percent == undefined || percent == null || percent == 0) ? ' ' : percent.toFixed(2);
+                                    }
+                                }
+                        ],
+                        "fnRowCallback": function (row, data, index) {
+                        },
+                        "drawCallback": function (settings) {
+                            objVentXCategoria.isOkUpdate = false;
+                            objVentXCategoria.isOkSemanal = false;
+
+                            var table = objVentXCategoria .Tabla.dataTable();
+                            var data = table.fnGetData();
+                            if (data.length == 0) {
+                                $("#btnExportar").addClass("disabled");
+                                $("#btnExportar").attr('disabled', 'disabled');
+                            } else {
+                                $("#btnExportar").removeClass("disabled");
+                                $("#btnExportar").removeAttr("disabled");
+                            }
+                        },
+                        "initComplete": function (settings, json) {
+                        }
+                    });
+                },
+                cargaTabla: function () {
+                   // debugger
+                    waitingDialog.show("Espere por favor...")
+                    objVentXCategoria .Tabla.DataTable().ajax.reload(function () {
+                        waitingDialog.hide();
+                    });
+                },
+            },
+            generaal: {
+                FormatDecimal: function (numero, decimales, separadorDecimal, separadorMiles) {
+                    //debugger
+                    var partes, array;
+                    if (!isFinite(numero) || isNaN(numero = parseFloat(numero))) {
+                        return "";
+                    }
+                    if (typeof decimales === "undefined") {
+                        decimales = 2;
+                    }
+                    if (typeof separadorDecimal === "undefined") {
+                        separadorDecimal = ".";
+                    }
+                    if (typeof separadorMiles === "undefined") {
+                        separadorMiles = ",";
+                    }
+                    // Redondeamos
+                    if (!isNaN(parseInt(decimales))) {
+                        if (decimales >= 0) {
+                            numero = numero.toFixed(decimales);
+                        } else {
+                            numero = (
+                                Math.round(numero / Math.pow(10, Math.abs(decimales))) * Math.pow(10, Math.abs(decimales))
+                            ).toFixed();
+                        }
+                    } else {
+                        numero = numero.toString();
+                    }
+                    // Damos formato
+                    partes = numero.split(".", 2);
+                    array = partes[0].split("");
+                    for (var i = array.length - 3; i > 0 && array[i - 1] !== "-"; i -= 3) {
+                        array.splice(i, 0, separadorMiles);
+                    }
+                    numero = array.join("");
+                    if (partes.length > 1) {
+                        numero += separadorDecimal + partes[1];
+                    }
+                    return numero;
+                },
+                Validar : function(){
+                   // debugger;
+                    if (objVentXCategoria .FechaInicio == undefined || objVentXCategoria .FechaInicio == null || objVentXCategoria .FechaInicio.length == 0 || objVentXCategoria .FechaInicio == '') {
+                        toastr.error("La fecha de Inicio no puede estar vacio", "Alerta");
+                        return false;
+                    }
+                    if (objVentXCategoria .FechaFin == undefined || objVentXCategoria .FechaFin == null || objVentXCategoria .FechaFin.length == 0 || objVentXCategoria .FechaFin == '') {
+                        toastr.error("La fecha de Fin no puede estar vacio", "Alerta");
+                        return false;
+                    }
+                    return true;
+                },
+                consultar: function () {
+                    //debugger
+                    if (objVentXCategoria .generaal.Validar()) {
+                        objVentXCategoria .grid.cargaTabla();
+                    }
+                },
+                exportar: function () {
+                    var _Ent = function () { return @Html.Raw(Json.Encode(ViewBag.EntMovimientosVentas)); }();
+                    _Ent.FechaInicio = objVentXCategoria .FechaInicio;
+                    _Ent.FechaFin = objVentXCategoria .FechaFin;
+                    _Ent.IdTipoArticulo = objVentXCategoria.TipoArticulo;
+                    _Ent.Descripcion = objVentXCategoria.Descripcion
+                    $.ajax({
+                        type: "POST",
+                        url: '@Url.Action("get_exporta_ListarMovimientosVentas_excel", "Facturacion")',
+                        data : {_Ent:_Ent},
+                        success: function (data) {
+                            data = JSON.parse(data);
+                            waitingDialog.hide();
+                            if (data.Success) {
+                                toastr.success(data.Message);
+                                window.location = '@Url.Action("ListarMovimientosVentasExcel")';
+                            }
+                            else {
+                                toastr.error(data.Message, "Alerta");
+                            }
+                        },
+                        error: function (XMLHttpRequest, textStatus, errorThrown) {
+                            waitingDialog.hide();
+                            toastr.error("Error al exportar excel.", "Alerta");
+                        }
+                    });
+                },
+                GetChartBar: function (_data) {
+                    //debugger
+                    //[Config chart]
+                    objVentXCategoria.ChartBar = new Chart(document.getElementById("ChartBar"),
+                        {
+                            type: 'bar',
+                            data: _data.Data,
+                            plugins: [ChartDataLabels],
+                            options: {
+                                //title:
+                                //{
+                                //    display: true,
+                                //    text: "Venta Neta por Categoría"
+                                //},
+                                //responsive: true,
+                                maintainAspectRatio: true,
+                                scales: {
+                                    yAxes: [{
+                                        ticks: {
+                                            beginAtZero: true,
+                                        }
+                                    }],
+                                    xAxes: [{
+                                        ticks: {
+                                            callback: function (value) {
+                                                if (value.length > 7 && 5 == 6) {
+                                                    return value.substr(0, 7) + "..."; //truncate
+                                                } else {
+                                                    return value
+                                                }
+                                            }
+                                        }
+                                    }],
+                                },
+                                tooltips: {
+                                    mode: 'index',
+                                    intersect: false,
+                                    backgroundColor: 'rgba(237, 237, 237,0.8)',
+                                    bodyFontColor: 'rgba(73, 73, 73,0.8)',
+                                    borderWidth: 1,
+                                    borderColor: 'rgba(158, 158, 158, 1)',
+                                    titleFontColor: 'rgba(73, 73, 73,0.8)',
+                                    callbacks: {
+                                        title: function (tooltipItems, data) {
+                                            //if (informe == 6){
+                                            var idx = tooltipItems[0].index;
+                                            return data.labels[idx]; //do something with title
+                                            //}
+                                        },
+                                    }
+                                },
+                                plugins: {
+                                    datalabels: {
+                                        align: 'end',
+                                        anchor: 'end',
+                                        //color: function (context) {
+                                        //    return context.dataset.backgroundColor;
+                                        //},
+                                        color: "#00578A",
+                                        font: {
+                                            weigth: 'bold',
+                                            size: 12,
+                                        },
+                                        textAlign: 'end'
+                                    }
+                                },
+                                legend: {
+                                    display: false,
+                                }
+                            }
+                        });
+                    //[/Config chart]
+ 
+                    
+                },
+                GetChartPie: function (_data) {        
+                    //[Config chart]
+                    objVentXCategoria.ChartPie = new Chart(document.getElementById("ChartPie"),
+                        {
+                            type: 'doughnut',
+                            data: _data.Data,
+
+                            options: {
+                                //events: ['click'] ,
+                                legend: {
+                                    position: 'right'
+                                },
+                                title:
+                                {
+                                    display: true,
+                                    //text: "Venta Neta por Categoría"
+                                },
+                                tooltips: {
+                                    mode: 'index',
+                                    intersect: false,
+                                    backgroundColor: 'rgba(237, 237, 237,0.8)',
+                                    bodyFontColor: 'rgba(73, 73, 73,0.8)',
+                                    borderWidth: 1,
+                                    borderColor: 'rgba(158, 158, 158, 1)',
+                                    titleFontColor: 'rgba(73, 73, 73,0.8)',
+                                    callbacks: {
+                                        title: function (tooltipItems, data) {
+                                            //if (informe == 6){
+                                            var idx = tooltipItems[0].index;
+                                            return data.labels[idx]; //do something with title
+                                            //}
+                                        },
+                                    }
+                                },
+                                plugins: {
+                                    datalabels: {
+                                        align: 'end',
+                                        anchor: 'end',
+                                        //color: function (context) {
+                                        //    return context.dataset.backgroundColor;
+                                        //},
+                                        color: "#00578A",
+                                        font: {
+                                            weigth: 'bold',
+                                            size: 12,
+                                        },
+                                        textAlign: 'end'
+                                    }
+                                },
+
+                            }
+                        });
+                    //[/Config chart]       
+                }
+            }
+        };
+        $(document).ready(function () {
+            objVentXCategoria .Inicio();
+        });
+    </script>
+}

@@ -68,6 +68,7 @@
     <Compile Include="Control\Ent_Recov_Pass.cs" />
     <Compile Include="Control\Ent_Tienda.cs" />
     <Compile Include="Devolucion\Ent_Documentos_Dev.cs" />
+    <Compile Include="Facturacion\Ent_Facturacion.cs" />
     <Compile Include="Financiera\Ent_Banco.cs" />
     <Compile Include="Financiera\Ent_Concepto.cs" />
     <Compile Include="Financiera\Ent_Cruce.cs" />
@@ -116,6 +117,7 @@
     <Compile Include="ValeCompra\Ent_ValeCompraDetalle.cs" />
     <Compile Include="ValeCompra\JsonResponse.cs" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

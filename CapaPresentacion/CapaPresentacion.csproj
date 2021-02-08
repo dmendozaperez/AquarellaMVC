@@ -242,6 +242,7 @@
     <Compile Include="Controllers\ClearController.cs" />
     <Compile Include="Controllers\ClientesController.cs" />
     <Compile Include="Controllers\DevolucionController.cs" />
+    <Compile Include="Controllers\FacturacionController.cs" />
     <Compile Include="Controllers\FinancieraController.cs" />
     <Compile Include="Controllers\LogisticaController.cs" />
     <Compile Include="Controllers\PedidoController.cs" />
@@ -3155,6 +3156,7 @@
     <Content Include="Views\Financiera\OperacionesGratuitas.cshtml" />
     <Content Include="Views\Financiera\Saldo_Cliente.cshtml" />
     <Content Include="Views\Financiera\Mov_Venta_Pagos.cshtml" />
+    <Content Include="Views\Facturacion\Ventas_Categoria.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

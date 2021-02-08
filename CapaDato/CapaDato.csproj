@@ -60,6 +60,7 @@
     <Compile Include="Control\Dat_Roles.cs" />
     <Compile Include="Control\Dat_Usuario.cs" />
     <Compile Include="Devolucion\Dat_Documentos_Dev.cs" />
+    <Compile Include="Facturacion\Dat_Facturacion.cs" />
     <Compile Include="Financiera\Dat_Banco.cs" />
     <Compile Include="Financiera\Dat_Clear.cs" />
     <Compile Include="Financiera\Dat_Concepto.cs" />
@@ -90,6 +91,7 @@
   <ItemGroup>
     <None Include="packages.config" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
