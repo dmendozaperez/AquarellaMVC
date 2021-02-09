@@ -38,4 +38,21 @@ namespace CapaEntidad.Facturacion
         public string[] labelsTooltip { get; set; }
         public List<Ent_Movimientos_Ventas_Chart> datasets { get; set; }
     }
+
+    public class Ent_Comisiones
+    {
+        public int AreaId { get; set; }
+        public string Asesor { get; set; }
+        public string Lider { get; set; }
+        public string LiderDni { get; set; }
+        public Decimal? TotPares { get; set; }
+        public Decimal? TotVenta { get; set; }
+        public Decimal? PorComision { get; set; }
+        public Decimal? Comision { get; set; }
+        public Decimal? Bonosnuevas { get; set; }
+        public Decimal? SubTotalSinIGV { get; set; }
+        //campos adicionales de busqueda
+        public DateTime FechaInicio { get; set; }
+        public DateTime FechaFin { get; set; }
+    }
 }

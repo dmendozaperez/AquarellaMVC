@@ -1,0 +1,334 @@
+﻿@{
+    ViewBag.Title = "Consulta de Comisiones";
+    ViewBag.SubTitle = "";
+}
+<style>
+    .table thead {
+        background-color: #5799bf;
+        color: #fff;
+    }
+
+    .boton-xs-td {
+        padding-top: 5px !important;
+        padding-bottom: 5px !important;
+    }
+
+    .alignRight {
+        text-align: right;
+        vertical-align: middle;
+    }
+
+    .alignCenter {
+        text-align: center;
+        vertical-align: middle;
+    }
+</style>
+<p class="text-primary">Consulte entre un rango de fechas, todas las Comisiones y bonos obtenidas por los lideres</p>
+<div class="box box-header box-primary">
+    <h3 class="box-title danger" style="color:#9c9c9c;font-weight:bold">Parametro de Busqueda</h3>
+    <br />
+    <br />
+    <div class="row">
+        <div class="col-sm-3">
+
+        </div>
+        <div class="col-md-3" style="padding-left: 30px; padding-right: 0px;">
+        </div>
+        <div class="col-md-6" style="padding-left: 0px;">
+            <div class="col-md-5" style="padding-right: 0px;">
+                <div>
+                    <label for="lblFechaInicio" style="color: #3d566e;">Fecha de Inicio</label>
+                    <div id="datepickerIni" class="input-group date" data-date-format="dd/mm/yyyy">
+                        <input id="dtpFechaInicio" type="text" class="form-control input-sm ui-cell-input" disabled style="max-width: 100%" />
+                        <span class="input-group-addon btn btn-xs btn-default" style="padding: 4px 5px;">
+                            <i class="glyphicon glyphicon-calendar" height="20" width="20" style="color:#ff9f3f"></i>
+                        </span>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-5">
+                <label for="lblFechaFin" style="color: #3d566e;">Fecha de Cierre</label>
+                <div id="datepickerFin" class="input-group date" data-date-format="dd/mm/yyyy">
+                    <input id="dtpFechaFin" type="text" class="form-control input-sm ui-cell-input" disabled style="max-width: 100%" />
+                    <span class="input-group-addon btn btn-xs btn-default" style="padding: 4px 5px;">
+                        <i class="glyphicon glyphicon-calendar" height="20" width="20" style="color:#ff9f3f"></i>
+                    </span>
+                </div>
+            </div>
+            <div class="col-md-2 text-right" style="padding:0px">
+                <button id="btnBuscar" type="submit" title="Consultar" class="btn btn-primary" style="margin-top: 19px;">
+                    <span class="glyphicon glyphicon-search"></span>&nbsp;&nbsp;Buscar
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="box box-body box-primary">
+    <div class="row">
+        <div class="col-md-6">
+        </div>
+        <div class="col-md-6 text-right">
+            <button id="btnExportar" title="Actualizar" class="btn btn-success disabled" disabled>
+                <span class="glyphicon glyphicon-export"></span>&nbsp;&nbsp;Exportar Lista
+            </button>
+        </div>
+    </div>
+    <br />
+    <div class="row">
+        <div class="col-md-12">
+            <div class="table-responsive">
+                <table id="TbTabla" class="table table-hover table-bordered compact">
+                    <thead>
+                        <tr>
+                            <th style="text-align: center;">Asesor</th>
+                            <th style="text-align: center;">Lider</th>
+                            <th style="text-align: center;">DNI - Lider</th>
+                            <th style="text-align: center;">Total Pares</th>
+                            <th style="text-align: center;">Total Venta Neta</th>
+                            <th style="text-align: center;">% de Comision</th>
+                            <th style="text-align: center;">Comision Lider</th>
+                            <th style="text-align: center;">Bonos nuevas</th>
+                            <th style="text-align: center;">SubTotal Sin IGV</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td colspan='9'>No se encontraron resultados</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section scripts{
+    <script>
+        debugger
+        var objConComision = {
+            Inicio: function () {
+                debugger
+                /*[Inicializamos variables]*/
+
+                $("#datepickerIni").datepicker({
+                    autoclose: true,
+                    todayHighlight: true
+                }).datepicker("setDate", "0");
+
+                $("#datepickerFin").datepicker({
+                    autoclose: true,
+                    todayHighlight: true
+                }).datepicker("setDate", "0");
+
+                this.isOkUpdate = true;
+                this.FechaInicio = $("#dtpFechaInicio").val();
+                this.FechaFin = $("#dtpFechaFin").val();
+                this.Tabla = $('#TbTabla');
+
+                objConComision.grid.get();
+                /*[/Inicializamos variables]*/
+
+                /*[btn Exportar y buscar]*/
+                $("#btnExportar").click(function () {
+                    objConComision.FechaInicio = $("#dtpFechaInicio").val();
+                    objConComision.FechaFin = $("#dtpFechaFin").val();
+                    objConComision.Tipo = $("#ddlConceptos").val();
+                    objConComision.TipoTxt = $("#ddlConceptos option:selected").text();
+                    waitingDialog.show("Espere por favor...")
+                    objConComision.generaal.exportar();
+                })
+                $("#btnBuscar").click(function () {
+                    objConComision.isOkUpdate = true;
+                    objConComision.FechaInicio = $("#dtpFechaInicio").val();
+                    objConComision.FechaFin = $("#dtpFechaFin").val();
+                    objConComision.Tipo = $("#ddlConceptos").val();
+                    objConComision.generaal.consultar();
+                })
+                /*[btn Exportar y buscar]*/
+            },
+            grid: {
+                get: function () {
+                    debugger
+                    objConComision.Tabla.DataTable({
+                        "language": {
+                            "url": "../Scripts/DataTables/Spanish.json"
+                        },
+                        //"fnServerData": function (sSource, aoData, fnCallback) {
+                        //},
+                        "bServerSide": true,
+                        "bAutoWidth": false,
+                        "sAjaxSource": '@Url.Action("getLisComicionesAjax", "Facturacion")',
+                        "fnServerParams": function (aoData) {
+                            debugger;
+                            aoData.push({ "name": "isOkUpdate", "value": objConComision.isOkUpdate });
+                            aoData.push({ "name": "FechaInicio", "value": objConComision.FechaInicio });
+                            aoData.push({ "name": "FechaFin", "value": objConComision.FechaFin });
+                        },
+                        "bFilter": true,
+                        "bdestroy": true,
+                        "start": 0,
+                        "columnDefs": [{
+                            "orderable": false,
+                            "targets": [],
+                        }],
+                        "bDeferRender": true,
+                        "aoColumns": [
+                            { "sName": "Asesor", "mData": "Asesor", "sClass": "" },
+                            { "sName": "Lider", "mData": "Lider", "sClass": "" },
+                            { "sName": "LiderDni", "mData": "LiderDni", "sClass": "alignCenter" },
+                            { "sName": "TotPares", "mData": "TotPares", "sClass": "alignRight" },
+                            //TotVenta
+                            {
+                                "mData": null,
+                                "sClass": "alignRight",
+                                "render": function (Data, type, full, meta) {
+                                    let Monto = full.TotVenta;
+                                    return (Monto == undefined || Monto == null || Monto == 0) ? ' ' : 'S/ ' + objConComision.generaal.FormatDecimal(Monto, 2, '.', ',');
+                                }
+                            },
+                            { "sName": "PorComision", "mData": "PorComision", "sClass": "alignRight" },                            
+                            //Comision
+                            {
+                                "mData": null,
+                                "sClass": "alignRight",
+                                "render": function (Data, type, full, meta) {
+                                    let Monto = full.Comision;
+                                    return (Monto == undefined || Monto == null || Monto == 0) ? ' ' : 'S/ ' + objConComision.generaal.FormatDecimal(Monto, 2, '.', ',');
+                                }
+                            },
+                            //Bonosnuevas
+                            {
+                                "mData": null,
+                                "sClass": "alignRight",
+                                "render": function (Data, type, full, meta) {
+                                    let Monto = full.Bonosnuevas;
+                                    return (Monto == undefined || Monto == null || Monto == 0) ? ' ' :'S/ ' +  objConComision.generaal.FormatDecimal(Monto, 2, '.', ',');
+                                }
+                            },
+                            //SubTotalSinIGV
+                            {
+                                "mData": null,
+                                "sClass": "alignRight",
+                                "render": function (Data, type, full, meta) {
+                                    let Monto = full.SubTotalSinIGV;
+                                    return (Monto == undefined || Monto == null || Monto == 0) ? ' ' :'S/ ' +  objConComision.generaal.FormatDecimal(Monto, 2, '.', ',');
+                                }
+                            }
+                        ],
+                        "fnRowCallback": function (row, data, index) {
+                        },
+                        "drawCallback": function (settings) {
+                            objConComision.isOkUpdate = false;
+                            var table = objConComision.Tabla.dataTable();
+                            var data = table.fnGetData();
+                            if (data.length == 0) {
+                                $("#btnExportar").addClass("disabled");
+                                $("#btnExportar").attr('disabled', 'disabled');
+                            } else {
+                                $("#btnExportar").removeClass("disabled");
+                                $("#btnExportar").removeAttr("disabled");
+                            }
+                        },
+                        "initComplete": function (settings, json) {
+                        }
+                    });
+                },
+                cargaTabla: function () {
+                    debugger
+                    waitingDialog.show("Espere por favor...")
+                    objConComision.Tabla.DataTable().ajax.reload(function () {
+                        waitingDialog.hide();
+                    });
+                },
+            },
+            generaal: {
+                FormatDecimal: function (numero, decimales, separadorDecimal, separadorMiles) {
+                    //debugger
+                    var partes, array;
+                    if (!isFinite(numero) || isNaN(numero = parseFloat(numero))) {
+                        return "";
+                    }
+                    if (typeof decimales === "undefined") {
+                        decimales = 2;
+                    }
+                    if (typeof separadorDecimal === "undefined") {
+                        separadorDecimal = ".";
+                    }
+                    if (typeof separadorMiles === "undefined") {
+                        separadorMiles = ",";
+                    }
+                    // Redondeamos
+                    if (!isNaN(parseInt(decimales))) {
+                        if (decimales >= 0) {
+                            numero = numero.toFixed(decimales);
+                        } else {
+                            numero = (
+                                Math.round(numero / Math.pow(10, Math.abs(decimales))) * Math.pow(10, Math.abs(decimales))
+                            ).toFixed();
+                        }
+                    } else {
+                        numero = numero.toString();
+                    }
+                    // Damos formato
+                    partes = numero.split(".", 2);
+                    array = partes[0].split("");
+                    for (var i = array.length - 3; i > 0 && array[i - 1] !== "-"; i -= 3) {
+                        array.splice(i, 0, separadorMiles);
+                    }
+                    numero = array.join("");
+                    if (partes.length > 1) {
+                        numero += separadorDecimal + partes[1];
+                    }
+                    return numero;
+                },
+                Validar : function(){
+                    debugger;
+                    if (objConComision.FechaInicio == undefined || objConComision.FechaInicio == null || objConComision.FechaInicio.length == 0 || objConComision.FechaInicio == '') {
+                        toastr.error("La fecha de Inicio no puede estar vacio", "Alerta");
+                        return false;
+                    }
+                    if (objConComision.FechaFin == undefined || objConComision.FechaFin == null || objConComision.FechaFin.length == 0 || objConComision.FechaFin == '') {
+                        toastr.error("La fecha de Fin no puede estar vacio", "Alerta");
+                        return false;
+                    }
+                    return true;
+                },
+                consultar: function () {
+                    debugger
+                    if (objConComision.generaal.Validar()) {
+                        objConComision.grid.cargaTabla();
+                    }
+                },
+                exportar: function () {
+                    var _Ent = function () { return @Html.Raw(Json.Encode(ViewBag.EntComisiones)); }();
+                    _Ent.FechaInicio = objConComision.FechaInicio;
+                    _Ent.FechaFin = objConComision.FechaFin;
+                    $.ajax({
+                        type: "POST",
+                        url: '@Url.Action("get_exporta_ListarComisines_excel", "Facturacion")',
+                        data : {_Ent:_Ent},
+                        success: function (data) {
+                            data = JSON.parse(data);
+                            waitingDialog.hide();
+                            if (data.Success) {
+                                toastr.success(data.Message);
+                                window.location = '@Url.Action("ListarComisionesExcel")';
+                            }
+                            else {
+                                toastr.error(data.Message, "Alerta");
+                            }
+                        },
+                        error: function (XMLHttpRequest, textStatus, errorThrown) {
+                            waitingDialog.hide();
+                            toastr.error("Error al exportar excel.", "Alerta");
+                        }
+                    });
+                }
+            }
+        };
+        $(document).ready(function () {
+            objConComision.Inicio();
+        });
+</script>
+}
