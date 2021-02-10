@@ -135,5 +135,87 @@ namespace CapaDato.Facturacion
             }
             return Listar;
         }
+
+        public List<Ent_Resumen_Ventas> ListarResumenVenta(Ent_Resumen_Ventas _Ent)
+        {
+            List<Ent_Resumen_Ventas> Listar = new List<Ent_Resumen_Ventas>();
+            string sqlquery = "[USP_LeerResventa]";
+            try
+            {
+                using (SqlConnection cn = new SqlConnection(Ent_Conexion.conexion))
+                {
+                    using (SqlCommand cmd = new SqlCommand(sqlquery, cn))
+                    {
+                        cmd.CommandType = CommandType.StoredProcedure;
+                        cmd.Parameters.AddWithValue("@ANIOACT", DbType.Int32).Value = _Ent.Anno;
+                        using (SqlDataAdapter da = new SqlDataAdapter(cmd))
+                        {
+                            DataTable dt = new DataTable();
+                            da.Fill(dt);
+
+                            Listar = new List<Ent_Resumen_Ventas>();
+                            Listar = (from DataRow fila in dt.Rows
+                                      select new Ent_Resumen_Ventas()
+                                      {
+                                          Anno = (fila["Año"] is DBNull) ? (int?)null : Convert.ToInt32(fila["Año"]),
+                                          Semana = (fila["Semana"] is DBNull) ? (int?)null : Convert.ToInt32(fila["Semana"]),
+                                          TotalTickets = (fila["Total Tickets"] is DBNull) ? (int?)null : Convert.ToInt32(fila["Total Tickets"]),
+                                          Pares = (fila["Pares"] is DBNull) ? (int?)null : Convert.ToInt32(fila["Pares"]),
+                                          TotalIgv = (fila["Total + Igv"] is DBNull) ? (Decimal?)null : Convert.ToDecimal(fila["Total + Igv"]),
+                                          PrecioPromedio = (fila["Precio Promedio"] is DBNull) ? (Decimal?)null : Convert.ToDecimal(fila["Precio Promedio"]),
+                                          NParesTicket = (fila["N Pares por Ticket"] is DBNull) ? (Decimal?)null : Convert.ToDecimal(fila["N Pares por Ticket"]),
+                                          Anno1 = (fila["Año1"] is DBNull) ? (int?)null : Convert.ToInt32(fila["Año1"]),
+                                          Semana1 = (fila["Semana1"] is DBNull) ? (int?)null : Convert.ToInt32(fila["Semana1"]),
+                                          TotalTickets1 = (fila["Total Tickets1"] is DBNull) ? (int?)null : Convert.ToInt32(fila["Total Tickets1"]),
+                                          Pares1 = (fila["Pares1"] is DBNull) ? (int?)null : Convert.ToInt32(fila["Pares1"]),
+                                          TotalIgv1 = (fila["Total + Igv1"] is DBNull) ? (Decimal?)null : Convert.ToDecimal(fila["Total + Igv1"]),
+                                          PrecioPromedio1 = (fila["Precio Promedio1"] is DBNull) ? (Decimal?)null : Convert.ToDecimal(fila["Precio Promedio1"]),
+                                          NParesTicket1 = (fila["N Pares por Ticket1"] is DBNull) ? (Decimal?)null : Convert.ToDecimal(fila["N Pares por Ticket1"])
+                                      }
+                                    ).ToList();
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+            return Listar;
+        }
+        public List<Ent_Resumen_Ventas> ListarAnno()
+        {
+            List<Ent_Resumen_Ventas> Listar = new List<Ent_Resumen_Ventas>();
+            string sqlquery = "[USP_Leer_Año]";
+            try
+            {
+                using (SqlConnection cn = new SqlConnection(Ent_Conexion.conexion))
+                {
+                    using (SqlCommand cmd = new SqlCommand(sqlquery, cn))
+                    {
+                        cmd.CommandType = CommandType.StoredProcedure;
+                        using (SqlDataAdapter da = new SqlDataAdapter(cmd))
+                        {
+                            DataTable dt = new DataTable();
+                            da.Fill(dt);
+
+                            Listar = new List<Ent_Resumen_Ventas>();
+                            Listar = (from DataRow fila in dt.Rows
+                                      select new Ent_Resumen_Ventas()
+                                      {
+                                          Codigo =  Convert.ToInt32(fila["idanio"]),
+                                          Descripcion = Convert.ToInt32(fila["anio"])
+                                      }
+                                    ).ToList();
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+            return Listar;
+        }
     }
 }

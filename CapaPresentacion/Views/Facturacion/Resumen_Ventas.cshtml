@@ -1,0 +1,356 @@
+﻿@{
+    ViewBag.Title = "Resumen de ventas por Semana";
+    ViewBag.SubTitle = "";
+}
+<style>
+    .table thead {
+        background-color: #5799bf;
+        color: #fff;
+    }
+
+    .boton-xs-td {
+        padding-top: 5px !important;
+        padding-bottom: 5px !important;
+    }
+
+    .alignRight {
+        text-align: right;
+        vertical-align: middle;
+    }
+
+    .alignCenter {
+        text-align: center;
+        vertical-align: middle;
+    }
+
+    .table .ColC1 {
+        color: #000 !important;
+        background-color: #B1DEF6;        
+        /*font-weight: bold;*/
+        vertical-align: middle;
+    }
+</style>
+<p class="text-primary">Este reporte compara ventas de semana con el año anterior</p>
+<div class="box box-header box-primary">
+    <h3 class="box-title danger" style="color:#9c9c9c;font-weight:bold">Parametro de Busqueda</h3>
+    <br />
+    <br />
+    <div class="row">
+        <div class="col-sm-3">
+
+        </div>
+        <div class="col-md-3" style="padding-left: 30px; padding-right: 0px;">
+        </div>
+        <div class="col-md-6" style="padding-left: 0px;">
+            <div class="col-md-5" style="padding-right: 0px;">
+
+            </div>
+            <div class="col-md-5">
+                <label for="" style="color: #3d566e;">Año</label>
+                <div class="form-group">
+                    @Html.DropDownList("ddlAnno", new SelectList(ViewBag.ListarAnno, "Codigo", "Descripcion", null), new { @class = "form-control ", @id = "ddlAnno", @name = "ddlAnno" })
+                </div>
+            </div>
+            <div class="col-md-2 text-right" style="padding:0px">
+                <button id="btnBuscar" type="submit" title="Consultar" class="btn btn-primary" style="margin-top: 24px;">
+                    <span class="glyphicon glyphicon-search"></span>&nbsp;&nbsp;Buscar
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="box box-body box-primary">
+    <div class="row">
+        <div class="col-md-6">
+        </div>
+        <div class="col-md-6 text-right">
+            <button id="btnExportar" title="Actualizar" class="btn btn-success disabled" disabled>
+                <span class="glyphicon glyphicon-export"></span>&nbsp;&nbsp;Exportar Lista
+            </button>
+        </div>
+    </div>
+    <br />
+    <div class="row">
+        <div class="col-md-12">
+            <div class="table-responsive">
+                <table id="TbTabla" class="table table-hover table-bordered compact">
+                    <thead>
+                        <tr>
+                            <th style="text-align: center;">Año</th>
+                            <th style="text-align: center;">Semana</th>
+                            <th style="text-align: center;">Total Tickets</th>
+                            <th style="text-align: center;">Pares</th>
+                            <th style="text-align: center;">Total + Igv</th>
+                            <th style="text-align: center;">Precio Promedio</th>
+                            <th style="text-align: center;">N Pares por Ticket</th>
+                            <th style="text-align: center;">Año</th>
+                            <th style="text-align: center;">Semana</th>
+                            <th style="text-align: center;">Total Tickets</th>
+                            <th style="text-align: center;">Pares</th>
+                            <th style="text-align: center;">Total + Igv</th>
+                            <th style="text-align: center;">Precio Promedio</th>
+                            <th style="text-align: center;">N Pares por Ticket</th>
+
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td colspan='9'>No se encontraron resultados</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section scripts{
+    <script>
+        debugger
+        var objResVentas = {
+            Inicio: function () {
+                debugger
+                /*[Inicializamos variables]*/
+                this.isOkUpdate = true;               
+                this.Tabla = $('#TbTabla');
+                var date = new Date();
+                this.Anno = date.getFullYear();
+                $("#ddlAnno option:selected").text(date.getFullYear())
+                objResVentas.grid.get();
+                /*[/Inicializamos variables]*/
+
+                /*[btn Exportar y buscar]*/
+                $("#btnExportar").click(function () {
+                    objResVentas.AnnoTxt = $("#ddlAnno option:selected").text();
+                    waitingDialog.show("Espere por favor...")
+                    objResVentas.generaal.exportar();
+                });
+
+                $("#btnBuscar").click(function () {
+                    objResVentas.isOkUpdate = true;
+                    objResVentas.Anno = $("#ddlAnno").val();
+                    objResVentas.grid.cargaTabla();
+                });
+                /*[btn Exportar y buscar]*/
+            },
+            grid: {
+                get: function () {
+                    debugger
+                    objResVentas.Tabla.DataTable({
+                        "language": {
+                            "url": "../Scripts/DataTables/Spanish.json"
+                        },
+                        //"fnServerData": function (sSource, aoData, fnCallback) {
+                        //},
+                        "bServerSide": true,
+                        "bAutoWidth": false,
+                        "sAjaxSource": '@Url.Action("getResumenVentasAjax", "Facturacion")',
+                        "fnServerParams": function (aoData) {
+                            debugger;
+                            aoData.push({ "name": "isOkUpdate", "value": objResVentas.isOkUpdate });
+                            aoData.push({ "name": "Anno", "value": objResVentas.Anno });
+                        },
+                        "bFilter": true,
+                        "bdestroy": true,
+                        "start": 0,
+                        "columnDefs": [{
+                            "orderable": false,
+                            "targets": [0],//index de cada columna
+                        }],
+                        "bDeferRender": true,
+                        "aoColumns": [
+                            { "sName": "Anno", "mData": "Anno", "sClass": "alignCenter" },
+                            { "sName": "Semana", "mData": "Semana", "sClass": "alignCenter" },
+                            { "sName": "TotalTickets", "mData": "TotalTickets", "sClass": "alignCenter" },
+                            //Pares
+                            {
+                                "mData": null,
+                                "sClass": "alignRight",
+                                "render": function (Data, type, full, meta) {
+                                    var Cantidad = full.Pares;
+                                    return (Cantidad == undefined || Cantidad == null || Cantidad == 0) ? ' ' : Cantidad;
+                                }
+                            },
+                           //TotalIgv1
+                            {
+                                "mData": null,
+                                "sClass": "alignRight",
+                                "render": function (Data, type, full, meta) {
+                                    let Monto = full.TotalIgv;
+                                    return (Monto == undefined || Monto == null || Monto == 0) ? ' ' : 'S/ ' + objResVentas.generaal.FormatDecimal(Monto, 2, '.', ',');
+                                }
+                            },
+                            //PrecioPromedio1
+                            {
+                                "mData": null,
+                                "sClass": "alignRight",
+                                "render": function (Data, type, full, meta) {
+                                    let Monto = full.PrecioPromedio;
+                                    return (Monto == undefined || Monto == null || Monto == 0) ? ' ' : 'S/ ' + objResVentas.generaal.FormatDecimal(Monto, 2, '.', ',');
+                                }
+                            },
+                            //NParesTicket
+                            {
+                                "mData": null,
+                                "sClass": "alignRight",
+                                "render": function (Data, type, full, meta) {
+                                    var Cantidad = full.NParesTicket;
+                                    return (Cantidad == undefined || Cantidad == null || Cantidad == 0) ? ' ' : Cantidad.toFixed(2);
+                                }
+                            },
+                            { "sName": "Anno1", "mData": "Anno1", "sClass": "alignCenter" },
+                            { "sName": "Semana1", "mData": "Semana1", "sClass": "alignCenter" },
+                            { "sName": "TotalTickets1", "mData": "TotalTickets1", "sClass": "alignCenter" },
+                            //Pares1 //.toFixed(2) => dos decimales
+                            {
+                                "mData": null,
+                                "sClass": "alignRight",
+                                "render": function (Data, type, full, meta) {
+                                    var Cantidad = full.Pares1;
+                                    return (Cantidad == undefined || Cantidad == null || Cantidad == 0) ? ' ' : Cantidad;
+                                }
+                            },
+                           //TotalIgv1
+                            {
+                                "mData": null,
+                                "sClass": "alignRight",
+                                "render": function (Data, type, full, meta) {
+                                    let Monto = full.TotalIgv1;
+                                    return (Monto == undefined || Monto == null || Monto == 0) ? ' ' : 'S/ ' + objResVentas.generaal.FormatDecimal(Monto, 2, '.', ',');
+                                }
+                            },
+                            //PrecioPromedio1
+                            {
+                                "mData": null,
+                                "sClass": "alignRight",
+                                "render": function (Data, type, full, meta) {
+                                    let Monto = full.PrecioPromedio1;
+                                    return (Monto == undefined || Monto == null || Monto == 0) ? ' ' : 'S/ ' + objResVentas.generaal.FormatDecimal(Monto, 2, '.', ',');
+                                }
+                            },
+                            //NParesTicket1
+                            {
+                                "mData": null,
+                                "sClass": "alignRight",
+                                "render": function (Data, type, full, meta) {
+                                    var Cantidad = full.NParesTicket1;
+                                    return (Cantidad == undefined || Cantidad == null || Cantidad == 0) ? ' ' : Cantidad.toFixed(2);
+                                }
+                            },
+
+                        ],
+                        "fnRowCallback": function (row, data, index) {
+                        },
+                        "drawCallback": function (settings) {
+                            objResVentas.isOkUpdate = false;
+                            var table = objResVentas.Tabla.dataTable();
+                            var data = table.fnGetData();
+                            if (data.length == 0) {
+                                $("#btnExportar").addClass("disabled");
+                                $("#btnExportar").attr('disabled', 'disabled');
+                            } else {
+                                $("#btnExportar").removeClass("disabled");
+                                $("#btnExportar").removeAttr("disabled");
+                            }
+                            //TbTabla
+                            $("#TbTabla td:nth-child(1)").addClass("ColC1");
+                            $("#TbTabla td:nth-child(2)").addClass("ColC1");
+                            $("#TbTabla td:nth-child(3)").addClass("ColC1");
+                            $("#TbTabla td:nth-child(4)").addClass("ColC1");
+                            $("#TbTabla td:nth-child(5)").addClass("ColC1");
+                            $("#TbTabla td:nth-child(6)").addClass("ColC1");
+                            $("#TbTabla td:nth-child(7)").addClass("ColC1");
+
+                        },
+                        "initComplete": function (settings, json) {
+                        }
+                    });
+                },
+                cargaTabla: function () {
+                    debugger
+                    waitingDialog.show("Espere por favor...")
+                    objResVentas.Tabla.DataTable().ajax.reload(function () {
+                        waitingDialog.hide();
+                    });
+                },
+            },
+            generaal: {
+                FormatDecimal: function (numero, decimales, separadorDecimal, separadorMiles) {
+                    //debugger
+                    var partes, array;
+                    if (!isFinite(numero) || isNaN(numero = parseFloat(numero))) {
+                        return "";
+                    }
+                    if (typeof decimales === "undefined") {
+                        decimales = 2;
+                    }
+                    if (typeof separadorDecimal === "undefined") {
+                        separadorDecimal = ".";
+                    }
+                    if (typeof separadorMiles === "undefined") {
+                        separadorMiles = ",";
+                    }
+                    // Redondeamos
+                    if (!isNaN(parseInt(decimales))) {
+                        if (decimales >= 0) {
+                            numero = numero.toFixed(decimales);
+                        } else {
+                            numero = (
+                                Math.round(numero / Math.pow(10, Math.abs(decimales))) * Math.pow(10, Math.abs(decimales))
+                            ).toFixed();
+                        }
+                    } else {
+                        numero = numero.toString();
+                    }
+                    // Damos formato
+                    partes = numero.split(".", 2);
+                    array = partes[0].split("");
+                    for (var i = array.length - 3; i > 0 && array[i - 1] !== "-"; i -= 3) {
+                        array.splice(i, 0, separadorMiles);
+                    }
+                    numero = array.join("");
+                    if (partes.length > 1) {
+                        numero += separadorDecimal + partes[1];
+                    }
+                    return numero;
+                },
+                Validar : function(){
+                },
+                consultar: function () {
+                    debugger
+                    if (objResVentas.generaal.Validar()) {
+                        objResVentas.grid.cargaTabla();
+                    }
+                },
+                exportar: function () {
+                    var _Ent = function () { return @Html.Raw(Json.Encode(ViewBag.EntResumenVentas)); }();
+                    _Ent.Anno = objResVentas.Anno;
+                    $.ajax({
+                        type: "POST",
+                        url: '@Url.Action("get_exporta_ListarResumenVenta_excel", "Facturacion")',
+                        data : {_Ent:_Ent},
+                        success: function (data) {
+                            data = JSON.parse(data);
+                            waitingDialog.hide();
+                            if (data.Success) {
+                                toastr.success(data.Message);
+                                window.location = '@Url.Action("ListarVentasResumidoExcel")';
+                            }
+                            else {
+                                toastr.error(data.Message, "Alerta");
+                            }
+                        },
+                        error: function (XMLHttpRequest, textStatus, errorThrown) {
+                            waitingDialog.hide();
+                            toastr.error("Error al exportar excel.", "Alerta");
+                        }
+                    });
+                }
+            }
+        };
+        $(document).ready(function () {
+            objResVentas.Inicio();
+        });
+</script>
+}

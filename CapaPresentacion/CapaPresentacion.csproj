@@ -3158,6 +3158,7 @@
     <Content Include="Views\Financiera\Mov_Venta_Pagos.cshtml" />
     <Content Include="Views\Facturacion\Ventas_Categoria.cshtml" />
     <Content Include="Views\Facturacion\Consulta_Comisiones.cshtml" />
+    <Content Include="Views\Facturacion\Resumen_Ventas.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

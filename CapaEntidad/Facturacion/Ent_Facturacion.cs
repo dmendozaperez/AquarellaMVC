@@ -55,4 +55,24 @@ namespace CapaEntidad.Facturacion
         public DateTime FechaInicio { get; set; }
         public DateTime FechaFin { get; set; }
     }
+    public class Ent_Resumen_Ventas
+    {
+        public int? Anno { get; set; }
+        public int? Semana { get; set; }
+        public int? TotalTickets { get; set; }
+        public int? Pares { get; set; }
+        public Decimal? TotalIgv { get; set; }
+        public Decimal? PrecioPromedio { get; set; }
+        public Decimal? NParesTicket { get; set; }
+        public int? Anno1 { get; set; }
+        public int? Semana1 { get; set; }
+        public int? TotalTickets1 { get; set; }
+        public int? Pares1 { get; set; }
+        public Decimal? TotalIgv1 { get; set; }
+        public Decimal? PrecioPromedio1 { get; set; }
+        public Decimal? NParesTicket1 { get; set; }
+        //Campos condicionales de busqueda
+        public int Codigo { get; set; }
+        public int Descripcion { get; set; }
+    }
 }

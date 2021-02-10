@@ -20,6 +20,8 @@ namespace CapaPresentacion.Controllers
         private string _session_ListarMovimientosVentas_Excel = "_session_ListarMovimientosVentas_Excel";
         private string _session_ListarComisiones = "_session_ListarComisiones";
         private string _session_ListarComisiones_Excel = "_session_ListarComisiones_Excel";
+        private string _session_ListarVentasResumido = "_session_ListarVentasResumido";
+        private string _session_ListarVentasResumido_Excel = "_session_ListarVentasResumido_Excel";
 
         #region <CONSULTA DE VENTAS POR CATEGORIA>
         public ActionResult Ventas_Categoria()
@@ -622,6 +624,300 @@ namespace CapaPresentacion.Controllers
                 Response.ContentEncoding = Encoding.Default;
                 Response.Write(style);
                 Response.Write(Session[_session_ListarComisiones_Excel].ToString());
+                Response.End();
+            }
+            catch
+            {
+
+            }
+            return Json(new { estado = 0, mensaje = 1 });
+        }
+        #endregion
+
+        #region <RESUMEN DE VENTAS POR SEMANA>
+        /// <summary>
+        /// RESUMEN DE VENTAS POR SEMANA
+        /// </summary>
+        /// <create>Juilliand R. Damian Gomez </create>
+        /// <update></update> 
+        /// <returns></returns>
+        public ActionResult Resumen_Ventas()
+        {
+            Ent_Usuario _usuario = (Ent_Usuario)Session[Ent_Constantes.NameSessionUser];
+            string actionName = this.ControllerContext.RouteData.GetRequiredString("action");
+            string controllerName = this.ControllerContext.RouteData.GetRequiredString("controller");
+            string return_view = actionName + "|" + controllerName;
+
+            if (_usuario == null)
+            {
+                return RedirectToAction("Login", "Control", new { returnUrl = return_view });
+            }
+            else
+            {
+                Ent_Resumen_Ventas EntResumenVentas = new Ent_Resumen_Ventas();
+                ViewBag.EntResumenVentas = EntResumenVentas;
+                ViewBag.ListarAnno = datFacturacion.ListarAnno();
+                return View();
+            }
+
+        }
+        /// <summary>
+        /// LISTADO PRINCIPAL
+        /// </summary>
+        /// <create>Juilliand R. Damian Gomez </create>
+        /// <update></update>         
+        /// <param name="param"></param>
+        /// <param name="isOkUpdate"></param>
+        /// <param name="Anno"></param>
+        /// <returns></returns>
+        public JsonResult getResumenVentasAjax(Ent_jQueryDataTableParams param, bool isOkUpdate, int Anno)
+        {
+            Ent_Resumen_Ventas EntResumenVentas = new Ent_Resumen_Ventas();
+            if (isOkUpdate)
+            {
+                EntResumenVentas.Anno = Anno;
+
+
+                List<Ent_Resumen_Ventas> _ListarResumenVenta = datFacturacion.ListarResumenVenta(EntResumenVentas).ToList();
+                Session[_session_ListarVentasResumido] = _ListarResumenVenta;
+            }
+
+            /*verificar si esta null*/
+            if (Session[_session_ListarVentasResumido] == null)
+            {
+                List<Ent_Resumen_Ventas> _ListarResumenVenta = new List<Ent_Resumen_Ventas>();
+                Session[_session_ListarVentasResumido] = _ListarResumenVenta;
+            }
+
+            IQueryable<Ent_Resumen_Ventas> entDocTrans = ((List<Ent_Resumen_Ventas>)(Session[_session_ListarVentasResumido])).AsQueryable();
+            //Manejador de filtros
+            int totalCount = entDocTrans.Count();
+            IEnumerable<Ent_Resumen_Ventas> filteredMembers = entDocTrans;
+            if (!string.IsNullOrEmpty(param.sSearch))
+            {
+                filteredMembers = entDocTrans.Where(
+                        m =>
+                            m.Anno.ToString().ToUpper().Contains(param.sSearch.ToUpper()) ||
+                            m.Semana.ToString().ToUpper().Contains(param.sSearch.ToUpper()) ||
+                            m.TotalTickets.ToString().ToUpper().Contains(param.sSearch.ToUpper()) ||
+                            m.Pares.ToString().ToUpper().Contains(param.sSearch.ToUpper()) ||
+                            m.TotalIgv.ToString().ToUpper().Contains(param.sSearch.ToUpper()) ||
+                            m.PrecioPromedio.ToString().ToUpper().Contains(param.sSearch.ToUpper()) ||
+                            m.NParesTicket.ToString().ToUpper().Contains(param.sSearch.ToUpper()) ||
+                            m.Anno1.ToString().ToUpper().Contains(param.sSearch.ToUpper()) ||
+                            m.Semana1.ToString().ToUpper().Contains(param.sSearch.ToUpper()) ||
+                            m.TotalTickets1.ToString().ToUpper().Contains(param.sSearch.ToUpper()) ||
+                            m.Pares1.ToString().ToUpper().Contains(param.sSearch.ToUpper()) ||
+                            m.TotalIgv1.ToString().ToUpper().Contains(param.sSearch.ToUpper()) ||
+                            m.PrecioPromedio1.ToString().ToUpper().Contains(param.sSearch.ToUpper()) ||
+                            m.NParesTicket1.ToString().ToUpper().Contains(param.sSearch.ToUpper())
+                );
+            }
+            var sortIdx = Convert.ToInt32(Request["iSortCol_0"]);
+
+            if (param.iSortingCols > 0)
+            {
+                if (Request["sSortDir_0"].ToString() == "asc")
+                {
+                    switch (sortIdx)
+                    {
+                        case 0: filteredMembers = filteredMembers.OrderBy(o => o.Anno); break;
+                        case 1: filteredMembers = filteredMembers.OrderBy(o => o.Semana); break;
+                        case 2: filteredMembers = filteredMembers.OrderBy(o => o.TotalTickets); break;
+                        case 3: filteredMembers = filteredMembers.OrderBy(o => o.Pares); break;
+                        case 4: filteredMembers = filteredMembers.OrderBy(o => o.TotalIgv); break;
+                        case 5: filteredMembers = filteredMembers.OrderBy(o => o.PrecioPromedio); break;
+                        case 6: filteredMembers = filteredMembers.OrderBy(o => o.NParesTicket); break;
+                        case 7: filteredMembers = filteredMembers.OrderBy(o => o.Anno1); break;
+                        case 8: filteredMembers = filteredMembers.OrderBy(o => o.Semana1); break;
+                        case 9: filteredMembers = filteredMembers.OrderBy(o => o.TotalTickets1); break;
+                        case 10: filteredMembers = filteredMembers.OrderBy(o => o.Pares1); break;
+                        case 11: filteredMembers = filteredMembers.OrderBy(o => o.TotalIgv1); break;
+                        case 12: filteredMembers = filteredMembers.OrderBy(o => o.PrecioPromedio1); break;
+                        case 13: filteredMembers = filteredMembers.OrderBy(o => o.NParesTicket1); break;
+                    }
+                }
+                else
+                {
+                    switch (sortIdx)
+                    {
+                        case 0: filteredMembers = filteredMembers.OrderByDescending(o => o.Anno); break;
+                        case 1: filteredMembers = filteredMembers.OrderByDescending(o => o.Semana); break;
+                        case 2: filteredMembers = filteredMembers.OrderByDescending(o => o.TotalTickets); break;
+                        case 3: filteredMembers = filteredMembers.OrderByDescending(o => o.Pares); break;
+                        case 4: filteredMembers = filteredMembers.OrderByDescending(o => o.TotalIgv); break;
+                        case 5: filteredMembers = filteredMembers.OrderByDescending(o => o.PrecioPromedio); break;
+                        case 6: filteredMembers = filteredMembers.OrderByDescending(o => o.NParesTicket); break;
+                        case 7: filteredMembers = filteredMembers.OrderByDescending(o => o.Anno1); break;
+                        case 8: filteredMembers = filteredMembers.OrderByDescending(o => o.Semana1); break;
+                        case 9: filteredMembers = filteredMembers.OrderByDescending(o => o.TotalTickets1); break;
+                        case 10: filteredMembers = filteredMembers.OrderByDescending(o => o.Pares1); break;
+                        case 11: filteredMembers = filteredMembers.OrderByDescending(o => o.TotalIgv1); break;
+                        case 12: filteredMembers = filteredMembers.OrderByDescending(o => o.PrecioPromedio1); break;
+                        case 13: filteredMembers = filteredMembers.OrderByDescending(o => o.NParesTicket1); break;
+                    }
+                }
+            }
+
+            var Result = filteredMembers
+                .Skip(param.iDisplayStart)
+                .Take(param.iDisplayLength);
+
+            //Se devuelven los resultados por json
+            return Json(new
+            {
+                sEcho = param.sEcho,
+                iTotalRecords = totalCount,
+                iTotalDisplayRecords = filteredMembers.Count(),
+                aaData = Result
+            }, JsonRequestBehavior.AllowGet);
+        }
+        /// <summary>
+        /// VALIDACIONES PARA EXPORTAR EN EXCEL
+        /// </summary>
+        /// <create>Juilliand R. Damian Gomez </create>
+        /// <update></update>        
+        /// <param name="_Ent"></param>
+        /// <returns></returns>
+        public ActionResult get_exporta_ListarResumenVenta_excel(Ent_Resumen_Ventas _Ent)
+        {
+            JsonResponse objResult = new JsonResponse();
+            try
+            {
+                Session[_session_ListarVentasResumido_Excel] = null;
+                string cadena = "";
+                if (Session[_session_ListarVentasResumido] != null)
+                {
+
+                    List<Ent_Resumen_Ventas> _ListarVentasResumido = (List<Ent_Resumen_Ventas>)Session[_session_ListarVentasResumido];
+                    if (_ListarVentasResumido.Count == 0)
+                    {
+                        objResult.Success = false;
+                        objResult.Message = "No hay filas para exportar";
+                    }
+                    else
+                    {
+                        cadena = get_html_ListarVentasResumido_str((List<Ent_Resumen_Ventas>)Session[_session_ListarVentasResumido], _Ent);
+                        if (cadena.Length == 0)
+                        {
+                            objResult.Success = false;
+                            objResult.Message = "Error del formato html";
+                        }
+                        else
+                        {
+                            objResult.Success = true;
+                            objResult.Message = "Se genero el excel correctamente";
+                            Session[_session_ListarVentasResumido_Excel] = cadena;
+                        }
+                    }
+                }
+                else
+                {
+                    objResult.Success = false;
+                    objResult.Message = "No hay filas para exportar";
+                }
+
+            }
+            catch (Exception ex)
+            {
+                objResult.Success = false;
+                objResult.Message = "No hay filas para exportar";
+            }
+
+            var JSON = JsonConvert.SerializeObject(objResult);
+
+            return Json(JSON, JsonRequestBehavior.AllowGet);
+        }
+        /// <summary>
+        /// CREAMOS EL CUERPO DEL EXCEL
+        /// </summary>
+        /// <create>Juilliand R. Damian Gomez </create>
+        /// <update></update>  
+        /// <param name="_ListarVentasResumido"></param>
+        /// <param name="_Ent"></param>
+        /// <returns></returns>
+        public string get_html_ListarVentasResumido_str(List<Ent_Resumen_Ventas> _ListarVentasResumido, Ent_Resumen_Ventas _Ent)
+        {
+            StringBuilder sb = new StringBuilder();
+            var Lista = _ListarVentasResumido.ToList(); ;
+            try
+            {
+                sb.Append("<div>");
+                sb.Append("<table cellspacing='0' style='width: 1000px' rules='all' border='0' style='border-collapse:collapse;'>");
+                sb.Append("<tr><td Colspan='14'></td></tr>");
+                sb.Append("<tr><td Colspan='14' valign='middle' align='center' style='vertical-align: middle;font-size: 18.0pt;font-weight: bold;color:#285A8F'>REPORTE DE VENTAS POR SEMANA</td></tr>");
+                //sb.Append("<tr><td Colspan='14' valign='middle' align='center' style='vertical-align: middle;font-size: 10.0pt;font-weight: bold;color:#000000'>Ventas de semana con el año anterior al " + _Ent.Anno+ "</td></tr>");//subtitulo
+                sb.Append("</table>");
+                sb.Append("<table  border='1' bgColor='#ffffff' borderColor='#FFFFFF' cellSpacing='2' cellPadding='2' style='font-size:10.0pt; font-family:Calibri; background:white;width: 1000px'><tr  bgColor='#5799bf'>\n");
+                sb.Append("<tr bgColor='#1E77AB'>\n");
+                sb.Append("<th style='text-align: center; font-weight:bold;font-size:11.0pt;'><font color='#FFFFFF'>Año</font></th>\n");
+                sb.Append("<th style='text-align: center; font-weight:bold;font-size:11.0pt;'><font color='#FFFFFF'>Semana</font></th>\n");
+                sb.Append("<th style='text-align: center; font-weight:bold;font-size:11.0pt;'><font color='#FFFFFF'>Total Tickets</font></th>\n");
+                sb.Append("<th style='text-align: center; font-weight:bold;font-size:11.0pt;'><font color='#FFFFFF'>Pares</font></th>\n");
+                sb.Append("<th style='text-align: center; font-weight:bold;font-size:11.0pt;'><font color='#FFFFFF'>Total + Igv</font></th>\n");
+                sb.Append("<th style='text-align: center; font-weight:bold;font-size:11.0pt;'><font color='#FFFFFF'>Precio Promedio</font></th>\n");
+                sb.Append("<th style='text-align: center; font-weight:bold;font-size:11.0pt;'><font color='#FFFFFF'>N Pares por Ticket</font></th>\n");
+                sb.Append("<th style='text-align: center; font-weight:bold;font-size:11.0pt;'><font color='#FFFFFF'>Año</font></th>\n");
+                sb.Append("<th style='text-align: center; font-weight:bold;font-size:11.0pt;'><font color='#FFFFFF'>Semana</font></th>\n");
+                sb.Append("<th style='text-align: center; font-weight:bold;font-size:11.0pt;'><font color='#FFFFFF'>Total Tickets</font></th>\n");
+                sb.Append("<th style='text-align: center; font-weight:bold;font-size:11.0pt;'><font color='#FFFFFF'>Pares</font></th>\n");
+                sb.Append("<th style='text-align: center; font-weight:bold;font-size:11.0pt;'><font color='#FFFFFF'>Total + Igv</font></th>\n");
+                sb.Append("<th style='text-align: center; font-weight:bold;font-size:11.0pt;'><font color='#FFFFFF'>Precio Promedio</font></th>\n");
+                sb.Append("<th style='text-align: center; font-weight:bold;font-size:11.0pt;'><font color='#FFFFFF'>N Pares por Ticket</font></th>\n");
+                sb.Append("</tr>\n");
+                // {0:N2} Separacion miles , {0:F2} solo dos decimales
+                foreach (var item in Lista)
+                {
+                    sb.Append("<tr>\n");
+                    sb.Append("<td bgcolor='#B1DEF6' align='Center'>" + item.Anno + "</td>\n");
+                    sb.Append("<td bgcolor='#B1DEF6' align='Center'>" + item.Semana + "</td>\n");
+                    sb.Append("<td bgcolor='#B1DEF6' align='Center'>" + item.TotalTickets + "</td>\n");
+                    sb.Append("<td bgcolor='#B1DEF6' align='Center'>" + item.Pares + "</td>\n");
+                    sb.Append("<td bgcolor='#B1DEF6' align='right'>" + (item.TotalIgv == null ? " " : "S/ " + string.Format("{0:N2}", item.TotalIgv)) + "</td>\n");
+                    sb.Append("<td bgcolor='#B1DEF6' align='right'>" + (item.PrecioPromedio == null ? " " : "S/ " + string.Format("{0:N2}", item.PrecioPromedio)) + "</td>\n");
+                    sb.Append("<td bgcolor='#B1DEF6' align='right'>" + (item.NParesTicket == null ? " " :  string.Format("{0:F2}", item.NParesTicket)) + "</td>\n");
+                    sb.Append("<td align='Center'>" + item.Anno1 + "</td>\n");
+                    sb.Append("<td align='Center'>" + item.Semana1 + "</td>\n");
+                    sb.Append("<td align='Center'>" + item.TotalTickets1 + "</td>\n");
+                    sb.Append("<td align='Center'>" + item.Pares1 + "</td>\n");
+                    sb.Append("<td align='right'>" + (item.TotalIgv1 == null ? " " : "S/ " + string.Format("{0:N2}", item.TotalIgv1)) + "</td>\n");
+                    sb.Append("<td align='right'>" + (item.PrecioPromedio1 == null ? " " : "S/ " + string.Format("{0:N2}", item.PrecioPromedio1)) + "</td>\n");
+                    sb.Append("<td align='right'>" + (item.NParesTicket1 == null ? " " : string.Format("{0:F2}", item.NParesTicket1)) + "</td>\n");
+                    sb.Append("</tr>\n");
+                }
+                sb.Append("<tfoot>\n");
+                sb.Append("<tr bgcolor='#085B8C'>\n");
+                sb.Append("</tr>\n");
+                sb.Append("</tfoot>\n");
+                sb.Append("</table></div>");
+            }
+            catch
+            {
+
+            }
+            return sb.ToString();
+        }
+
+        /// <summary>
+        /// Exportamos el excel
+        /// </summary>
+        /// <create>Juilliand R. Damian Gomez </create>
+        /// <update></update>
+        /// <returns>xlx</returns>
+        public ActionResult ListarVentasResumidoExcel()
+        {
+            string NombreArchivo = "ventaResum";
+            String style = style = @"<style> .textmode { mso-number-format:\@; } </script> ";
+            try
+            {
+                Response.Clear();
+                Response.Buffer = true;
+                Response.ContentType = "application/vnd.ms-excel";
+                Response.AddHeader("Content-Disposition", "attachment;filename=" + NombreArchivo + ".xls");
+                Response.Charset = "UTF-8";
+                Response.ContentEncoding = Encoding.Default;
+                Response.Write(style);
+                Response.Write(Session[_session_ListarVentasResumido_Excel].ToString());
                 Response.End();
             }
             catch
