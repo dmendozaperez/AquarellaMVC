@@ -1,0 +1,456 @@
+﻿@{
+    ViewBag.Title = "Nuevos Lideres - Ventas por Rango de Fecha";
+    ViewBag.SubTitle = "";
+}
+<style>
+    .table thead {
+        background-color: #5799bf;
+        color: #fff;
+    }
+
+    .boton-xs-td {
+        padding-top: 5px !important;
+        padding-bottom: 5px !important;
+    }
+
+    .alignRight {
+        text-align: right;
+        vertical-align: middle;
+    }
+
+    .alignCenter {
+        text-align: center;
+        vertical-align: middle;
+    }
+</style>
+<p class="text-primary">Consulta Ventas de nuevos lideres por rango de fecha.</p>
+<div class="box box-header box-primary">
+    <h3 class="box-title danger" style="color:#9c9c9c;font-weight:bold">Parametro de Busqueda</h3>
+    <br />
+    <br />
+    <div class="row">
+        <div class="col-sm-3">
+        </div>
+        <div class="col-md-3" style="padding-left: 30px; padding-right: 0px;">
+        </div>
+        <div class="col-md-6" style="padding-left: 0px;">
+            <div class="col-md-5" style="padding-right: 0px;">
+                <div>
+                    <label for="lblFechaInicio" style="color: #3d566e;">Fecha de Inicio</label>
+                    <div id="datepickerIni" class="input-group date" data-date-format="dd/mm/yyyy">
+                        <input id="dtpFechaInicio" type="text" class="form-control input-sm ui-cell-input" disabled style="max-width: 100%" />
+                        <span class="input-group-addon btn btn-xs btn-default" style="padding: 4px 5px;">
+                            <i class="glyphicon glyphicon-calendar" height="20" width="20" style="color:#ff9f3f"></i>
+                        </span>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-5">
+                <label for="lblFechaFin" style="color: #3d566e;">Fecha de Cierre</label>
+                <div id="datepickerFin" class="input-group date" data-date-format="dd/mm/yyyy">
+                    <input id="dtpFechaFin" type="text" class="form-control input-sm ui-cell-input" disabled style="max-width: 100%" />
+                    <span class="input-group-addon btn btn-xs btn-default" style="padding: 4px 5px;">
+                        <i class="glyphicon glyphicon-calendar" height="20" width="20" style="color:#ff9f3f"></i>
+                    </span>
+                </div>
+            </div>
+            <div class="col-md-2 text-right" style="padding:0px">
+                <button id="btnBuscar" type="submit" title="Consultar" class="btn btn-primary" style="margin-top: 19px;">
+                    <span class="glyphicon glyphicon-search"></span>&nbsp;&nbsp;Buscar
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="box box-body box-primary">
+    <div class="row">
+        <div class="col-md-6">
+        </div>
+        <div class="col-md-6 text-right">
+            <button id="btnExportar" title="Actualizar" class="btn btn-success disabled" disabled>
+                <span class="glyphicon glyphicon-export"></span>&nbsp;&nbsp;Exportar Lista
+            </button>
+        </div>
+    </div>
+    <br />
+    <div class="row">
+        <div class="col-md-12">
+            <div class="table-responsive">
+                <table id="TbTabla" class="table table-hover table-bordered compact">
+                    <thead>
+                        <tr>
+                            <th style="text-align: center;">Lider</th>
+                            <th style="text-align: center;">Enero</th>
+                            <th style="text-align: center;">Febrero</th>
+                            <th style="text-align: center;">Marzo</th>
+                            <th style="text-align: center;">Abril</th>
+                            <th style="text-align: center;">Mayo</th>
+                            <th style="text-align: center;">Junio</th>
+                            <th style="text-align: center;">Julio</th>
+                            <th style="text-align: center;">Agosto</th>
+                            <th style="text-align: center;">Septiembre</th>
+                            <th style="text-align: center;">Octubre</th>
+                            <th style="text-align: center;">Noviembre</th>
+                            <th style="text-align: center;">Diciembre</th>
+                            <th style="text-align: center;">Total</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td colspan='9'>No se encontraron resultados</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section scripts{
+<script>
+        debugger
+        var objLiderVentas = {
+            Inicio: function () {
+                debugger
+                /*[Inicializamos variables]*/
+
+                $("#datepickerIni").datepicker({
+                    autoclose: true,
+                    todayHighlight: true
+                }).datepicker("setDate", "0");
+
+                $("#datepickerFin").datepicker({
+                    autoclose: true,
+                    todayHighlight: true
+                }).datepicker("setDate", "0");
+
+                this.isOkUpdate = true;
+                this.FechaInicio = $("#dtpFechaInicio").val();
+                this.FechaFin = $("#dtpFechaFin").val();
+                this.Tabla = $('#TbTabla');
+                this.blEnero = true;
+                this.blFebrero = true;
+                this.blMarzo = true;
+                this.blAbril = true;
+                this.blMayo = true;
+                this.blJunio = true;
+                this.blJulio = true;
+                this.blAgosto = true;
+                this.blSeptiembre = true;
+                this.blOctubre = true;
+                this.blNoviembre = true;
+                this.blDiciembre = true;
+
+                objLiderVentas.grid.get();
+                /*[/Inicializamos variables]*/
+
+                /*[btn Exportar y buscar]*/
+                $("#btnExportar").click(function () {
+                    objLiderVentas.FechaInicio = $("#dtpFechaInicio").val();
+                    objLiderVentas.FechaFin = $("#dtpFechaFin").val();
+                    waitingDialog.show("Espere por favor...")
+                    objLiderVentas.generaal.exportar();
+                })
+                $("#btnBuscar").click(function () {
+                    objLiderVentas.isOkUpdate = true;
+                    objLiderVentas.FechaInicio = $("#dtpFechaInicio").val();
+                    objLiderVentas.FechaFin = $("#dtpFechaFin").val();
+                    objLiderVentas.generaal.consultar();
+                })
+                /*[btn Exportar y buscar]*/
+            },
+            grid: {
+                get: function () {
+                    debugger
+                    objLiderVentas.Tabla.DataTable({
+                        "language": {
+                            "url": "../Scripts/DataTables/Spanish.json"
+                        },
+                       "fnServerData": function (sSource, aoData, fnCallback) {
+                            $.getJSON(sSource, aoData, function (json) {
+                                debugger;
+                                if (json.iTotalRecords > 0) {
+                                    json.dEnero == 0 ? objLiderVentas.Tabla.DataTable().columns([1]).visible(false) : objLiderVentas.Tabla.DataTable().columns([1]).visible(true);
+                                    json.dFebrero == 0 ? objLiderVentas.Tabla.DataTable().columns([2]).visible(false) : objLiderVentas.Tabla.DataTable().columns([2]).visible(true);
+                                    json.dMarzo == 0 ? objLiderVentas.Tabla.DataTable().columns([3]).visible(false) : objLiderVentas.Tabla.DataTable().columns([3]).visible(true);
+                                    json.dAbril == 0 ? objLiderVentas.Tabla.DataTable().columns([4]).visible(false) : objLiderVentas.Tabla.DataTable().columns([4]).visible(true);
+                                    json.dMayo == 0 ? objLiderVentas.Tabla.DataTable().columns([5]).visible(false) : objLiderVentas.Tabla.DataTable().columns([5]).visible(true);
+                                    json.dJunio == 0 ? objLiderVentas.Tabla.DataTable().columns([6]).visible(false) : objLiderVentas.Tabla.DataTable().columns([6]).visible(true);
+                                    json.dJulio == 0 ? objLiderVentas.Tabla.DataTable().columns([7]).visible(false) : objLiderVentas.Tabla.DataTable().columns([7]).visible(true);
+                                    json.dAgosto == 0 ? objLiderVentas.Tabla.DataTable().columns([8]).visible(false) : objLiderVentas.Tabla.DataTable().columns([8]).visible(true);
+                                    json.dSeptiembre == 0 ? objLiderVentas.Tabla.DataTable().columns([9]).visible(false) : objLiderVentas.Tabla.DataTable().columns([9]).visible(true);
+                                    json.dOctubre == 0 ? objLiderVentas.Tabla.DataTable().columns([10]).visible(false) : objLiderVentas.Tabla.DataTable().columns([10]).visible(true);
+                                    json.dNoviembre == 0 ? objLiderVentas.Tabla.DataTable().columns([11]).visible(false) : objLiderVentas.Tabla.DataTable().columns([11]).visible(true);
+                                    json.dDiciembre == 0 ? objLiderVentas.Tabla.DataTable().columns([12]).visible(false) : objLiderVentas.Tabla.DataTable().columns([12]).visible(true);
+                                }
+
+                                fnCallback(json);
+                            });
+                        },
+                        "bServerSide": true,
+                        "bAutoWidth": false,
+                        "sAjaxSource": '@Url.Action("getLiderVentasAjax", "Facturacion")',
+                        "fnServerParams": function (aoData) {
+                            debugger;
+                            aoData.push({ "name": "isOkUpdate", "value": objLiderVentas.isOkUpdate });
+                            aoData.push({ "name": "FechaInicio", "value": objLiderVentas.FechaInicio });
+                            aoData.push({ "name": "FechaFin", "value": objLiderVentas.FechaFin });
+                        },
+                        "bFilter": true,
+                        "bdestroy": true,
+                        "start": 0,
+                        "columnDefs": [{
+                            "orderable": false,
+                            "targets": [],
+                        }],
+                        "bDeferRender": true,
+                        "aoColumns": [
+                            { "sName": "lider", "mData": "lider", "sClass": ""},
+                            //Enero
+                            {
+                                "mData": null,
+                                "sClass": "alignRight",
+                                "bVisible": objLiderVentas.blEnero,
+                                "render": function (Data, type, full, meta) {
+                                    let Monto = full.Enero;
+                                    return (Monto == undefined || Monto == null || Monto == 0) ? ' ' : 'S/ ' + objLiderVentas.generaal.FormatDecimal(Monto, 2, '.', ',');
+                                }
+                            },
+                            //Febrero
+                            {
+                                "mData": null,
+                                "sClass": "alignRight",
+                                "bVisible": objLiderVentas.blFebrero,
+                                "render": function (Data, type, full, meta) {
+                                    let Monto = full.Febrero;
+                                    return (Monto == undefined || Monto == null || Monto == 0) ? ' ' : 'S/ ' + objLiderVentas.generaal.FormatDecimal(Monto, 2, '.', ',');
+                                }
+                            },
+                            //Marzo
+                            {
+                                "mData": null,
+                                "sClass": "alignRight",
+                                "bVisible": objLiderVentas.blMarzo,
+                                "render": function (Data, type, full, meta) {
+                                    let Monto = full.Marzo;
+                                    return (Monto == undefined || Monto == null || Monto == 0) ? ' ' : 'S/ ' + objLiderVentas.generaal.FormatDecimal(Monto, 2, '.', ',');
+                                }
+                            },
+                            //Abril
+                            {
+                                "mData": null,
+                                "sClass": "alignRight",
+                                "bVisible": objLiderVentas.blAbril,
+                                "render": function (Data, type, full, meta) {
+                                    let Monto = full.Abril;
+                                    return (Monto == undefined || Monto == null || Monto == 0) ? ' ' : 'S/ ' + objLiderVentas.generaal.FormatDecimal(Monto, 2, '.', ',');
+                                }
+                            },
+                            //Mayo
+                            {
+                                "mData": null,
+                                "sClass": "alignRight",
+                                "bVisible": objLiderVentas.blMayo,
+                                "render": function (Data, type, full, meta) {
+                                    let Monto = full.Mayo;
+                                    return (Monto == undefined || Monto == null || Monto == 0) ? ' ' : 'S/ ' + objLiderVentas.generaal.FormatDecimal(Monto, 2, '.', ',');
+                                }
+                            },
+                            //Junio
+                            {
+                                "mData": null,
+                                "sClass": "alignRight",
+                                "bVisible": objLiderVentas.blJunio,
+                                "render": function (Data, type, full, meta) {
+                                    let Monto = full.Junio;
+                                    return (Monto == undefined || Monto == null || Monto == 0) ? ' ' : 'S/ ' + objLiderVentas.generaal.FormatDecimal(Monto, 2, '.', ',');
+                                }
+                            },
+                            //Julio
+                            {
+                                "mData": null,
+                                "sClass": "alignRight",
+                                "bVisible": objLiderVentas.blJulio,
+                                "render": function (Data, type, full, meta) {
+                                    let Monto = full.Julio;
+                                    return (Monto == undefined || Monto == null || Monto == 0) ? ' ' : 'S/ ' + objLiderVentas.generaal.FormatDecimal(Monto, 2, '.', ',');
+                                }
+                            },
+                            //Agosto
+                            {
+                                "mData": null,
+                                "sClass": "alignRight",
+                                "bVisible": objLiderVentas.blAgosto,
+                                "render": function (Data, type, full, meta) {
+                                    let Monto = full.Agosto;
+                                    return (Monto == undefined || Monto == null || Monto == 0) ? ' ' : 'S/ ' + objLiderVentas.generaal.FormatDecimal(Monto, 2, '.', ',');
+                                }
+                            },
+                            //Septiembre
+                            {
+                                "mData": null,
+                                "sClass": "alignRight",
+                                "bVisible": objLiderVentas.blSeptiembre,
+                                "render": function (Data, type, full, meta) {
+                                    let Monto = full.Septiembre;
+                                    return (Monto == undefined || Monto == null || Monto == 0) ? ' ' : 'S/ ' + objLiderVentas.generaal.FormatDecimal(Monto, 2, '.', ',');
+                                }
+                            },
+                            //Octubre
+                            {
+                                "mData": null,
+                                "sClass": "alignRight",
+                                "bVisible": objLiderVentas.blOctubre,
+                                "render": function (Data, type, full, meta) {
+                                    let Monto = full.Octubre;
+                                    return (Monto == undefined || Monto == null || Monto == 0) ? ' ' : 'S/ ' + objLiderVentas.generaal.FormatDecimal(Monto, 2, '.', ',');
+                                }
+                            },
+                            //Noviembre
+                            {
+                                "mData": null,
+                                "sClass": "alignRight",
+                                "bVisible": objLiderVentas.blNoviembre,
+                                "render": function (Data, type, full, meta) {
+                                    let Monto = full.Noviembre;
+                                    return (Monto == undefined || Monto == null || Monto == 0) ? ' ' : 'S/ ' + objLiderVentas.generaal.FormatDecimal(Monto, 2, '.', ',');
+                                }
+                            },
+                            //Diciembre
+                            {
+                                "mData": null,
+                                "sClass": "alignRight",
+                                "bVisible": objLiderVentas.blDiciembre,
+                                "render": function (Data, type, full, meta) {
+                                    let Monto = full.Diciembre;
+                                    return (Monto == undefined || Monto == null || Monto == 0) ? ' ' : 'S/ ' + objLiderVentas.generaal.FormatDecimal(Monto, 2, '.', ',');
+                                }
+                            },
+                            //Grand_Total
+                            {
+                                "mData": null,
+                                "sClass": "alignRight",
+                                "render": function (Data, type, full, meta) {
+                                    let Monto = full.Grand_Total;
+                                    return (Monto == undefined || Monto == null || Monto == 0) ? ' ' : 'S/ ' + objLiderVentas.generaal.FormatDecimal(Monto, 2, '.', ',');
+                                }
+                            }
+
+                        ],
+                        "fnRowCallback": function (row, data, index) {
+                        },
+                        "drawCallback": function (settings) {
+                            objLiderVentas.isOkUpdate = false;
+                            var table = objLiderVentas.Tabla.dataTable();
+                            var data = table.fnGetData();
+                            if (data.length == 0) {
+                                $("#btnExportar").addClass("disabled");
+                                $("#btnExportar").attr('disabled', 'disabled');
+                            } else {
+                                $("#btnExportar").removeClass("disabled");
+                                $("#btnExportar").removeAttr("disabled");
+                            }
+                        },
+                        "initComplete": function (settings, json) {
+                        }
+                    });
+                },
+                cargaTabla: function () {
+                    debugger
+                    waitingDialog.show("Espere por favor...")
+                    objLiderVentas.Tabla.DataTable().ajax.reload(function () {
+                        waitingDialog.hide();
+                    });
+                },
+            },
+            generaal: {
+                FormatDecimal: function (numero, decimales, separadorDecimal, separadorMiles) {
+                    //debugger
+                    var partes, array;
+                    if (!isFinite(numero) || isNaN(numero = parseFloat(numero))) {
+                        return "";
+                    }
+                    if (typeof decimales === "undefined") {
+                        decimales = 2;
+                    }
+                    if (typeof separadorDecimal === "undefined") {
+                        separadorDecimal = ".";
+                    }
+                    if (typeof separadorMiles === "undefined") {
+                        separadorMiles = ",";
+                    }
+                    // Redondeamos
+                    if (!isNaN(parseInt(decimales))) {
+                        if (decimales >= 0) {
+                            numero = numero.toFixed(decimales);
+                        } else {
+                            numero = (
+                                Math.round(numero / Math.pow(10, Math.abs(decimales))) * Math.pow(10, Math.abs(decimales))
+                            ).toFixed();
+                        }
+                    } else {
+                        numero = numero.toString();
+                    }
+                    // Damos formato
+                    partes = numero.split(".", 2);
+                    array = partes[0].split("");
+                    for (var i = array.length - 3; i > 0 && array[i - 1] !== "-"; i -= 3) {
+                        array.splice(i, 0, separadorMiles);
+                    }
+                    numero = array.join("");
+                    if (partes.length > 1) {
+                        numero += separadorDecimal + partes[1];
+                    }
+                    return numero;
+                },
+                Validar : function(){
+                    debugger;
+                    if (objLiderVentas.FechaInicio == undefined || objLiderVentas.FechaInicio == null || objLiderVentas.FechaInicio.length == 0 || objLiderVentas.FechaInicio == '') {
+                        toastr.error("La fecha de Inicio no puede estar vacio", "Alerta");
+                        return false;
+                    }
+                    if (objLiderVentas.FechaFin == undefined || objLiderVentas.FechaFin == null || objLiderVentas.FechaFin.length == 0 || objLiderVentas.FechaFin == '') {
+                        toastr.error("La fecha de Fin no puede estar vacio", "Alerta");
+                        return false;
+                    }
+                    return true;
+                },
+                consultar: function () {
+                    debugger
+                    if (objLiderVentas.generaal.Validar()) {
+                        objLiderVentas.grid.cargaTabla();
+                    }
+                },
+                exportar: function () {
+                    var _Ent = function () { return @Html.Raw(Json.Encode(ViewBag.EntLiderVentas    )); }();
+                    _Ent.FechaInicio = objLiderVentas.FechaInicio;
+                    _Ent.FechaFin = objLiderVentas.FechaFin;
+                    $.ajax({
+                        type: "POST",
+                        url: '@Url.Action("get_exporta_ListarLiderVentas_excel", "Facturacion")',
+                        data : {_Ent:_Ent},
+                        success: function (data) {
+                            data = JSON.parse(data);
+                            waitingDialog.hide();
+                            if (data.Success) {
+                                toastr.success(data.Message);
+                                window.location = '@Url.Action("ListarLiderVentasExcel")';
+                            }
+                            else {
+                                toastr.error(data.Message, "Alerta");
+                            }
+                        },
+                        error: function (XMLHttpRequest, textStatus, errorThrown) {
+                            waitingDialog.hide();
+                            toastr.error("Error al exportar excel.", "Alerta");
+                        }
+                    });
+                }
+            }
+        };
+        $(document).ready(function () {
+            objLiderVentas.Inicio();
+        });
+</script>
+}

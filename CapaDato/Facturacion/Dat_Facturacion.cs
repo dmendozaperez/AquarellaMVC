@@ -217,5 +217,31 @@ namespace CapaDato.Facturacion
             }
             return Listar;
         }
+
+        public DataTable Consulta_Lider_N(Ent_Lider_Ventas _Ent)
+        {
+            string sqlquery = "USP_Consulta_Venta_LiderN";
+            SqlConnection cn = null;
+            SqlCommand cmd = null;
+            SqlDataAdapter da = null;
+            DataTable dt = null;
+            try
+            {
+                cn = new SqlConnection(Ent_Conexion.conexion);
+                cmd = new SqlCommand(sqlquery, cn);
+                cmd.CommandTimeout = 0;
+                cmd.CommandType = CommandType.StoredProcedure;
+                cmd.Parameters.AddWithValue("@fecha_ini", DbType.DateTime).Value = _Ent.FechaInicio;
+                cmd.Parameters.AddWithValue("@fecha_fin", DbType.DateTime).Value = _Ent.FechaFin;
+                da = new SqlDataAdapter(cmd);
+                dt = new DataTable();
+                da.Fill(dt);
+            }
+            catch
+            {
+                dt = null;
+            }
+            return dt;
+        }
     }
 }

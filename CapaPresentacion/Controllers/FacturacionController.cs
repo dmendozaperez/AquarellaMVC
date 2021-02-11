@@ -9,7 +9,10 @@ using System.Linq;
 using System.Web;
 using System.Web.Mvc;
 using System.Text;
+using System.Data;
 using Newtonsoft.Json;
+using System.Reflection;
+
 namespace CapaPresentacion.Controllers
 {
     public class FacturacionController : Controller
@@ -22,7 +25,8 @@ namespace CapaPresentacion.Controllers
         private string _session_ListarComisiones_Excel = "_session_ListarComisiones_Excel";
         private string _session_ListarVentasResumido = "_session_ListarVentasResumido";
         private string _session_ListarVentasResumido_Excel = "_session_ListarVentasResumido_Excel";
-
+        private string _session_ListarLiderVentas = "_session_ListarLiderVentas";
+        private string _session_ListarLiderVentas_Excel = "_session_ListarLiderVentas_Excel";
         #region <CONSULTA DE VENTAS POR CATEGORIA>
         public ActionResult Ventas_Categoria()
         {
@@ -918,6 +922,477 @@ namespace CapaPresentacion.Controllers
                 Response.ContentEncoding = Encoding.Default;
                 Response.Write(style);
                 Response.Write(Session[_session_ListarVentasResumido_Excel].ToString());
+                Response.End();
+            }
+            catch
+            {
+
+            }
+            return Json(new { estado = 0, mensaje = 1 });
+        }
+        #endregion
+
+        #region <NUEVO LIDER - VENTA>
+        /// <summary>
+        /// Nuevos Lideres - Ventas x Rango de Fecha
+        /// </summary>
+        /// <create>Juilliand R. Damian Gomez </create>
+        /// <update></update> 
+        /// <returns></returns>
+        public ActionResult LideresVenta()
+        {
+            //Ent_Usuario _usuario = (Ent_Usuario)Session[Ent_Constantes.NameSessionUser];
+            //string actionName = this.ControllerContext.RouteData.GetRequiredString("action");
+            //string controllerName = this.ControllerContext.RouteData.GetRequiredString("controller");
+            //string return_view = actionName + "|" + controllerName;
+
+            //if (_usuario == null)
+            //{
+            //    return RedirectToAction("Login", "Control", new { returnUrl = return_view });
+            //}
+            //else
+            //{
+                Ent_Lider_Ventas EntLiderVentas = new Ent_Lider_Ventas();
+                ViewBag.EntLiderVentas = EntLiderVentas;
+                return View();
+            //}
+        }
+        private static List<T> ConvertDataTable<T>(DataTable dt)
+        {
+            List<T> data = new List<T>();
+            foreach (DataRow row in dt.Rows)
+            {
+                T item = GetItem<T>(row);
+                data.Add(item);
+            }
+            return data;
+        }
+        private static T GetItem<T>(DataRow dr)
+        {
+            Type temp = typeof(T);
+            T obj = Activator.CreateInstance<T>();
+
+            foreach (DataColumn column in dr.Table.Columns)
+            {
+                foreach (PropertyInfo pro in temp.GetProperties())
+                {
+                    if (pro.Name == column.ColumnName)
+                    {
+
+                        if (column.ColumnName == "lider")
+                        {
+                            pro.SetValue(obj, dr[column.ColumnName], null);
+                        }
+                        else
+                        {
+                            pro.SetValue(obj, (dr[column.ColumnName] is DBNull) ? (Decimal?)null : Convert.ToDecimal(dr[column.ColumnName]), null);
+                        }                        
+                    }
+                    else
+                    {
+                        continue;
+                    }
+                }
+            }
+            return obj;
+        }
+        /// <summary>
+        /// LISTADO PRINCIPAL
+        /// </summary>
+        /// <create>Juilliand R. Damian Gomez </create>
+        /// <update></update> 
+        /// <param name="param"></param>
+        /// <param name="isOkUpdate"></param>
+        /// <param name="FechaInicio"></param>
+        /// <param name="FechaFin"></param>
+        /// <returns></returns>
+        public JsonResult getLiderVentasAjax(Ent_jQueryDataTableParams param, bool isOkUpdate, string FechaInicio, string FechaFin)
+        {
+            Ent_Lider_Ventas EntLiderVentas = new Ent_Lider_Ventas();
+            Decimal Enero = 0, Febrero = 0, Marzo = 0, Abril = 0, Mayo = 0, Junio = 0, Julio = 0, Agosto = 0, Septiembre = 0, Octubre = 0, Noviembre = 0, Diciembre = 0;
+            if (isOkUpdate)
+            {
+                EntLiderVentas.FechaInicio = DateTime.Parse(FechaInicio);
+                EntLiderVentas.FechaFin = DateTime.Parse(FechaFin);
+
+                DataTable dtLiderVentas = datFacturacion.Consulta_Lider_N(EntLiderVentas);
+                List<Ent_Lider_Ventas> _ListarLiderVentas = new List<Ent_Lider_Ventas>();
+                _ListarLiderVentas = ConvertDataTable<Ent_Lider_Ventas>(dtLiderVentas).ToList();
+
+                Session[_session_ListarLiderVentas] = _ListarLiderVentas;
+            }
+
+            /*verificar si esta null*/
+            if (Session[_session_ListarLiderVentas] == null)
+            {
+                List<Ent_Lider_Ventas> _ListarLiderVentas = new List<Ent_Lider_Ventas>();
+                Session[_session_ListarLiderVentas] = _ListarLiderVentas;
+            }
+
+            IQueryable<Ent_Lider_Ventas> entDocTrans = ((List<Ent_Lider_Ventas>)(Session[_session_ListarLiderVentas])).AsQueryable();
+            //Manejador de filtros
+            int totalCount = entDocTrans.Count();
+
+            if (totalCount>0)
+            {
+                Enero = entDocTrans.Sum(x => x.Enero);
+                Febrero = entDocTrans.Sum(x => x.Febrero);
+                Marzo = entDocTrans.Sum(x => x.Marzo);
+                Abril = entDocTrans.Sum(x => x.Abril);
+                Mayo = entDocTrans.Sum(x => x.Mayo);
+                Junio = entDocTrans.Sum(x => x.Junio);
+                Julio = entDocTrans.Sum(x => x.Julio);
+                Agosto = entDocTrans.Sum(x => x.Agosto);
+                Septiembre = entDocTrans.Sum(x => x.Septiembre);
+                Octubre = entDocTrans.Sum(x => x.Octubre);
+                Noviembre = entDocTrans.Sum(x => x.Noviembre);
+                Diciembre = entDocTrans.Sum(x => x.Diciembre);
+            }
+            IEnumerable<Ent_Lider_Ventas> filteredMembers = entDocTrans;
+
+
+            if (!string.IsNullOrEmpty(param.sSearch))
+            {
+                filteredMembers = entDocTrans.Where(
+                        m =>
+                            m.lider.ToString().ToUpper().Contains(param.sSearch.ToUpper()) ||
+                            m.Enero.ToString().ToUpper().Contains(param.sSearch.ToUpper()) ||
+                            m.Febrero.ToString().ToUpper().Contains(param.sSearch.ToUpper()) ||
+                            m.Marzo.ToString().ToUpper().Contains(param.sSearch.ToUpper()) ||
+                            m.Abril.ToString().ToUpper().Contains(param.sSearch.ToUpper()) ||
+                            m.Mayo.ToString().ToUpper().Contains(param.sSearch.ToUpper()) ||
+                            m.Junio.ToString().ToUpper().Contains(param.sSearch.ToUpper()) ||
+                            m.Julio.ToString().ToUpper().Contains(param.sSearch.ToUpper()) ||
+                            m.Agosto.ToString().ToUpper().Contains(param.sSearch.ToUpper()) ||
+                            m.Septiembre.ToString().ToUpper().Contains(param.sSearch.ToUpper()) ||
+                            m.Octubre.ToString().ToUpper().Contains(param.sSearch.ToUpper()) ||
+                            m.Noviembre.ToString().ToUpper().Contains(param.sSearch.ToUpper()) ||
+                            m.Diciembre.ToString().ToUpper().Contains(param.sSearch.ToUpper()) ||
+                            m.Grand_Total.ToString().ToUpper().Contains(param.sSearch.ToUpper())
+
+                );
+            }
+            var sortIdx = Convert.ToInt32(Request["iSortCol_0"]);
+
+            if (param.iSortingCols > 0)
+            {
+                if (Request["sSortDir_0"].ToString() == "asc")
+                {
+                    switch (sortIdx)
+                    {
+                        case 0: filteredMembers = filteredMembers.OrderBy(o => o.lider); break;
+                        case 1: filteredMembers = filteredMembers.OrderBy(o => o.Enero); break;
+                        case 2: filteredMembers = filteredMembers.OrderBy(o => o.Febrero); break;
+                        case 3: filteredMembers = filteredMembers.OrderBy(o => o.Marzo); break;
+                        case 4: filteredMembers = filteredMembers.OrderBy(o => o.Abril); break;
+                        case 5: filteredMembers = filteredMembers.OrderBy(o => o.Mayo); break;
+                        case 6: filteredMembers = filteredMembers.OrderBy(o => o.Junio); break;
+                        case 7: filteredMembers = filteredMembers.OrderBy(o => o.Julio); break;
+                        case 8: filteredMembers = filteredMembers.OrderBy(o => o.Agosto); break;
+                        case 9: filteredMembers = filteredMembers.OrderBy(o => o.Septiembre); break;
+                        case 10: filteredMembers = filteredMembers.OrderBy(o => o.Octubre); break;
+                        case 11: filteredMembers = filteredMembers.OrderBy(o => o.Noviembre); break;
+                        case 12: filteredMembers = filteredMembers.OrderBy(o => o.Diciembre); break;
+                        case 13: filteredMembers = filteredMembers.OrderBy(o => o.Grand_Total); break;
+                    }
+                }
+                else
+                {
+                    switch (sortIdx)
+                    {
+                        case 0: filteredMembers = filteredMembers.OrderByDescending(o => o.lider); break;
+                        case 1: filteredMembers = filteredMembers.OrderByDescending(o => o.Enero); break;
+                        case 2: filteredMembers = filteredMembers.OrderByDescending(o => o.Febrero); break;
+                        case 3: filteredMembers = filteredMembers.OrderByDescending(o => o.Marzo); break;
+                        case 4: filteredMembers = filteredMembers.OrderByDescending(o => o.Abril); break;
+                        case 5: filteredMembers = filteredMembers.OrderByDescending(o => o.Mayo); break;
+                        case 6: filteredMembers = filteredMembers.OrderByDescending(o => o.Junio); break;
+                        case 7: filteredMembers = filteredMembers.OrderByDescending(o => o.Julio); break;
+                        case 8: filteredMembers = filteredMembers.OrderByDescending(o => o.Agosto); break;
+                        case 9: filteredMembers = filteredMembers.OrderByDescending(o => o.Septiembre); break;
+                        case 10: filteredMembers = filteredMembers.OrderByDescending(o => o.Octubre); break;
+                        case 11: filteredMembers = filteredMembers.OrderByDescending(o => o.Noviembre); break;
+                        case 12: filteredMembers = filteredMembers.OrderByDescending(o => o.Diciembre); break;
+                        case 13: filteredMembers = filteredMembers.OrderByDescending(o => o.Grand_Total); break;
+                    }
+                }
+            }
+
+            var Result = filteredMembers
+                .Skip(param.iDisplayStart)
+                .Take(param.iDisplayLength);
+
+            //Se devuelven los resultados por json
+            return Json(new
+            {
+                sEcho = param.sEcho,
+                iTotalRecords = totalCount,
+                iTotalDisplayRecords = filteredMembers.Count(),
+                aaData = Result,
+                dEnero = Enero,
+                dFebrero = Febrero,
+                dMarzo = Marzo,
+                dAbril = Abril,
+                dMayo = Mayo,
+                dJunio = Junio,
+                dJulio = Julio,
+                dAgosto = Agosto,
+                dSeptiembre = Septiembre,
+                dOctubre = Octubre,
+                dNoviembre = Noviembre,
+                dDiciembre = Diciembre
+            }, JsonRequestBehavior.AllowGet);
+        }
+        /// <summary>
+        /// VALIDACIONES PARA EXPORTAR EN EXCEL
+        /// </summary>
+        /// <create>Juilliand R. Damian Gomez </create>
+        /// <update></update>        
+        /// <param name="_Ent"></param>
+        /// <returns></returns>
+        public ActionResult get_exporta_ListarLiderVentas_excel(Ent_Lider_Ventas _Ent)
+        {
+            JsonResponse objResult = new JsonResponse();
+            try
+            {
+                Session[_session_ListarLiderVentas_Excel] = null;
+                string cadena = "";
+                if (Session[_session_ListarLiderVentas] != null)
+                {
+
+                    List<Ent_Lider_Ventas> _ListarLiderVentas = (List<Ent_Lider_Ventas>)Session[_session_ListarLiderVentas];
+                    if (_ListarLiderVentas.Count == 0)
+                    {
+                        objResult.Success = false;
+                        objResult.Message = "No hay filas para exportar";
+                    }
+                    else
+                    {
+                        cadena = get_html_ListarLiderVentas_str((List<Ent_Lider_Ventas>)Session[_session_ListarLiderVentas], _Ent);
+                        if (cadena.Length == 0)
+                        {
+                            objResult.Success = false;
+                            objResult.Message = "Error del formato html";
+                        }
+                        else
+                        {
+                            objResult.Success = true;
+                            objResult.Message = "Se genero el excel correctamente";
+                            Session[_session_ListarLiderVentas_Excel] = cadena;
+                        }
+                    }
+                }
+                else
+                {
+                    objResult.Success = false;
+                    objResult.Message = "No hay filas para exportar";
+                }
+
+            }
+            catch (Exception ex)
+            {
+                objResult.Success = false;
+                objResult.Message = "No hay filas para exportar";
+            }
+
+            var JSON = JsonConvert.SerializeObject(objResult);
+
+            return Json(JSON, JsonRequestBehavior.AllowGet);
+        }
+        /// <summary>
+        /// CREAMOS EL CUERPO DEL EXCEL
+        /// </summary>
+        /// <create>Juilliand R. Damian Gomez </create>
+        /// <update></update>  
+        /// <param name="_ListarLiderVentas"></param>
+        /// <param name="_Ent"></param>
+        /// <returns></returns>
+        public string get_html_ListarLiderVentas_str(List<Ent_Lider_Ventas> _ListarLiderVentas, Ent_Lider_Ventas _Ent)
+        {
+            StringBuilder sb = new StringBuilder();
+            Decimal Enero = 0, Febrero = 0, Marzo = 0, Abril = 0, Mayo = 0, Junio = 0, Julio = 0, Agosto = 0, Septiembre = 0, Octubre = 0, Noviembre = 0, Diciembre = 0;
+            var TCS = 0; //Tamaño de Colspan
+            var Lista = _ListarLiderVentas.ToList();
+
+            Enero = _ListarLiderVentas.Sum(x => x.Enero);
+            TCS += (Enero == 0 ? 0 : 1);
+            Febrero = _ListarLiderVentas.Sum(x => x.Febrero);
+            TCS += (Febrero == 0 ? 0 : 1);
+            Marzo = _ListarLiderVentas.Sum(x => x.Marzo);
+            TCS += (Marzo == 0 ? 0 : 1);
+            Abril = _ListarLiderVentas.Sum(x => x.Abril);
+            TCS += (Abril == 0 ? 0 : 1);
+            Mayo = _ListarLiderVentas.Sum(x => x.Mayo);
+            TCS += (Mayo == 0 ? 0 : 1);
+            Junio = _ListarLiderVentas.Sum(x => x.Junio);
+            TCS += (Junio == 0 ? 0 : 1);
+            Julio = _ListarLiderVentas.Sum(x => x.Julio);
+            TCS += (Julio == 0 ? 0 : 1);
+            Agosto = _ListarLiderVentas.Sum(x => x.Agosto);
+            TCS += (Agosto == 0 ? 0 : 1);
+            Septiembre = _ListarLiderVentas.Sum(x => x.Septiembre);
+            TCS += (Septiembre == 0 ? 0 : 1);
+            Octubre = _ListarLiderVentas.Sum(x => x.Octubre);
+            TCS += (Octubre == 0 ? 0 : 1);
+            Noviembre = _ListarLiderVentas.Sum(x => x.Noviembre);
+            TCS += (Noviembre == 0 ? 0 : 1);
+            Diciembre = _ListarLiderVentas.Sum(x => x.Diciembre);
+            TCS += (Diciembre == 0 ? 0 : 1);
+            try
+            {
+                sb.Append("<div>");
+                sb.Append("<table cellspacing='0' style='width: 1000px' rules='all' border='0' style='border-collapse:collapse;'>");
+                sb.Append("<tr><td Colspan=" + (TCS + 2) + "></td></tr>");
+                sb.Append("<tr><td Colspan=" + (TCS + 2) + " valign='middle' align='center' style='vertical-align: middle;font-size: 18.0pt;font-weight: bold;color:#285A8F'>REPORTE DE VENTAS - NUEVOS LIDERES</td></tr>");
+                sb.Append("<tr><td Colspan=" + (TCS + 2) + " valign='middle' align='center' style='vertical-align: middle;font-size: 10.0pt;font-weight: bold;color:#000000'>Desde el " + String.Format("{0:dd/MM/yyyy}", _Ent.FechaInicio) + " hasta el " + String.Format("{0:dd/MM/yyyy}", _Ent.FechaFin) + "</td></tr>");//subtitulo
+                sb.Append("</table>");
+                sb.Append("<table  border='1' bgColor='#ffffff' borderColor='#FFFFFF' cellSpacing='2' cellPadding='2' style='font-size:10.0pt; font-family:Calibri; background:white;width: 1000px'><tr  bgColor='#5799bf'>\n");
+                sb.Append("<tr bgColor='#1E77AB'>\n");
+                sb.Append("<th style='text-align: center; font-weight:bold;font-size:11.0pt;'><font color='#FFFFFF'>Lider</font></th>\n");
+
+                if (Enero>0)
+                {
+                    sb.Append("<th style='text-align: center; font-weight:bold;font-size:11.0pt;'><font color='#FFFFFF'>Enero </font></th>\n");
+                }
+                if (Febrero > 0)
+                {
+                    sb.Append("<th style='text-align: center; font-weight:bold;font-size:11.0pt;'><font color='#FFFFFF'>Febrero</font></th>\n");
+                }
+                if (Marzo > 0)
+                {
+                    sb.Append("<th style='text-align: center; font-weight:bold;font-size:11.0pt;'><font color='#FFFFFF'>Marzo</font></th>\n");
+                }
+                if (Abril > 0)
+                {
+                    sb.Append("<th style='text-align: center; font-weight:bold;font-size:11.0pt;'><font color='#FFFFFF'>Abril</font></th>\n");
+                }
+                if (Mayo > 0)
+                {
+                    sb.Append("<th style='text-align: center; font-weight:bold;font-size:11.0pt;'><font color='#FFFFFF'>Mayo</font></th>\n");
+                }
+                if (Junio > 0)
+                {
+                    sb.Append("<th style='text-align: center; font-weight:bold;font-size:11.0pt;'><font color='#FFFFFF'>Junio</font></th>\n");
+                }
+
+                if (Julio > 0)
+                {
+                    sb.Append("<th style='text-align: center; font-weight:bold;font-size:11.0pt;'><font color='#FFFFFF'>Julio</font></th>\n");
+                }
+                if (Agosto > 0)
+                {
+                    sb.Append("<th style='text-align: center; font-weight:bold;font-size:11.0pt;'><font color='#FFFFFF'>Agosto</font></th>\n");
+                }
+                if (Septiembre > 0)
+                {
+                    sb.Append("<th style='text-align: center; font-weight:bold;font-size:11.0pt;'><font color='#FFFFFF'>Septiembre</font></th>\n");
+                }
+                if (Octubre > 0)
+                {
+                    sb.Append("<th style='text-align: center; font-weight:bold;font-size:11.0pt;'><font color='#FFFFFF'>Octubre</font></th>\n");
+                }
+                if (Noviembre > 0)
+                {
+                    sb.Append("<th style='text-align: center; font-weight:bold;font-size:11.0pt;'><font color='#FFFFFF'>Noviembre</font></th>\n");
+                }
+                if (Diciembre > 0)
+                {
+                    sb.Append("<th style='text-align: center; font-weight:bold;font-size:11.0pt;'><font color='#FFFFFF'>Diciembre</font></th>\n");
+                }
+
+
+                sb.Append("<th style='text-align: center; font-weight:bold;font-size:11.0pt;'><font color='#FFFFFF'>Total</font></th>\n");
+                sb.Append("</tr>\n");
+                // {0:N2} Separacion miles , {0:F2} solo dos decimales
+                foreach (var item in Lista)
+                {
+                    sb.Append("<tr>\n");
+                    sb.Append("<td bgcolor='' align=''>" + item.lider + "</td>\n");
+                    if (Enero > 0)
+                    {
+                        sb.Append("<td align='right'>" + (item.Enero == null || item.Enero == 0 ? " " : "S/ " + string.Format("{0:N2}", item.Enero)) + "</td>\n");
+                    }
+                    if (Febrero > 0)
+                    {
+                        sb.Append("<td align='right'>" + (item.Febrero == null || item.Febrero == 0 ? " " : "S/ " + string.Format("{0:N2}", item.Febrero)) + "</td>\n");
+                    }
+                    if (Marzo > 0)
+                    {
+                        sb.Append("<td align='right'>" + (item.Marzo == null || item.Marzo == 0 ? " " : "S/ " + string.Format("{0:N2}", item.Marzo)) + "</td>\n");
+                    }
+                    if (Abril > 0)
+                    {
+                        sb.Append("<td align='right'>" + (item.Abril == null || item.Abril == 0 ? " " : "S/ " + string.Format("{0:N2}", item.Abril)) + "</td>\n");
+                    }
+                    if (Mayo > 0)
+                    {
+                        sb.Append("<td align='right'>" + (item.Mayo == null || item.Mayo == 0 ? " " : "S/ " + string.Format("{0:N2}", item.Mayo)) + "</td>\n");
+                    }
+                    if (Junio > 0)
+                    {
+                        sb.Append("<td align='right'>" + (item.Junio == null || item.Junio == 0 ? " " : "S/ " + string.Format("{0:N2}", item.Junio)) + "</td>\n");
+                    }
+                    if (Julio > 0)
+                    {
+                        sb.Append("<td align='right'>" + (item.Julio == null || item.Julio == 0 ? " " : "S/ " + string.Format("{0:N2}", item.Julio)) + "</td>\n");
+                    }
+                    if (Agosto > 0)
+                    {
+                        sb.Append("<td align='right'>" + (item.Agosto == null || item.Agosto == 0 ? " " : "S/ " + string.Format("{0:N2}", item.Agosto)) + "</td>\n");
+                    }
+                    if (Septiembre > 0)
+                    {
+                        sb.Append("<td align='right'>" + (item.Septiembre == null || item.Septiembre == 0 ? " " : "S/ " + string.Format("{0:N2}", item.Septiembre)) + "</td>\n");
+                    }
+                    if (Octubre > 0)
+                    {
+                        sb.Append("<td align='right'>" + (item.Octubre == null || item.Octubre == 0 ? " " : "S/ " + string.Format("{0:N2}", item.Octubre)) + "</td>\n");
+                    }
+                    if (Noviembre > 0)
+                    {
+                        sb.Append("<td align='right'>" + (item.Noviembre == null || item.Noviembre == 0 ? " " : "S/ " + string.Format("{0:N2}", item.Noviembre)) + "</td>\n");
+                    }
+                    if (Diciembre > 0)
+                    {
+                        sb.Append("<td align='right'>" + (item.Diciembre == null || item.Diciembre == 0 ? " " : "S/ " + string.Format("{0:N2}", item.Diciembre)) + "</td>\n");
+
+                    }                    
+                    sb.Append("<td align='right'>" + (item.Grand_Total == null || item.Grand_Total == 0 ? " " : "S/ " + string.Format("{0:N2}", item.Grand_Total)) + "</td>\n");
+                    sb.Append("</tr>\n");
+                }
+                sb.Append("<tfoot>\n");
+                sb.Append("<tr bgcolor='#085B8C'>\n");
+                sb.Append("</tr>\n");
+                sb.Append("</tfoot>\n");
+                sb.Append("</table></div>");
+            }
+            catch
+            {
+
+            }
+            return sb.ToString();
+        }
+
+        /// <summary>
+        /// Exportamos el excel
+        /// </summary>
+        /// <create>Juilliand R. Damian Gomez </create>
+        /// <update></update>
+        /// <returns>xlx</returns>
+        public ActionResult ListarLiderVentasExcel()
+        {
+            string NombreArchivo = "VentaLiderNuevos";
+            String style = style = @"<style> .textmode { mso-number-format:\@; } </script> ";
+            try
+            {
+                Response.Clear();
+                Response.Buffer = true;
+                Response.ContentType = "application/vnd.ms-excel";
+                Response.AddHeader("Content-Disposition", "attachment;filename=" + NombreArchivo + ".xls");
+                Response.Charset = "UTF-8";
+                Response.ContentEncoding = Encoding.Default;
+                Response.Write(style);
+                Response.Write(Session[_session_ListarLiderVentas_Excel].ToString());
                 Response.End();
             }
             catch

@@ -75,4 +75,25 @@ namespace CapaEntidad.Facturacion
         public int Codigo { get; set; }
         public int Descripcion { get; set; }
     }
+
+    public class Ent_Lider_Ventas
+    {
+        public string lider { get; set; }
+        public Decimal Enero { get; set; }
+        public Decimal Febrero { get; set; }
+        public Decimal Marzo { get; set; }
+        public Decimal Abril { get; set; }
+        public Decimal Mayo { get; set; }
+        public Decimal Junio { get; set; }
+        public Decimal Julio { get; set; }
+        public Decimal Agosto { get; set; }
+        public Decimal Septiembre { get; set; }
+        public Decimal Octubre { get; set; }
+        public Decimal Noviembre { get; set; }
+        public Decimal Diciembre { get; set; }
+        public Decimal Grand_Total {get; set;}
+        //campos adicionales de busqueda
+        public DateTime FechaInicio { get; set; }
+        public DateTime FechaFin { get; set; }
+    }
 }
