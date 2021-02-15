@@ -96,4 +96,22 @@ namespace CapaEntidad.Facturacion
         public DateTime FechaInicio { get; set; }
         public DateTime FechaFin { get; set; }
     }
+
+    public class Ent_Ventas_Tallas
+    {
+        public string Articulo { get; set; }
+        public Decimal Pares_Venta { get; set; }
+        public Decimal TotalParesStock { get; set; }
+        //Detalle
+        public List<Ent_Ventas_Talla_Detalle> _ListarDetalle { get; set; }
+
+        //campos adicionales de busqueda
+        public string FechaInicio { get; set; }
+        public string FechaFin { get; set; }
+    }
+    public class Ent_Ventas_Talla_Detalle
+    {
+        public string Talla { get; set; }
+        public int Pares_Stock { get; set; }
+    }
 }

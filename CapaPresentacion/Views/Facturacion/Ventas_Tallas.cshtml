@@ -1,0 +1,341 @@
+﻿@{
+    ViewBag.Title = "Reporte de venta y stock final por talla";
+    ViewBag.SubTitle = "";
+}
+<style>
+    .table thead {
+        background-color: #5799bf;
+        color: #fff;
+    }
+
+    .boton-xs-td {
+        padding-top: 5px !important;
+        padding-bottom: 5px !important;
+    }
+
+    .alignRight {
+        text-align: right;
+        vertical-align: middle;
+    }
+
+    .alignCenter {
+        text-align: center;
+        vertical-align: middle;
+    }
+</style>
+<p class="text-primary">Consulte entre un rango de fechas, este rango de fecha solo afecta las ventas</p>
+
+<div class="box box-header box-primary">
+    <label style="color:#9c9c9c;font-weight:bold">Parametros de busqueda</label>
+    <br />
+    <div class="row">
+        <div class="col-sm-4">
+        </div>
+        <div class="col-md-5">
+            <div class="col-md-6" style="padding-right: 0px;">
+                <div>
+                    <label for="lblFechaInicio" style="color: #3d566e;">Fecha de Inicio</label>
+                    <div id="datepickerIni" class="input-group date" data-date-format="dd/mm/yyyy">
+                        <input id="dtpFechaInicio" type="text" class="form-control input-sm ui-cell-input" disabled style="max-width: 100%" />
+                        <span class="input-group-addon btn btn-xs btn-default" style="padding: 4px 5px;">
+                            <i class="glyphicon glyphicon-calendar" height="20" width="20" style="color:#ff9f3f"></i>
+                        </span>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <label for="lblFechaFin" style="color: #3d566e;">Fecha de Cierre</label>
+                <div id="datepickerFin" class="input-group date" data-date-format="dd/mm/yyyy">
+                    <input id="dtpFechaFin" type="text" class="form-control input-sm ui-cell-input" disabled style="max-width: 100%" />
+                    <span class="input-group-addon btn btn-xs btn-default" style="padding: 4px 5px;">
+                        <i class="glyphicon glyphicon-calendar" height="20" width="20" style="color:#ff9f3f"></i>
+                    </span>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 text-right" style="margin-top: 21px;">
+            <div class="form-group" style="margin-bottom: 0px;">
+                <div class="input-group">
+                    <input id="txtArticulo" type="text" class="form-control" style="max-width: 100%" placeholder="Número de articulo" />
+                    <div class="input-group-btn">
+                        <button id="btnBuscar" class="btn btn-primary" type="button">
+                            <i class="glyphicon glyphicon-search" style="color:#FFF"></i>
+                            &nbsp;&nbsp;Buscar
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="box box-body box-primary">
+    <div class="row">
+        <div class="col-md-6">
+        </div>
+        <div class="col-md-6 text-right">
+            <button id="btnExportar" title="Actualizar" class="btn btn-success disabled" disabled>
+                <span class="glyphicon glyphicon-export"></span>&nbsp;&nbsp;Exportar Lista
+            </button>
+        </div>
+    </div>
+    <br />
+    <div class="row">
+        <div class="col-md-12">
+            <div class="table-responsive">
+                <table id="TbTabla" class="table table-hover table-bordered compact">
+                    <thead>
+                        <tr>
+                            <th style="text-align: center;">Articulo</th>
+                            <th style="text-align: center;">Pares</th>
+                            <th style="text-align: center;">Talla / Cantidad</th>
+
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td colspan='3'>No se encontraron resultados</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+@section scripts{
+ <script>
+        //debugger
+        var objVentaTallas = {
+            Inicio: function () {
+                //debugger
+                /*[Inicializamos variables]*/
+
+                $("#datepickerIni").datepicker({
+                    autoclose: true,
+                    todayHighlight: true,
+                    defaultDate : '-1'
+                }).datepicker("setDate", "0");
+
+                $("#datepickerFin").datepicker({
+                    autoclose: true,
+                    todayHighlight: true
+                }).datepicker("setDate", "0");
+
+                this.isOkUpdate = true;
+                this.Articulo = "-1";
+                this.FechaInicio = $("#dtpFechaInicio").val();
+                this.FechaFin = $("#dtpFechaFin").val();
+                this.Tabla = $('#TbTabla');
+                
+                objVentaTallas.generaal.SoloTexto($("#txtArticulo"));
+                objVentaTallas.grid.get();
+                /*[/Inicializamos variables]*/
+
+                /*[btn Exportar y buscar]*/
+                $("#btnExportar").click(function () {
+                    objVentaTallas.FechaInicio = $("#dtpFechaInicio").val();
+                    objVentaTallas.FechaFin = $("#dtpFechaFin").val();
+                    objVentaTallas.Articulo = $("#txtArticulo").val();
+                    waitingDialog.show("Espere por favor...")
+                    objVentaTallas.generaal.exportar();
+                })
+                $("#btnBuscar").click(function () {
+                    objVentaTallas.isOkUpdate = true;
+                    objVentaTallas.FechaInicio = $("#dtpFechaInicio").val();
+                    objVentaTallas.FechaFin = $("#dtpFechaFin").val();
+                    objVentaTallas.Articulo = $("#txtArticulo").val();                    
+                    objVentaTallas.generaal.consultar();
+                })
+
+                $("#txtArticulo").keyup(function (e) {
+                    if (e.keyCode == 13) {
+                        objVentaTallas.isOkUpdate = true;
+                        objVentaTallas.FechaInicio = '';
+                        objVentaTallas.FechaFin = '';
+                        objVentaTallas.Articulo = $("#txtArticulo").val();
+                        objVentaTallas.generaal.consultar();
+                    }
+                });
+                /*[btn Exportar y buscar]*/
+            },
+            grid: {
+                get: function () {
+                    waitingDialog.show("Espere por favor...");
+                    debugger
+                    objVentaTallas.Tabla.DataTable({
+                        "language": {
+                            "url": "../Scripts/DataTables/Spanish.json"
+                        },
+                        //"fnServerData": function (sSource, aoData, fnCallback) {
+                        //},
+                        "bServerSide": true,
+                        "bAutoWidth": false,
+                        "sAjaxSource": '@Url.Action("getVentasTallaAjax", "Facturacion")',
+                        "fnServerParams": function (aoData) {
+                            debugger;
+                            aoData.push({ "name": "isOkUpdate", "value": objVentaTallas.isOkUpdate });
+                            aoData.push({ "name": "FechaInicio", "value": objVentaTallas.FechaInicio });
+                            aoData.push({ "name": "FechaFin", "value": objVentaTallas.FechaFin });
+                            aoData.push({ "name": "Articulo", "value": objVentaTallas.Articulo });
+                        },
+                        "bFilter": true,
+                        "bdestroy": true,
+                        "start": 0,
+                        "columnDefs": [{
+                            "orderable": false,
+                            "targets": [2],
+                        }],
+                        "bDeferRender": true,
+                        "aoColumns": [
+                            { "sName": "Articulo", "mData": "Articulo", "sClass": "alignCenter" },
+                            { "sName": "Pares_Venta", "mData": "Pares_Venta", "sClass": "alignCenter" },
+                            //Lista de las tallas
+                            {
+                                "mData": null,
+                                "sClass": "",
+                                "render": function (Data, type, full, meta) {
+                                    return objVentaTallas.grid.ListarDetalles(full.TotalParesStock,full._ListarDetalle)
+                                }
+                            }
+                        ],
+                        "fnRowCallback": function (row, data, index) {
+                        },
+                        "drawCallback": function (settings) {
+                            objVentaTallas.isOkUpdate = false;
+                            var table = objVentaTallas.Tabla.dataTable();
+                            var data = table.fnGetData();
+                            if (data.length == 0) {
+                                $("#btnExportar").addClass("disabled");
+                                $("#btnExportar").attr('disabled', 'disabled');
+                            } else {
+                                $("#btnExportar").removeClass("disabled");
+                                $("#btnExportar").removeAttr("disabled");
+                            }
+                            waitingDialog.hide();
+                        },
+                        "initComplete": function (settings, json) {
+                        }
+                    });
+                },
+                cargaTabla: function () {
+                    //debugger
+                    waitingDialog.show("Espere por favor...")
+                    objVentaTallas.Tabla.DataTable().ajax.reload(function () {
+                        waitingDialog.hide();
+                    });
+                },
+                ListarDetalles: function (TotalParesStock, _ListarDetalle) {
+                    //debugger
+                    let tdCabecera = '';
+                    let tdCantidad = '';
+                    
+                    _ListarDetalle.forEach(function (entry) {                               
+                        tdCabecera+='<td>'+
+				                        '<div style="margin-top:2px;margin-right:2px;"><button class="btn btn-primary btn-xs" data-art="codArticulo" data-id="codTienda" data-modal="codTalla" data-tda="desTiendaS" style="width:100%;" title="Talla">' + entry.Talla+ '</button></div>'+
+                                    '</td>';
+                        tdCantidad+='<td>'+
+				                        '<div style="margin-top:2px;margin-right:2px;">' + '<button class="btn btn-info btn-xs" style="width:100%;text-align:center;">' + entry.Pares_Stock + '</button>' + '</div>' +
+                                    '</td>'
+                    });
+
+                    let _TablaTalla = '<div class="col-sm-1" style="width:100%;margin-top:2px;margin-bottom:2px;text-align:center;">'+
+                                            '<table>'+
+	                                            '<tbody>'+
+		                                            '<tr>'+
+			                                            '<td>'+
+			                                            '<div style="margin-top:2px;margin-right:2px;"><button class="btn btn-white btn-xs" style="width:100%;color:black;" title="Tallas">T:</button></div>'+
+			                                            '</td>'+
+			                                            '<td>'+
+			                                            '<div style="margin-top:2px;margin-right:2px;"><button class="btn btn-success btn-xs" style="width:100%;">Total</button></div>'+
+			                                            '</td>'+
+			                                             /**/
+                                                         tdCabecera +
+                                                        /**/
+		                                            '</tr>'+
+		                                            '<tr>'+
+			                                            '<td>'+
+				                                            '<div style="margin-top:2px;margin-right:2px;">'+'<button class="btn btn-white btn-xs" style="width:100%;color:black;" title="Cantidad">C:</button></div>'+
+			                                            '</td>'+
+			                                            '<td>'+
+				                                            '<div style="margin-top:2px;margin-right:2px;">'+'<button class="btn btn-success btn-xs" style="width:100%;"> ' + TotalParesStock + '</button></div>'+
+			                                            '</td>'+
+                                                        /**/
+                                                        tdCantidad +
+                                                        /**/
+		                                            '</tr>'+
+	                                            '</tbody>'+
+                                            '</table>'+
+                                            '</div>'
+                    return _TablaTalla;
+                }
+            },
+            generaal: {
+                SoloTexto: function (element) {
+                    //SOLO LETRAS CON NUMERO SIN CARACTERES ESPECIALES
+                    $(element).keypress(function (e) {
+                        var keyCode = e.keyCode || e.which;
+                        var regex = /^[a-zA-ZáéíóúÁÉÍÓÚñÑ0-9. ]+$/;
+                        //Validate TextBox value against the Regex.
+                        var isValid = regex.test(String.fromCharCode(keyCode));
+                        return isValid;
+                    });
+                },
+                Validar : function(){
+                    //debugger;
+                    if (objVentaTallas.Articulo == undefined || objVentaTallas.Articulo == null || objVentaTallas.Articulo.length == 0 || objVentaTallas.Articulo == '') {
+                        objVentaTallas.Articulo = "-1";
+                    } else {
+                        objVentaTallas.FechaInicio = ""
+                        objVentaTallas.FechaFin = ""
+                        return true;
+                    }
+
+                    if (objVentaTallas.FechaInicio == undefined || objVentaTallas.FechaInicio == null || objVentaTallas.FechaInicio.length == 0 || objVentaTallas.FechaInicio == '') {
+                        toastr.error("La fecha de Inicio no puede estar vacio", "Alerta");
+                        return false;
+                    }
+                    if (objVentaTallas.FechaFin == undefined || objVentaTallas.FechaFin == null || objVentaTallas.FechaFin.length == 0 || objVentaTallas.FechaFin == '') {
+                        toastr.error("La fecha de Fin no puede estar vacio", "Alerta");
+                        return false;
+                    }
+                    return true;
+                },
+                consultar: function () {
+                    //debugger
+                    if (objVentaTallas.generaal.Validar()) {
+                        objVentaTallas.grid.cargaTabla();
+                    }
+                },
+                exportar: function () {
+                    var _Ent = function () { return @Html.Raw(Json.Encode(ViewBag.EntVentasTallas)); }();
+                    _Ent.FechaInicio = objVentaTallas.FechaInicio;
+                    _Ent.FechaFin = objVentaTallas.FechaFin;
+                    $.ajax({
+                        type: "POST",
+                        url: '@Url.Action("get_exporta_ListarVentaTalla_excel", "Facturacion")',
+                        data : {_Ent:_Ent},
+                        success: function (data) {
+                            data = JSON.parse(data);
+                            waitingDialog.hide();
+                            if (data.Success) {
+                                toastr.success(data.Message);
+                                window.location = '@Url.Action("ListarVentasTallaExcel")';
+                            }
+                            else {
+                                toastr.error(data.Message, "Alerta");
+                            }
+                        },
+                        error: function (XMLHttpRequest, textStatus, errorThrown) {
+                            waitingDialog.hide();
+                            toastr.error("Error al exportar excel.", "Alerta");
+                        }
+                    });
+                }
+            }
+        };
+
+        $(document).ready(function () {
+            objVentaTallas.Inicio();
+        });
+</script>
+}

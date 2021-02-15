@@ -243,5 +243,58 @@ namespace CapaDato.Facturacion
             }
             return dt;
         }
+
+        public List<Ent_Ventas_Tallas> ListarVentaTalla(Ent_Ventas_Tallas _Ent)
+        {
+            List<Ent_Ventas_Tallas> Listar = new List<Ent_Ventas_Tallas>();
+            string sqlquery = "[USP_MVC_ConsultaVentTalla_Stk]";
+            try
+            {
+                using (SqlConnection cn = new SqlConnection(Ent_Conexion.conexion))
+                {
+                    using (SqlCommand cmd = new SqlCommand(sqlquery, cn))
+                    {
+                        cmd.CommandType = CommandType.StoredProcedure;
+                        cmd.Parameters.AddWithValue("@fechaini", DbType.String).Value = _Ent.FechaInicio;
+                        cmd.Parameters.AddWithValue("@fechafin", DbType.String).Value = _Ent.FechaFin;
+                        cmd.Parameters.AddWithValue("@articulo", DbType.String).Value = _Ent.Articulo;
+                        using (SqlDataAdapter da = new SqlDataAdapter(cmd))
+                        {
+                            DataTable dt = new DataTable();
+                            da.Fill(dt);
+
+                            Listar = new List<Ent_Ventas_Tallas>();
+                            Listar = (from row in dt.AsEnumerable()
+                                      group row by new
+                                      {
+                                          Articulo = row.Field<string>("articulo"),
+                                          Pares_Venta = row.Field<Decimal>("pares_venta")
+                                      } into g
+                                      select new Ent_Ventas_Tallas()
+                                      {
+                                          Articulo = g.Key.Articulo,
+                                          Pares_Venta = g.Key.Pares_Venta,
+                                          TotalParesStock = g.Sum(s => s.Field<Decimal>("pares_stock")),
+                                          _ListarDetalle = (from DataRow fila in
+                                                            dt.AsEnumerable().Where(b => b.Field<string>("articulo") == g.Key.Articulo &&
+                                                                                         b.Field<Decimal>("pares_venta") == g.Key.Pares_Venta)
+                                                            select new Ent_Ventas_Talla_Detalle()
+                                                            {
+                                                                Talla = fila["talla"].ToString(),
+                                                                Pares_Stock = Convert.ToInt32(fila["pares_stock"]),
+                                                            }
+                                                       ).ToList()
+                                      }
+                                              ).ToList();
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+            return Listar;
+        }
     }
 }

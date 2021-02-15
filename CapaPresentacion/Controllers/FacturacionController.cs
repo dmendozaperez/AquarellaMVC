@@ -27,6 +27,9 @@ namespace CapaPresentacion.Controllers
         private string _session_ListarVentasResumido_Excel = "_session_ListarVentasResumido_Excel";
         private string _session_ListarLiderVentas = "_session_ListarLiderVentas";
         private string _session_ListarLiderVentas_Excel = "_session_ListarLiderVentas_Excel";
+        private string _session_ListarVentasTallas = "_session_ListarVentasTallas";
+        private string _session_ListarVentasTallas_Excel = "_session_ListarVentasTallas_Excel";
+
         #region <CONSULTA DE VENTAS POR CATEGORIA>
         public ActionResult Ventas_Categoria()
         {
@@ -1393,6 +1396,272 @@ namespace CapaPresentacion.Controllers
                 Response.ContentEncoding = Encoding.Default;
                 Response.Write(style);
                 Response.Write(Session[_session_ListarLiderVentas_Excel].ToString());
+                Response.End();
+            }
+            catch
+            {
+
+            }
+            return Json(new { estado = 0, mensaje = 1 });
+        }
+        #endregion
+
+        #region <REPORTE DE VENTA Y STOCK POR TALA>
+        /// <summary>
+        /// RESUMEN DE VENTAS  Y STOCK POR TALA
+        /// </summary>
+        /// <create>Juilliand R. Damian Gomez </create>
+        /// <update></update> 
+        /// <returns></returns>
+        public ActionResult Ventas_Tallas()
+        {
+            Ent_Usuario _usuario = (Ent_Usuario)Session[Ent_Constantes.NameSessionUser];
+            string actionName = this.ControllerContext.RouteData.GetRequiredString("action");
+            string controllerName = this.ControllerContext.RouteData.GetRequiredString("controller");
+            string return_view = actionName + "|" + controllerName;
+
+            if (_usuario == null)
+            {
+                return RedirectToAction("Login", "Control", new { returnUrl = return_view });
+            }
+            else
+            {
+                Ent_Ventas_Tallas EntVentasTallas = new Ent_Ventas_Tallas();
+                ViewBag.EntVentasTallas = EntVentasTallas;
+                return View();
+            }
+
+        }
+        /// <summary>
+        /// LISTADO PRINCIPAL
+        /// </summary>
+        /// <create>Juilliand R. Damian Gomez </create>
+        /// <update></update> 
+        /// <param name="param"></param>
+        /// <param name="isOkUpdate"></param>
+        /// <param name="FechaInicio"></param>
+        /// <param name="FechaFin"></param>
+        /// <param name="Articulo"></param>
+        /// <returns></returns>
+        public JsonResult getVentasTallaAjax(Ent_jQueryDataTableParams param, bool isOkUpdate, string FechaInicio, string FechaFin, string Articulo)
+        {
+            Ent_Ventas_Tallas EntVentasTallas = new Ent_Ventas_Tallas();
+            if (isOkUpdate)
+            {
+                EntVentasTallas.FechaInicio = FechaInicio;
+                EntVentasTallas.FechaFin = FechaFin;
+                EntVentasTallas.Articulo = Articulo;
+
+                List<Ent_Ventas_Tallas> _ListarVentasTallas = datFacturacion.ListarVentaTalla(EntVentasTallas).ToList();
+                Session[_session_ListarVentasTallas] = _ListarVentasTallas;
+            }
+
+            /*verificar si esta null*/
+            if (Session[_session_ListarVentasTallas] == null)
+            {
+                List<Ent_Ventas_Tallas> _ListarVentasTallas = new List<Ent_Ventas_Tallas>();
+                Session[_session_ListarVentasTallas] = _ListarVentasTallas;
+            }
+
+            IQueryable<Ent_Ventas_Tallas> entDocTrans = ((List<Ent_Ventas_Tallas>)(Session[_session_ListarVentasTallas])).AsQueryable();
+            //Manejador de filtros
+            int totalCount = entDocTrans.Count();
+            IEnumerable<Ent_Ventas_Tallas> filteredMembers = entDocTrans;
+            if (!string.IsNullOrEmpty(param.sSearch))
+            {
+                filteredMembers = entDocTrans.Where(
+                        m =>
+                           m.Articulo.ToUpper().Contains(param.sSearch.ToUpper()) ||
+                           m.Pares_Venta.ToString().ToUpper().Contains(param.sSearch.ToUpper())
+                );
+            }
+            var sortIdx = Convert.ToInt32(Request["iSortCol_0"]);
+
+            if (param.iSortingCols > 0)
+            {
+                if (Request["sSortDir_0"].ToString() == "asc")
+                {
+                    switch (sortIdx)
+                    {
+                        case 0: filteredMembers = filteredMembers.OrderBy(o => o.Articulo); break;
+                        case 1: filteredMembers = filteredMembers.OrderBy(o => o.Pares_Venta); break;
+                    }
+                }
+                else
+                {
+                    switch (sortIdx)
+                    {
+                        case 0: filteredMembers = filteredMembers.OrderByDescending(o => o.Articulo); break;
+                        case 1: filteredMembers = filteredMembers.OrderByDescending(o => o.Pares_Venta); break;
+                    }
+                }
+            }
+
+            var Result = filteredMembers
+                .Skip(param.iDisplayStart)
+                .Take(param.iDisplayLength);
+
+            //Se devuelven los resultados por json
+            return Json(new
+            {
+                sEcho = param.sEcho,
+                iTotalRecords = totalCount,
+                iTotalDisplayRecords = filteredMembers.Count(),
+                aaData = Result
+            }, JsonRequestBehavior.AllowGet);
+        }
+        /// <summary>
+        /// VALIDACIONES PARA EXPORTAR EN EXCEL
+        /// </summary>
+        /// <create>Juilliand R. Damian Gomez </create>
+        /// <update></update>        
+        /// <param name="_Ent"></param>
+        /// <returns></returns>
+        public ActionResult get_exporta_ListarVentaTalla_excel(Ent_Ventas_Tallas _Ent)
+        {
+            JsonResponse objResult = new JsonResponse();
+            try
+            {
+                Session[_session_ListarVentasTallas_Excel] = null;
+                string cadena = "";
+                if (Session[_session_ListarVentasTallas] != null)
+                {
+
+                    List<Ent_Ventas_Tallas> _ListarVentasTallas = (List<Ent_Ventas_Tallas>)Session[_session_ListarVentasTallas];
+                    if (_ListarVentasTallas.Count == 0)
+                    {
+                        objResult.Success = false;
+                        objResult.Message = "No hay filas para exportar";
+                    }
+                    else
+                    {
+                        cadena = get_html_ListarVentasTallas_str((List<Ent_Ventas_Tallas>)Session[_session_ListarVentasTallas], _Ent);
+                        if (cadena.Length == 0)
+                        {
+                            objResult.Success = false;
+                            objResult.Message = "Error del formato html";
+                        }
+                        else
+                        {
+                            objResult.Success = true;
+                            objResult.Message = "Se genero el excel correctamente";
+                            Session[_session_ListarVentasTallas_Excel] = cadena;
+                        }
+                    }
+                }
+                else
+                {
+                    objResult.Success = false;
+                    objResult.Message = "No hay filas para exportar";
+                }
+
+            }
+            catch (Exception ex)
+            {
+                objResult.Success = false;
+                objResult.Message = "No hay filas para exportar";
+            }
+
+            var JSON = JsonConvert.SerializeObject(objResult);
+
+            return Json(JSON, JsonRequestBehavior.AllowGet);
+        }
+        /// <summary>
+        /// CREAMOS EL CUERPO DEL EXCEL
+        /// </summary>
+        /// <create>Juilliand R. Damian Gomez </create>
+        /// <update></update>  
+        /// <param name="_ListarVentasResumido"></param>
+        /// <param name="_Ent"></param>
+        /// <returns></returns>
+        public string get_html_ListarVentasTallas_str(List<Ent_Ventas_Tallas> _ListarVentasTallas, Ent_Ventas_Tallas _Ent)
+        {
+            StringBuilder sb = new StringBuilder();
+            var Lista = _ListarVentasTallas.ToList();
+            var tdCabecera = "";
+            var tdCantidad = "";
+            try
+            {
+                sb.Append("<div>");
+                sb.Append("<table cellspacing='0' style='width: 1000px' rules='all' border='0' style='border-collapse:collapse;'>");
+                sb.Append("<tr><td Colspan='13'></td></tr>");
+                sb.Append("<tr><td Colspan='13' valign='middle' align='center' style='vertical-align: middle;font-size: 16.0pt;font-weight: bold;color:#285A8F'>REPORTE DE VENTA Y STOCK FINAL POR TALLA</td></tr>");
+                sb.Append("<tr><td Colspan='13' valign='middle' align='center' style='vertical-align: middle;font-size: 10.0pt;font-weight: bold;color:#000000'>Desde el " + String.Format("{0:dd/MM/yyyy}", _Ent.FechaInicio) + " hasta el " + String.Format("{0:dd/MM/yyyy}", _Ent.FechaFin) + "</td></tr>");//subtitulo
+                sb.Append("</table>");
+                sb.Append("<table  border='1' bgColor='#ffffff' borderColor='#FFFFFF' cellSpacing='2' cellPadding='2' style='font-size:10.0pt; font-family:Calibri; background:white;width: 1000px'>");
+                sb.Append("<tr bgColor='#1E77AB'>\n");
+                sb.Append("<th style='text-align: center; font-weight:bold;font-size:11.0pt;'><font color='#FFFFFF'>Articulo</font></th>\n");
+                sb.Append("<th style='text-align: center; font-weight:bold;font-size:11.0pt;'><font color='#FFFFFF'>Pares</font></th>\n");
+                sb.Append("<th Colspan='3' style='text-align: center; font-weight:bold;font-size:11.0pt;'><font color='#FFFFFF'>Talla / Cantidad</font></th>\n");
+
+                sb.Append("</tr>\n");
+                // {0:N2} Separacion miles , {0:F2} solo dos decimales
+                foreach (var item in Lista)
+                {
+                    foreach (var itemR in item._ListarDetalle)
+                    {
+                        tdCabecera += "<td style='width:10%;background-color: #5393C8; border-color: #FFFFFF; font-weight:bold;font-size:11.0pt;' align='Center'><font color='#FFFFFF'>" + itemR.Talla + "</font></td>";
+                        tdCantidad += "<td style='width:10%;background-color: #5bc0de; border-color: #FFFFFF; font-weight:bold;font-size:11.0pt;' align='Center'><font color='#FFFFFF'>" + itemR.Pares_Stock + "</font></td>";
+                    }
+                    //d2d6de
+                    sb.Append("<tr>");
+                    sb.Append("<td align='Center' style='text-align: center; vertical-align: middle;' rowspan='2'>" + item.Articulo + "</td>");
+                    sb.Append("<td align='Center' style='text-align: center; vertical-align: middle;' rowspan='2'>" + item.Pares_Venta + "</td>");
+                    sb.Append("<td style='width:10%;background-color: #d2d6de;border-color: #d2d6de; font-weight:bold;font-size:11.0pt;' align='Center'><font color='#000000'>T:</font></td>");
+                    sb.Append("<td style='width:10%;background-color: #008448;border-color: #FFFFFF; font-weight:bold;font-size:11.0pt;' align='Center'><font color='#FFFFFF'>Total</font></td>");
+                    sb.Append("<td bgcolor='' align='Center'>" +
+                              "<table bgColor='#ffffff' borderColor='#FFFFFF' cellSpacing='2' cellPadding='2'>" +
+                                "<tr>" +
+                                    tdCabecera + 
+                                "</tr>" +
+                              "</table>" +
+                            "</td>\n");
+                    sb.Append("</tr>");
+
+                    sb.Append("<tr>");
+                    sb.Append("<td style='width:10%;background-color: #d2d6de;border-color: #d2d6de; font-weight:bold;font-size:11.0pt;' align='Center'><font color='#000000'>C:</font></td>");
+                    sb.Append("<td style='width:10%;background-color: #00a65a;border-color: #FFFFFF; font-weight:bold;font-size:11.0pt;' align='Center'><font color='#FFFFFF'>" + item.TotalParesStock + "</font></td>");
+                    sb.Append("<td bgcolor='' align='Center'>" +
+                              "<table>" +
+                                "<tr>" +
+                                    tdCantidad +
+                                "</tr>" +
+                              "</table>" +
+                            "</td>\n");
+                    sb.Append("</tr>");
+
+                    tdCabecera = "";
+                    tdCantidad = "";
+                }
+                sb.Append("</table></div>");
+            }
+            catch
+            {
+
+            }
+            return sb.ToString();
+        }
+
+        /// <summary>
+        /// Exportamos el excel
+        /// </summary>
+        /// <create>Juilliand R. Damian Gomez </create>
+        /// <update></update>
+        /// <returns>xlx</returns>
+        public ActionResult ListarVentasTallaExcel()
+        {
+            string NombreArchivo = "ventatalla_stock";
+            String style = style = @"<style> .textmode { mso-number-format:\@; } </script> ";
+            try
+            {
+                Response.Clear();
+                Response.Buffer = true;
+                Response.ContentType = "application/vnd.ms-excel";
+                Response.AddHeader("Content-Disposition", "attachment;filename=" + NombreArchivo + ".xls");
+                Response.Charset = "UTF-8";
+                Response.ContentEncoding = Encoding.Default;
+                Response.Write(style);
+                Response.Write(Session[_session_ListarVentasTallas_Excel].ToString());
                 Response.End();
             }
             catch
