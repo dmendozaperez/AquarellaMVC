@@ -114,4 +114,96 @@ namespace CapaEntidad.Facturacion
         public string Talla { get; set; }
         public int Pares_Stock { get; set; }
     }
+
+    public class Ent_Salida_Almacen
+    {
+        public int IdDespacho { get; set; }
+        public string Desp_Nrodoc { get; set; }
+        public string Desp_Descripcion { get; set; }
+        public string Desp_Tipo_Descripcion { get; set; }
+        public string Desp_Tipo { get; set; }
+        public Decimal? TotalParesEnviado { get; set; }
+        public string Estado { get; set; }
+        public string Desp_FechaCre { get; set; }
+        //campos adicionales de busqueda
+        public DateTime FechaInicio { get; set; }
+        public DateTime FechaFin { get; set; }
+        public string Tipo { get; set; }
+        public string Codigo { get; set; }
+        public string Descripcion { get; set; }
+
+        public Ent_Edit_Salida_Almacen_Cabecera _Cabecera { get; set; }
+        public List<Ent_Edit_Salida_Almacen_Detalle> _Detalle { get; set; }
+    }
+    public class Ent_Edit_Salida_Almacen_Cabecera
+    {
+        public string Desp_NroDoc { get; set; }
+        public Decimal? Desp_id { get; set; }
+        public string Estado { get; set; }
+        public string Desp_FechaCre { get; set; }
+        public string Desp_Tipo_Des { get; set; }
+        public string Desp_Tipo { get; set; }
+        public string Desp_Descripcion { get; set; }
+        public string IdEstado { get; set; }
+        public string Atendido { get; set; }
+        //Cabecera
+        public int NroPedidos { get; set; }
+        public int NroEnviados { get; set; }
+        public int NroPremio { get; set; }
+        public int PremioEnviados { get; set; }
+        public int CatalogEnviados { get; set; }
+        public int CatalogPedidos { get; set; }
+        public Decimal MontoTotal { get; set; }
+        public bool chkAtender { get; set; }
+        public bool chkEstSalida { get; set; }
+        public string strDataDetalle { get; set; }
+        public Decimal UsuarioCrea { get; set; }
+    }
+
+    public class Ent_Edit_Salida_Almacen_Detalle
+    {
+        //Detalle
+        public string Desp_NroDoc { get; set; }
+        public string Desp_Descripcion { get; set; }
+        public string Estado { get; set; }
+        public string Desp_FechaCre { get; set; }
+        public string Asesor { get; set; }
+        public string NombreLider { get; set; }
+        public string Promotor { get; set; }
+        public string Rotulo { get; set; }
+        public string Rotulo_Courier { get; set; }
+        public string Agencia { get; set; }
+        public string Destino { get; set; }
+        public string Pedido { get; set; }
+        public Decimal? TotalPremio { get; set; }
+        public Decimal? TotalPremioEnviado { get; set; }
+        public Decimal? TotalCatalogo { get; set; }
+        public Decimal? TotalCatalogEnviado { get; set; }
+        public Decimal? TotalPares { get; set; }
+        public Decimal? TotalParesEnviado { get; set; }
+        public Decimal? Total_Cantidad { get; set; }
+        public Decimal? Total_Cantidad_Envio { get; set; }
+        public Decimal? TotalVenta { get; set; }
+        public string CobroFlete { get; set; }
+        public string Courier { get; set; }
+        public string Observacion { get; set; }
+        public string Detalle { get; set; }
+        public string McaCourier { get; set; }
+        public string McaFlete { get; set; }
+        public Decimal? Enviado { get; set; }
+        public Decimal? Desp_IdDetalle { get; set; }
+        public Decimal? Desp_id { get; set; }
+        public Decimal? TotalParesEnviadoEdit { get; set; }
+        public Decimal? TotalCatalogEnviadoEdit { get; set; }
+        public Decimal? TotalPremioEnviadoEdit { get; set; }
+        public string IdEstado { get; set; }
+        public string Atendido { get; set; }
+        public Decimal? IdLider { get; set; }
+        public string Lid_Prom { get; set; }
+        public string Desp_Tipo_Des { get; set; }
+        public string Desp_Tipo { get; set; }
+
+    }
+
+
 }

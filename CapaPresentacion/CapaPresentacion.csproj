@@ -3161,6 +3161,8 @@
     <Content Include="Views\Facturacion\Resumen_Ventas.cshtml" />
     <Content Include="Views\Facturacion\LideresVenta.cshtml" />
     <Content Include="Views\Facturacion\Ventas_Tallas.cshtml" />
+    <Content Include="Views\Facturacion\Salida_Almacen.cshtml" />
+    <Content Include="Views\Facturacion\EditSalida_Almacen.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

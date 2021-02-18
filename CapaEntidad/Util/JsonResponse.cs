@@ -13,5 +13,6 @@ namespace CapaEntidad.Util
         public bool Success { get; set; }
 
         public object Data { get; set; }
+        public int IdPrincipal { get; set; }
     }
 }

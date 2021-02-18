@@ -1,0 +1,786 @@
+﻿@model CapaEntidad.Facturacion.Ent_Edit_Salida_Almacen_Cabecera
+@{
+    ViewBag.Title = "Salida Despacho.";
+    ViewBag.SubTitle = "";
+}
+<style>
+    .table thead {
+        background-color: #5799bf;
+        color: #fff;
+    }
+
+    .boton-xs-td {
+        padding-top: 5px !important;
+        padding-bottom: 5px !important;
+    }
+
+    .alignRight {
+        text-align: right;
+        vertical-align: middle;
+    }
+
+    .alignCenter {
+        text-align: center;
+        vertical-align: middle;
+    }
+
+    .table .Select {
+        color: #000 !important;
+        background-color: #E0F2FD !important;
+       
+    }
+/*[style checkbox]*/
+    .control {
+        font-family: arial;
+        display: block;
+        position: relative;
+        padding-left: 28px;
+        margin-bottom: 4px;
+        padding-top: 2px;
+        cursor: pointer;
+        font-size: 14px;
+    }
+    .control input {
+        position: absolute;
+        z-index: -1;
+        opacity: 0;
+    }
+    .control_indicator {
+        position: absolute;
+        top: 3px;
+        left: 0;
+        height: 19px;
+        width: 20px;
+        background: #fdfbfb;        
+        border: 1px solid #97a6af;
+        border-radius: 4px;
+    }
+    .control:hover input ~ .control_indicator,
+    .control input:focus ~ .control_indicator {
+        background: #cccccc;
+    }
+        
+    .control input:checked ~ .control_indicator {
+        background: #156aac;
+    }
+    .control:hover input:not([disabled]):checked ~ .control_indicator,
+    .control input:checked:focus ~ .control_indicator {
+        background: #156aac;
+    }
+   .control input:disabled ~ .control_indicator {
+        background: #e6e6e6;
+        opacity: 0.6;
+        pointer-events: none;
+    }
+    .control_indicator:after {
+        box-sizing: unset;
+        content: '';
+        position: absolute;
+        display: none;
+    }
+    .control input:checked ~ .control_indicator:after {
+        display: block;
+    }
+    .control-checkbox .control_indicator:after {
+        left: 6px;
+        top: 2px;
+        width: 3px;
+        height: 8px;
+        border: solid #ffffff;
+        border-width: 0 2px 2px 0;
+        transform: rotate(45deg);
+    }
+    .control-checkbox input:disabled ~ .control_indicator:after {
+        border-color: #7b7b7b;
+    }
+    /*[/style checkbox]*/
+</style>
+<p class="text-primary"></p>
+<div class="box box-header box-primary" style="margin-bottom: 5px;">
+    <div class="row">
+        <div class="col-md-6">
+            <a href="@Url.Action("Salida_Almacen", "Facturacion")" class="btn btn-danger" id="btnCancelar" style="width: 120px;"><i class="glyphicon glyphicon-floppy-remove"></i>&nbsp;&nbsp;Regresar</a>
+        </div>
+        <div class="col-md-6 text-right" style="margin-top: 8px;">
+            <span style="font-size:18px;" class="label label-danger" id="">@Model.Desp_Tipo_Des</span>
+        </div>
+    </div>
+</div>
+<div class="box box-primary" style="margin-bottom: 5px;">
+    <div class="box-header with-border">
+        <h3 class="box-title">Datos Generales del despacho</h3>
+        <div class="box-tools pull-right">
+            <button type="button" class="btn btn-box-tool" data-widget="collapse">
+                <i class="fa fa-minus"></i>
+            </button>
+        </div>
+        <!-- /.box-tools -->
+    </div>
+    <div class="box-body">
+        <div class="row">
+            <div class="col-md-2" style="padding-left: 25px;">
+                <div id="prm" class="form-group" disabled>
+                    <label for="txtdocumento" style="color: #3d566e;">Nro. Documento:</label>
+                    <div class="form-group">
+                        <input type="text" style="text-align:center;" readonly="readonly" data-dependency="txtdocumento" value="@Model.Desp_NroDoc" placeholder="" maxlength="55" class="form-control" name="txtdocumento" id="txtdocumento" />
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-2" style="padding-left: 25px;">
+                <div id="prm" class="form-group" disabled>
+                    <label for="txtfec_cre" style="color: #3d566e;">Fecha Creacion:</label>
+                    <div class="form-group">
+                        <input type="text" style="text-align:center;" value="@Model.Desp_FechaCre" readonly="readonly" placeholder="" maxlength="55" class="form-control" name="txtfec_cre" id="txtfec_cre" />
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-2" style="padding-left: 25px;">
+                <div id="prm" class="form-group" disabled>
+                    <label for="txtestado" style="color: #3d566e;">Estado:</label>
+                    <div class="form-group">
+                        <input type="text" value="@Model.Estado" style="text-align:center;" readonly="readonly" placeholder="" maxlength="55" class="form-control" name="txtestado" id="txtestado" />
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-2" style="padding-left: 25px;">
+                <div id="prm" class="form-group" disabled>
+                    <label for="txtpares_pedido" style="color: #3d566e;">Pares Pedido:</label>
+                    <div class="form-group">
+                        <input type="text" value="@Model.NroPedidos" readonly="readonly" placeholder="" maxlength="55" class="form-control" name="txtpares_pedido" id="txtpares_pedido" />
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-2" style="padding-left: 25px;">
+                <div id="prm" class="form-group" disabled>
+                    <label for="txtpares_enviado" style="color: #3d566e;">Pares Enviado:</label>
+                    <div class="form-group">
+                        <input type="text" value="@Model.NroEnviados" readonly="readonly" placeholder="" maxlength="55" class="form-control" name="txtpares_enviado" id="txtpares_enviado" />
+                    </div>
+                </div>
+            </div>
+
+        </div>
+        <div class="row">
+            <div class="col-md-2" style="padding-left: 25px;">
+                <div id="prm" class="form-group" disabled>
+                    <label for="txtcatalogof" style="color: #3d566e;">Catálogo Facturado:</label>
+                    <div class="form-group">
+                        <input type="text" data-dependency="txtsegnom" readonly="readonly" value="@Model.CatalogPedidos" placeholder="" maxlength="55" class="form-control" name="txtcatalogof" id="txtcatalogof" />
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-2" style="padding-left: 25px;">
+                <div id="prm" class="form-group" disabled>
+                    <label for="txtcatalogoe" style="color: #3d566e;">Catálogo Enviado:</label>
+                    <div class="form-group">
+                        <input type="text" value="@Model.CatalogEnviados" placeholder="" readonly="readonly" maxlength="55" class="form-control" name="txtcatalogoe" id="txtcatalogoe" />
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-2" style="padding-left: 25px;">
+                <div id="prm" class="form-group" disabled>
+                    <label for="txtpremiop" style="color: #3d566e;">Premio Pedido:</label>
+                    <div class="form-group">
+                        <input type="text" value="@Model.NroPremio" placeholder="" readonly="readonly" maxlength="55" class="form-control" name="txtpremiop" id="txtpremiop" />
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-2" style="padding-left: 25px;">
+                <div id="prm" class="form-group" disabled>
+                    <label for="txtpremioe" style="color: #3d566e;">Premio Enviado:</label>
+                    <div class="form-group">
+                        <input type="text" value="@Model.PremioEnviados" placeholder="" readonly="readonly" maxlength="55" class="form-control" name="txtpremioe" id="txtpremioe" />
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-2" style="padding-left: 25px;">
+                <div id="prm" class="form-group" disabled>
+                    <label for="txttotalm" style="color: #3d566e;">Total Monto:</label>
+                    <div class="form-group">
+                        <input type="text" placeholder="" style="text-align:right;" readonly="readonly" maxlength="55" class="form-control" name="txtMontoTotal" id="txtMontoTotal" />
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-6" style="padding-left: 25px;">
+                <div id="prm" class="form-group" disabled>
+                    <label for="txtdocumento" style="color: #3d566e; max-width: 100%;" >Descripcion:</label>
+                    <div class="form-group">
+                        <input type="text" readonly="readonly" data-dependency="txtDescripcion" value="@Model.Desp_Descripcion" placeholder="" maxlength="55" class="form-control" name="txtDescripcion" id="txtDescripcion" style="max-width: 100%;"/>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="box box-header box-primary">
+    <div class="row">
+        <div class="col-md-3">
+            <label class="control control-checkbox" style="margin-top: 5px;">
+                <input id="chkAtender" type="checkbox" />
+                <p class="text-muted"> Atender Documento.</p>
+                <div class="control_indicator"></div>
+            </label>
+        </div>
+        <div class="col-md-3">
+            <label class="control control-checkbox" style="margin-top: 5px;">
+                <input id="chkEstSalida" type="checkbox" />
+                <p class="text-muted"> Dar salida al despacho.</p>
+                <div class="control_indicator"></div>
+            </label>
+        </div>
+        <div class="col-md-6 text-right">
+            <a class="btn btn-primary" id="btnGuardar" style="width: 120px;"><i class="glyphicon glyphicon-floppy-disk"></i>&nbsp;&nbsp;Guardar</a>
+        </div>
+    </div>
+</div>
+<div class="box box-body box-primary">
+    <div class="row">
+        <div class="col-md-6">
+        </div>
+        <div class="col-md-6 text-right">
+            <button id="btnExportar" title="Actualizar" class="btn btn-success">
+                <span class="glyphicon glyphicon-export"></span>&nbsp;&nbsp;Exportar Lista
+            </button>
+        </div>
+    </div>
+    <br />
+    <div class="row">
+        <div class="col-md-12">
+            <div class="table-responsive">
+                <table id="TbTabla" class="table table-hover table-bordered compact">
+                    <thead>
+                        <tr>
+                            <th style="text-align: center;">Asesor</th>
+                            <th style="text-align: center;">Lider</th>
+                            <th style="text-align: center;">Promotor</th>
+                            <th style="text-align: center;">Rotulo</th>
+                            <th style="text-align: center;">Catalog. Faturados</th>
+                            <th style="text-align: center;">Catalog. Enviados</th>
+                            <th style="text-align: center;">Premios</th>
+                            <th style="text-align: center;">Premios Enviados</th>
+                            <th style="text-align: center;">Pares</th>
+                            <th style="text-align: center;">Pares Enviados</th>
+                            <th style="text-align: center;">Agencia</th>
+                            <th style="text-align: center;">Destino</th>
+                            <th style="text-align: center;">Pedidos</th>
+                            <th style="text-align: center;">Monto</th>
+                            <th style="text-align: center;">Flete</th>
+                            <th style="text-align: center;">Observación</th>
+                            <th style="text-align: center;">Detalle</th>
+                            <th style="text-align: center;">Imp.</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td colspan='16'>No se encontraron resultados</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section scripts{
+    <script>
+        debugger
+        var objSalidaAlmacenEdit = {
+            Inicio: function () {
+                debugger
+                /*[Inicializamos variables]*/
+                this.selected = function () { return @Html.Raw(Json.Encode(ViewBag._Detalle)); }();
+                this.Tabla = $('#TbTabla');
+                this.IdDespacho = "";
+
+                this.ischkAtender = ("@Model.Atendido" == "S" ? true : false);
+                this.ischkEstSalida = ("@Model.Atendido" == "S" ? true : false);
+                this.isProvincia = ("@Model.Desp_Tipo" == "L" ? true : false);
+
+                this.isVisibleAgencia = true;
+                this.isVisibleDestino = true;
+
+                if (objSalidaAlmacenEdit.ischkAtender) {
+                    $("#chkAtender").attr("checked", "checked");
+                    $("#chkAtender").attr("disabled", "disabled");
+                }
+
+                if (objSalidaAlmacenEdit.ischkEstSalida) {
+                    $("#chkAtender").attr("checked", "checked");
+                    $("#chkAtender").attr("disabled", "disabled");
+                    $("#chkEstSalida").attr("checked", "checked");
+                    $("#chkEstSalida").attr("disabled", "disabled");
+                    $("#btnGuardar").addClass("disabled");
+                    $("#btnGuardar").attr("disabled", "disabled");
+                }
+
+                if (objSalidaAlmacenEdit.isProvincia) {
+                    objSalidaAlmacenEdit.isVisibleAgencia = false;
+                    objSalidaAlmacenEdit.isVisibleDestino = false;
+                }
+
+                $("#txtMontoTotal").val(objSalidaAlmacenEdit.generaal.FormatDecimal("@Model.MontoTotal", 2, '.', ','));
+                objSalidaAlmacenEdit.grid.get();
+                /*[/Inicializamos variables]*/
+
+                /*[Exportar]*/
+                $("#btnExportar").click(function () {
+                    waitingDialog.show("Espere por favor...")
+                    objSalidaAlmacenEdit.generaal.exportar();
+                })
+                /*[/Exportar]*/
+
+                /*[btn Imprimir]*/
+                $('#TbTabla tbody').on('click', '#btnPrint', function (e) {
+                    debugger;
+                    //colName, Rotulo, Destino, Agencia, Rotulo_Courier, McaCourier, CobroFlete, Desp_Tipo
+                    let _coltrg = $(this).data("colname")
+                    let _Rotulo = $(this).attr("data-Rotulo");
+                    let _Destino = $(this).attr("data-Destino");
+                    let _Agencia = $(this).attr("data-Agencia");
+                    let _Rotulo_Courier = $(this).attr("data-Rotulo_Courier");
+                    let _McaCourier = $(this).attr("data-McaCourier");
+                    let _CobroFlete = $(this).attr("data-CobroFlete");
+                    let _Desp_Tipo = $(this).attr("data-Desp_Tipo");
+
+                    debugger
+                    if (_coltrg == "Imprimir") {
+                        if (_McaCourier == 'N') {
+                            var arrayDeCadenas = _Rotulo.split('DNI');
+                            var nombre = arrayDeCadenas[0];
+                            var Doc = arrayDeCadenas[1];
+                            var mywindow = window.open('', '', 'height=400,width=600');
+                            mywindow.document.write('<html><head><title>Rotulo</title>');
+                            /*optional stylesheet*/ //mywindow.document.write('<link rel="stylesheet" href="main.css" type="text/css" />');
+                            mywindow.document.write('</head><body >');
+                            //String = + '<div> </'
+                            mywindow.document.write('<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"');
+                            mywindow.document.write('"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">');
+                            mywindow.document.write('<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">');
+                            mywindow.document.write('<head><title>My Title</title>');
+                            mywindow.document.write('<style type="text/css">body{ margin:0px;');
+                            mywindow.document.write('font-family:verdana,Arial;color:#000;');
+                            mywindow.document.write('font-family:Verdana, Geneva, sans-serif; font-size:60px;}');
+                            mywindow.document.write('a{color:#000;text-decoration:none;} </style>');
+                            mywindow.document.write('</head><body onLoad="self.print()"><center>');
+                            mywindow.document.write('<b>' + nombre + '</b><br>');
+                            mywindow.document.write('<b>DNI' + Doc + '</b><br>');
+                            if (_Desp_Tipo == "P") {
+                                mywindow.document.write('<b>Destino:' + _Destino + '</b><br>');
+                                mywindow.document.write('<b>Empresa: ' + _Agencia + '</b><br>');
+                            }
+
+                            mywindow.document.write('<b>Flete: ' + _CobroFlete + '</b>');
+                            mywindow.document.write('</center></body></html>');
+                            mywindow.document.write('</body></html>');
+                        } else {
+
+                            var arrayDeCadenas = _Rotulo_Courier.split('DNI:');
+                            var nombre = arrayDeCadenas[0];
+
+                            var cadena1 = arrayDeCadenas[1];
+                            var arrayDeCadenas1 = cadena1.split('Dirección:');
+                            var Doc = arrayDeCadenas1[0];
+
+                            var cadena2 = arrayDeCadenas1[1];
+                            var arrayDeCadenas2 = cadena2.split('Ubicación:');
+                            var direccion = arrayDeCadenas2[0];
+
+                            var cadena3 = arrayDeCadenas2[1];
+                            var arrayDeCadenas3 = cadena3.split('Teléfono:');
+                            var ubicacion = arrayDeCadenas3[0];
+
+                            var Telefono = arrayDeCadenas3[1];
+
+                            var mywindow = window.open('', '', 'height=400,width=600');
+                            mywindow.document.write('<html><head><title>Rotulo</title>');
+                            /*optional stylesheet*/ //mywindow.document.write('<link rel="stylesheet" href="main.css" type="text/css" />');
+                            mywindow.document.write('</head><body >');
+                            //String = + '<div> </'
+                            mywindow.document.write('<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"');
+                            mywindow.document.write('"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">');
+                            mywindow.document.write('<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">');
+                            mywindow.document.write('<head><title>My Title</title>');
+                            mywindow.document.write('<style type="text/css">body{ margin:0px;');
+                            mywindow.document.write('font-family:verdana,Arial;color:#000;');
+                            mywindow.document.write('font-family:Verdana, Geneva, sans-serif; font-size:60px;}');
+                            mywindow.document.write('a{color:#000;text-decoration:none;} </style>');
+                            mywindow.document.write('</head><body onLoad="self.print()"><center>');
+                            mywindow.document.write('<b>' + nombre + '</b><br>');
+                            mywindow.document.write('<b>DNI:' + Doc + '</b><br>');
+                            mywindow.document.write('<b>Dirección:' + direccion + '</b><br>');
+                            mywindow.document.write('<b>Ubicación: ' + ubicacion + '</b><br>');
+                            mywindow.document.write('<b>Telefono: ' + Telefono + '</b><br>');
+                            mywindow.document.write('<b>Flete: ' + _CobroFlete + '</b>');
+                            mywindow.document.write('</center></body></html>');
+                            mywindow.document.write('</body></html>');
+                        }
+
+                        mywindow.print();
+                        //mywindow.close();
+
+                        return true;
+
+                    }
+                })
+                /*[/btn Imprimir]*/
+
+                /*[Inputs que edita los campos]*/
+                var table = $('#TbTabla').DataTable();
+
+                $('#TbTabla tbody').on('click', 'tr', function (e) {
+                    debugger
+                    let $row = $(this).closest('tr');
+                    if ($row.hasClass('Select')) {
+                        $row.removeClass('Select');
+                    } else {
+                        table.$('tr.Select').removeClass('Select');
+                        $row.addClass('Select');
+                    }
+                })
+
+
+                $('#TbTabla tbody').on('blur', '#editCellText', function (e) {
+                    e.preventDefault();
+                    debugger
+                    let _coltrg = $(this).data("colname")
+                    let tr = $(this).closest('tr').index();
+
+                    let row = $('#TbTabla').DataTable().row(tr);
+                    let data = row.data();
+                    let Value = $(this).val();
+                    let index = objSalidaAlmacenEdit.selected.findIndex(C => C.Desp_IdDetalle == data.Desp_IdDetalle);
+                    if (_coltrg == "TotalCatalogEnviadoEdit") {
+                        if (Value > data.TotalCatalogo) {
+                            swal({ title: "Alerta", text: "Catálogos enviados no debe ser mayor a catálogos facturados.", icon: "error" }).then((value) => {
+                                $(this).val(data.TotalCatalogEnviadoEdit);
+                                $(this).focus();
+                            });
+                            return;
+                        } else {
+                            objSalidaAlmacenEdit.selected[index].TotalCatalogEnviadoEdit = Value;
+                        }
+                    }
+                    if (_coltrg == "TotalPremioEnviadoEdit") {
+                        if (Value > data.TotalPremio) {
+                            swal({ title: "Alerta", text: "Total Premios enviados no debe ser mayor a total de premios.", icon: "error" }).then((value) => {
+                                $(this).val(data.TotalPremioEnviadoEdit);
+                                $(this).focus();
+                            });
+                            return;
+                        } else {
+                            objSalidaAlmacenEdit.selected[index].TotalPremioEnviadoEdit = Value;
+                        }
+                    }
+                    if (_coltrg == "TotalParesEnviadoEdit") {
+                        if (Value > data.TotalPares) {
+                            swal({ title: "Alerta", text: "Total de pares enviados no debe ser mayor a total de pares.", icon: "error" }).then((value) => {
+                                $(this).val(data.TotalParesEnviadoEdit);
+                                $(this).focus();
+                            });
+                            return;
+                        } else {
+                            objSalidaAlmacenEdit.selected[index].TotalParesEnviadoEdit = Value;
+                        }
+
+                    }
+                    console.log(objSalidaAlmacenEdit.selected);
+                })
+                /*[/Inputs que edita los campos]*/
+
+                /*[Registra]*/
+                $("#btnGuardar").click(function () {
+                    debugger
+                    if ($('#chkAtender').is(':checked')) {
+                        objSalidaAlmacenEdit.ischkAtender = true;
+                    } else {
+                        objSalidaAlmacenEdit.ischkAtender = false;
+                    }
+
+                    if ($('#chkEstSalida').is(':checked')) {
+                        objSalidaAlmacenEdit.ischkEstSalida = true;
+                    } else {
+                        objSalidaAlmacenEdit.ischkEstSalida = false;
+                    }
+
+                    if (objSalidaAlmacenEdit.generaal.Validar()) {
+                        objSalidaAlmacenEdit.generaal.Registrar();
+                    }
+                })
+                /*[/Registra]*/
+            },
+            grid: {
+                get: function () {
+                    debugger
+                    objSalidaAlmacenEdit.Tabla.DataTable({
+                        "language": {
+                            "url": "../Scripts/DataTables/Spanish.json"
+                        },
+                        //"fnServerData": function (sSource, aoData, fnCallback) {
+                        //},
+                        "bServerSide": true,
+                        "bAutoWidth": false,
+                        "sAjaxSource": '@Url.Action("getSalidaDespachoEditAjax", "Facturacion")',
+                        "fnServerParams": function (aoData) {
+                            debugger;
+                            //aoData.push({ "name": "isOkUpdate", "value": objSalidaAlmacenEdit.isOkUpdate });
+                        },
+                        "bFilter": true,
+                        "bdestroy": true,
+                        "start": 0,
+                        "columnDefs": [{
+                            "orderable": false,
+                            "targets": [],
+                        }],
+                        "bDeferRender": true,
+                        "aoColumns": [
+                            { "sName": "Asesor", "mData": "Asesor", "sClass": "" },
+                            { "sName": "NombreLider", "mData": "NombreLider", "sClass": "" },
+                            { "sName": "Promotor", "mData": "Promotor", "sClass": "" },
+                            { "sName": "Rotulo", "mData": "Rotulo", "sClass": "" },
+                            { "sName": "TotalCatalogo", "mData": "TotalCatalogo", "sClass": "alignCenter TotalCatalogo" },
+                            //TotalCatalogEnviadoEdit
+                            {
+                                "mData": null, "sClass": "alignCenter TotalCatalogEnviadoEdit",
+                                "render": function (data, type, full, meta) {
+                                    //debugger
+                                    let readonly = full.IdEstado == "S" ? true : false;
+                                    let index = objSalidaAlmacenEdit.selected.findIndex(C => C.Desp_IdDetalle == full.Desp_IdDetalle);
+                                    let TotalCatalogEnviadoEdit =  objSalidaAlmacenEdit.selected[index].TotalCatalogEnviadoEdit;
+                                    return objSalidaAlmacenEdit.grid.InputText(TotalCatalogEnviadoEdit, "TotalCatalogEnviadoEdit", readonly, 5);
+                                }
+                            },
+                            { "sName": "TotalPremio", "mData": "TotalPremio", "sClass": "alignCenter TotalPremio" },
+                            //TotalPremioEnviadoEdit
+                            {
+                                "mData": null, "sClass": "alignCenter TotalPremioEnviadoEdit",
+                                "render": function (data, type, full, meta) {
+                                    //debugger
+                                    let readonly = full.IdEstado == "S" ? true : false;
+                                    let index = objSalidaAlmacenEdit.selected.findIndex(C => C.Desp_IdDetalle == full.Desp_IdDetalle);
+                                    let TotalPremioEnviadoEdit = objSalidaAlmacenEdit.selected[index].TotalPremioEnviadoEdit;
+                                    return objSalidaAlmacenEdit.grid.InputText(TotalPremioEnviadoEdit, "TotalPremioEnviadoEdit", readonly, 5);
+                                }
+                            },
+                            { "sName": "TotalPares", "mData": "TotalPares", "sClass": "alignCenter TotalPares" },
+                            //TotalParesEnviadoEdit
+                            {
+                                "mData": null, "sClass": "alignCenter TotalParesEnviadoEdit",
+                                "render": function (data, type, full, meta) {
+                                    //debugger
+                                    let readonly = full.IdEstado == "S" ? true : false;
+                                    let index = objSalidaAlmacenEdit.selected.findIndex(C => C.Desp_IdDetalle == full.Desp_IdDetalle);
+                                    let TotalParesEnviadoEdit = objSalidaAlmacenEdit.selected[index].TotalParesEnviadoEdit;
+                                    return objSalidaAlmacenEdit.grid.InputText(TotalParesEnviadoEdit, "TotalParesEnviadoEdit", readonly, 5);
+                                }
+                            },
+                            { "sName": "Agencia", "mData": "Agencia", "sClass": "", "bVisible": objSalidaAlmacenEdit.isVisibleAgencia },
+                            { "sName": "Destino", "mData": "Destino", "sClass": "", "bVisible": objSalidaAlmacenEdit.isVisibleDestino },
+                            { "sName": "Pedido", "mData": "Pedido", "sClass": "alignCenter" },
+                            { "sName": "TotalVenta", "mData": "TotalVenta", "sClass": "alignRight" },
+                            { "sName": "CobroFlete", "mData": "CobroFlete", "sClass": "alignCenter" },
+                            { "sName": "Observacion", "mData": "Observacion", "sClass": "alignCenter" },
+                            { "sName": "Detalle", "mData": "Detalle", "sClass": "" },
+                            {
+                                "mData": null, "sClass": "alignCenter",
+                                "render": function (data, type, full, meta) {
+                                    return objSalidaAlmacenEdit.grid.btnPrint("Imprimir", full.Rotulo, full.Destino, full.Agencia, full.Rotulo_Courier, full.McaCourier, full.CobroFlete, full.Desp_Tipo);
+                                }
+                            }
+                        ],
+                        "fnRowCallback": function (row, data, index) {
+                        },
+                        "drawCallback": function (settings) {
+                            //objSalidaAlmacenEdit.isOkUpdate = false;
+                            objSalidaAlmacenEdit.grid.OnBlur();
+                        },
+                        "initComplete": function (settings, json) {
+                        }
+                    });
+                },
+                cargaTabla: function () {
+                    debugger
+                    waitingDialog.show("Espere por favor...")
+                    objSalidaAlmacenEdit.Tabla.DataTable().ajax.reload(function () {
+                        waitingDialog.hide();
+                    });
+                },
+                btnAccion: function (colName, disabled, Id) {
+                    //debugger
+                    var _input = '<button title="' + colName + '" id = "btnAccion"' +
+                                    //(disabled == false ? ' disabled = "disabled"  ' : '  ') +
+                                    ' class="btn btn-xs btn-success " ' +
+                                    ' data-Id="' + Id + '" ' +
+                                    ' data-colname="' + colName + '" >' +
+                                    ' <span class="glyphicon glyphicon-pencil" ></span>' +
+                                 '</button>';
+                    return _input;
+                },
+                InputText: function (value, colName, readonly, MaxValue) {
+                    //debugger
+                    readonly = readonly || false;
+                    var _input = '<input id="editCellText" type="text" class="form-control input-sm ui-cell-input" ' +
+                        ' style="text-align:right; width:80px;" ' +
+                        ' value="' + value + '" ' +
+                        ' maxlength="' + MaxValue + '" ' +
+                        ' data-colname="' + colName + '" ' +
+                        (readonly == true ? ' readonly="true"' : '') +
+                        '/>';
+                    return _input;
+                },
+                btnPrint: function (colName, Rotulo, Destino, Agencia, Rotulo_Courier, McaCourier, CobroFlete, Desp_Tipo) {
+                    //debugger
+                    var _input = '<button title="' + colName + ' " id = "btnPrint" class="btn btn-xs btn-default btn-tabla"  ' +
+                                    ' data-colname="' + colName + '" ' +
+                                    ' data-Rotulo="' + Rotulo + '" ' +
+                                    ' data-Destino="' + Destino + '" ' +
+                                    ' data-Agencia="' + Agencia + '" ' +
+                                    ' data-Rotulo_Courier="' + Rotulo_Courier + '" ' +
+                                    ' data-McaCourier="' + McaCourier + '" ' +
+                                    ' data-CobroFlete="' + CobroFlete + '" ' +
+                                    ' data-Desp_Tipo="' + Desp_Tipo + '" ' +
+                                    '>' +
+                                    ' <span class="fa fa-print"></span>' +
+                                    '</button>';
+                    return _input;
+                },
+                SoloNumeros: function (element) {
+                    //SOLO NUMEROS
+                    $(element).keypress(function (e) {
+                        var keyCode = e.keyCode || e.which;
+                        var regex = /^[0-9]$/;
+                        var isValid = regex.test(String.fromCharCode(keyCode));
+                        if (!isValid) {
+                        }
+                        return isValid;
+                    });
+                },
+                OnBlur: function () {
+                    //debugger
+                    objSalidaAlmacenEdit.grid.SoloNumeros("#TbTabla tbody td.TotalCatalogEnviadoEdit #editCellText", function (e) {
+                        debugger
+                    });
+                    objSalidaAlmacenEdit.grid.SoloNumeros("#TbTabla tbody td.TotalPremioEnviadoEdit #editCellText", function (e) {
+                        debugger
+                    });
+                    objSalidaAlmacenEdit.grid.SoloNumeros("#TbTabla tbody td.TotalParesEnviadoEdit #editCellText", function (e) {
+                        debugger
+                    });
+                }
+            },
+            generaal: {
+                FormatDecimal: function (numero, decimales, separadorDecimal, separadorMiles) {
+                    //debugger
+                    var partes, array;
+                    if (!isFinite(numero) || isNaN(numero = parseFloat(numero))) {
+                        return "";
+                    }
+                    if (typeof decimales === "undefined") {
+                        decimales = 2;
+                    }
+                    if (typeof separadorDecimal === "undefined") {
+                        separadorDecimal = ".";
+                    }
+                    if (typeof separadorMiles === "undefined") {
+                        separadorMiles = ",";
+                    }
+                    // Redondeamos
+                    if (!isNaN(parseInt(decimales))) {
+                        if (decimales >= 0) {
+                            numero = numero.toFixed(decimales);
+                        } else {
+                            numero = (
+                                Math.round(numero / Math.pow(10, Math.abs(decimales))) * Math.pow(10, Math.abs(decimales))
+                            ).toFixed();
+                        }
+                    } else {
+                        numero = numero.toString();
+                    }
+                    // Damos formato
+                    partes = numero.split(".", 2);
+                    array = partes[0].split("");
+                    for (var i = array.length - 3; i > 0 && array[i - 1] !== "-"; i -= 3) {
+                        array.splice(i, 0, separadorMiles);
+                    }
+                    numero = array.join("");
+                    if (partes.length > 1) {
+                        numero += separadorDecimal + partes[1];
+                    }
+                    return numero;
+                },
+                exportar: function () { 
+                    $.ajax({
+                        type: "POST",
+                        url: '@Url.Action("get_exporta_ListarSalidaDespacho_excel", "Facturacion")',
+                        data: { Id: "@Model.Desp_id", isOkPrincipal : false},
+                        success: function (data) {
+                            data = JSON.parse(data);
+                            waitingDialog.hide();
+                            if (data.Success) {
+                                toastr.success(data.Message);
+                                window.location = '@Url.Action("ListarSalidaDespachoExcel")';
+                            }
+                            else {
+                                toastr.error(data.Message, "Alerta");
+                            }
+                        },
+                        error: function (XMLHttpRequest, textStatus, errorThrown) {
+                            waitingDialog.hide();
+                            toastr.error("Error al exportar excel.", "Alerta");
+                        }
+                    });
+                },
+                Validar: function () {
+                    return true;
+                },
+                Registrar: function () {
+                    debugger;
+                    swal({
+                        title: "¿Seguro que que desea actualizar los cambios?",
+                        text: "",
+                        icon: "warning",
+                        buttons: ["No", "Si"],
+                        dangerMode: true,
+                    }).then((cambiar) => {
+                        if (cambiar) {
+                            waitingDialog.show("Espere un momento por favor.");
+                            var _Ent = function () { return @Html.Raw(Json.Encode(ViewBag._Ent)); }();
+                            debugger;
+                            _Ent.chkAtender = objSalidaAlmacenEdit.ischkAtender;
+                            _Ent.chkEstSalida = objSalidaAlmacenEdit.ischkEstSalida;
+                            _Ent.Desp_id = "@Model.Desp_id";
+                            debugger;
+                            $.ajax({
+                                type: "POST",
+                                url: '@Url.Action("getRegistrarDespacho", "Facturacion")',
+                                data: { _Listado: objSalidaAlmacenEdit.selected, _Ent: _Ent },
+                                async: false,
+                                success: function (data) {
+                                    data = JSON.parse(data);
+                                    if (data.Success) {
+                                        swal({ title: "Ok", text: data.Message, icon: "success" }).then((value) => {
+                                            setTimeout(function () {
+                                                window.location = '@Url.Action("EditSalida_Almacen", "Facturacion", null)';
+                                            }, 500)
+                                        });
+                                    } else {
+                                        swal({ title: "Alerta", text: data.Message, icon: "error" }).then((value) => { });
+                                        waitingDialog.hide();
+                                    }
+                                },
+                                error: function (XMLHttpRequest, textStatus, errorThrown) {
+                                    waitingDialog.hide();
+                                    swal({ title: "Alerta", text: "Error al grabar.", icon: "error" }).then((value) => { });
+                                }
+                            });
+                        }
+                    })
+                }
+            }
+        };
+        $(document).ready(function () {
+            objSalidaAlmacenEdit.Inicio();
+        });
+</script>
+}

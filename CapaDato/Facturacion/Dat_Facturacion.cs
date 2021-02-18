@@ -296,5 +296,177 @@ namespace CapaDato.Facturacion
             }
             return Listar;
         }
+        public List<Ent_Salida_Almacen> ListarSalidaDespacho(Ent_Salida_Almacen _Ent)
+        {
+            List<Ent_Salida_Almacen> Listar = new List<Ent_Salida_Almacen>();
+            string sqlquery = "[USP_MVC_Listar_Despacho_almacen]";
+            try
+            {
+                using (SqlConnection cn = new SqlConnection(Ent_Conexion.conexion))
+                {
+                    using (SqlCommand cmd = new SqlCommand(sqlquery, cn))
+                    {
+                        cmd.CommandType = CommandType.StoredProcedure;
+                        cmd.Parameters.AddWithValue("@fecha_inicio", DbType.DateTime).Value = _Ent.FechaInicio;
+                        cmd.Parameters.AddWithValue("@fecha_final", DbType.DateTime).Value = _Ent.FechaFin;
+                        cmd.Parameters.AddWithValue("@tipo_des", DbType.String).Value = _Ent.Tipo;
+                        using (SqlDataAdapter da = new SqlDataAdapter(cmd))
+                        {
+                            DataTable dt = new DataTable();
+                            da.Fill(dt);
+
+                            Listar = new List<Ent_Salida_Almacen>();
+                            Listar = (from DataRow fila in dt.Rows
+                                      select new Ent_Salida_Almacen()
+                                      {
+                                          IdDespacho =  Convert.ToInt32(fila["Desp_Id"]),
+                                          Desp_Nrodoc = (fila["Desp_Nrodoc"] is DBNull) ? string.Empty : (string)(fila["Desp_Nrodoc"]),
+                                          Desp_Descripcion = (fila["Desp_Descripcion"] is DBNull) ? string.Empty : (string)(fila["Desp_Descripcion"]),
+                                          Desp_Tipo_Descripcion = (fila["Desp_Tipo_Descripcion"] is DBNull) ? string.Empty : (string)(fila["Desp_Tipo_Descripcion"]),
+                                          Desp_Tipo = (fila["Desp_Tipo"] is DBNull) ? string.Empty : (string)(fila["Desp_Tipo"]),
+                                          TotalParesEnviado = (fila["TotalParesEnviado"] is DBNull) ? (Decimal?)null : Convert.ToDecimal(fila["TotalParesEnviado"]),
+                                          Estado = (fila["Estado"] is DBNull) ? string.Empty : (string)(fila["Estado"]),
+                                          Desp_FechaCre = (fila["Desp_FechaCre"] is DBNull) ? string.Empty : (string)(fila["Desp_FechaCre"])
+                                      }
+                                    ).ToList();
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+            return Listar;
+        }
+
+        public Ent_Salida_Almacen ListarDespacho(Ent_Salida_Almacen _Ent)
+        {
+            string sqlquery = "USP_obtener_Despacho";
+            Ent_Salida_Almacen obj = null;
+            try
+            {
+                using (SqlConnection cn = new SqlConnection(Ent_Conexion.conexion))
+                {
+                    using (SqlCommand cmd = new SqlCommand(sqlquery, cn))
+                    {
+                        cmd.CommandTimeout = 0;
+                        cmd.CommandType = CommandType.StoredProcedure;
+                        cmd.Parameters.AddWithValue("@id_despacho", DbType.String).Value = _Ent.IdDespacho;
+                        using (SqlDataAdapter da = new SqlDataAdapter(cmd))
+                        {
+                            DataSet ds = new DataSet();
+                            da.Fill(ds);
+                            DataTable Dt1 = ds.Tables[0];
+                            DataTable Dt2 = ds.Tables[1];
+                            List<Ent_Edit_Salida_Almacen_Detalle> _Detalle = new List<Ent_Edit_Salida_Almacen_Detalle>();
+                            _Detalle = (from DataRow row in Dt1.Rows
+                                         select new Ent_Edit_Salida_Almacen_Detalle()
+                                         {
+                                             Desp_NroDoc = row.Field<string>("Desp_NroDoc"),
+                                             Desp_Descripcion = row.Field<string>("Desp_Descripcion"),
+                                             Estado = row.Field<string>("Estado"),
+                                             Desp_FechaCre = row.Field<string>("Desp_FechaCre"),
+                                             Asesor = row.Field<string>("Asesor"),
+                                             NombreLider = row.Field<string>("NombreLider"),
+                                             Promotor = row.Field<string>("Promotor"),
+                                             Rotulo = row.Field<string>("Rotulo"),
+                                             Rotulo_Courier = row.Field<string>("Rotulo_Courier"),
+                                             Agencia = row.Field<string>("Agencia"),
+                                             Destino = row.Field<string>("Destino"),
+                                             Pedido = row.Field<string>("Pedido"),
+                                             TotalPremio = row.Field<Decimal?>("TotalPremio"),
+                                             TotalPremioEnviado = row.Field<Decimal?>("TotalPremioEnviado"),
+                                             TotalCatalogo = row.Field<Decimal?>("TotalCatalogo"),
+                                             TotalCatalogEnviado = row.Field<Decimal?>("TotalCatalogEnviado"),
+                                             TotalPares = row.Field<Decimal?>("TotalPares"),
+                                             TotalParesEnviado = row.Field<Decimal?>("TotalParesEnviado"),
+                                             Total_Cantidad = row.Field<Decimal?>("Total_Cantidad"),
+                                             Total_Cantidad_Envio = row.Field<Decimal?>("Total_Cantidad_Envio"),
+                                             TotalVenta = row.Field<Decimal?>("TotalVenta"),
+                                             CobroFlete = row.Field<string>("CobroFlete"),
+                                             Courier = row.Field<string>("Courier"),
+                                             Observacion = row.Field<string>("Observacion"),
+                                             Detalle = row.Field<string>("Detalle"),
+                                             McaCourier = row.Field<string>("McaCourier"),
+                                             McaFlete = row.Field<string>("McaFlete"),
+                                             Enviado = row.Field<Decimal?>("Enviado"),
+                                             Desp_IdDetalle = row.Field<Decimal?>("Desp_IdDetalle"),
+                                             Desp_id = row.Field<Decimal?>("Desp_id"),
+                                             TotalParesEnviadoEdit = row.Field<Decimal?>("TotalParesEnviadoEdit"),
+                                             TotalCatalogEnviadoEdit = row.Field<Decimal?>("TotalCatalogEnviadoEdit"),
+                                             TotalPremioEnviadoEdit = row.Field<Decimal?>("TotalPremioEnviadoEdit"),
+                                             IdEstado = row.Field<string>("IdEstado"),
+                                             Atendido = row.Field<string>("Atendido"),
+                                             IdLider = row.Field<Decimal?>("IdLider"),
+                                             Lid_Prom = row.Field<string>("Lid_Prom"),
+                                             Desp_Tipo_Des = row.Field<string>("Desp_Tipo_Des"),
+                                             Desp_Tipo = row.Field<string>("Desp_Tipo")
+                                         }
+                                       ).ToList();
+
+                            Ent_Edit_Salida_Almacen_Cabecera _Cabecera = new Ent_Edit_Salida_Almacen_Cabecera() {
+
+                                Desp_NroDoc = Dt1.Rows[0]["Desp_NroDoc"].ToString(),
+                                Desp_id = Convert.ToDecimal(Dt1.Rows[0]["Desp_id"]),
+                                Estado = Dt1.Rows[0]["Estado"].ToString(),
+                                Desp_FechaCre = Dt1.Rows[0]["Desp_FechaCre"].ToString(),
+                                Desp_Tipo_Des = Dt1.Rows[0]["Desp_Tipo_Des"].ToString(),
+                                Desp_Tipo = Dt1.Rows[0]["Desp_Tipo"].ToString(),
+                                Desp_Descripcion = Dt1.Rows[0]["Desp_Descripcion"].ToString(),
+                                Atendido = Dt1.Rows[0]["Atendido"].ToString(),
+                                IdEstado = Dt1.Rows[0]["IdEstado"].ToString(),
+                                NroPedidos = Convert.ToInt32(Dt2.Rows[0]["NroPedidos"]),
+                                NroEnviados = Convert.ToInt32(Dt2.Rows[0]["NroEnviados"]),
+                                NroPremio = Convert.ToInt32(Dt2.Rows[0]["NroPremio"]),
+                                PremioEnviados = Convert.ToInt32(Dt2.Rows[0]["PremioEnviados"]),
+                                CatalogEnviados = Convert.ToInt32(Dt2.Rows[0]["CatalogEnviados"]),
+                                CatalogPedidos = Convert.ToInt32(Dt2.Rows[0]["CatalogPedidos"]),
+                                MontoTotal = Convert.ToDecimal(Dt2.Rows[0]["MontoTotal"])
+                            };
+                            obj = new Ent_Salida_Almacen();
+                            obj._Cabecera = _Cabecera;
+                            obj._Detalle = _Detalle;
+                        }
+
+                    }
+                }
+            }
+            catch (Exception exc)
+            {
+
+                obj = new Ent_Salida_Almacen();
+            }
+            return obj;
+        }
+
+        public bool ActualizarSalidaDespacho(Ent_Edit_Salida_Almacen_Cabecera _Ent)
+        {
+            string sqlquery = "USP_Actualizar_Salida_Despacho";
+            SqlConnection cn = null;
+            SqlCommand cmd = null;
+            bool _valida = false;
+            try
+            {
+                cn = new SqlConnection(Ent_Conexion.conexion);
+                if (cn.State == 0) cn.Open();
+                cmd = new SqlCommand(sqlquery, cn);
+                cmd.CommandTimeout = 0;
+                cmd.CommandType = CommandType.StoredProcedure;
+                cmd.Parameters.AddWithValue("@IdDespacho", _Ent.Desp_id);
+                cmd.Parameters.AddWithValue("@strEstadoDespacho", _Ent.Estado);
+                cmd.Parameters.AddWithValue("@strListDetalle", _Ent.strDataDetalle);
+                cmd.Parameters.AddWithValue("@strFlgAtendido", _Ent.Atendido);
+                cmd.Parameters.AddWithValue("@UsuCrea",_Ent.UsuarioCrea);
+                cmd.ExecuteNonQuery();
+                _valida = true;
+            }
+            catch (Exception ex)
+            {
+                _valida = false;
+                throw;
+            }
+            return _valida;
+        }
     }
 }

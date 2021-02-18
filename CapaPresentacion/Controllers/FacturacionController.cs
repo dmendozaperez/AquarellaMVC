@@ -29,6 +29,11 @@ namespace CapaPresentacion.Controllers
         private string _session_ListarLiderVentas_Excel = "_session_ListarLiderVentas_Excel";
         private string _session_ListarVentasTallas = "_session_ListarVentasTallas";
         private string _session_ListarVentasTallas_Excel = "_session_ListarVentasTallas_Excel";
+        private string _session_ListarSalidaDespacho = "_session_ListarSalidaDespacho";
+        private string _session_ListarSalidaDespacho_Excel = "_session_ListarSalidaDespacho_Excel";
+        private string _session_ListarSalidaDespacho_Cabecera= "_session_ListarSalidaDespacho_Cabecera";
+        private string _session_ListarSalidaDespacho_Detalle = "_session_ListarSalidaDespacho_Detalle";
+
 
         #region <CONSULTA DE VENTAS POR CATEGORIA>
         public ActionResult Ventas_Categoria()
@@ -1662,6 +1667,498 @@ namespace CapaPresentacion.Controllers
                 Response.ContentEncoding = Encoding.Default;
                 Response.Write(style);
                 Response.Write(Session[_session_ListarVentasTallas_Excel].ToString());
+                Response.End();
+            }
+            catch
+            {
+
+            }
+            return Json(new { estado = 0, mensaje = 1 });
+        }
+        #endregion
+
+        #region <SALIDA DE DESPACHO>
+        /// <summary>
+        /// SALIDA DE DESPACHO
+        /// </summary>
+        /// <create>Juilliand R. Damian Gomez </create>
+        /// <update></update> 
+        /// <returns></returns>
+        public ActionResult Salida_Almacen()
+        {
+            Ent_Usuario _usuario = (Ent_Usuario)Session[Ent_Constantes.NameSessionUser];
+            string actionName = this.ControllerContext.RouteData.GetRequiredString("action");
+            string controllerName = this.ControllerContext.RouteData.GetRequiredString("controller");
+            string return_view = actionName + "|" + controllerName;
+
+            if (_usuario == null)
+            {
+                return RedirectToAction("Login", "Control", new { returnUrl = return_view });
+            }
+            else
+            {
+
+                List<Ent_Salida_Almacen> ListarTipo = new List<Ent_Salida_Almacen>() {
+                    new Ent_Salida_Almacen {Codigo = "L",Descripcion = "Lima-Callao" },
+                    new Ent_Salida_Almacen {Codigo = "P",Descripcion = "Provincia" }
+                };
+
+                ViewBag.ListarTipo = ListarTipo;
+                Ent_Salida_Almacen EntSalidaDespacho = new Ent_Salida_Almacen();
+                ViewBag.EntSalidaDespacho = EntSalidaDespacho;
+                return View();
+            }
+
+        }
+        /// <summary>
+        /// LISTADO PRINCIPAL
+        /// </summary>
+        /// <create>Juilliand R. Damian Gomez </create>
+        /// <update></update> 
+        /// <param name="param"></param>
+        /// <param name="isOkUpdate"></param>
+        /// <param name="FechaInicio"></param>
+        /// <param name="FechaFin"></param>
+        /// <param name="Tipo"></param>
+        /// <returns></returns>
+        public JsonResult getSalidaDespachoAjax(Ent_jQueryDataTableParams param, bool isOkUpdate, string FechaInicio, string FechaFin, string Tipo)
+        {
+            Ent_Salida_Almacen EntSalidaAlmacen = new Ent_Salida_Almacen();
+            if (isOkUpdate)
+            {
+                EntSalidaAlmacen.FechaInicio = DateTime.Parse(FechaInicio);
+                EntSalidaAlmacen.FechaFin = DateTime.Parse(FechaFin);
+                EntSalidaAlmacen.Tipo = Tipo;
+
+                List<Ent_Salida_Almacen> _ListarSalidaAlmacen = datFacturacion.ListarSalidaDespacho(EntSalidaAlmacen).ToList();
+                Session[_session_ListarSalidaDespacho] = _ListarSalidaAlmacen;
+            }
+
+            /*verificar si esta null*/
+            if (Session[_session_ListarSalidaDespacho] == null)
+            {
+                List<Ent_Salida_Almacen> _ListarSalidaDespacho = new List<Ent_Salida_Almacen>();
+                Session[_session_ListarSalidaDespacho] = _ListarSalidaDespacho;
+            }
+
+            IQueryable<Ent_Salida_Almacen> entDocTrans = ((List<Ent_Salida_Almacen>)(Session[_session_ListarSalidaDespacho])).AsQueryable();
+            //Manejador de filtros
+            int totalCount = entDocTrans.Count();
+            IEnumerable<Ent_Salida_Almacen> filteredMembers = entDocTrans;
+            if (!string.IsNullOrEmpty(param.sSearch))
+            {
+                filteredMembers = entDocTrans.Where(
+                        m =>
+                            m.IdDespacho.ToString().ToUpper().Contains(param.sSearch.ToUpper()) ||
+                            m.Desp_Nrodoc.ToUpper().Contains(param.sSearch.ToUpper()) ||
+                            m.Desp_Descripcion.ToUpper().Contains(param.sSearch.ToUpper()) ||
+                            m.Desp_Tipo_Descripcion.ToUpper().Contains(param.sSearch.ToUpper()) ||
+                            m.Desp_Tipo.ToUpper().Contains(param.sSearch.ToUpper()) ||
+                            m.TotalParesEnviado.ToString().ToUpper().Contains(param.sSearch.ToUpper()) ||
+                            m.Estado.ToUpper().Contains(param.sSearch.ToUpper()) ||
+                            m.Desp_FechaCre.ToUpper().Contains(param.sSearch.ToUpper())
+                );
+            }
+            var sortIdx = Convert.ToInt32(Request["iSortCol_0"]);
+
+            if (param.iSortingCols > 0)
+            {
+                if (Request["sSortDir_0"].ToString() == "asc")
+                {
+                    switch (sortIdx)
+                    {
+                        case 0: filteredMembers = filteredMembers.OrderBy(o => o.IdDespacho); break;
+                        case 1: filteredMembers = filteredMembers.OrderBy(o => o.Desp_Nrodoc); break;
+                        case 2: filteredMembers = filteredMembers.OrderBy(o => o.Desp_Descripcion); break;
+                        case 3: filteredMembers = filteredMembers.OrderBy(o => o.Desp_Tipo_Descripcion); break;
+                        case 4: filteredMembers = filteredMembers.OrderBy(o => o.Desp_Tipo); break;
+                        case 5: filteredMembers = filteredMembers.OrderBy(o => o.TotalParesEnviado); break;
+                        case 6: filteredMembers = filteredMembers.OrderBy(o => o.Estado); break;
+                        case 7: filteredMembers = filteredMembers.OrderBy(o => o.Desp_FechaCre); break;
+                    }
+                }
+                else
+                {
+                    switch (sortIdx)
+                    {
+                        case 0: filteredMembers = filteredMembers.OrderByDescending(o => o.IdDespacho); break;
+                        case 1: filteredMembers = filteredMembers.OrderByDescending(o => o.Desp_Nrodoc); break;
+                        case 2: filteredMembers = filteredMembers.OrderByDescending(o => o.Desp_Descripcion); break;
+                        case 3: filteredMembers = filteredMembers.OrderByDescending(o => o.Desp_Tipo_Descripcion); break;
+                        case 4: filteredMembers = filteredMembers.OrderByDescending(o => o.Desp_Tipo); break;
+                        case 5: filteredMembers = filteredMembers.OrderByDescending(o => o.TotalParesEnviado); break;
+                        case 6: filteredMembers = filteredMembers.OrderByDescending(o => o.Estado); break;
+                        case 7: filteredMembers = filteredMembers.OrderByDescending(o => o.Desp_FechaCre); break;
+                    }
+                }
+            }
+
+            var Result = filteredMembers
+                .Skip(param.iDisplayStart)
+                .Take(param.iDisplayLength);
+
+            //Se devuelven los resultados por json
+            return Json(new
+            {
+                sEcho = param.sEcho,
+                iTotalRecords = totalCount,
+                iTotalDisplayRecords = filteredMembers.Count(),
+                aaData = Result
+            }, JsonRequestBehavior.AllowGet);
+        }
+
+        public ActionResult EditSalida_Almacen(int Id)
+        {
+            Session[_session_ListarSalidaDespacho_Cabecera] = null;
+            Session[_session_ListarSalidaDespacho_Detalle] = null;
+            Ent_Usuario _usuario = (Ent_Usuario)Session[Ent_Constantes.NameSessionUser];
+            string actionName = this.ControllerContext.RouteData.GetRequiredString("action");
+            string controllerName = this.ControllerContext.RouteData.GetRequiredString("controller");
+            string return_view = actionName + "|" + controllerName;
+
+            if (_usuario == null)
+            {
+                return RedirectToAction("Login", "Control", new { returnUrl = return_view });
+            }
+            else
+            {
+                Ent_Salida_Almacen _EntData = new Ent_Salida_Almacen();
+                _EntData.IdDespacho = Id;
+                _EntData = datFacturacion.ListarDespacho(_EntData);
+                //Cabecera
+                Session[_session_ListarSalidaDespacho_Cabecera] = _EntData._Cabecera;
+                //Detalle
+                Session[_session_ListarSalidaDespacho_Detalle] = _EntData._Detalle;
+
+                ViewBag._Ent = _EntData;
+                ViewBag._Detalle = _EntData._Detalle;
+                        
+                return View(_EntData._Cabecera);
+            }
+        }
+        public JsonResult getSalidaDespachoEditAjax(Ent_jQueryDataTableParams param)
+        {
+
+            /*verificar si esta null*/
+            if (Session[_session_ListarSalidaDespacho_Detalle] == null)
+            {
+                List<Ent_Edit_Salida_Almacen_Detalle> _ListarSalidaDespacho = new List<Ent_Edit_Salida_Almacen_Detalle>();
+                Session[_session_ListarSalidaDespacho_Detalle] = _ListarSalidaDespacho;
+            }
+
+            IQueryable<Ent_Edit_Salida_Almacen_Detalle> entDocTrans = ((List<Ent_Edit_Salida_Almacen_Detalle>)(Session[_session_ListarSalidaDespacho_Detalle])).AsQueryable();
+            //Manejador de filtros
+            int totalCount = entDocTrans.Count();
+            IEnumerable<Ent_Edit_Salida_Almacen_Detalle> filteredMembers = entDocTrans;
+            if (!string.IsNullOrEmpty(param.sSearch))
+            {
+                filteredMembers = entDocTrans.Where(
+                        m =>
+                            m.Asesor.ToUpper().Contains(param.sSearch.ToUpper()) ||
+                            m.NombreLider.ToUpper().Contains(param.sSearch.ToUpper()) ||
+                            m.Promotor.ToUpper().Contains(param.sSearch.ToUpper()) ||
+                            m.Rotulo.ToUpper().Contains(param.sSearch.ToUpper()) ||
+                            m.TotalCatalogo.ToString().ToUpper().Contains(param.sSearch.ToUpper()) ||
+                            m.TotalCatalogEnviadoEdit.ToString().ToUpper().Contains(param.sSearch.ToUpper()) ||
+                            m.TotalPremio.ToString().ToUpper().Contains(param.sSearch.ToUpper()) ||
+                            m.TotalPremioEnviadoEdit.ToString().ToUpper().Contains(param.sSearch.ToUpper()) ||
+                            m.TotalPares.ToString().ToUpper().Contains(param.sSearch.ToUpper()) ||
+                            m.TotalParesEnviadoEdit.ToString().ToUpper().Contains(param.sSearch.ToUpper()) ||
+                            m.Agencia.ToUpper().Contains(param.sSearch.ToUpper()) ||
+                            m.Destino.ToUpper().Contains(param.sSearch.ToUpper()) ||
+                            m.Pedido.ToUpper().Contains(param.sSearch.ToUpper()) ||
+                            m.TotalVenta.ToString().ToUpper().Contains(param.sSearch.ToUpper()) ||
+                            m.CobroFlete.ToUpper().Contains(param.sSearch.ToUpper()) ||
+                            m.Observacion.ToUpper().Contains(param.sSearch.ToUpper()) ||
+                            m.Detalle.ToUpper().Contains(param.sSearch.ToUpper())
+                );
+            }
+            var sortIdx = Convert.ToInt32(Request["iSortCol_0"]);
+
+            if (param.iSortingCols > 0)
+            {
+                if (Request["sSortDir_0"].ToString() == "asc")
+                {
+                    switch (sortIdx)
+                    {
+                        case 0: filteredMembers = filteredMembers.OrderBy(o => o.Asesor); break;
+                        case 1: filteredMembers = filteredMembers.OrderBy(o => o.NombreLider); break;
+                        case 2: filteredMembers = filteredMembers.OrderBy(o => o.Promotor); break;
+                        case 3: filteredMembers = filteredMembers.OrderBy(o => o.Rotulo); break;
+                        case 4: filteredMembers = filteredMembers.OrderBy(o => o.TotalCatalogo); break;
+                        case 5: filteredMembers = filteredMembers.OrderBy(o => o.TotalCatalogEnviadoEdit); break;
+                        case 6: filteredMembers = filteredMembers.OrderBy(o => o.TotalPremio); break;
+                        case 7: filteredMembers = filteredMembers.OrderBy(o => o.TotalPremioEnviadoEdit); break;
+                        case 8: filteredMembers = filteredMembers.OrderBy(o => o.TotalPares); break;
+                        case 9: filteredMembers = filteredMembers.OrderBy(o => o.TotalParesEnviadoEdit); break;
+                        case 10: filteredMembers = filteredMembers.OrderBy(o => o.Agencia); break;
+                        case 11: filteredMembers = filteredMembers.OrderBy(o => o.Destino); break;
+                        case 12: filteredMembers = filteredMembers.OrderBy(o => o.Pedido); break;
+                        case 13: filteredMembers = filteredMembers.OrderBy(o => o.TotalVenta); break;
+                        case 14: filteredMembers = filteredMembers.OrderBy(o => o.CobroFlete); break;
+                        case 15: filteredMembers = filteredMembers.OrderBy(o => o.Observacion); break;
+                        case 16: filteredMembers = filteredMembers.OrderBy(o => o.Detalle); break;
+                    }
+                }
+                else
+                {
+                    switch (sortIdx)
+                    {
+                        case 0: filteredMembers = filteredMembers.OrderByDescending(o => o.Asesor); break;
+                        case 1: filteredMembers = filteredMembers.OrderByDescending(o => o.NombreLider); break;
+                        case 2: filteredMembers = filteredMembers.OrderByDescending(o => o.Promotor); break;
+                        case 3: filteredMembers = filteredMembers.OrderByDescending(o => o.Rotulo); break;
+                        case 4: filteredMembers = filteredMembers.OrderByDescending(o => o.TotalCatalogo); break;
+                        case 5: filteredMembers = filteredMembers.OrderByDescending(o => o.TotalCatalogEnviadoEdit); break;
+                        case 6: filteredMembers = filteredMembers.OrderByDescending(o => o.TotalPremio); break;
+                        case 7: filteredMembers = filteredMembers.OrderByDescending(o => o.TotalPremioEnviadoEdit); break;
+                        case 8: filteredMembers = filteredMembers.OrderByDescending(o => o.TotalPares); break;
+                        case 9: filteredMembers = filteredMembers.OrderByDescending(o => o.TotalParesEnviadoEdit); break;
+                        case 10: filteredMembers = filteredMembers.OrderByDescending(o => o.Agencia); break;
+                        case 11: filteredMembers = filteredMembers.OrderByDescending(o => o.Destino); break;
+                        case 12: filteredMembers = filteredMembers.OrderByDescending(o => o.Pedido); break;
+                        case 13: filteredMembers = filteredMembers.OrderByDescending(o => o.TotalVenta); break;
+                        case 14: filteredMembers = filteredMembers.OrderByDescending(o => o.CobroFlete); break;
+                        case 15: filteredMembers = filteredMembers.OrderByDescending(o => o.Observacion); break;
+                        case 16: filteredMembers = filteredMembers.OrderByDescending(o => o.Detalle); break;
+                    }
+                }
+            }
+
+            var Result = filteredMembers
+                .Skip(param.iDisplayStart)
+                .Take(param.iDisplayLength);
+
+            //Se devuelven los resultados por json
+            return Json(new
+            {
+                sEcho = param.sEcho,
+                iTotalRecords = totalCount,
+                iTotalDisplayRecords = filteredMembers.Count(),
+                aaData = Result
+            }, JsonRequestBehavior.AllowGet);
+        }
+        /// <summary>
+        /// Genera/Registrar los saldos anticipos
+        /// </summary>
+        /// <param name="_LisSaldo"></param>
+        /// <returns></returns>
+        public ActionResult getRegistrarDespacho(List<Ent_Edit_Salida_Almacen_Detalle> _Listado, Ent_Edit_Salida_Almacen_Cabecera _Ent)
+        {
+            JsonResponse objResult = new JsonResponse();
+
+            Ent_Usuario _usuario = (Ent_Usuario)Session[Ent_Constantes.NameSessionUser];
+            bool Result = false;
+
+            try
+            {
+                string strDataDetalle = "";
+                _Ent.Atendido = "N";
+                _Ent.Estado = "R";
+
+                if (_Ent.chkAtender)
+                    _Ent.Atendido = "S";
+
+                if (_Ent.chkEstSalida)
+                    _Ent.Estado = "S";
+
+                foreach (var item in _Listado)
+                {
+                    strDataDetalle += "<row  ";
+                    strDataDetalle += " IdDetalle=¿" + item.Desp_IdDetalle.ToString() + "¿ ";
+                    strDataDetalle += " ParesSalida=¿" + item.TotalParesEnviadoEdit.ToString() + "¿ ";
+                    strDataDetalle += " CatalogSalida=¿" + item.TotalCatalogEnviadoEdit.ToString() + "¿ ";
+                    strDataDetalle += " PremioSalida=¿" + item.TotalPremioEnviadoEdit.ToString() + "¿ ";
+                    strDataDetalle += "/>";
+                }
+
+                _Ent.strDataDetalle = strDataDetalle;
+                _Ent.UsuarioCrea = 1; //_usuario.usu_id;
+                
+                Result = datFacturacion.ActualizarSalidaDespacho(_Ent);
+                if (Result)
+                {
+                    objResult.IdPrincipal = Convert.ToInt32(_Ent.Desp_id);
+                    objResult.Success = true;
+                    objResult.Message = "Se actualizo correctamente el despacho.";
+                }
+                else
+                {
+                    objResult.Success = false;
+                    objResult.Message = "¡Error! Al actualizar el despacho.";
+                }
+            }
+            catch (Exception ex)
+            {
+                objResult.Success = false;
+                objResult.Message = "¡Error! Al actualizar el despacho.";
+            }
+            var JSON = JsonConvert.SerializeObject(objResult);
+            return Json(JSON, JsonRequestBehavior.AllowGet);
+        }
+
+        public ActionResult get_exporta_ListarSalidaDespacho_excel(int Id, bool isOkPrincipal)
+        {
+            JsonResponse objResult = new JsonResponse();
+            try
+            {
+                Session[_session_ListarSalidaDespacho_Excel] = null;
+                string cadena = "";
+
+                if (isOkPrincipal)
+                {
+                    Ent_Salida_Almacen _EntData = new Ent_Salida_Almacen();
+                    _EntData.IdDespacho = Id;
+                    _EntData = datFacturacion.ListarDespacho(_EntData);
+                    cadena = get_html_ListarSalidaDespacho_str(_EntData._Detalle, _EntData._Cabecera);
+                    if (cadena.Length == 0)
+                    {
+                        objResult.Success = false;
+                        objResult.Message = "Error del formato html";
+                    }
+                    else
+                    {
+                        objResult.Success = true;
+                        objResult.Message = "Se genero el excel correctamente";
+                        Session[_session_ListarSalidaDespacho_Excel] = cadena;
+                    }
+                }
+                else
+                {
+                    if (Session[_session_ListarSalidaDespacho_Cabecera] != null && Session[_session_ListarSalidaDespacho_Detalle] != null)
+                    {
+
+                        Ent_Edit_Salida_Almacen_Cabecera _ListarSalidaDespacho = (Ent_Edit_Salida_Almacen_Cabecera)Session[_session_ListarSalidaDespacho_Cabecera];
+                        if (_ListarSalidaDespacho == null)
+                        {
+                            objResult.Success = false;
+                            objResult.Message = "No hay filas para exportar";
+                        }
+                        else
+                        {
+                            cadena = get_html_ListarSalidaDespacho_str((List<Ent_Edit_Salida_Almacen_Detalle>)Session[_session_ListarSalidaDespacho_Detalle], (Ent_Edit_Salida_Almacen_Cabecera)Session[_session_ListarSalidaDespacho_Cabecera]);
+                            if (cadena.Length == 0)
+                            {
+                                objResult.Success = false;
+                                objResult.Message = "Error del formato html";
+                            }
+                            else
+                            {
+                                objResult.Success = true;
+                                objResult.Message = "Se genero el excel correctamente";
+                                Session[_session_ListarSalidaDespacho_Excel] = cadena;
+                            }
+                        }
+                    }
+                    else
+                    {
+                        objResult.Success = false;
+                        objResult.Message = "No hay filas para exportar";
+                    }
+                }        
+            }
+            catch (Exception ex)
+            {
+                objResult.Success = false;
+                objResult.Message = "No hay filas para exportar";
+            }
+
+            var JSON = JsonConvert.SerializeObject(objResult);
+
+            return Json(JSON, JsonRequestBehavior.AllowGet);
+        }
+
+
+        public string get_html_ListarSalidaDespacho_str(List<Ent_Edit_Salida_Almacen_Detalle> _SalidaDespachoDetalle, Ent_Edit_Salida_Almacen_Cabecera _Cabecera)
+        {
+            StringBuilder sb = new StringBuilder();
+            var _Detalle = _SalidaDespachoDetalle.ToList();
+            try
+            {
+                sb.Append("<div>");
+                sb.Append("<table cellspacing='0' style='width: 1000px' rules='all' border='0' style='border-collapse:collapse;'>");
+                sb.Append("<tr><td Colspan='14'></td></tr>");
+                //sb.Append("<tr><td Colspan='14' valign='middle' align='center' style='vertical-align: middle;font-size: 18.0pt;font-weight: bold;color:#285A8F'>REPORTE DE VENTAS POR SEMANA</td></tr>");
+                //sb.Append("<tr><td Colspan='14' valign='middle' align='center' style='vertical-align: middle;font-size: 10.0pt;font-weight: bold;color:#000000'>Ventas de semana con el año anterior al " + _Ent.Anno+ "</td></tr>");//subtitulo
+                sb.Append("</table>");
+                sb.Append("<Table border='1' bgColor='#ffffff' borderColor='#000000' cellSpacing='2' cellPadding='2' style='font-size:10.0pt; font-family:Calibri; background:white;'>");
+                sb.Append("<tr height=38 ><td height=38  bgcolor='#969696' width='38'>Tipo Despacho </ td ><td width='400' align='left' >" + _Cabecera.Desp_Tipo_Des + "</ td > ");
+                sb.Append("<tr height=38 ><td height=38  bgcolor='#969696' width='38'>Nro. Documento </ td ><td width='400' align='left' >" + _Cabecera.Desp_NroDoc + "</ td > ");
+                sb.Append("<td height=38  bgcolor='#969696' width='38'>Fec. Creación. </ td ><td width='400' align='left' colspan='2' >" + _Cabecera.Desp_FechaCre + "</ td > </tr>");
+                sb.Append("<tr height=38 ><td height=38  bgcolor='#969696' width='38'>Total Monto. </ td ><td width='400' align='left' >" + _Cabecera.MontoTotal + "</ td > ");
+                sb.Append("<td height=38  bgcolor='#969696' width='38'>Estado </ td ><td width='400' align='left' colspan='2' >" + _Cabecera.Estado + "</ td ></tr>");
+                sb.Append("<tr height=38 ><td height=38  bgcolor='#969696' width='38'>Pares Pedido </ td ><td width='400' align='left' >" +_Cabecera.NroPedidos + "</ td > ");
+                sb.Append("<td height=38  bgcolor='#969696' width='38'>Pares Enviado </ td ><td width='400' align='left' colspan='2' >" + _Cabecera.NroEnviados + "</ td ></tr>");
+                sb.Append("<tr height=38 ><td height=38  bgcolor='#969696' width='38'>Catalogo Facturado </ td ><td width='400' align='left' >" + _Cabecera.CatalogPedidos + "</ td > ");
+                sb.Append("<td height=38  bgcolor='#969696' width='38'>Catalogo Enviado </ td ><td width='400' align='left' colspan='2' >" + _Cabecera.CatalogEnviados+ "</ td ></tr>");
+                sb.Append("<tr height=38 ><td height=38  bgcolor='#969696' width='38'>Premio Pedido </ td ><td width='400' align='left' >" + _Cabecera.NroPremio+ "</ td > ");
+                sb.Append("<td height=38  bgcolor='#969696' width='38'>Premio Enviado </ td ><td width='400' align='left' colspan='2' >" + _Cabecera.PremioEnviados+ "</ td ></tr>");
+                sb.Append("<tr height=38 ><td height=38  bgcolor='#969696' width='38'>Descripción </ td ><td colspan='4' align='left' >" + _Cabecera.Desp_Descripcion + "</ td > ");
+                sb.Append("</tr>");
+                sb.Append("</table>");
+
+                sb.Append("<table>");
+                sb.Append("<tr></tr>");
+                sb.Append("</table>");
+
+                sb.Append("</table>");
+                sb.Append("<Table border='1' bgColor='#ffffff' borderColor='#000000' cellSpacing='2' cellPadding='2' style='font-size:10.0pt; font-family:Calibri; background:white;'>");
+                sb.Append("<tr bgColor='#969696'>\n");
+                sb.Append("<th style='text-align: center;'><font color=''>Asesor</font></th>\n");
+                sb.Append("<th style='text-align: center;'><font color=''>Lider</font></th>\n");
+                sb.Append("<th style='text-align: center;'><font color=''>Promotor</font></th>\n");
+                sb.Append("<th style='text-align: center;'><font color=''>Rotulo</font></th>\n");
+                if (_Cabecera.Desp_Tipo == "P")
+                {
+                    sb.Append("<th style='text-align: center; '><font color=''>Agencia</font></th>\n");
+                    sb.Append("<th style='text-align: center; '><font color=''>Destino</font></th>\n");
+                }
+
+                sb.Append("<th style='text-align: center;'><font color=''>Pedido</font></th>\n");
+                sb.Append("<th style='text-align: center;'><font color=''>TotalPares</font></th>\n");
+                sb.Append("<th style='text-align: center;'><font color=''>Observacion</font></th>\n");
+                sb.Append("</tr>\n");
+
+                foreach (var item in _Detalle)
+                {
+                    sb.Append("<tr>\n");
+                    sb.Append("<td align=''>" + item.Asesor+ "</td>\n");
+                    sb.Append("<td align=''>" + item.NombreLider + "</td>\n");
+                    sb.Append("<td align=''>" + item.Promotor + "</td>\n");
+                    sb.Append("<td align=''>" + item.Rotulo + "</td>\n");
+                    sb.Append("<td align=''>" + item.Agencia + "</td>\n");
+                    if (_Cabecera.Desp_Tipo == "P")
+                    {
+                        sb.Append("<td align=''>" + item.Destino + "</td>\n");
+                        sb.Append("<td align=''>" + item.Pedido + "</td>\n");
+                    }
+                    sb.Append("<td align=''>" + item.TotalPares + "</td>\n");
+                    sb.Append("<td align=''>" + item.Observacion + "</td>\n");
+                    sb.Append("</tr>\n");
+                }
+                sb.Append("</table></div>");
+            }
+            catch
+            {
+
+            }
+            return sb.ToString();
+        }
+
+        public ActionResult ListarSalidaDespachoExcel()
+        {
+            string NombreArchivo = "Orden_Despacho";
+            String style = style = @"<style> .textmode { mso-number-format:\@; } </script> ";
+            try
+            {
+                Response.Clear();
+                Response.Buffer = true;
+                Response.ContentType = "application/vnd.ms-excel";
+                Response.AddHeader("Content-Disposition", "attachment;filename=" + NombreArchivo + ".xls");
+                Response.Charset = "UTF-8";
+                Response.ContentEncoding = Encoding.Default;
+                Response.Write(style);
+                Response.Write(Session[_session_ListarSalidaDespacho_Excel].ToString());
                 Response.End();
             }
             catch
