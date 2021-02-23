@@ -1,11 +1,12 @@
 ﻿using CapaEntidad.General;
 using CapaEntidad.Util;
 using CapaEntidad.Control;
-using CapaDato.Facturacion;
 using CapaEntidad.Facturacion;
+using CapaDato.Facturacion;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Web;
 using System.Web.Mvc;
 using System.Text;
@@ -33,7 +34,8 @@ namespace CapaPresentacion.Controllers
         private string _session_ListarSalidaDespacho_Excel = "_session_ListarSalidaDespacho_Excel";
         private string _session_ListarSalidaDespacho_Cabecera= "_session_ListarSalidaDespacho_Cabecera";
         private string _session_ListarSalidaDespacho_Detalle = "_session_ListarSalidaDespacho_Detalle";
-
+        private string _session_ListarVentasSemanales = "_session_ListarVentasSemanales";
+        private string _session_ListarVentasSemanales_Excel = "_session_ListarVentasSemanales_Excel";
 
         #region <CONSULTA DE VENTAS POR CATEGORIA>
         public ActionResult Ventas_Categoria()
@@ -2159,6 +2161,293 @@ namespace CapaPresentacion.Controllers
                 Response.ContentEncoding = Encoding.Default;
                 Response.Write(style);
                 Response.Write(Session[_session_ListarSalidaDespacho_Excel].ToString());
+                Response.End();
+            }
+            catch
+            {
+
+            }
+            return Json(new { estado = 0, mensaje = 1 });
+        }
+        #endregion
+
+        #region <VENTAS SEMANALES>
+        /// <summary>
+        /// Ventas semanales
+        /// </summary>
+        /// <returns></returns>
+        public ActionResult Ventas_Semanales()
+        {
+            Ent_Usuario _usuario = (Ent_Usuario)Session[Ent_Constantes.NameSessionUser];
+            string actionName = this.ControllerContext.RouteData.GetRequiredString("action");
+            string controllerName = this.ControllerContext.RouteData.GetRequiredString("controller");
+            string return_view = actionName + "|" + controllerName;
+
+            if (_usuario == null)
+            {
+                return RedirectToAction("Login", "Control", new { returnUrl = return_view });
+            }
+            else
+            {
+                Ent_Ventas_Semanales EntVentasSemanales = new Ent_Ventas_Semanales();
+                ViewBag.EntVentasSemanales = EntVentasSemanales;
+                return View();
+            }
+        }
+        /// <summary>
+        /// Listado principal
+        /// </summary>
+        /// <param name="_Ent"></param>
+        /// <returns></returns>
+        public JsonResult getVentasSemanalesAjax(Ent_Ventas_Semanales _Ent)
+        {
+            Session[_session_ListarVentasSemanales] = null;
+
+            JsonResponse objResult = new JsonResponse();
+            //_Ent.FechaInicio = DateTime.Parse("01/10/2020");
+            //_Ent.FechaFin = DateTime.Parse("19/02/2021");
+            int Fila = -1;
+            DataTable dtInicio = datFacturacion.ListarVentaSemanal(_Ent);
+
+            if (dtInicio.Rows.Count >0){
+                DataTable dtFin = new DataTable();
+
+                string[] Dias = dtInicio.AsEnumerable().Select(x => x.Field<string>("dia")+"/"+ x.Field<string>("Mes")+"/"+ x.Field<int>("Anio")).ToArray();
+
+                dtFin.Columns.Add("AQ", typeof(string));
+
+                for (int i = 0; i < 3; i++){
+                    dtFin.Rows.Add();
+                    Fila++;
+                }
+
+                foreach (string dia in Dias){
+                    dtFin.Columns.Add(dia, typeof(string));
+                }
+
+                var Anio = dtInicio.AsEnumerable()
+                            .GroupBy(x => x.Field<int>("Anio"))
+                            .Select(x => new {
+                                Anio = x.Key,
+                                Cant = x.Select(y => y.Field<string>("mes")).Count()
+                            });
+
+                var Mes = dtInicio.AsEnumerable()
+                            .GroupBy(x => new {
+                                Anio = x.Field<int>("Anio"),
+                                Mes = x.Field<string>("mes")
+                            })
+                            .Select(x => new {
+                                Anio = x.Key.Anio,
+                                Mes = x.Key.Mes,
+                                Cant = x.Select(y => y.Field<string>("dia")).Count()
+                            });
+
+                var StrAnio = "";
+                foreach (var itemA in Anio){
+                    StrAnio += itemA.Anio + "/" + itemA.Cant + "|";
+                }
+                StrAnio = StrAnio.Remove(StrAnio.Trim().Length - 1);
+                var StrMes = "";
+                foreach (var itemM in Mes){
+                    StrMes += itemM.Anio + "/" + itemM.Mes + "/" + itemM.Cant + "|";
+                }
+                StrMes = StrMes.Remove(StrMes.Trim().Length - 1);
+                var groups = dtInicio.AsEnumerable().GroupBy(x => x.Field<string>("AQ"));
+
+                foreach (var group in groups){
+                    Fila++;
+                    dtFin.Rows.Add();
+                    dtFin.Rows[Fila - 3]["AQ"] = StrAnio;
+                    dtFin.Rows[Fila - 2]["AQ"] = StrMes;
+                    dtFin.Rows[Fila - 1]["AQ"] = "AQ";
+                    dtFin.Rows[Fila]["AQ"] = group.Key;
+                    foreach (var row in group)
+                    {
+                        var BtF = dtInicio.AsEnumerable().Where(r => r.Field<string>("AQ") == group.Key && r.Field<string>("dia") == row.Field<string>("dia") && r.Field<string>("mes") == row.Field<string>("Mes") && r.Field<int>("anio") == row.Field<int>("anio")).Select(r => new { Total = r.Field<Decimal>("total") }).ToList();
+                        if (BtF.Count > 0)
+                        {
+                            if (Fila == 3)
+                            {
+                                dtFin.Rows[Fila - 1][row.Field<string>("dia") + "/" + row.Field<string>("Mes") + "/" + row.Field<int>("Anio")] = row.Field<string>("dia");
+                            }
+                            dtFin.Rows[Fila][row.Field<string>("dia") + "/" + row.Field<string>("Mes") + "/" + row.Field<int>("Anio")] = BtF.ElementAt(0).Total;
+                        }
+                        else
+                        {
+                            dtFin.Rows[Fila][row.Field<string>("dia") + "/" + row.Field<string>("Mes") + "/" + row.Field<int>("Anio")] = "";
+                        }
+                    }
+                }
+                //Convierte el a lista de objeto
+                List<string[]> ListTabla = new List<string[]>();
+                foreach (DataRow dr in dtFin.Rows)
+                {
+                    int columnCount = 0;
+                    string[] myTableRow = new string[dtFin.Columns.Count];
+                    foreach (DataColumn dc in dtFin.Columns)
+                    {
+                        myTableRow[columnCount] = dr[dc.ColumnName].ToString();
+                        columnCount++;
+                    }
+                    ListTabla.Add(myTableRow);
+                }
+
+                var arrListTabla = ListTabla.ToArray();
+
+                objResult.Data = arrListTabla;
+                objResult.Success = true;
+                
+                Session[_session_ListarVentasSemanales] = ListTabla;
+            }
+            else
+            {
+                objResult.Success = false;
+            }
+            var JSON = JsonConvert.SerializeObject(objResult);
+            return Json(JSON, JsonRequestBehavior.AllowGet);
+        }
+        /// <summary>
+        /// Exportar excel
+        /// </summary>
+        /// <param name="_Ent"></param>
+        /// <returns></returns>
+        public ActionResult get_exporta_ListarVentaSemanal_excel(Ent_Ventas_Semanales _Ent)
+        {
+            JsonResponse objResult = new JsonResponse();
+            try
+            {
+                Session[_session_ListarVentasSemanales_Excel] = null;
+                string cadena = "";
+                if (Session[_session_ListarVentasSemanales] != null)
+                {
+
+                    List<string[]> _ListarVentasSemanales = (List<string[]>)Session[_session_ListarVentasSemanales];
+                    if (_ListarVentasSemanales.Count == 0)
+                    {
+                        objResult.Success = false;
+                        objResult.Message = "No hay filas para exportar";
+                    }
+                    else
+                    {
+                        cadena = get_html_ListarVentasSemanal_str((List<string[]>)Session[_session_ListarVentasSemanales], _Ent);
+                        if (cadena.Length == 0)
+                        {
+                            objResult.Success = false;
+                            objResult.Message = "Error del formato html";
+                        }
+                        else
+                        {
+                            objResult.Success = true;
+                            objResult.Message = "Se genero el excel correctamente";
+                            Session[_session_ListarVentasSemanales_Excel] = cadena;
+                        }
+                    }
+                }
+                else
+                {
+                    objResult.Success = false;
+                    objResult.Message = "No hay filas para exportar";
+                }
+            }
+            catch (Exception ex)
+            {
+                objResult.Success = false;
+                objResult.Message = "No hay filas para exportar";
+            }
+
+            var JSON = JsonConvert.SerializeObject(objResult);
+
+            return Json(JSON, JsonRequestBehavior.AllowGet);
+        }
+        /// <summary>
+        /// Armando el excel
+        /// </summary>
+        /// <param name="ListarVentasSemanal"></param>
+        /// <param name="_Ent"></param>
+        /// <returns></returns>
+        public string get_html_ListarVentasSemanal_str(List<string[]> ListarVentasSemanal, Ent_Ventas_Semanales _Ent)
+        {
+            StringBuilder sb = new StringBuilder();
+            var Lista = ListarVentasSemanal.ToArray(); 
+            try
+            {
+                string[] StrAnio = Lista[0][0].Split('|');
+                string result = "<tr bgColor='#1E77AB'><th></th>";
+                foreach (var item in StrAnio)
+                {
+                    result += "<th colspan = " + item.Substring((item.IndexOf("/") + 1)) + " style='text-align: center; font-weight:bold;font-size:11.0pt;'><font color='#FFFFFF'>" + item.Substring(0, item.IndexOf("/")) + "</font></th>";
+                }
+                result += "</tr>";
+
+                string[] StrMes = Lista[1][0].Split('|');
+                result += "<tr bgColor='#1E77AB'><th></th>";
+                foreach (var item in StrMes)
+                {
+                    result += "<th colspan = " + item.Substring((item.LastIndexOf("/") + 1)) + " style='text-align: center; font-weight:bold;font-size:11.0pt;'><font color='#FFFFFF'>" + item.Substring((item.IndexOf("/") + 1), (item.LastIndexOf("/") - (item.IndexOf("/") + 1))) + "</font></th>";
+                }
+                result += "</tr>";
+
+                for (var i = 2; i < 3; i++)
+                {
+                    result += "<tr bgColor='#1E77AB'>";
+                    for (var j = 0; j < Lista[i].Length; j++)
+                    {
+                        result += "<th  style='text-align: center; font-weight:bold;font-size:11.0pt;'><font color='#FFFFFF'>" + Lista[i][j] + "</font></th>";
+                    }
+                    result += "</tr>";
+                }
+
+                for (var i = 3; i < Lista.Length; i++)
+                {
+                    result += "<tr>";
+                    for (var j = 0; j < Lista[i].Length; j++)
+                    {
+                        result += "<td >" + Lista[i][j] + "</td>";
+                    }
+                    result += "</tr>";
+                }
+
+                sb.Append("<div>");
+                sb.Append("<table cellspacing='0' style='width: 1000px' rules='all' border='0' style='border-collapse:collapse;'>");
+                sb.Append("<tr><td Colspan='14'></td></tr>");
+                sb.Append("<tr><td Colspan='14' valign='middle' align='center' style='vertical-align: middle;font-size: 18.0pt;font-weight: bold;color:#285A8F'>REPORTE DE VENTAS POR SEMANA</td></tr>");
+                sb.Append("<tr><td Colspan='13' valign='middle' align='center' style='vertical-align: middle;font-size: 10.0pt;font-weight: bold;color:#000000'>Desde el " + String.Format("{0:dd/MM/yyyy}", _Ent.FechaInicio) + " hasta el " + String.Format("{0:dd/MM/yyyy}", _Ent.FechaFin) + "</td></tr>");//subtitulo
+                sb.Append("</table>");
+                sb.Append("<table  border='1' bgColor='#ffffff' borderColor='#FFFFFF' cellSpacing='2' cellPadding='2' style='font-size:10.0pt; font-family:Calibri; background:white;width: 1000px'><tr  bgColor='#5799bf'>\n");
+
+                sb.Append(result);
+
+                sb.Append("<tfoot>\n");
+                sb.Append("<tr bgcolor='#085B8C'>\n");
+                sb.Append("</tr>\n");
+                sb.Append("</tfoot>\n");
+                sb.Append("</table></div>");
+            }
+            catch(Exception ex)
+            {
+
+            }
+            return sb.ToString();
+        }
+        /// <summary>
+        /// Exportar excel
+        /// </summary>
+        /// <returns></returns>
+        public ActionResult ListarVentasSemanalExcel()
+        {
+            string NombreArchivo = "Ventas_Semanales";
+            String style = style = @"<style> .textmode { mso-number-format:\@; } </script> ";
+            try
+            {
+                Response.Clear();
+                Response.Buffer = true;
+                Response.ContentType = "application/vnd.ms-excel";
+                Response.AddHeader("Content-Disposition", "attachment;filename=" + NombreArchivo + ".xls");
+                Response.Charset = "UTF-8";
+                Response.ContentEncoding = Encoding.Default;
+                Response.Write(style);
+                Response.Write(Session[_session_ListarVentasSemanales_Excel].ToString());
                 Response.End();
             }
             catch

@@ -1,0 +1,322 @@
+﻿@{
+    ViewBag.Title = "Consulta de venta semanal [Aquarella]";
+    ViewBag.SubTitle = "";
+}
+<style>
+    .table thead {
+        background-color: #5799bf;
+        color: #fff;
+    }
+
+    .boton-xs-td {
+        padding-top: 5px !important;
+        padding-bottom: 5px !important;
+    }
+
+    .alignRight {
+        text-align: right;
+        vertical-align: middle;
+    }
+
+    .alignCenter {
+        text-align: center;
+        vertical-align: middle;
+    }
+</style>
+<p class="text-primary">Consulte entre un rango de fechas, todas las ventas realizadas.</p>
+<div class="box box-header box-primary">
+    <h3 class="box-title danger" style="color:#9c9c9c;font-weight:bold">Parametro de Busqueda</h3>
+    <br />
+    <br />
+    <div class="row">
+        <div class="col-sm-3">
+
+        </div>
+        <div class="col-md-3" style="padding-left: 30px; padding-right: 0px;">
+        </div>
+        <div class="col-md-6" style="padding-left: 0px;">
+            <div class="col-md-5" style="padding-right: 0px;">
+                <div>
+                    <label for="lblFechaInicio" style="color: #3d566e;">Fecha de Inicio</label>
+                    <div id="datepickerIni" class="input-group date" data-date-format="dd/mm/yyyy">
+                        <input id="dtpFechaInicio" type="text" class="form-control input-sm ui-cell-input" disabled style="max-width: 100%" />
+                        <span class="input-group-addon btn btn-xs btn-default" style="padding: 4px 5px;">
+                            <i class="glyphicon glyphicon-calendar" height="20" width="20" style="color:#ff9f3f"></i>
+                        </span>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-5">
+                <label for="lblFechaFin" style="color: #3d566e;">Fecha de Cierre</label>
+                <div id="datepickerFin" class="input-group date" data-date-format="dd/mm/yyyy">
+                    <input id="dtpFechaFin" type="text" class="form-control input-sm ui-cell-input" disabled style="max-width: 100%" />
+                    <span class="input-group-addon btn btn-xs btn-default" style="padding: 4px 5px;">
+                        <i class="glyphicon glyphicon-calendar" height="20" width="20" style="color:#ff9f3f"></i>
+                    </span>
+                </div>
+            </div>
+            <div class="col-md-2 text-right" style="padding:0px">
+                <button id="btnBuscar" type="submit" title="Consultar" class="btn btn-primary" style="margin-top: 19px;">
+                    <span class="glyphicon glyphicon-search"></span>&nbsp;&nbsp;Buscar
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="box box-body box-primary">
+    <div class="row">
+        <div class="col-md-6">
+        </div>
+        <div class="col-md-6 text-right">
+            <button id="btnExportar" title="Actualizar" class="btn btn-success disabled" disabled>
+                <span class="glyphicon glyphicon-export"></span>&nbsp;&nbsp;Exportar Lista
+            </button>
+        </div>
+    </div>
+    <br />
+    <div class="row">
+        <div class="col-md-12">
+            <div class="table-responsive">
+                <div id="TbTabla">
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section scripts{
+    <script>
+        debugger
+        var objVtassSemanales = {
+            Inicio: function () {
+                //debugger
+                /*[Inicializamos variables]*/
+                this._HtmlTabla = '<table class="table table table-hover table-bordered compact" style="width: 400.5px;">' +
+                                    '<thead>' +
+                                        '<tr>' +
+                                            '<th style="text-align: center;">Año</th>' +
+                                        '</tr>' +
+                                        '<tr>' +
+                                            '<th style="text-align: center;">Mes</th>' +
+                                        '</tr>' +
+                                        '<tr>' +
+                                            '<th style="text-align: center;">Dia</th>' +
+                                        '</tr>' +
+                                    '</thead>' +
+                                    '<tbody>' +
+                                        '<tr>' +
+                                            '<td colspan="1">No se encontraron resultados</td>' +
+                                        '</tr>' +
+                                    '</tbody>' +
+                                '</table>';
+                $("#TbTabla").html(objVtassSemanales._HtmlTabla);
+
+                $("#datepickerIni").datepicker({
+                    autoclose: true,
+                    todayHighlight: true
+                }).datepicker("setDate", "0");
+
+                $("#datepickerFin").datepicker({
+                    autoclose: true,
+                    todayHighlight: true
+                }).datepicker("setDate", "0");
+
+                this.isOkUpdate = true;
+                this.FechaInicio = $("#dtpFechaInicio").val();
+                this.FechaFin = $("#dtpFechaFin").val();
+                this.Tabla = $('#TbTabla');
+
+                objVtassSemanales.grid.get();
+                /*[/Inicializamos variables]*/
+
+                /*[btn Exportar y buscar]*/
+                $("#btnExportar").click(function () {
+                    objVtassSemanales.FechaInicio = $("#dtpFechaInicio").val();
+                    objVtassSemanales.FechaFin = $("#dtpFechaFin").val();                   
+                    waitingDialog.show("Espere por favor...")
+                    objVtassSemanales.generaal.exportar();                    
+                })
+                $("#btnBuscar").click(function () {
+                    
+                    objVtassSemanales.FechaInicio = $("#dtpFechaInicio").val();
+                    objVtassSemanales.FechaFin = $("#dtpFechaFin").val();
+                    objVtassSemanales.generaal.consultar();
+                })
+                /*[btn Exportar y buscar]*/
+            },
+            grid: {
+                get: function () {
+                    //debugger
+                  //  waitingDialog.show("Espere por favor...")
+                    var _Ent = function () { return @Html.Raw(Json.Encode(ViewBag.EntVentasSemanales)); }();
+                    _Ent.FechaInicio = objVtassSemanales.FechaInicio;
+                    _Ent.FechaFin = objVtassSemanales.FechaFin;
+                    $.ajax({
+                        type: "POST",
+                        url: '@Url.Action("getVentasSemanalesAjax", "Facturacion")',
+                        data : {_Ent:_Ent},
+                        success: function (data) {
+                            //debugger
+                            data = JSON.parse(data);                            
+                            if (data.Success) {
+                                //debugger;
+                                $("#TbTabla").html("")
+                                var output = objVtassSemanales.grid.getTable(data.Data);
+                                $("#TbTabla").html(output)
+                                //toastr.success(data.Message);
+                                $("#btnExportar").removeClass("disabled");
+                                $("#btnExportar").removeAttr("disabled");                                
+                                waitingDialog.hide();
+                            }
+                            else {
+                                $("#TbTabla").html(objVtassSemanales._HtmlTabla);
+                                $("#btnExportar").addClass("disabled");
+                                $("#btnExportar").attr('disabled', 'disabled');
+                                waitingDialog.hide();
+                            }
+                        },
+                        error: function (XMLHttpRequest, textStatus, errorThrown) {
+                            waitingDialog.hide();
+                            toastr.error("Error al exportar excel.", "Alerta");
+                        }
+                    });
+                },
+                getTable: function (Data) {
+                    //debugger
+                    var result = "<table class='table table table-hover table-bordered compact'>";
+                    result += "<thead>";
+                    result += "<tr><th></th>";
+                    var StrAnio = (Data[0][0]).split("|");
+                    for (var key in StrAnio) {
+                        let AnioTD = StrAnio[key];
+                        result += "<th  style='text-align: center;' colspan=" + AnioTD.substr((AnioTD.indexOf("/") + 1)) + ">" + AnioTD.substr(0, AnioTD.indexOf("/")) + "</th>";
+                    }
+                    result += "</tr>";
+                    result += "<tr><th></th>";
+                    var StrMes = (Data[1][0]).split("|");
+                    for (var key in StrMes) {
+                        let StrMesTD = StrMes[key];
+                        result += "<th  style='text-align: center;' colspan=" + StrMesTD.substr((StrMesTD.lastIndexOf("/") + 1)) + ">" + StrMesTD.substr((StrMesTD.indexOf("/") + 1), (StrMesTD.lastIndexOf("/") - (StrMesTD.indexOf("/") + 1)))  + "</th>";
+                    }
+                    result += "</tr>";
+                    for (var i = 2; i < 3; i++) {
+                        result += "<tr>";
+                        for (var j = 0; j < Data[i].length; j++) {
+                            result += "<th >" + Data[i][j] + "</th>";
+                        }
+                        result += "</tr>";
+                    }
+                    result += "</thead>"
+                    result += "<tbody>"
+                    for (var i = 3; i < Data.length; i++) {
+                        result += "<tr>";
+                        for (var j = 0; j < Data[i].length; j++) {
+                            result += "<td >" + Data[i][j] + "</td>";                           
+                        }
+                        result += "</tr>";
+                    }
+                    result += "</tbody>"
+                    result += "</table>";
+                    return result;
+                },
+                htmlTable : function(Data){
+
+                },
+                cargaTabla: function () {
+                    //debugger
+                    waitingDialog.show("Espere por favor...")
+                    objVtassSemanales.grid.get();
+                    waitingDialog.hide();
+                },
+            },
+            generaal: {
+                FormatDecimal: function (numero, decimales, separadorDecimal, separadorMiles) {
+                    //debugger
+                    var partes, array;
+                    if (!isFinite(numero) || isNaN(numero = parseFloat(numero))) {
+                        return "";
+                    }
+                    if (typeof decimales === "undefined") {
+                        decimales = 2;
+                    }
+                    if (typeof separadorDecimal === "undefined") {
+                        separadorDecimal = ".";
+                    }
+                    if (typeof separadorMiles === "undefined") {
+                        separadorMiles = ",";
+                    }
+                    // Redondeamos
+                    if (!isNaN(parseInt(decimales))) {
+                        if (decimales >= 0) {
+                            numero = numero.toFixed(decimales);
+                        } else {
+                            numero = (
+                                Math.round(numero / Math.pow(10, Math.abs(decimales))) * Math.pow(10, Math.abs(decimales))
+                            ).toFixed();
+                        }
+                    } else {
+                        numero = numero.toString();
+                    }
+                    // Damos formato
+                    partes = numero.split(".", 2);
+                    array = partes[0].split("");
+                    for (var i = array.length - 3; i > 0 && array[i - 1] !== "-"; i -= 3) {
+                        array.splice(i, 0, separadorMiles);
+                    }
+                    numero = array.join("");
+                    if (partes.length > 1) {
+                        numero += separadorDecimal + partes[1];
+                    }
+                    return numero;
+                },
+                Validar : function(){
+                    //debugger;
+                    if (objVtassSemanales.FechaInicio == undefined || objVtassSemanales.FechaInicio == null || objVtassSemanales.FechaInicio.length == 0 || objVtassSemanales.FechaInicio == '') {
+                        toastr.error("La fecha de Inicio no puede estar vacio", "Alerta");
+                        return false;
+                    }
+                    if (objVtassSemanales.FechaFin == undefined || objVtassSemanales.FechaFin == null || objVtassSemanales.FechaFin.length == 0 || objVtassSemanales.FechaFin == '') {
+                        toastr.error("La fecha de Fin no puede estar vacio", "Alerta");
+                        return false;
+                    }
+                    return true;
+                },
+                consultar: function () {
+                    //debugger
+                    if (objVtassSemanales.generaal.Validar()) {
+                        objVtassSemanales.grid.cargaTabla();
+                    }
+                },
+                exportar: function () {
+                    var _Ent = function () { return @Html.Raw(Json.Encode(ViewBag.EntVentasSemanales)); }();
+                    _Ent.FechaInicio = objVtassSemanales.FechaInicio;
+                    _Ent.FechaFin = objVtassSemanales.FechaFin;
+                    $.ajax({
+                        type: "POST",
+                        url: '@Url.Action("get_exporta_ListarVentaSemanal_excel", "Facturacion")',
+                        data : {_Ent:_Ent},
+                        success: function (data) {
+                            data = JSON.parse(data);
+                            waitingDialog.hide();
+                            if (data.Success) {
+                                toastr.success(data.Message);
+                                window.location = '@Url.Action("ListarVentasSemanalExcel")';
+                            }
+                            else {
+                                toastr.error(data.Message, "Alerta");
+                            }
+                        },
+                        error: function (XMLHttpRequest, textStatus, errorThrown) {
+                            waitingDialog.hide();
+                            toastr.error("Error al exportar excel.", "Alerta");
+                        }
+                    });
+                }
+            }
+        };
+        $(document).ready(function () {
+            objVtassSemanales.Inicio();
+        });
+</script>
+}

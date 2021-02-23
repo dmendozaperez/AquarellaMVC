@@ -468,5 +468,31 @@ namespace CapaDato.Facturacion
             }
             return _valida;
         }
+
+        public  DataTable ListarVentaSemanal(Ent_Ventas_Semanales _Ent)
+        {
+            string sqlquery = "USP_Leer_Venta_Semanal";
+            SqlConnection cn = null;
+            SqlCommand cmd = null;
+            SqlDataAdapter da = null;
+            DataTable dt = null;
+            try
+            {
+                cn = new SqlConnection(Ent_Conexion.conexion);
+                cmd = new SqlCommand(sqlquery, cn);
+                cmd.CommandTimeout = 0;
+                cmd.CommandType = CommandType.StoredProcedure;
+                cmd.Parameters.AddWithValue("@var_fechaini", DbType.DateTime).Value = _Ent.FechaInicio;
+                cmd.Parameters.AddWithValue("@var_fechafin", DbType.DateTime).Value = _Ent.FechaFin;
+                da = new SqlDataAdapter(cmd);
+                dt = new DataTable();
+                da.Fill(dt);
+            }
+            catch
+            {
+                dt = null;
+            }
+            return dt;
+        }
     }
 }
