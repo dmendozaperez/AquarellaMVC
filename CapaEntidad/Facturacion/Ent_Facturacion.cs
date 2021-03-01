@@ -205,5 +205,16 @@ namespace CapaEntidad.Facturacion
 
     }
 
-
+    public class Ent_Ventas_Semanales
+    {
+        public string AQ { get; set; }
+        public int Anio { get; set; }
+        public string Mes { get; set; }
+        public string Dia { get; set; }
+        public DateTime Fecha { get; set; }
+        public Decimal Total { get; set; }
+        //campos adicionales de busqueda
+        public DateTime FechaInicio { get; set; }
+        public DateTime FechaFin { get; set; }
+    }
 }
