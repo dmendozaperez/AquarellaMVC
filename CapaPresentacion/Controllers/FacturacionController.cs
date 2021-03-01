@@ -1,5 +1,6 @@
 ﻿using CapaEntidad.General;
 using CapaEntidad.Util;
+using CapaPresentacion.Util;
 using CapaEntidad.Control;
 using CapaEntidad.Facturacion;
 using CapaDato.Facturacion;
@@ -13,6 +14,7 @@ using System.Text;
 using System.Data;
 using Newtonsoft.Json;
 using System.Reflection;
+using System.Web.Script.Serialization;
 
 namespace CapaPresentacion.Controllers
 {
@@ -36,6 +38,8 @@ namespace CapaPresentacion.Controllers
         private string _session_ListarSalidaDespacho_Detalle = "_session_ListarSalidaDespacho_Detalle";
         private string _session_ListarVentasSemanales = "_session_ListarVentasSemanales";
         private string _session_ListarVentasSemanales_Excel = "_session_ListarVentasSemanales_Excel";
+        private string _session_ListarVentasLider = "_session_ListarVentasLider";
+        private string _session_ListarVentasLider_Excel = "_session_ListarVentasLider_Excel";
 
         #region <CONSULTA DE VENTAS POR CATEGORIA>
         public ActionResult Ventas_Categoria()
@@ -2118,6 +2122,7 @@ namespace CapaPresentacion.Controllers
 
                 sb.Append("<th style='text-align: center;'><font color=''>Pedido</font></th>\n");
                 sb.Append("<th style='text-align: center;'><font color=''>TotalPares</font></th>\n");
+                sb.Append("<th style='text-align: center;'><font color=''>Flete</font></th>\n");
                 sb.Append("<th style='text-align: center;'><font color=''>Observacion</font></th>\n");
                 sb.Append("</tr>\n");
 
@@ -2135,6 +2140,7 @@ namespace CapaPresentacion.Controllers
                         sb.Append("<td align=''>" + item.Pedido + "</td>\n");
                     }
                     sb.Append("<td align=''>" + item.TotalPares + "</td>\n");
+                    sb.Append("<td align=''>" + item.CobroFlete + "</td>\n");
                     sb.Append("<td align=''>" + item.Observacion + "</td>\n");
                     sb.Append("</tr>\n");
                 }
