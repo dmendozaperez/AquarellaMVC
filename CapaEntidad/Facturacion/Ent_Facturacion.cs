@@ -217,4 +217,30 @@ namespace CapaEntidad.Facturacion
         public DateTime FechaInicio { get; set; }
         public DateTime FechaFin { get; set; }
     }
+
+    public class Ent_Ventas_Lider
+    {
+        public string Bas_Id { get; set; }
+        public string Are_Id { get; set; }
+        public string Asesor { get; set; }
+        public DateTime FechaInicio { get; set; }
+        public DateTime FechaFin { get; set; }
+        public int IdMes { get; set; }
+        public string Mes { get; set; }
+        //Campos Adicionales
+        public string Codigo { get; set; }
+        public string Descripcion { get; set; }
+        public string[] RorwsTh1 { get; set; }
+        public string[] RorwsTh2 { get; set; }
+        public string[] RorwsTh3 { get; set; }
+        public object Data { get; set; }
+        public List<Ent_Ventas_Lider_Col> _List_Ent_Ventas_Lider_Col { get; set; }
+    }
+
+    public class Ent_Ventas_Lider_Col
+    {
+        public string sName { get; set; }
+        public string mData { get; set; }
+        public string sClass { get; set; }
+    }
 }

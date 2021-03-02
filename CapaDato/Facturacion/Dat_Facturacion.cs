@@ -1,4 +1,5 @@
 ﻿using CapaEntidad.Facturacion;
+using CapaEntidad.Control;
 using CapaEntidad.Util;
 using System;
 using System.Collections.Generic;
@@ -508,7 +509,7 @@ namespace CapaDato.Facturacion
                 cmd = new SqlCommand(sqlquery, cn);
                 cmd.CommandTimeout = 0;
                 cmd.CommandType = CommandType.StoredProcedure;
-                cmd.Parameters.AddWithValue("@are_id", DbType.String).Value = _Ent.Are_Id;
+                cmd.Parameters.AddWithValue("@bas_id", DbType.String).Value = _Ent.Bas_Id;
                 cmd.Parameters.AddWithValue("@fecha_inicio", DbType.DateTime).Value = _Ent.FechaInicio;
                 cmd.Parameters.AddWithValue("@fecha_final", DbType.DateTime).Value = _Ent.FechaFin;
                 cmd.Parameters.AddWithValue("@asesor", DbType.String).Value = _Ent.Asesor;
@@ -521,6 +522,43 @@ namespace CapaDato.Facturacion
                 dt = null;
             }
             return dt;
+        }
+
+        public List<Ent_Ventas_Lider> Listar_Clientes(Ent_Usuario _Ent)
+        {
+            List<Ent_Ventas_Lider> listar = null;
+            string sqlquery = "USP_MVC_Leer_Lista_Clientes";
+            try
+            {
+                using (SqlConnection cn = new SqlConnection(Ent_Conexion.conexion))
+                {
+                    using (SqlCommand cmd = new SqlCommand(sqlquery, cn))
+                    {
+                        cmd.CommandTimeout = 0;
+                        cmd.CommandType = CommandType.StoredProcedure;
+                        cmd.Parameters.AddWithValue("@USU", DbType.String).Value = _Ent.usu_tip_id;
+                        using (SqlDataAdapter da = new SqlDataAdapter(cmd))
+                        {
+                            DataTable dt = new DataTable();
+                            da.Fill(dt);
+                            listar = new List<Ent_Ventas_Lider>();
+                            listar = (from DataRow fila in dt.Rows
+                                      select new Ent_Ventas_Lider()
+                                      {
+                                          Codigo = fila["Bas_Id"].ToString(),
+                                          Descripcion = fila["Nombres"].ToString()
+                                      }
+                                   ).ToList();
+                        }
+                    }
+                }
+            }
+            catch (Exception exc)
+            {
+
+                listar = new List<Ent_Ventas_Lider>();
+            }
+            return listar;
         }
     }
 }
