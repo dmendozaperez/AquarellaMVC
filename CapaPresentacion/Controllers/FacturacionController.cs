@@ -2532,7 +2532,7 @@ namespace CapaPresentacion.Controllers
                 };
 
                 Pivot pvt = new Pivot(dtInicio);
-                string[] filagru = { "Asesor", "Lider", "Cliente", "Dni", "Celular", "Correo", "Zona" };
+                string[] filagru = { "Asesor", "Lider", "Cliente", "Dni", "Celular", "Correo", "Zona", "Actividad" };
                 string[] col = { "Ano", "Mes", "Semana" };
                 
                 DataTable dtPivot = pvt.PivotData("Total Pares", AggregateFunction.Sum, filagru, col, ListaMes);
@@ -2577,7 +2577,7 @@ namespace CapaPresentacion.Controllers
 
                 Ent_Ventas_Lider Ent = new Ent_Ventas_Lider();
                 List<string> listSem = new List<string>() {
-                    "Asesor","Lider","Cliente","DNI","Celular","Correo","Zona"
+                    "Asesor","Lider","Cliente","DNI","Celular","Correo","Zona","Actividad"
                 };
 
                 List<Ent_Ventas_Lider_Col> _ListHead = new List<Ent_Ventas_Lider_Col>(){
@@ -2588,6 +2588,7 @@ namespace CapaPresentacion.Controllers
                     new Ent_Ventas_Lider_Col {sName= "Celular", mData="Celular" ,sClass=""},
                     new Ent_Ventas_Lider_Col {sName= "Correo", mData="Correo" ,sClass="Correo"},
                     new Ent_Ventas_Lider_Col {sName= "Zona", mData="Zona" ,sClass="Zona"},
+                    new Ent_Ventas_Lider_Col {sName= "Actividad", mData="Actividad" ,sClass="Actividad"},
                     };
 
                 Ent_Ventas_Lider_Col _EntVL = null;
@@ -2821,14 +2822,14 @@ namespace CapaPresentacion.Controllers
             try
             {
                 var result = "<thead>";
-                result += "<tr bgColor='#1E77AB'><th colspan=7></th>";
+                result += "<tr bgColor='#1E77AB'><th colspan=8></th>";
 
                 foreach (var key in listAno)
                 {                  
                     result += "<th  style='text-align: center;' colspan=" + key.Substring((key.IndexOf("/") + 1)) + " style='text-align: center; font-weight:bold;font-size:11.0pt;'><font color='#FFFFFF'>" + key.Substring(0, key.IndexOf("/")) + "</font></th>";
                 }
                 result += "</tr>";
-                result += "<tr bgColor='#1E77AB'><th colspan=7></th>";
+                result += "<tr bgColor='#1E77AB'><th colspan=8></th>";
                 foreach (var key in listMes)
                 {
                     result += "<th  style='text-align: center;' colspan=" + key.Substring((key.LastIndexOf("/") + 1)) + " style='text-align: center; font-weight:bold;font-size:11.0pt;'><font color='#FFFFFF'>" + key.Substring((key.IndexOf("/") + 1), (key.LastIndexOf("/") - (key.IndexOf("/") + 1))) + "</font></th>";

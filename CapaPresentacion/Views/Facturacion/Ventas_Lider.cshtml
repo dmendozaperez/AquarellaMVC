@@ -275,6 +275,7 @@
                             $("#TbTabla td:nth-child(5)").addClass("ColC1");
                             $("#TbTabla td:nth-child(6)").addClass("ColC1");
                             $("#TbTabla td:nth-child(7)").addClass("ColC1");
+                            $("#TbTabla td:nth-child(8)").addClass("ColC1");
 
                             $("#TbTabla td.Venta_Total").addClass("ColC2");
                             $("#TbTabla td.Venta_Neta").addClass("ColC2");
@@ -290,14 +291,14 @@
                 getTableTh: function (Data) {
                     //debugger
                     var result = "<thead>";
-                    result += "<tr><th colspan=7></th>";
+                    result += "<tr><th colspan=8></th>";
 
                     for (var key in Data.RorwsTh1) {
                         let AnioTH = Data.RorwsTh1[key];
                         result += "<th  style='text-align: center;' colspan=" + AnioTH.substr((AnioTH.indexOf("/") + 1)) + ">" + AnioTH.substr(0, AnioTH.indexOf("/")) + "</th>";
                     }
                     result += "</tr>";
-                    result += "<tr><th colspan=7></th>";
+                    result += "<tr><th colspan=8></th>";
                     for (var key in Data.RorwsTh2) {
                         let StrMesTH = Data.RorwsTh2[key];
                         result += "<th  style='text-align: center;' colspan=" + StrMesTH.substr((StrMesTH.lastIndexOf("/") + 1)) + ">" + StrMesTH.substr((StrMesTH.indexOf("/") + 1), (StrMesTH.lastIndexOf("/") - (StrMesTH.indexOf("/") + 1))) + "</th>";
