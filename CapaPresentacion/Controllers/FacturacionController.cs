@@ -2485,7 +2485,12 @@ namespace CapaPresentacion.Controllers
             }
             else
             {
-                ViewBag.ListarCLiente = datFacturacion.Listar_Clientes(_usuario);
+                List<Ent_Ventas_Lider> ListarCLiente = new List<Ent_Ventas_Lider>();
+                ListarCLiente.Add(new Ent_Ventas_Lider() { Codigo = "-1", Descripcion = "-- Selecionar Todos--" });
+
+                int Cant = datFacturacion.Listar_Clientes(_usuario).Count();
+
+                ViewBag.ListarCLiente = (Cant==1 ? datFacturacion.Listar_Clientes(_usuario) : ListarCLiente.Concat(datFacturacion.Listar_Clientes(_usuario)));
                 Ent_Ventas_Lider EntVentasLider = new Ent_Ventas_Lider();
                 ViewBag.EntVentasLider = EntVentasLider;
                 return View();

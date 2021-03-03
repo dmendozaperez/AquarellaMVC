@@ -48,7 +48,7 @@
         <div class="col-md-2" style="padding-right: 0px;">
             <label for="" style="color: #3d566e;">Lider</label>
             <div class="form-group">
-                @Html.DropDownList("ddlCliente", new SelectList(ViewBag.ListarCLiente, "Codigo", "Descripcion", "-1"),"Seleccionar Todos", new { @class = "form-control selectpicker", @data_live_search = "true", @id = "ddlCliente", @name = "ddlCliente", @style = "max-width: 100%" })
+                @Html.DropDownList("ddlCliente", new SelectList(ViewBag.ListarCLiente, "Codigo", "Descripcion"), new { @class = "form-control selectpicker", @data_live_search = "true", @id = "ddlCliente", @name = "ddlCliente", @style = "max-width: 100%" })
             </div>
         </div>
         <div class="col-md-6" style="padding-left: 0px;">
@@ -140,7 +140,7 @@
 
                 //$('#ddlCliente option').attr("selected", "selected");
                 //$('#ddlCliente').selectpicker('refresh');
-                this.IdCliente = -1;
+                this.IdCliente = $("#ddlCliente").val();
                 this.isOkUpdate = true;
                 this.FechaInicio = $("#dtpFechaInicio").val();
                 this.FechaFin = $("#dtpFechaFin").val();
