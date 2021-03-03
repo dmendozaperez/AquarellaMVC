@@ -1,6 +1,6 @@
 ﻿using CapaEntidad.General;
 using CapaEntidad.Util;
-//using CapaPresentacion.Util;
+using CapaPresentacion.Util;
 using CapaEntidad.Control;
 using CapaEntidad.Facturacion;
 using CapaDato.Facturacion;
