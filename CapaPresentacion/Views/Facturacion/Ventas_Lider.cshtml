@@ -106,7 +106,7 @@
     <script>
         debugger
         var objVtassSemanales = {
-            Inicio: function () {
+            Inicio: function () {                
                 //debugger
                 /*[Inicializamos variables]*/
                 this._HtmlTabla = '<thead>' +
@@ -161,6 +161,7 @@
                 })
                 $("#btnBuscar").click(function () {
                     objVtassSemanales.Tabla.DataTable().destroy();
+                    objVtassSemanales.Tabla.empty();
                     objVtassSemanales.FechaInicio = $("#dtpFechaInicio").val();
                     objVtassSemanales.FechaFin = $("#dtpFechaFin").val();
                     objVtassSemanales.IdCliente = $("#ddlCliente").val();
@@ -180,7 +181,7 @@
                         type: "POST",
                         url: '@Url.Action("getVentasLiderCol", "Facturacion")',
                         data: { _Ent: _Ent },
-                        async: false,
+                        //async: false,
                         success: function (data) {
                             //debugger
                             data = JSON.parse(data);
@@ -431,8 +432,11 @@
                 }
             }
         };
+        //[Inicializamos]
         $(document).ready(function () {
+            $("body").toggleClass('sidebar-collapse');
             objVtassSemanales.Inicio();
         });
+        //[/Inicializamos]
     </script>
 }

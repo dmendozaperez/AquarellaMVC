@@ -2817,7 +2817,6 @@ namespace CapaPresentacion.Controllers
             string[] listMes = (string[])Session[_ListMes];
             string[] listSem = (string[])Session[_ListSem];
 
-
             try
             {
                 var result = "<thead>";
@@ -2841,18 +2840,6 @@ namespace CapaPresentacion.Controllers
                 }
                 result += "</tr>";
                 result += "</thead>";
-                result += "<tbody>";
-                result += "</tr>";
-                for (var i = 0; i < Listar.Length; i++)
-                {
-                    result += "<tr>";
-                    for (var j = 0; j < Listar[i].Length; j++)
-                    {
-                        result += "<td >" + Listar[i][j] + "</td>";
-                    }
-                    result += "</tr>";
-                }
-                result += "</tbody>";
 
                 sb.Append("<div>");
                 sb.Append("<table cellspacing='0' style='width: 1000px' rules='all' border='0' style='border-collapse:collapse;'>");
@@ -2863,7 +2850,18 @@ namespace CapaPresentacion.Controllers
                 sb.Append("<table  border='1' bgColor='#ffffff' borderColor='#FFFFFF' cellSpacing='2' cellPadding='2' style='font-size:10.0pt; font-family:Calibri; background:white;width: 1000px'><tr  bgColor='#5799bf'>\n");
 
                 sb.Append(result);
+                sb.Append("<tbody>");
+                foreach (var item in Listar)
+                {
+                    sb.Append("<tr>");
+                    foreach (var j in item)
+                    {
+                        sb.Append("<td>" + j + "</td>");
+                    }
+                    sb.Append("</tr>");
+                }
 
+                sb.Append("</tbody>");
                 sb.Append("<tfoot>\n");
                 sb.Append("<tr bgcolor='#085B8C'>\n");
                 sb.Append("</tr>\n");
