@@ -495,32 +495,32 @@ namespace CapaDato.Facturacion
             return dt;
         }
 
-        public DataTable ListarVentaLider(Ent_Ventas_Lider _Ent)
-        {
-            string sqlquery = "USP_MVC_Leer_Venta_UniMon";
-            SqlConnection cn = null;
-            SqlCommand cmd = null;
-            SqlDataAdapter da = null;
-            DataTable dt = null;
-            try
-            {
-                cn = new SqlConnection(Ent_Conexion.conexion);
-                cmd = new SqlCommand(sqlquery, cn);
-                cmd.CommandTimeout = 0;
-                cmd.CommandType = CommandType.StoredProcedure;
-                cmd.Parameters.AddWithValue("@are_id", DbType.String).Value = _Ent.Are_Id;
-                cmd.Parameters.AddWithValue("@fecha_inicio", DbType.DateTime).Value = _Ent.FechaInicio;
-                cmd.Parameters.AddWithValue("@fecha_final", DbType.DateTime).Value = _Ent.FechaFin;
-                cmd.Parameters.AddWithValue("@asesor", DbType.String).Value = _Ent.Asesor;
-                da = new SqlDataAdapter(cmd);
-                dt = new DataTable();
-                da.Fill(dt);
-            }
-            catch
-            {
-                dt = null;
-            }
-            return dt;
-        }
+        //public DataTable ListarVentaLider(Ent_Ventas_Lider _Ent)
+        //{
+        //    string sqlquery = "USP_MVC_Leer_Venta_UniMon";
+        //    SqlConnection cn = null;
+        //    SqlCommand cmd = null;
+        //    SqlDataAdapter da = null;
+        //    DataTable dt = null;
+        //    try
+        //    {
+        //        cn = new SqlConnection(Ent_Conexion.conexion);
+        //        cmd = new SqlCommand(sqlquery, cn);
+        //        cmd.CommandTimeout = 0;
+        //        cmd.CommandType = CommandType.StoredProcedure;
+        //        cmd.Parameters.AddWithValue("@are_id", DbType.String).Value = _Ent.Are_Id;
+        //        cmd.Parameters.AddWithValue("@fecha_inicio", DbType.DateTime).Value = _Ent.FechaInicio;
+        //        cmd.Parameters.AddWithValue("@fecha_final", DbType.DateTime).Value = _Ent.FechaFin;
+        //        cmd.Parameters.AddWithValue("@asesor", DbType.String).Value = _Ent.Asesor;
+        //        da = new SqlDataAdapter(cmd);
+        //        dt = new DataTable();
+        //        da.Fill(dt);
+        //    }
+        //    catch
+        //    {
+        //        dt = null;
+        //    }
+        //    return dt;
+        //}
     }
 }
