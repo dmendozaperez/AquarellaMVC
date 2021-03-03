@@ -2540,7 +2540,7 @@ namespace CapaPresentacion.Controllers
                 string[] filagru = { "Asesor", "Lider", "Cliente", "Dni", "Celular", "Correo", "Zona", "Actividad" };
                 string[] col = { "Ano", "Mes", "Semana" };
                 
-                DataTable dtPivot = pvt.PivotData("Total Pares", AggregateFunction.Sum, filagru, col, ListaMes);
+                DataTable dtPivot = pvt.PivotData("Venta Total", AggregateFunction.Sum, filagru, col, ListaMes);
 
                 var Semanas = dtInicio.AsEnumerable()
                                 .GroupBy(g => new
