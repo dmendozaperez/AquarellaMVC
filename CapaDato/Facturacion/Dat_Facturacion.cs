@@ -536,7 +536,7 @@ namespace CapaDato.Facturacion
                     {
                         cmd.CommandTimeout = 0;
                         cmd.CommandType = CommandType.StoredProcedure;
-                        cmd.Parameters.AddWithValue("@USU", DbType.String).Value = _Ent.usu_tip_id;
+                        cmd.Parameters.AddWithValue("@USU", DbType.String).Value = _Ent.usu_id;
                         using (SqlDataAdapter da = new SqlDataAdapter(cmd))
                         {
                             DataTable dt = new DataTable();

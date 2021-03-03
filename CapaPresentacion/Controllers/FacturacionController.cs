@@ -1,6 +1,6 @@
 ﻿using CapaEntidad.General;
 using CapaEntidad.Util;
-//using CapaPresentacion.Util;
+using CapaPresentacion.Util;
 using CapaEntidad.Control;
 using CapaEntidad.Facturacion;
 using CapaDato.Facturacion;
@@ -2605,11 +2605,13 @@ namespace CapaPresentacion.Controllers
                     _EntVL = new Ent_Ventas_Lider_Col();
                     _EntVL.sName = Semana.Ano + "/" + Semana.Mes + "/Venta Total";
                     _EntVL.mData = Semana.Ano + "/" + Semana.Mes + "/Venta Total";
+                    _EntVL.sClass = "Venta_Total";
                     _ListHead.Add(_EntVL);
                     _EntVL = new Ent_Ventas_Lider_Col();
                     _EntVL.sName = Semana.Ano + "/" + Semana.Mes + "/Venta Neta";
                     _EntVL.mData = Semana.Ano + "/" + Semana.Mes + "/Venta Neta";
-                   _ListHead.Add(_EntVL); 
+                    _EntVL.sClass = "Venta_Neta";
+                    _ListHead.Add(_EntVL); 
                     listSem.Add("Venta Total");
                     listSem.Add("Venta Neta");
                 }
