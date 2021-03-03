@@ -29,6 +29,12 @@
         font-weight: bold;
         vertical-align: middle;
     }
+    .table .ColC2 {
+        color: #000 !important;
+        background-color: #E2F4FE;        
+        font-weight: bold;
+        vertical-align: middle;
+    }
 </style>
 <p class="text-primary">Consulte entre un rango de fechas, todas las ventas realizadas.</p>
 <div class="box box-header box-primary">
@@ -42,7 +48,7 @@
         <div class="col-md-2" style="padding-right: 0px;">
             <label for="" style="color: #3d566e;">Lider</label>
             <div class="form-group">
-                @Html.DropDownList("ddlCliente", new SelectList(ViewBag.ListarCLiente, "Codigo", "Descripcion", null), new { @class = "form-control selectpicker", @data_live_search = "true", @id = "ddlCliente", @name = "ddlCliente", @style = "max-width: 100%" })
+                @Html.DropDownList("ddlCliente", new SelectList(ViewBag.ListarCLiente, "Codigo", "Descripcion", "-1"),"Seleccionar Todos", new { @class = "form-control selectpicker", @data_live_search = "true", @id = "ddlCliente", @name = "ddlCliente", @style = "max-width: 100%" })
             </div>
         </div>
         <div class="col-md-6" style="padding-left: 0px;">
@@ -134,8 +140,7 @@
 
                 //$('#ddlCliente option').attr("selected", "selected");
                 //$('#ddlCliente').selectpicker('refresh');
-
-                this.IdCliente = $("#ddlCliente").val();
+                this.IdCliente = -1;
                 this.isOkUpdate = true;
                 this.FechaInicio = $("#dtpFechaInicio").val();
                 this.FechaFin = $("#dtpFechaFin").val();
@@ -166,7 +171,7 @@
             },
             grid: {
                 getColum: function () {
-                    debugger                    
+                    //debugger                    
                     var _Ent = function () { return @Html.Raw(Json.Encode(ViewBag.EntVentasLider)); }();
                     _Ent.FechaInicio = objVtassSemanales.FechaInicio;
                     _Ent.FechaFin = objVtassSemanales.FechaFin;
@@ -177,13 +182,13 @@
                         data: { _Ent: _Ent },
                         async: false,
                         success: function (data) {
-                            debugger
+                            //debugger
                             data = JSON.parse(data);
                             if (data.Success) {
                                 $("#TbTabla").html(objVtassSemanales._HtmlTabla);
-                                debugger;
+                                //debugger;
                                 objVtassSemanales.Columns = data.Data._List_Ent_Ventas_Lider_Col;
-                                debugger
+                                //debugger
                                 var output = objVtassSemanales.grid.getTableTh(data.Data);
                                 $("#TbTabla").html(output)
                                 objVtassSemanales.grid.get();
@@ -193,7 +198,7 @@
                                 waitingDialog.hide();
                             }
                             else {
-                                debugger
+                                //debugger
                                 $("#TbTabla").html(objVtassSemanales._HtmlTabla);
                                 $("#TbTabla").attr("style", "width: 400.5px;")
                                 $("#btnExportar").addClass("disabled");
@@ -209,13 +214,12 @@
                 },
                 get: function () {
                     //debugger
-                    //waitingDialog.show("Espere por favor...")
                     objVtassSemanales.Tabla.DataTable({
                         "language": {
                             "url": "../Scripts/DataTables/Spanish.json"
                         },
                         "fnServerData": function (sSource, aoData, fnCallback, oSettings) {
-                            debugger
+                            //debugger
                             oSettings.jqXHR = $.ajax( {
                                 "dataType": 'json',
                                 "type": "POST",
@@ -251,6 +255,7 @@
                         }],
                         "aoColumns": objVtassSemanales.Columns,
                         "fnRowCallback": function (row, data, index) {
+                            debugger
                         },
                         "drawCallback": function (settings) {
                             var table = objVtassSemanales.Tabla.dataTable();
@@ -269,6 +274,10 @@
                             $("#TbTabla td:nth-child(5)").addClass("ColC1");
                             $("#TbTabla td:nth-child(6)").addClass("ColC1");
                             $("#TbTabla td:nth-child(7)").addClass("ColC1");
+
+                            $("#TbTabla td.Venta_Total").addClass("ColC2");
+                            $("#TbTabla td.Venta_Neta").addClass("ColC2");
+
                             objVtassSemanales.grid.MergeGridCells("Asesor");
                             objVtassSemanales.grid.MergeGridCells("Lider");
                             waitingDialog.hide();
