@@ -305,6 +305,7 @@
       <DependentUpon>Reference.svcmap</DependentUpon>
     </Compile>
     <Compile Include="Startup.cs" />
+    <Compile Include="Util\Pivot.cs" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="AspNetForms\ReportInvoice.aspx" />
@@ -3164,13 +3165,13 @@
     <Content Include="Views\Facturacion\Salida_Almacen.cshtml" />
     <Content Include="Views\Facturacion\EditSalida_Almacen.cshtml" />
     <Content Include="Views\Facturacion\Ventas_Semanales.cshtml" />
+    <Content Include="Views\Facturacion\Ventas_Lider.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
     <Folder Include="Content\TarjetaCss\" />
     <Folder Include="Cupones\" />
     <Folder Include="RptsCrystal\Rep\" />
-    <Folder Include="Util\" />
     <Folder Include="Views\Shared\Menu\" />
     <Folder Include="Views\Usuario\" />
   </ItemGroup>

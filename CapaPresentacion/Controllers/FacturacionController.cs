@@ -2463,5 +2463,445 @@ namespace CapaPresentacion.Controllers
             return Json(new { estado = 0, mensaje = 1 });
         }
         #endregion
+
+        #region <VENTAS POR LIDER>
+        /// <summary>
+        /// Ventas semanales
+        /// </summary>
+        /// <create>Juilliand R. Damian Gomez </create>
+        /// <update></update> 
+        /// <returns></returns>
+        public ActionResult Ventas_Lider()
+        {
+            Ent_Usuario _usuario = (Ent_Usuario)Session[Ent_Constantes.NameSessionUser];
+            string actionName = this.ControllerContext.RouteData.GetRequiredString("action");
+            string controllerName = this.ControllerContext.RouteData.GetRequiredString("controller");
+            string return_view = actionName + "|" + controllerName;
+
+            if (_usuario == null)
+            {
+                return RedirectToAction("Login", "Control", new { returnUrl = return_view });
+            }
+            else
+            {
+                ViewBag.ListarCLiente = datFacturacion.Listar_Clientes(_usuario);
+                Ent_Ventas_Lider EntVentasLider = new Ent_Ventas_Lider();
+                ViewBag.EntVentasLider = EntVentasLider;
+                return View();
+            }
+        }
+        /// <summary>
+        /// Listado principal
+        /// </summary>
+        /// <create>Juilliand R. Damian Gomez </create>
+        /// <update></update> 
+        /// <param name="_Ent"></param>
+        /// <returns></returns>
+        private string _ListAno = "_listAno";
+        private string _ListMes = "_listMes";
+        private string _ListSem = "_listSem";
+        private string _ListContenido = "_ListContenido";
+        public JsonResult getVentasLiderCol(Ent_Ventas_Lider _Ent)
+        {
+            Session[_session_ListarVentasLider] = null;
+            Session[_ListAno] = null;
+            Session[_ListMes] = null;
+            Session[_ListSem] = null;
+            Session[_ListContenido] = null;
+            JsonResponse objResult = new JsonResponse();
+            _Ent.Asesor = "";
+            DataTable dtInicio = datFacturacion.ListarVentaLider(_Ent);
+
+            if (dtInicio.Rows.Count > 0)
+            {
+                List<Ent_Ventas_Lider> ListaMes = new List<Ent_Ventas_Lider>()
+                {
+                    new Ent_Ventas_Lider {IdMes= 1,Mes="Enero" },
+                    new Ent_Ventas_Lider {IdMes= 2,Mes="Febrero" },
+                    new Ent_Ventas_Lider {IdMes= 3,Mes="Marzo" },
+                    new Ent_Ventas_Lider {IdMes= 4,Mes="Abril" },
+                    new Ent_Ventas_Lider {IdMes= 5,Mes="Mayo" },
+                    new Ent_Ventas_Lider {IdMes= 6,Mes="Junio" },
+                    new Ent_Ventas_Lider {IdMes= 7,Mes="Julio" },
+                    new Ent_Ventas_Lider {IdMes= 8,Mes="Agosto" },
+                    new Ent_Ventas_Lider {IdMes= 9,Mes="Septiembre" },
+                    new Ent_Ventas_Lider {IdMes= 10,Mes="Octubre" },
+                    new Ent_Ventas_Lider {IdMes= 11,Mes="Noviembre" },
+                    new Ent_Ventas_Lider {IdMes= 12,Mes="Diciembre" },
+                };
+
+                Pivot pvt = new Pivot(dtInicio);
+                string[] filagru = { "Asesor", "Lider", "Cliente", "Dni", "Celular", "Correo", "Zona" };
+                string[] col = { "Ano", "Mes", "Semana" };
+                
+                DataTable dtPivot = pvt.PivotData("Total Pares", AggregateFunction.Sum, filagru, col, ListaMes);
+
+                var Semanas = dtInicio.AsEnumerable()
+                                .GroupBy(g => new
+                                {
+                                    Ano = g.Field<int>("Ano"),
+                                    IdMes = ListaMes.Where(t => t.Mes == g.Field<string>("Mes")).Select(m => new { IdMes = m.IdMes }).ToList().First().IdMes,
+                                    Mes = g.Field<string>("Mes")
+                                })
+                                .Select(s => new
+                                {
+                                    Ano = s.Key.Ano,
+                                    IdMes = s.Key.IdMes,
+                                    Mes = s.Key.Mes,
+                                    Semana = s.GroupBy(y => new { Semana = y.Field<string>("Semana") }).Select(x => new { Semana = x.Key.Semana }).OrderBy(o => o.Semana).ToList()
+                                })
+                                .OrderBy(o => o.Ano)
+                                .ThenBy(o => o.IdMes)
+                                .ThenBy(o => o.Semana)
+                                .ToList();
+
+                var Mes = dtInicio.AsEnumerable()
+                            .GroupBy(x => new {
+                                Anio = x.Field<int>("Ano"),
+                                Mes = x.Field<string>("Mes"),
+                                IdMes = ListaMes.Where(t => t.Mes == x.Field<string>("Mes")).Select(m => new { IdMes = m.IdMes }).ToList().First().IdMes,
+                            })
+                            .Select(x => new {
+                                Anio = x.Key.Anio,
+                                Mes = x.Key.Mes,
+                                IdMes = x.Key.IdMes,
+                                Cant = (x.GroupBy(y => y.Field<string>("Semana")).Count()+2),
+                            })
+                            .OrderBy(o => o.Anio)
+                            .ThenBy(o => o.IdMes)
+                            .ToList();
+
+                var Anio = Mes.GroupBy(x => new { Anio = x.Anio }).Select(s => new { Anio = s.Key.Anio, Cant = s.Sum(x => x.Cant)}).ToList();
+
+
+                Ent_Ventas_Lider Ent = new Ent_Ventas_Lider();
+                List<string> listSem = new List<string>() {
+                    "Asesor","Lider","Cliente","DNI","Celular","Correo","Zona"
+                };
+
+                List<Ent_Ventas_Lider_Col> _ListHead = new List<Ent_Ventas_Lider_Col>(){
+                    new Ent_Ventas_Lider_Col {sName= "Asesor", mData="Asesor" ,sClass="Asesor"},
+                    new Ent_Ventas_Lider_Col {sName= "Lider", mData="Lider" ,sClass="Lider"},
+                    new Ent_Ventas_Lider_Col {sName= "Cliente", mData="Cliente" ,sClass="Cliente"},
+                    new Ent_Ventas_Lider_Col {sName= "Dni", mData="Dni" ,sClass="Dni"},
+                    new Ent_Ventas_Lider_Col {sName= "Celular", mData="Celular" ,sClass=""},
+                    new Ent_Ventas_Lider_Col {sName= "Correo", mData="Correo" ,sClass="Correo"},
+                    new Ent_Ventas_Lider_Col {sName= "Zona", mData="Zona" ,sClass="Zona"},
+                    };
+
+                Ent_Ventas_Lider_Col _EntVL = null;
+                List<string> listAno = new List<string>();
+                foreach (var Semana in Semanas)
+                {                    
+                    foreach (var item in Semana.Semana)
+                    {
+                        _EntVL = new Ent_Ventas_Lider_Col();
+                        _EntVL.sName = Semana.Ano + "/" + Semana.Mes + "/" + item.Semana;
+                        _EntVL.mData = Semana.Ano + "/" + Semana.Mes + "/" + item.Semana;
+                        _ListHead.Add(_EntVL);
+                        listSem.Add(item.Semana);
+                    }
+                    _EntVL = new Ent_Ventas_Lider_Col();
+                    _EntVL.sName = Semana.Ano + "/" + Semana.Mes + "/Venta Total";
+                    _EntVL.mData = Semana.Ano + "/" + Semana.Mes + "/Venta Total";
+                    _ListHead.Add(_EntVL);
+                    _EntVL = new Ent_Ventas_Lider_Col();
+                    _EntVL.sName = Semana.Ano + "/" + Semana.Mes + "/Venta Neta";
+                    _EntVL.mData = Semana.Ano + "/" + Semana.Mes + "/Venta Neta";
+                   _ListHead.Add(_EntVL); 
+                    listSem.Add("Venta Total");
+                    listSem.Add("Venta Neta");
+                }
+
+                foreach (var item in Anio)
+                {
+                    listAno.Add(item.Anio + "/"+ item.Cant);
+                }
+
+                List<string> listMes = new List<string>();
+                foreach (var item in Mes)
+                {
+                    listMes.Add(item.Anio + "/" + item.Mes + "/" + item.Cant);
+                }
+
+                List<string[]> ListTabla = new List<string[]>();
+                foreach (DataRow dr in dtPivot.Rows)
+                {
+                    int columnCount = 0;
+                    string[] myTableRow = new string[dtPivot.Columns.Count];
+                    foreach (DataColumn dc in dtPivot.Columns)
+                    {
+                        myTableRow[columnCount] = dr[dc.ColumnName].ToString();
+                        columnCount++;
+                    }
+                    ListTabla.Add(myTableRow);
+                }
+
+                Ent._List_Ent_Ventas_Lider_Col = _ListHead;
+                Ent.RorwsTh1 = listAno.ToArray();
+                Ent.RorwsTh2 = listMes.ToArray();
+                Ent.RorwsTh3 = listSem.ToArray();
+                objResult.Data = Ent;
+                objResult.Success = true;
+
+                Session[_session_ListarVentasLider] = dtPivot;
+                Session[_ListAno] = listAno.ToArray();
+                Session[_ListMes] = listMes.ToArray();
+                Session[_ListSem] = listSem.ToArray();
+                Session[_ListContenido] = ListTabla;
+                var JSON = JsonConvert.SerializeObject(objResult);
+                return Json(JSON, JsonRequestBehavior.AllowGet);
+            }
+            else
+            {
+                objResult.Success = false;
+                var JSON = JsonConvert.SerializeObject(objResult);
+                return Json(JSON, JsonRequestBehavior.AllowGet);
+            }
+        }
+
+        /// <summary>
+        /// Listado principal
+        /// </summary>
+        /// <create>Juilliand R. Damian Gomez </create>
+        /// <update></update> 
+        /// <param name="_Ent"></param>
+        /// <returns></returns>
+        public JsonResult getVentasLiderListarAjax(Ent_jQueryDataTableParams param)
+        {
+            JsonResponse objResult = new JsonResponse();
+    
+            DataTable dtreturnf = (DataTable)Session["_session_ListarVentasLider"];
+            /*verificar si esta null*/
+
+            int totalCount = dtreturnf.Rows.Count;
+
+            var filteredMembers = dtreturnf.AsEnumerable().CopyToDataTable();
+
+            if (!string.IsNullOrEmpty(param.sSearch))
+            {
+                filteredMembers = dtreturnf.AsEnumerable().Where(x => 
+                    x.Field<string>("Asesor").ToUpper().Contains(param.sSearch.ToUpper()) ||
+                    x.Field<string>("Lider").ToUpper().Contains(param.sSearch.ToUpper()) ||
+                    x.Field<string>("Cliente").ToUpper().Contains(param.sSearch.ToUpper()) ||
+                    x.Field<string>("Dni").ToUpper().Contains(param.sSearch.ToUpper()) ||
+                    x.Field<string>("Celular").ToUpper().Contains(param.sSearch.ToUpper()) ||
+                    x.Field<string>("Correo").ToUpper().Contains(param.sSearch.ToUpper()) ||
+                    x.Field<string>("Zona").ToUpper().Contains(param.sSearch.ToUpper())).CopyToDataTable();
+            }
+
+            var sortIdx = Convert.ToInt32(Request["iSortCol_0"]);
+
+            if (param.iSortingCols > 0)
+            {
+                if (Request["sSortDir_0"].ToString() == "asc")
+                {
+                    switch (sortIdx)
+                    {
+                        case 0: filteredMembers = filteredMembers.AsEnumerable().OrderBy(o => o.Field<string>("Asesor")).CopyToDataTable(); break;
+                        case 1: filteredMembers = filteredMembers.AsEnumerable().OrderBy(o => o.Field<string>("Lider")).CopyToDataTable(); break;
+                        case 2: filteredMembers = filteredMembers.AsEnumerable().OrderBy(o => o.Field<string>("Cliente")).CopyToDataTable(); break;
+                        case 3: filteredMembers = filteredMembers.AsEnumerable().OrderBy(o => o.Field<string>("Dni")).CopyToDataTable(); break;
+                        case 4: filteredMembers = filteredMembers.AsEnumerable().OrderBy(o => o.Field<string>("Celular")).CopyToDataTable(); break;
+                        case 5: filteredMembers = filteredMembers.AsEnumerable().OrderBy(o => o.Field<string>("Correo")).CopyToDataTable(); break;
+                        case 6: filteredMembers = filteredMembers.AsEnumerable().OrderBy(o => o.Field<string>("Asesor")).CopyToDataTable(); break;
+                    }
+                }
+                else
+                {
+                    switch (sortIdx)
+                    {
+                        case 0: filteredMembers = filteredMembers.AsEnumerable().OrderByDescending(o => o.Field<string>("Asesor")).CopyToDataTable(); break;
+                        case 1: filteredMembers = filteredMembers.AsEnumerable().OrderByDescending(o => o.Field<string>("Lider")).CopyToDataTable(); break;
+                        case 2: filteredMembers = filteredMembers.AsEnumerable().OrderByDescending(o => o.Field<string>("Cliente")).CopyToDataTable(); break;
+                        case 3: filteredMembers = filteredMembers.AsEnumerable().OrderByDescending(o => o.Field<string>("Dni")).CopyToDataTable(); break;
+                        case 4: filteredMembers = filteredMembers.AsEnumerable().OrderByDescending(o => o.Field<string>("Celular")).CopyToDataTable(); break;
+                        case 5: filteredMembers = filteredMembers.AsEnumerable().OrderByDescending(o => o.Field<string>("Correo")).CopyToDataTable(); break;
+                        case 6: filteredMembers = filteredMembers.AsEnumerable().OrderByDescending(o => o.Field<string>("Zona")).CopyToDataTable(); break;
+                    }
+                }
+            }
+
+            var dtreturn = filteredMembers.AsEnumerable()
+                .Skip(param.iDisplayStart)
+                .Take(param.iDisplayLength)
+            .CopyToDataTable();
+
+            JavaScriptSerializer serializer = new JavaScriptSerializer();
+
+            var lst = dtreturn.AsEnumerable()
+                        .Select(r => r.Table.Columns.Cast<DataColumn>()
+                                .Select(c => new KeyValuePair<string, object>(c.ColumnName, r[c.Ordinal])
+                               ).ToDictionary(z => z.Key, z => z.Value)
+                        ).ToList();
+
+            objResult.Data = serializer.Serialize(lst);
+            return Json(new
+            {
+                sEcho = param.sEcho,
+                iTotalRecords = totalCount,
+                iTotalDisplayRecords = filteredMembers.Rows.Count,
+                aaData = objResult
+            }, JsonRequestBehavior.AllowGet);
+        }
+        /// <summary>
+        /// Validando exportancion
+        /// </summary>
+        /// <create>Juilliand R. Damian Gomez </create>
+        /// <update></update> 
+        /// <param name="_Ent"></param>
+        /// <returns></returns>
+        public ActionResult get_exporta_LiderListar_excel(Ent_Ventas_Lider _Ent)
+        {
+            JsonResponse objResult = new JsonResponse();
+            try
+            {
+                Session[_session_ListarVentasLider_Excel] = null;
+                string cadena = "";
+                if (Session[_session_ListarVentasLider] != null)
+                {
+
+                    DataTable _ListarVentasLider = (DataTable)Session["_session_ListarVentasLider"];
+                    if (_ListarVentasLider.Rows.Count == 0)
+                    {
+                        objResult.Success = false;
+                        objResult.Message = "No hay filas para exportar";
+                    }
+                    else
+                    {
+                        cadena = get_html_ListarVentasLider_str((List<string[]>)Session[_ListContenido], _Ent);
+                        if (cadena.Length == 0)
+                        {
+                            objResult.Success = false;
+                            objResult.Message = "Error del formato html";
+                        }
+                        else
+                        {
+                            objResult.Success = true;
+                            objResult.Message = "Se genero el excel correctamente";
+                            Session[_session_ListarVentasLider_Excel] = cadena;
+                        }
+                    }
+                }
+                else
+                {
+                    objResult.Success = false;
+                    objResult.Message = "No hay filas para exportar";
+                }
+            }
+            catch (Exception ex)
+            {
+                objResult.Success = false;
+                objResult.Message = "No hay filas para exportar";
+            }
+
+            var JSON = JsonConvert.SerializeObject(objResult);
+
+            return Json(JSON, JsonRequestBehavior.AllowGet);
+        }
+        /// <summary>
+        /// Forma del Excel
+        /// </summary>
+        /// <create>Juilliand R. Damian Gomez </create>
+        /// <update></update> 
+        /// <param name="_ListContenido"></param>
+        /// <param name="_Ent"></param>
+        /// <returns></returns>
+        public string get_html_ListarVentasLider_str(List<string[]> _ListContenido, Ent_Ventas_Lider _Ent)
+        {
+            StringBuilder sb = new StringBuilder();
+            var Listar = _ListContenido.ToArray();
+            string[] listAno = (string[])Session[_ListAno];
+            string[] listMes = (string[])Session[_ListMes];
+            string[] listSem = (string[])Session[_ListSem];
+
+
+            try
+            {
+                var result = "<thead>";
+                result += "<tr bgColor='#1E77AB'><th colspan=7></th>";
+
+                foreach (var key in listAno)
+                {                  
+                    result += "<th  style='text-align: center;' colspan=" + key.Substring((key.IndexOf("/") + 1)) + " style='text-align: center; font-weight:bold;font-size:11.0pt;'><font color='#FFFFFF'>" + key.Substring(0, key.IndexOf("/")) + "</font></th>";
+                }
+                result += "</tr>";
+                result += "<tr bgColor='#1E77AB'><th colspan=7></th>";
+                foreach (var key in listMes)
+                {
+                    result += "<th  style='text-align: center;' colspan=" + key.Substring((key.LastIndexOf("/") + 1)) + " style='text-align: center; font-weight:bold;font-size:11.0pt;'><font color='#FFFFFF'>" + key.Substring((key.IndexOf("/") + 1), (key.LastIndexOf("/") - (key.IndexOf("/") + 1))) + "</font></th>";
+                }
+                result += "</tr>";
+                result += "<tr bgColor='#1E77AB'>";
+                foreach (var key in listSem)
+                {
+                    result += "<th  style='text-align: center;' style='text-align: center; font-weight:bold;font-size:11.0pt;'><font color='#FFFFFF'>" + key + "</font></th>";
+                }
+                result += "</tr>";
+                result += "</thead>";
+                result += "<tbody>";
+                result += "</tr>";
+                for (var i = 0; i < Listar.Length; i++)
+                {
+                    result += "<tr>";
+                    for (var j = 0; j < Listar[i].Length; j++)
+                    {
+                        result += "<td >" + Listar[i][j] + "</td>";
+                    }
+                    result += "</tr>";
+                }
+                result += "</tbody>";
+
+                sb.Append("<div>");
+                sb.Append("<table cellspacing='0' style='width: 1000px' rules='all' border='0' style='border-collapse:collapse;'>");
+                sb.Append("<tr><td Colspan='14'></td></tr>");
+                sb.Append("<tr><td Colspan='14' valign='middle' align='center' style='vertical-align: middle;font-size: 18.0pt;font-weight: bold;color:#285A8F'>REPORTE DE VENTAS POR LIDER</td></tr>");
+                sb.Append("<tr><td Colspan='13' valign='middle' align='center' style='vertical-align: middle;font-size: 10.0pt;font-weight: bold;color:#000000'>Desde el " + String.Format("{0:dd/MM/yyyy}", _Ent.FechaInicio) + " hasta el " + String.Format("{0:dd/MM/yyyy}", _Ent.FechaFin) + "</td></tr>");//subtitulo
+                sb.Append("</table>");
+                sb.Append("<table  border='1' bgColor='#ffffff' borderColor='#FFFFFF' cellSpacing='2' cellPadding='2' style='font-size:10.0pt; font-family:Calibri; background:white;width: 1000px'><tr  bgColor='#5799bf'>\n");
+
+                sb.Append(result);
+
+                sb.Append("<tfoot>\n");
+                sb.Append("<tr bgcolor='#085B8C'>\n");
+                sb.Append("</tr>\n");
+                sb.Append("</tfoot>\n");
+                sb.Append("</table></div>");
+            }
+            catch
+            {
+
+            }
+            return sb.ToString();
+        }
+        /// <summary>
+        /// Exportar Excel
+        /// </summary>
+        /// <create>Juilliand R. Damian Gomez </create>
+        /// <update></update> 
+        /// <returns></returns>
+        public ActionResult ListarVentasLiderExcel()
+        {
+            string NombreArchivo = "VentasXLider";
+            String style = style = @"<style> .textmode { mso-number-format:\@; } </script> ";
+            try
+            {
+                Response.Clear();
+                Response.Buffer = true;
+                Response.ContentType = "application/vnd.ms-excel";
+                Response.AddHeader("Content-Disposition", "attachment;filename=" + NombreArchivo + ".xls");
+                Response.Charset = "UTF-8";
+                Response.ContentEncoding = Encoding.Default;
+                Response.Write(style);
+                Response.Write(Session[_session_ListarVentasLider_Excel].ToString());
+                Response.End();
+            }
+            catch
+            {
+
+            }
+            return Json(new { estado = 0, mensaje = 1 });
+        }
+        #endregion
     }
 }
