@@ -23,5 +23,6 @@ namespace CapaEntidad.Control
         public string usu_nom_ape { get; set;}
 
         public string usu_flete { get; set; }
+        public string usu_asesor { get; set; }
     }
 }

@@ -96,6 +96,7 @@
     <Compile Include="Promotor\Ent_Maestro.cs" />
     <Compile Include="ReportsValeCompra\Reporte_Resultado.cs" />
     <Compile Include="ReportsValeCompra\Reporte_Filtro.cs" />
+    <Compile Include="RRHH\Ent_RRHH.cs" />
     <Compile Include="Util\Departamento.cs" />
     <Compile Include="Util\Ent_Combo.cs" />
     <Compile Include="Util\Ent_Promotor_Maestro.cs" />

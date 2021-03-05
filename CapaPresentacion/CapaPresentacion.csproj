@@ -254,6 +254,7 @@
     <Compile Include="Controllers\MenuController.cs" />
     <Compile Include="Controllers\ReportePedidoController.cs" />
     <Compile Include="Controllers\RolesController.cs" />
+    <Compile Include="Controllers\RRHHController.cs" />
     <Compile Include="Controllers\UsuariosController.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
@@ -3166,6 +3167,7 @@
     <Content Include="Views\Facturacion\EditSalida_Almacen.cshtml" />
     <Content Include="Views\Facturacion\Ventas_Semanales.cshtml" />
     <Content Include="Views\Facturacion\Ventas_Lider.cshtml" />
+    <Content Include="Views\RRHH\ConsultaPromotorXLider.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

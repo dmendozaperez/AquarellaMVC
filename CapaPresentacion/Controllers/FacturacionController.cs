@@ -4,6 +4,8 @@ using CapaPresentacion.Util;
 using CapaEntidad.Control;
 using CapaEntidad.Facturacion;
 using CapaDato.Facturacion;
+using CapaDato.Util;
+using CapaDato.Control;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -15,13 +17,13 @@ using System.Data;
 using Newtonsoft.Json;
 using System.Reflection;
 using System.Web.Script.Serialization;
-using CapaPresentacion.Util;
 
 namespace CapaPresentacion.Controllers
 {
     public class FacturacionController : Controller
     {
         private Dat_Facturacion datFacturacion = new Dat_Facturacion();
+        private Dat_Util datUtil = new Dat_Util();
         private string _session_ListarMovimientosVentas = "_session_ListarMovimientosVentas";
         private string _session_ListarMovimientosVentasChart = "_session_ListarMovimientosVentasChart";
         private string _session_ListarMovimientosVentas_Excel = "_session_ListarMovimientosVentas_Excel";
@@ -2485,12 +2487,13 @@ namespace CapaPresentacion.Controllers
             }
             else
             {
-                List<Ent_Ventas_Lider> ListarCLiente = new List<Ent_Ventas_Lider>();
-                ListarCLiente.Add(new Ent_Ventas_Lider() { Codigo = "-1", Descripcion = "-- Selecionar Todos--" });
+                List<Ent_Combo> ListarCLiente = new List<Ent_Combo>();
+                ListarCLiente.Add(new Ent_Combo() { codigo = "-1", descripcion = "-- Selecionar Todos--" });
 
-                int Cant = datFacturacion.Listar_Clientes(_usuario).Count();
+                int Cant = datUtil.Listar_Clientes(_usuario).Count();
 
-                ViewBag.ListarCLiente = (Cant==1 ? datFacturacion.Listar_Clientes(_usuario) : ListarCLiente.Concat(datFacturacion.Listar_Clientes(_usuario)));
+                ViewBag.ListarCLiente = (Cant==1 ? datUtil.Listar_Clientes(_usuario) : ListarCLiente.Concat(datUtil.Listar_Clientes(_usuario)));
+
                 Ent_Ventas_Lider EntVentasLider = new Ent_Ventas_Lider();
                 ViewBag.EntVentasLider = EntVentasLider;
                 return View();
@@ -2514,8 +2517,12 @@ namespace CapaPresentacion.Controllers
             Session[_ListMes] = null;
             Session[_ListSem] = null;
             Session[_ListContenido] = null;
+            Ent_Usuario _usuario = (Ent_Usuario)Session[Ent_Constantes.NameSessionUser];
             JsonResponse objResult = new JsonResponse();
-            _Ent.Asesor = "";
+            //_Ent.Bas_Id ="-1" ;
+            //_Ent.FechaInicio = DateTime.Parse("01/01/2021");
+            //_Ent.FechaFin = DateTime.Parse("04/03/2021");
+            _Ent.Asesor = _usuario.usu_asesor;
             DataTable dtInicio = datFacturacion.ListarVentaLider(_Ent);
 
             if (dtInicio.Rows.Count > 0)
@@ -2542,24 +2549,25 @@ namespace CapaPresentacion.Controllers
                 
                 DataTable dtPivot = pvt.PivotData("Venta Total", AggregateFunction.Sum, filagru, col, ListaMes);
 
-                var Semanas = dtInicio.AsEnumerable()
-                                .GroupBy(g => new
-                                {
-                                    Ano = g.Field<int>("Ano"),
-                                    IdMes = ListaMes.Where(t => t.Mes == g.Field<string>("Mes")).Select(m => new { IdMes = m.IdMes }).ToList().First().IdMes,
-                                    Mes = g.Field<string>("Mes")
-                                })
-                                .Select(s => new
-                                {
-                                    Ano = s.Key.Ano,
-                                    IdMes = s.Key.IdMes,
-                                    Mes = s.Key.Mes,
-                                    Semana = s.GroupBy(y => new { Semana = y.Field<string>("Semana") }).Select(x => new { Semana = x.Key.Semana }).OrderBy(o => o.Semana).ToList()
-                                })
-                                .OrderBy(o => o.Ano)
-                                .ThenBy(o => o.IdMes)
-                                .ThenBy(o => o.Semana)
-                                .ToList();
+                var grpAnio = dtInicio.AsEnumerable()
+                             .GroupBy(x => new {
+                                 Anio = x.Field<int>("Ano")
+                             })
+                             .Select(x => new {
+                                 Anio = x.Key.Anio,
+                                 Mes = x.GroupBy(y => new {
+                                     Mes = y.Field<string>("Mes"),
+                                     IdMes = ListaMes.Where(t => t.Mes == y.Field<string>("Mes")).Select(m => new { IdMes = m.IdMes }).ToList().First().IdMes
+                                 }).Select(y => new {
+                                     Mes = y.Key.Mes,
+                                     IdMes = y.Key.IdMes,
+                                     Semana = y.GroupBy(gr => new {
+                                         Semana = gr.Field<string>("Semana")
+                                     }).Select(gr => new { Semana = gr.Key.Semana }).OrderBy(o => o.Semana).ToList()
+                                 }).OrderBy(o => o.IdMes).ToList()
+                             })
+                             .OrderBy(o => o.Anio)
+                             .ToList();
 
                 var Mes = dtInicio.AsEnumerable()
                             .GroupBy(x => new {
@@ -2571,7 +2579,7 @@ namespace CapaPresentacion.Controllers
                                 Anio = x.Key.Anio,
                                 Mes = x.Key.Mes,
                                 IdMes = x.Key.IdMes,
-                                Cant = (x.GroupBy(y => y.Field<string>("Semana")).Count()+2),
+                                Cant = (x.GroupBy(y => y.Field<string>("Semana")).Count() + 2),
                             })
                             .OrderBy(o => o.Anio)
                             .ThenBy(o => o.IdMes)
@@ -2582,7 +2590,7 @@ namespace CapaPresentacion.Controllers
 
                 Ent_Ventas_Lider Ent = new Ent_Ventas_Lider();
                 List<string> listSem = new List<string>() {
-                    "Asesor","Lider","Cliente","DNI","Celular","Correo","Zona","Actividad"
+                    "Asesor","Directora","Promotora","DNI","Celular","Correo","Zona","Actividad"
                 };
 
                 List<Ent_Ventas_Lider_Col> _ListHead = new List<Ent_Ventas_Lider_Col>(){
@@ -2598,39 +2606,57 @@ namespace CapaPresentacion.Controllers
 
                 Ent_Ventas_Lider_Col _EntVL = null;
                 List<string> listAno = new List<string>();
-                foreach (var Semana in Semanas)
-                {                    
-                    foreach (var item in Semana.Semana)
+
+
+                foreach (var item in grpAnio)
+                {
+                    foreach (var itemM in item.Mes)
                     {
+                        foreach (var itemS in itemM.Semana)
+                        {
+                            _EntVL = new Ent_Ventas_Lider_Col();
+                            _EntVL.sName = item.Anio + "/" + itemM.Mes + "/" + itemS.Semana;
+                            _EntVL.mData = item.Anio + "/" + itemM.Mes + "/" + itemS.Semana;
+                            _ListHead.Add(_EntVL);
+                            listSem.Add(itemS.Semana);
+
+                        }
                         _EntVL = new Ent_Ventas_Lider_Col();
-                        _EntVL.sName = Semana.Ano + "/" + Semana.Mes + "/" + item.Semana;
-                        _EntVL.mData = Semana.Ano + "/" + Semana.Mes + "/" + item.Semana;
+                        _EntVL.sName = item.Anio + "/" + itemM.Mes + "/Venta Neta";
+                        _EntVL.mData = item.Anio + "/" + itemM.Mes + "/Venta Neta";
+                        _EntVL.sClass = "Venta_Neta";
                         _ListHead.Add(_EntVL);
-                        listSem.Add(item.Semana);
+                        _EntVL = new Ent_Ventas_Lider_Col();
+                        _EntVL.sName = item.Anio + "/" + itemM.Mes + "/Venta Total";
+                        _EntVL.mData = item.Anio + "/" + itemM.Mes + "/Venta Total";
+                        _EntVL.sClass = "Venta_Total";
+                        _ListHead.Add(_EntVL);
+                        listSem.Add("Venta Neta");
+                        listSem.Add("Venta Total");
                     }
                     _EntVL = new Ent_Ventas_Lider_Col();
-                    _EntVL.sName = Semana.Ano + "/" + Semana.Mes + "/Venta Total";
-                    _EntVL.mData = Semana.Ano + "/" + Semana.Mes + "/Venta Total";
-                    _EntVL.sClass = "Venta_Total";
+                    _EntVL.sName = item.Anio + "/Total/";
+                    _EntVL.mData = item.Anio + "/Total/";
+                    _EntVL.sClass = "Total";
                     _ListHead.Add(_EntVL);
-                    _EntVL = new Ent_Ventas_Lider_Col();
-                    _EntVL.sName = Semana.Ano + "/" + Semana.Mes + "/Venta Neta";
-                    _EntVL.mData = Semana.Ano + "/" + Semana.Mes + "/Venta Neta";
-                    _EntVL.sClass = "Venta_Neta";
-                    _ListHead.Add(_EntVL); 
-                    listSem.Add("Venta Total");
-                    listSem.Add("Venta Neta");
+                    listSem.Add("");
                 }
+
 
                 foreach (var item in Anio)
                 {
-                    listAno.Add(item.Anio + "/"+ item.Cant);
+                    listAno.Add(item.Anio + "/"+ (item.Cant + 1));
                 }
 
                 List<string> listMes = new List<string>();
-                foreach (var item in Mes)
+
+                foreach (var item in grpAnio)
                 {
-                    listMes.Add(item.Anio + "/" + item.Mes + "/" + item.Cant);
+                    foreach (var itemM in item.Mes)
+                    {
+                        listMes.Add(item.Anio + "/" + itemM.Mes + "/" + (itemM.Semana.Count()+2));
+                    }
+                    listMes.Add(item.Anio + "/Total "+ item.Anio + "/" + "1");
                 }
 
                 List<string[]> ListTabla = new List<string[]>();
@@ -2851,8 +2877,8 @@ namespace CapaPresentacion.Controllers
                 sb.Append("<div>");
                 sb.Append("<table cellspacing='0' style='width: 1000px' rules='all' border='0' style='border-collapse:collapse;'>");
                 sb.Append("<tr><td Colspan='14'></td></tr>");
-                sb.Append("<tr><td Colspan='14' valign='middle' align='center' style='vertical-align: middle;font-size: 18.0pt;font-weight: bold;color:#285A8F'>REPORTE DE VENTAS POR LIDER</td></tr>");
-                sb.Append("<tr><td Colspan='13' valign='middle' align='center' style='vertical-align: middle;font-size: 10.0pt;font-weight: bold;color:#000000'>Desde el " + String.Format("{0:dd/MM/yyyy}", _Ent.FechaInicio) + " hasta el " + String.Format("{0:dd/MM/yyyy}", _Ent.FechaFin) + "</td></tr>");//subtitulo
+                sb.Append("<tr><td Colspan='14' valign='middle' align='center' style='vertical-align: middle;font-size: 18.0pt;font-weight: bold;color:#285A8F'>REPORTE DE VENTAS POR DIRECTORA</td></tr>");
+                sb.Append("<tr><td Colspan='14' valign='middle' align='center' style='vertical-align: middle;font-size: 10.0pt;font-weight: bold;color:#000000'>Desde el " + String.Format("{0:dd/MM/yyyy}", _Ent.FechaInicio) + " hasta el " + String.Format("{0:dd/MM/yyyy}", _Ent.FechaFin) + "</td></tr>");//subtitulo
                 sb.Append("</table>");
                 sb.Append("<table  border='1' bgColor='#ffffff' borderColor='#FFFFFF' cellSpacing='2' cellPadding='2' style='font-size:10.0pt; font-family:Calibri; background:white;width: 1000px'><tr  bgColor='#5799bf'>\n");
 

@@ -101,40 +101,47 @@ namespace CapaPresentacion.Util
             for (int index = RowFields.Count() - 1; index >= 0; index--)
                 RowList = RowList.OrderBy(x => x.Field<object>(RowFields[index])).ToList();
 
-            var Semanas = _SourceTable.AsEnumerable()
-                            .GroupBy(g => new
-                            {
-                                Ano = g.Field<int>("Ano"),
-                                IdMes = ListaMes.Where(t => t.Mes == g.Field<string>("Mes")).Select(m => new { IdMes = m.IdMes }).ToList().First().IdMes,
-                                Mes = g.Field<string>("Mes")
+            var grpAnio = _SourceTable.AsEnumerable()
+                         .GroupBy(x => new {
+                             Anio = x.Field<int>("Ano")
+                         })
+                         .Select(x => new {
+                             Anio = x.Key.Anio,
+                             Mes = x.GroupBy(y => new {
+                                 Mes = y.Field<string>("Mes"),
+                                 IdMes = ListaMes.Where(t => t.Mes == y.Field<string>("Mes")).Select(m => new { IdMes = m.IdMes }).ToList().First().IdMes
+                                 }).Select(y => new {
+                                     Mes = y.Key.Mes,
+                                     IdMes = y.Key.IdMes,
+                                     Semana = y.GroupBy(gr => new {
+                                         Semana = gr.Field<string>("Semana")
+                                     }).Select(gr => new { Semana = gr.Key.Semana }).OrderBy(o => o.Semana).ToList()
+                                 }).OrderBy(o => o.IdMes).ToList()
                             })
-                            .Select(s => new
-                            {
-                                Ano = s.Key.Ano,
-                                IdMes = s.Key.IdMes,
-                                Mes = s.Key.Mes,
-                                Semana = s.GroupBy(y => new { Semana = y.Field<string>("Semana") }).Select(x => new { Semana = x.Key.Semana }).OrderBy(o => o.Semana).ToList()
-                            })
-                            .OrderBy(o => o.Ano)
-                            .ThenBy(o => o.IdMes)
-                            .ThenBy(o => o.Semana)
-                            .ToList();
+                         .OrderBy(o => o.Anio)
+                         .ToList();
+
 
             foreach (string s in RowFields)
                 dt.Columns.Add(s);
 
             List<string> ColList = new List<string>();
-            foreach (var Semana in Semanas)
+            foreach (var item in grpAnio)
             {
-                foreach (var item in Semana.Semana)
-                {                    
-                    dt.Columns.Add(Semana.Ano + "/" + Semana.Mes + "/" + item.Semana, typeof(string));
-                    ColList.Add(Semana.Ano + "/" + Semana.Mes + "/" + item.Semana);
+                foreach (var itemM in item.Mes)
+                {
+                    foreach (var itemS in itemM.Semana)
+                    {
+                        dt.Columns.Add(item.Anio + "/" + itemM.Mes + "/" + itemS.Semana, typeof(string));
+                        ColList.Add(item.Anio + "/" + itemM.Mes + "/" + itemS.Semana);
+                    }
+                    dt.Columns.Add(item.Anio + "/" + itemM.Mes + "/Venta Neta", typeof(string));
+                    dt.Columns.Add(item.Anio + "/" + itemM.Mes + "/Venta Total", typeof(string));
+                    ColList.Add(item.Anio + "/" + itemM.Mes + "/Venta Neta");
+                    ColList.Add(item.Anio + "/" + itemM.Mes + "/Venta Total");
                 }
-                dt.Columns.Add(Semana.Ano + "/" + Semana.Mes + "/Venta Total", typeof(string));
-                dt.Columns.Add(Semana.Ano + "/" + Semana.Mes + "/Venta Neta", typeof(string));
-                ColList.Add(Semana.Ano + "/" + Semana.Mes + "/Venta Total");
-                ColList.Add(Semana.Ano + "/" + Semana.Mes + "/Venta Neta");
+                dt.Columns.Add(item.Anio + "/Total/", typeof(string));
+                ColList.Add(item.Anio + "/Total/");
             }
 
             foreach (var RowName in RowList)
@@ -157,10 +164,15 @@ namespace CapaPresentacion.Util
                     string[] strColValues = col.ToString().Split(Separator.ToCharArray(), StringSplitOptions.None);
                     for (int i = 0; i < ColumnFields.Length; i++)
                     {
-                        if (strColValues[i] == "Venta Total" || strColValues[i] == "Venta Neta")
+                        if (strColValues[i] == "Venta Total" || strColValues[i] == "Venta Neta" || strColValues[i] == "Total")
                         {
-                            DataFieldstr = strColValues[i]; 
-                        }else
+                            DataFieldstr = strColValues[i];
+                        }
+                        else if (strColValues[i] == "" )
+                        {
+                            DataFieldstr = "";
+                        }
+                        else
                         {
                             filter += " and " + ColumnFields[i] + " = '" + strColValues[i] + "'";
                         }       

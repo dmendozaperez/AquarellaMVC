@@ -25,7 +25,7 @@
 
     .table .ColC1 {
         color: #000 !important;
-        background-color: #B1DEF6;        
+        background-color: #BCE4FA;        
         font-weight: bold;
         vertical-align: middle;
     }
@@ -34,6 +34,14 @@
         background-color: #E2F4FE;        
         font-weight: bold;
         vertical-align: middle;
+    }
+    
+   .table .ColC3 {
+        color: #000 !important;
+        background-color: #7FCCF4;        
+        font-weight: bold;
+        vertical-align: middle;
+
     }
 </style>
 <p class="text-primary">Consulte entre un rango de fechas, todas las ventas realizadas.</p>
@@ -84,6 +92,7 @@
 <div class="box box-body box-primary">
     <div class="row">
         <div class="col-md-6">
+            
         </div>
         <div class="col-md-6 text-right">
             <button id="btnExportar" title="Actualizar" class="btn btn-success disabled" disabled>
@@ -279,7 +288,8 @@
 
                             $("#TbTabla td.Venta_Total").addClass("ColC2");
                             $("#TbTabla td.Venta_Neta").addClass("ColC2");
-
+                            $("#TbTabla td.Total").addClass("ColC3");
+                            
                             objVtassSemanales.grid.MergeGridCells("Asesor");
                             objVtassSemanales.grid.MergeGridCells("Lider");
                             waitingDialog.hide();

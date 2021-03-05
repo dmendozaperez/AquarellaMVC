@@ -84,6 +84,7 @@ namespace CapaDato.Control
                                 usuario.usu_tip_id = dr["Usu_Tip_Id"].ToString();
                                 usuario.usu_area= dr["bas_are_id"].ToString();
                                 usuario.usu_flete = dr["usu_flete"].ToString();
+                                usuario.usu_asesor = dr["asesor"].ToString();
                             }
                         }
 

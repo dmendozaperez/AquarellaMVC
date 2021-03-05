@@ -1,5 +1,6 @@
 ﻿using System;
 using CapaEntidad.Util;
+using CapaEntidad.Control;
 using System.Collections.Generic;
 using System.Linq;
 using System.Data;
@@ -242,5 +243,41 @@ namespace CapaDato.Util
             return strJson;
         }
 
+        public List<Ent_Combo> Listar_Clientes(Ent_Usuario _Ent)
+        {
+            List<Ent_Combo> listar = null;
+            string sqlquery = "USP_MVC_Leer_Lista_Clientes";
+            try
+            {
+                using (SqlConnection cn = new SqlConnection(Ent_Conexion.conexion))
+                {
+                    using (SqlCommand cmd = new SqlCommand(sqlquery, cn))
+                    {
+                        cmd.CommandTimeout = 0;
+                        cmd.CommandType = CommandType.StoredProcedure;
+                        cmd.Parameters.AddWithValue("@USU", DbType.String).Value = _Ent.usu_id;
+                        using (SqlDataAdapter da = new SqlDataAdapter(cmd))
+                        {
+                            DataTable dt = new DataTable();
+                            da.Fill(dt);
+                            listar = new List<Ent_Combo>();
+                            listar = (from DataRow fila in dt.Rows
+                                      select new Ent_Combo()
+                                      {
+                                          codigo = fila["Bas_Id"].ToString(),
+                                          descripcion = fila["Nombres"].ToString()
+                                      }
+                                   ).ToList();
+                        }
+                    }
+                }
+            }
+            catch (Exception exc)
+            {
+
+                listar = new List<Ent_Combo>();
+            }
+            return listar;
+        }
     }
 }
