@@ -107,7 +107,7 @@
                     <thead>
                         <tr>
                             <th style="text-align: center;">Asesor</th>
-                            <th style="text-align: center;">Lider</th>
+                            <th style="text-align: center;">Directora</th>
                             <th style="text-align: center;">Promotor</th>
                             <th style="text-align: center;">Documento</th>                            
                             <th style="text-align: center;">Fec. Nacimiento</th>
@@ -255,6 +255,24 @@
                         waitingDialog.hide();
                     });
                 },
+                MergeGridCells: function (clasS) {
+                    var topMatchTd;
+                    var previousValue = "";
+                    var rowSpan = 1;
+                    $('#TbTabla .' + clasS).each(function () {
+                        if ($(this).text() == previousValue) {
+                            rowSpan++;
+                            $(topMatchTd).attr('rowspan', rowSpan);
+
+                            $(this).remove();
+                        }
+                        else {
+                            topMatchTd = $(this);
+                            rowSpan = 1;
+                        }
+                        previousValue = $(this).text();
+                    });
+                }
             },
             generaal: {
                 FormatDecimal: function (numero, decimales, separadorDecimal, separadorMiles) {
