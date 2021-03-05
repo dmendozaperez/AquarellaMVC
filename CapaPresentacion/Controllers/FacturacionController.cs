@@ -2632,7 +2632,7 @@ namespace CapaPresentacion.Controllers
                         _EntVL.sClass = "Venta_Total";
                         _ListHead.Add(_EntVL);
                         listSem.Add("Venta Neta");
-                        listSem.Add("Venta Total");
+                        listSem.Add("Venta Bruta");
                     }
                     _EntVL = new Ent_Ventas_Lider_Col();
                     _EntVL.sName = item.Anio + "/Total/";
