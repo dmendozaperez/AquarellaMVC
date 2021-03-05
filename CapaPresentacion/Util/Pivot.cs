@@ -135,13 +135,15 @@ namespace CapaPresentacion.Util
                         dt.Columns.Add(item.Anio + "/" + itemM.Mes + "/" + itemS.Semana, typeof(string));
                         ColList.Add(item.Anio + "/" + itemM.Mes + "/" + itemS.Semana);
                     }
-                    dt.Columns.Add(item.Anio + "/" + itemM.Mes + "/Venta Neta", typeof(string));
                     dt.Columns.Add(item.Anio + "/" + itemM.Mes + "/Venta Total", typeof(string));
-                    ColList.Add(item.Anio + "/" + itemM.Mes + "/Venta Neta");
+                    dt.Columns.Add(item.Anio + "/" + itemM.Mes + "/Venta Neta", typeof(string));
                     ColList.Add(item.Anio + "/" + itemM.Mes + "/Venta Total");
+                    ColList.Add(item.Anio + "/" + itemM.Mes + "/Venta Neta");                    
                 }
-                dt.Columns.Add(item.Anio + "/Total/", typeof(string));
-                ColList.Add(item.Anio + "/Total/");
+                dt.Columns.Add(item.Anio + "/Venta Total/", typeof(string));
+                ColList.Add(item.Anio + "/Venta Total/");
+                dt.Columns.Add(item.Anio + "/Venta Neta/", typeof(string));
+                ColList.Add(item.Anio + "/Venta Neta/");
             }
 
             foreach (var RowName in RowList)
@@ -164,13 +166,13 @@ namespace CapaPresentacion.Util
                     string[] strColValues = col.ToString().Split(Separator.ToCharArray(), StringSplitOptions.None);
                     for (int i = 0; i < ColumnFields.Length; i++)
                     {
-                        if (strColValues[i] == "Venta Total" || strColValues[i] == "Venta Neta" || strColValues[i] == "Total")
+                        if (strColValues[i] == "Venta Total" || strColValues[i] == "Venta Neta")
                         {
                             DataFieldstr = strColValues[i];
                         }
                         else if (strColValues[i] == "" )
                         {
-                            DataFieldstr = "";
+                            break;
                         }
                         else
                         {

@@ -2510,12 +2510,14 @@ namespace CapaPresentacion.Controllers
         private string _ListMes = "_listMes";
         private string _ListSem = "_listSem";
         private string _ListContenido = "_ListContenido";
+        private string _ListNombre = "_ListNombre";
         public JsonResult getVentasLiderCol(Ent_Ventas_Lider _Ent)
         {
             Session[_session_ListarVentasLider] = null;
             Session[_ListAno] = null;
             Session[_ListMes] = null;
             Session[_ListSem] = null;
+            Session[_ListNombre] = null;            
             Session[_ListContenido] = null;
             Ent_Usuario _usuario = (Ent_Usuario)Session[Ent_Constantes.NameSessionUser];
             JsonResponse objResult = new JsonResponse();
@@ -2594,14 +2596,14 @@ namespace CapaPresentacion.Controllers
                 };
 
                 List<Ent_Ventas_Lider_Col> _ListHead = new List<Ent_Ventas_Lider_Col>(){
-                    new Ent_Ventas_Lider_Col {sName= "Asesor", mData="Asesor" ,sClass="Asesor"},
-                    new Ent_Ventas_Lider_Col {sName= "Lider", mData="Lider" ,sClass="Lider"},
-                    new Ent_Ventas_Lider_Col {sName= "Cliente", mData="Cliente" ,sClass="Cliente"},
-                    new Ent_Ventas_Lider_Col {sName= "Dni", mData="Dni" ,sClass="Dni"},
-                    new Ent_Ventas_Lider_Col {sName= "Celular", mData="Celular" ,sClass=""},
-                    new Ent_Ventas_Lider_Col {sName= "Correo", mData="Correo" ,sClass="Correo"},
-                    new Ent_Ventas_Lider_Col {sName= "Zona", mData="Zona" ,sClass="Zona"},
-                    new Ent_Ventas_Lider_Col {sName= "Actividad", mData="Actividad" ,sClass="Actividad"},
+                    new Ent_Ventas_Lider_Col {sName= "Asesor", mData="Asesor" ,sClass="Asesor",fName = "Asesor",cssColor = "#1E77AB"},
+                    new Ent_Ventas_Lider_Col {sName= "Lider", mData="Lider" ,sClass="Lider",fName = "Directora",cssColor = "#1E77AB"},
+                    new Ent_Ventas_Lider_Col {sName= "Cliente", mData="Cliente" ,sClass="Cliente",fName = "Promotora",cssColor = "#1E77AB"},
+                    new Ent_Ventas_Lider_Col {sName= "Dni", mData="Dni" ,sClass="Dni",fName = "Dni",cssColor = "#1E77AB"},
+                    new Ent_Ventas_Lider_Col {sName= "Celular", mData="Celular" ,sClass="",fName = "Celular",cssColor = "#1E77AB"},
+                    new Ent_Ventas_Lider_Col {sName= "Correo", mData="Correo" ,sClass="Correo",fName = "Correo",cssColor = "#1E77AB"},
+                    new Ent_Ventas_Lider_Col {sName= "Zona", mData="Zona" ,sClass="Zona",fName = "Zona",cssColor = "#1E77AB"},
+                    new Ent_Ventas_Lider_Col {sName= "Actividad", mData="Actividad" ,sClass="Actividad",fName = "Actividad",cssColor = "#1E77AB"},
                     };
 
                 Ent_Ventas_Lider_Col _EntVL = null;
@@ -2617,35 +2619,50 @@ namespace CapaPresentacion.Controllers
                             _EntVL = new Ent_Ventas_Lider_Col();
                             _EntVL.sName = item.Anio + "/" + itemM.Mes + "/" + itemS.Semana;
                             _EntVL.mData = item.Anio + "/" + itemM.Mes + "/" + itemS.Semana;
+                            _EntVL.cssColor = "#A7C5EB";
+                            _EntVL.fName = itemS.Semana;
                             _ListHead.Add(_EntVL);
                             listSem.Add(itemS.Semana);
-
                         }
-                        _EntVL = new Ent_Ventas_Lider_Col();
-                        _EntVL.sName = item.Anio + "/" + itemM.Mes + "/Venta Neta";
-                        _EntVL.mData = item.Anio + "/" + itemM.Mes + "/Venta Neta";
-                        _EntVL.sClass = "Venta_Neta";
-                        _ListHead.Add(_EntVL);
                         _EntVL = new Ent_Ventas_Lider_Col();
                         _EntVL.sName = item.Anio + "/" + itemM.Mes + "/Venta Total";
                         _EntVL.mData = item.Anio + "/" + itemM.Mes + "/Venta Total";
+                        _EntVL.cssColor = "#709EB0";
                         _EntVL.sClass = "Venta_Total";
+                        _EntVL.fName = "Venta <br> Neta <br>" + itemM.Mes;
                         _ListHead.Add(_EntVL);
-                        listSem.Add("Venta Neta");
-                        listSem.Add("Venta Bruta");
+                        _EntVL = new Ent_Ventas_Lider_Col();
+                        _EntVL.sName = item.Anio + "/" + itemM.Mes + "/Venta Neta";
+                        _EntVL.mData = item.Anio + "/" + itemM.Mes + "/Venta Neta";
+                        _EntVL.cssColor = "#1E77AB";
+                        _EntVL.sClass = "Venta_Neta";
+                        _EntVL.fName = "Venta <br> Bruta <br>" + itemM.Mes;
+                        _ListHead.Add(_EntVL);
+                        listSem.Add("Venta <br> Neta <br>" + itemM.Mes);
+                        listSem.Add("Venta <br> Bruta <br>" + itemM.Mes);
                     }
                     _EntVL = new Ent_Ventas_Lider_Col();
-                    _EntVL.sName = item.Anio + "/Total/";
-                    _EntVL.mData = item.Anio + "/Total/";
+                    _EntVL.sName = item.Anio + "/Venta Total/";
+                    _EntVL.mData = item.Anio + "/Venta Total/";
+                    _EntVL.cssColor = "#709EB0";
                     _EntVL.sClass = "Total";
+                    _EntVL.fName = "NETO";
                     _ListHead.Add(_EntVL);
-                    listSem.Add("");
+                    _EntVL = new Ent_Ventas_Lider_Col();
+                    _EntVL.sName = item.Anio + "/Venta Neta/";
+                    _EntVL.mData = item.Anio + "/Venta Neta/";
+                    _EntVL.cssColor = "#1E77AB";
+                    _EntVL.sClass = "Total";
+                    _EntVL.fName = "BRUTO";
+                    _ListHead.Add(_EntVL);
+                    listSem.Add("NETO");
+                    listSem.Add("BRUTO");
                 }
 
 
                 foreach (var item in Anio)
                 {
-                    listAno.Add(item.Anio + "/"+ (item.Cant + 1));
+                    listAno.Add(item.Anio + "/"+ (item.Cant + 2));
                 }
 
                 List<string> listMes = new List<string>();
@@ -2656,7 +2673,8 @@ namespace CapaPresentacion.Controllers
                     {
                         listMes.Add(item.Anio + "/" + itemM.Mes + "/" + (itemM.Semana.Count()+2));
                     }
-                    listMes.Add(item.Anio + "/Total "+ item.Anio + "/" + "1");
+                    listMes.Add(item.Anio + "/Total/" + "1");
+                    listMes.Add(item.Anio + "/Total/" + "1");
                 }
 
                 List<string[]> ListTabla = new List<string[]>();
@@ -2683,6 +2701,7 @@ namespace CapaPresentacion.Controllers
                 Session[_ListAno] = listAno.ToArray();
                 Session[_ListMes] = listMes.ToArray();
                 Session[_ListSem] = listSem.ToArray();
+                Session[_ListNombre] = _ListHead;
                 Session[_ListContenido] = ListTabla;
                 var JSON = JsonConvert.SerializeObject(objResult);
                 return Json(JSON, JsonRequestBehavior.AllowGet);
@@ -2848,8 +2867,8 @@ namespace CapaPresentacion.Controllers
             var Listar = _ListContenido.ToArray();
             string[] listAno = (string[])Session[_ListAno];
             string[] listMes = (string[])Session[_ListMes];
-            string[] listSem = (string[])Session[_ListSem];
-
+            //string[] listSem = (string[])Session[_ListSem];
+            List<Ent_Ventas_Lider_Col> _ListNombres = (List<Ent_Ventas_Lider_Col>)Session[_ListNombre];
             try
             {
                 var result = "<thead>";
@@ -2866,10 +2885,11 @@ namespace CapaPresentacion.Controllers
                     result += "<th  style='text-align: center;' colspan=" + key.Substring((key.LastIndexOf("/") + 1)) + " style='text-align: center; font-weight:bold;font-size:11.0pt;'><font color='#FFFFFF'>" + key.Substring((key.IndexOf("/") + 1), (key.LastIndexOf("/") - (key.IndexOf("/") + 1))) + "</font></th>";
                 }
                 result += "</tr>";
-                result += "<tr bgColor='#1E77AB'>";
-                foreach (var key in listSem)
+                result += "<tr>";
+
+                foreach (var item in _ListNombres)
                 {
-                    result += "<th  style='text-align: center;' style='text-align: center; font-weight:bold;font-size:11.0pt;'><font color='#FFFFFF'>" + key + "</font></th>";
+                    result += "<th  bgColor='" + item.cssColor + "' style='text-align: center;' style='text-align: center; font-weight:bold;font-size:11.0pt;'><font color='#FFFFFF'>" + item.fName + "</font></th>";
                 }
                 result += "</tr>";
                 result += "</thead>";

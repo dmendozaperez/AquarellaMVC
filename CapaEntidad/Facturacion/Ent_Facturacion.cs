@@ -242,5 +242,8 @@ namespace CapaEntidad.Facturacion
         public string sName { get; set; }
         public string mData { get; set; }
         public string sClass { get; set; }
+
+        public string cssColor { get; set; }
+        public string fName{ get; set; }
     }
 }
