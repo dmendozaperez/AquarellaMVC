@@ -2953,8 +2953,8 @@ namespace CapaPresentacion.Controllers
                     sb.Append("<td align=''>" + item.Concepto + "</td>\n");
                     sb.Append("<td align='Center'>" + item.Documento + "</td>\n");
                     sb.Append("<td align='Center'>" + String.Format("{0:dd/MM/yyyy}", item.Fecha_Transac) + "</td>\n");
-                    sb.Append("<td align='Center'>" + String.Format("{0:dd/MM/yyyy}", item.Fecha_Doc) + "</td>\n");
-                    sb.Append("<td align='Right'>" + "S/ " + string.Format("{0:F2}", item.Monto) + "</td>\n");
+                    sb.Append("<td align='Center'>" + String.Format("{0:dd/MM/yyyy}", item.Fecha_Doc) + "</td>\n");                    
+                    sb.Append("<td align='Right'>" + Convert.ToDecimal(item.Monto) + "</td>\n");
                     sb.Append("</tr>\n");
                 }
                 sb.Append("</table></div>");
