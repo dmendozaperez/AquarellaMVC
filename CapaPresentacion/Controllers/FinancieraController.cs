@@ -2942,7 +2942,10 @@ namespace CapaPresentacion.Controllers
                 sb.Append("<th style='text-align: center; font-weight:bold;font-size:11.0pt;'><font color='#FFFFFF'>Fec. Documento</font></th>\n");
                 sb.Append("<th style='text-align: center; font-weight:bold;font-size:11.0pt;'><font color='#FFFFFF'>Monto</font></th>\n");
                 sb.Append("</tr>\n");
-
+                NumberFormatInfo customNumFormat;
+                customNumFormat = (NumberFormatInfo)CultureInfo.InvariantCulture.NumberFormat.Clone();
+                customNumFormat.NumberGroupSeparator = ".";
+                customNumFormat.NumberDecimalSeparator = ",";
                 foreach (var item in Lista)
                 {
                     sb.Append("<tr>\n");
@@ -2953,8 +2956,8 @@ namespace CapaPresentacion.Controllers
                     sb.Append("<td align=''>" + item.Concepto + "</td>\n");
                     sb.Append("<td align='Center'>" + item.Documento + "</td>\n");
                     sb.Append("<td align='Center'>" + String.Format("{0:dd/MM/yyyy}", item.Fecha_Transac) + "</td>\n");
-                    sb.Append("<td align='Center'>" + String.Format("{0:dd/MM/yyyy}", item.Fecha_Doc) + "</td>\n");                    
-                    sb.Append("<td align='Right'>" + Convert.ToDecimal(item.Monto) + "</td>\n");
+                    sb.Append("<td align='Center'>" + String.Format("{0:dd/MM/yyyy}", item.Fecha_Doc) + "</td>\n");
+                    sb.Append("<td class='textDecim' align='Right'>" + string.Format(customNumFormat, "{0:F2}", item.Monto) + "</td>\n");
                     sb.Append("</tr>\n");
                 }
                 sb.Append("</table></div>");
@@ -2975,7 +2978,7 @@ namespace CapaPresentacion.Controllers
         public ActionResult ListarSaldoClienteExcel()
         {
             string NombreArchivo = "ComisionLider";
-            String style = style = @"<style> .textmode { mso-number-format:\@; } </script> ";
+            String style = style = @"<style> .textmode { mso-number-format:\@; } .textDecim { mso-number-format:0.00} </style> ";
             try
             {
                 Response.Clear();
