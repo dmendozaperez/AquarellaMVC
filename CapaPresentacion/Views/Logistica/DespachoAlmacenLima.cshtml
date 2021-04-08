@@ -123,6 +123,7 @@
                                             <th>Referencia</th>
                                             <th>Celular</th>
                                             <th>Pedidos</th>
+                                            <th>Servicios</th>
                                             <th>T.Cant</th>
                                             <th>Monto</th>
                                             <th valign="middle" style="text-align:center;width:2%">
@@ -147,6 +148,7 @@
                                             <th>Referencia</th>
                                             <th>Celular</th>
                                             <th>Pedidos</th>
+                                            <th>Servicios</th>
                                             <th>T.Cant</th>
                                             <th>Monto</th>
                                             <th valign="middle" style="text-align:center;width:2%">
@@ -314,6 +316,7 @@
                                             <th>Referencia</th>
                                             <th>Celular</th>
                                             <th>Pedidos</th>
+                                            <th>Servicios</th>
                                             <th>T.Cant</th>
                                             <th>T.Cant.Env</th>
                                             <th>Monto</th>
@@ -339,6 +342,7 @@
                                             <th>Referencia</th>
                                             <th>Celular</th>
                                             <th>Pedidos</th>
+                                            <th>Servicios</th>
                                             <th>T.Cant</th>
                                             <th>T.Cant.Env</th>
                                             <th>Monto</th>
@@ -620,15 +624,15 @@
         }
 
         function generar_despacho() {
-
             //#region
+            let result = true;
+            let _mensaje = '';
             /*nueva despacho*/
             if (estado_accion == 1 || estado_accion == 3) {
                 if (rows_selected.length == 0) {
                     toastr.error('No ha seleccionado ningun registro..', 'Mensaje');
                     return;
                 }
-
                 var table= $('#tb_despacho').DataTable();
 
                 var data = table.rows().data();
@@ -636,10 +640,9 @@
                 var dataArray_despacho = function () { return @Html.Raw(Json.Encode(ViewBag.ListaDespachoUpd)); }();
 
                 data.each(function (value, index) {
-
                     var row = table.rows(index).data();
 
-                    var cell = table.cell({ row: index, column: 14 }).node();
+                    var cell = table.cell({ row: index, column: 15 }).node();
 
                     var chk_agregar =$('input', cell).is(':checked');
 
@@ -676,7 +679,7 @@
                         var strCelular=data[index].Celular;
 
 
-                        cell = table.cell({ row: index, column: 13 }).node();
+                        cell = table.cell({ row: index, column: 14 }).node();
                         var strObs = $('textarea', cell).val();
 
                         cell = table.cell({ row: index, column: 12 }).node();
@@ -685,10 +688,17 @@
                         var strMcaCourier = 'N';
                         var strMcaFlete = 'N';
 
-                        var cell = table.cell({ row: index, column: 12 }).node();
+                        var cell = table.cell({ row: index, column: 13 }).node();
                         var chk_flete = $('input', cell).is(':checked');
                         if (chk_flete) strMcaFlete = 'S'
 
+                        cell = table.cell({ row: index, column: 10 }).node();
+                        var ddlDelivery = $('select', cell).val();
+                        if(ddlDelivery=='-1') {
+                            _mensaje = 'Seleccione el servicio';
+                            result = false;
+                            return false; 
+                        }
                         dataobj_despacho = function () { return @Html.Raw(Json.Encode(ViewBag.DespachoUpd)); }();
                         dataobj_despacho.strIdLider = strIdLider;
                         dataobj_despacho.strLider = strLider;
@@ -714,7 +724,7 @@
                         dataobj_despacho.strDireccion = strDireccion;
                         dataobj_despacho.strReferencia = strReferencia;
                         dataobj_despacho.strCelular = strCelular;
-
+                        dataobj_despacho.strDelivery = ddlDelivery;
 
                         dataArray_despacho.push(dataobj_despacho);
 
@@ -722,19 +732,21 @@
 
 
                 });
-            } else { /*editar despacho*/
 
+                if(!result){
+                    swal({ title: "Alerta", text: _mensaje, icon: "error" }).then((value) => {
+                    }); 
+                    return;
+                }
+            } else { /*editar despacho*/
 
                 var table = $('#tb_despacho_edit').DataTable();
 
                 var data = table.rows().data();
 
                 var dataArray_despacho = function () { return @Html.Raw(Json.Encode(ViewBag.ListaDespachoUpd)); }();
-
                 data.each(function (value, index) {
-
                     var row = table.rows(index).data();
-
                         cell = table.cell({ row: index, column: 5 }).node();
                         var strAgencia = $('textarea', cell).val();
                         //if (strAgencia.length == 0) {
@@ -760,25 +772,29 @@
                         var strCatalogo = data[index].TotalCatalogo;
                         var strPremio = data[index].TotalPremio;
                         var strMonto = data[index].TotalVenta;
-
                         var strDistrito=data[index].Distrito;
                         var strDireccion=data[index].Direccion;
                         var strReferencia=data[index].Referencia;
                         var strCelular=data[index].Celular;
-
-                        cell = table.cell({ row: index, column: 14 }).node();
+                        cell = table.cell({ row: index, column: 15 }).node();
                         var strObs = $('textarea', cell).val();
-
                         //cell = table.cell({ row: index, column: 13 }).node();
                         var strDetalle ='';// $('textarea', cell).val();
 
                         var strMcaCourier = 'N';
                         var strMcaFlete = 'N';
 
-                        var cell = table.cell({ row: index, column: 13 }).node();
+                        var cell = table.cell({ row: index, column: 14 }).node();
                         var chk_flete = $('input', cell).is(':checked');
                         if (chk_flete) strMcaFlete = 'S'
 
+                        cell = table.cell({ row: index, column: 10 }).node();
+                        var ddlDelivery = $('select', cell).val();
+                        if(ddlDelivery=='-1') {
+                            _mensaje = 'Seleccione el servicio';
+                            result = false;
+                            return false; 
+                        }
                         dataobj_despacho = function () { return @Html.Raw(Json.Encode(ViewBag.DespachoUpd)); }();
                         dataobj_despacho.strIdLider = strIdLider;
 
@@ -793,8 +809,6 @@
                         dataobj_despacho.strPares = strPares;
                         dataobj_despacho.strCatalogo = strCatalogo;
                         dataobj_despacho.strPremio = strPremio;
-
-
                         dataobj_despacho.strDestino = strDestino;
                         dataobj_despacho.strAgencia = strAgencia;
 
@@ -808,14 +822,16 @@
                         dataobj_despacho.strDetalle = strDetalle;
                         dataobj_despacho.strMcaCourier = strMcaCourier;
                         dataobj_despacho.strMcaFlete = strMcaFlete;
+                        dataobj_despacho.strDelivery = ddlDelivery;
 
                         dataArray_despacho.push(dataobj_despacho);
-
                     //}
-
-
                 });
-
+                if(!result){
+                    swal({ title: "Alerta", text: _mensaje, icon: "error" }).then((value) => {
+                    }); 
+                    return;
+                }
             }
 
             //#endregion
@@ -1269,6 +1285,8 @@
 
         $(document).ready(function () {
 
+            ListarServicio = function () { return @Html.Raw(Json.Encode(ViewBag.Servicio)); }();
+
             $("body").toggleClass('sidebar-collapse');
 
             var d = new Date();
@@ -1436,8 +1454,18 @@
                          { "sName": "Direccion", "mData": "Direccion" },
                          { "sName": "Referencia", "mData": "Referencia" },
                          { "sName": "Celular", "mData": "Celular" },
-
-                      { "sName": "Pedido", "mData": "Pedido" },
+                         { "sName": "Pedido", "mData": "Pedido" },
+                        // { "sName": "Delivery", "mData": "Delivery" },
+                         {
+                            "mData": null,
+                            "sClass": "ddlDelivery alignCenter",
+                            "render": function (data, type, full, meta) {
+                                let disabled = (desactivar==0 ? true:false);
+                                let Delivery = full.Delivery;
+                                
+                                return dropdownServicio(ListarServicio, Delivery, disabled);
+                            }
+                         },
                       { "sName": "Total_Cantidad", "mData": "Total_Cantidad" },
                        { "sName": "Total_Cantidad_Envio", "mData": "Total_Cantidad_Envio" },
 
@@ -1545,7 +1573,7 @@
                     aoData.push({ "name": "fecha_fin", "value": fecha_fin });
                     aoData.push({ "name": "tipo_des", "value": tipo_des });
                     aoData.push({ "name": "agregar", "value": agregar_chk });
-                    
+
                     actualizar_data = "";
                     agregar_chk=false;
 
@@ -1631,24 +1659,33 @@
                          //        return text_destino;
                          //    },
                          //},
-                      { "sName": "Pedido", "mData": "Pedido" },
-                      { "sName": "TotalCantidad", "mData": "TotalCantidad" },
+                        { "sName": "Pedido", "mData": "Pedido" },
+                        {
+                            "mData": null,
+                            "sClass": "ddlDelivery alignCenter",
+                            "render": function (data, type, full, meta) {
+                                //debugger
+                                let disabled = (desactivar==0 ? true:false);
+                                let Delivery = full.Delivery;
+                                return dropdownServicio(ListarServicio, Delivery, disabled);
+                            }
+                        },
+                        { "sName": "TotalCantidad", "mData": "TotalCantidad" },
+                        {
+                            render: function (data, type, full) {
+                                return "S/ " + full.TotalVenta.toFixed(2);
+                            },
+                        },
+                        {
+                            "render": function (data, type, full) {
 
-                       {
-                           render: function (data, type, full) {
-                               return "S/ " + full.TotalVenta.toFixed(2);
-                           },
-                       },
-                       {
-                           "render": function (data, type, full) {
+                                var flete = (full.Flete == 'Si') ? "1" : "0";
 
-                               var flete = (full.Flete == 'Si') ? "1" : "0";
+                                var chk_flete = '<div class="form-group"><div class="col-sm-5 checkbox text-primary text-bold"><input style="cursor:pointer" type="checkbox" name="chk"  id="chk" ' + ((flete=="1")? ' checked ':' ') + ' /></div></div>';
 
-                               var chk_flete = '<div class="form-group"><div class="col-sm-5 checkbox text-primary text-bold"><input style="cursor:pointer" type="checkbox" name="chk"  id="chk" ' + ((flete=="1")? ' checked ':' ') + ' /></div></div>';
-
-                               return chk_flete;
-                           },
-                       },
+                                return chk_flete;
+                            },
+                        },
 
                         {
                             "render": function (data, type, full) {
@@ -1696,7 +1733,7 @@
 
                     // Get row data
                     var data = table.row($row).data();
-                        
+
                     // Get row ID
                     var rowId = data;
 
@@ -1732,8 +1769,7 @@
                 var chk = this;
                 if (chk.name == 'chka') {
                     // alert('ok');
-                    var $row = $(this).closest('tr');
-
+                    var $row = $(this).closest('tr'); 
                     // Get row data
                     var data = table.row($row).data();
 
@@ -1767,6 +1803,23 @@
 
             });
 
+            function dropdownServicio(Lista, Value, disabled) {
+                var $select = $("<select id='ddlDelivery' class='form-control custom-input'></select>");
+                $.each(Lista, function (k, v) {
+                    var $option = $("<option></option>", {
+                        "text": v.Descripcion,
+                        "value": v.Codigo
+                    });
+                    if (v.Codigo == Value) {
+                        $option.attr("selected", "selected")
+                    }
+                    $select.append($option);
+                });
+                if (!disabled) {
+                    $select.attr("disabled", "disabled");
+                }
+                return $select.prop("outerHTML");
+            }
         });
     </script>
 }

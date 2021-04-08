@@ -291,6 +291,7 @@
                 debugger
                 /*[Inicializamos variables]*/
                 this.selected = function () { return @Html.Raw(Json.Encode(ViewBag._Detalle)); }();
+                this._Servicio = function () { return @Html.Raw(Json.Encode(ViewBag.Servicio)); }();
                 this.Tabla = $('#TbTabla');
                 this.IdDespacho = "";
 
@@ -344,6 +345,10 @@
                     let _CobroFlete = $(this).attr("data-CobroFlete");
                     let _Desp_Tipo = $(this).attr("data-Desp_Tipo");
 
+                    let _Servicio = $(this).attr("data-Servicio");
+                    let index = objSalidaAlmacenEdit._Servicio.findIndex(C => C.Codigo == _Servicio);
+                    let _ServicioNombre = objSalidaAlmacenEdit._Servicio[index].Descripcion;
+                    
                     debugger
                     if (_coltrg == "Imprimir") {
                         if (_McaCourier == 'N') {
@@ -370,8 +375,10 @@
                                 mywindow.document.write('<b>Destino:' + _Destino + '</b><br>');
                                 mywindow.document.write('<b>Empresa: ' + _Agencia + '</b><br>');
                             }
-
-                            mywindow.document.write('<b>Flete: ' + _CobroFlete + '</b>');
+                            mywindow.document.write('<b>Flete: ' + _CobroFlete + '</b><br>');
+                            if (_Desp_Tipo == "L") {
+                                mywindow.document.write('<b>Servicio:' + _ServicioNombre + '</b><br>');
+                            }
                             mywindow.document.write('</center></body></html>');
                             mywindow.document.write('</body></html>');
                         } else {
@@ -412,7 +419,10 @@
                             mywindow.document.write('<b>Dirección:' + direccion + '</b><br>');
                             mywindow.document.write('<b>Ubicación: ' + ubicacion + '</b><br>');
                             mywindow.document.write('<b>Telefono: ' + Telefono + '</b><br>');
-                            mywindow.document.write('<b>Flete: ' + _CobroFlete + '</b>');
+                            mywindow.document.write('<b>Flete: ' + _CobroFlete + '</b><br>');
+                            if (_Desp_Tipo == "L") {
+                                mywindow.document.write('<b>Servicio:' + _ServicioNombre + '</b><br>');
+                            }
                             mywindow.document.write('</center></body></html>');
                             mywindow.document.write('</body></html>');
                         }
@@ -585,7 +595,8 @@
                             {
                                 "mData": null, "sClass": "alignCenter",
                                 "render": function (data, type, full, meta) {
-                                    return objSalidaAlmacenEdit.grid.btnPrint("Imprimir", full.Rotulo, full.Destino, full.Agencia, full.Rotulo_Courier, full.McaCourier, full.CobroFlete, full.Desp_Tipo);
+                                    debugger
+                                    return objSalidaAlmacenEdit.grid.btnPrint("Imprimir", full.Rotulo, full.Destino, full.Agencia, full.Rotulo_Courier, full.McaCourier, full.CobroFlete, full.Desp_Tipo, full.Delivery);
                                 }
                             }
                         ],
@@ -629,8 +640,8 @@
                         '/>';
                     return _input;
                 },
-                btnPrint: function (colName, Rotulo, Destino, Agencia, Rotulo_Courier, McaCourier, CobroFlete, Desp_Tipo) {
-                    //debugger
+                btnPrint: function (colName, Rotulo, Destino, Agencia, Rotulo_Courier, McaCourier, CobroFlete, Desp_Tipo, Servicio) {
+                    debugger
                     var _input = '<button title="' + colName + ' " id = "btnPrint" class="btn btn-xs btn-default btn-tabla"  ' +
                                     ' data-colname="' + colName + '" ' +
                                     ' data-Rotulo="' + Rotulo + '" ' +
@@ -640,6 +651,7 @@
                                     ' data-McaCourier="' + McaCourier + '" ' +
                                     ' data-CobroFlete="' + CobroFlete + '" ' +
                                     ' data-Desp_Tipo="' + Desp_Tipo + '" ' +
+                                    ' data-Servicio="' + Servicio + '" ' +
                                     '>' +
                                     ' <span class="fa fa-print"></span>' +
                                     '</button>';
@@ -709,7 +721,7 @@
                     }
                     return numero;
                 },
-                exportar: function () { 
+                exportar: function () {
                     $.ajax({
                         type: "POST",
                         url: '@Url.Action("get_exporta_ListarSalidaDespacho_excel", "Facturacion")',

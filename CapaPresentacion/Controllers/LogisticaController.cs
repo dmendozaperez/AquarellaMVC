@@ -20,9 +20,7 @@ namespace CapaPresentacion.Controllers
         private Dat_Despacho  dat_despacho = new Dat_Despacho();
 
         #region<REGION DE CONSULTA DE DESPACHO>
-        private string _session_listDespacho_private = "_session_listDespacho_private";
-
-       
+        private string _session_listDespacho_private = "_session_listDespacho_private";       
 
         // GET: Logistica
         public ActionResult ListaDespacho()
@@ -157,6 +155,7 @@ namespace CapaPresentacion.Controllers
         private string _session_listDespacho_almacen_cab_private = "_session_listDespacho_almacen_cab_private";
         private string _session_listDespacho_almacen_liq_private = "_session_listDespacho_almacen_liq_private";
         private string _session_tipo_despacho = "_session_tipo_despacho"; /*session para verificar que tipo de despacho es P=PROVINCIA O L=LIMA- CALLAO*/
+        private string _session_Listar_Servicio = "_session_Listar_Servicio";
         public ActionResult DespachoAlmacen(Int32 estado=0,Int32 estado_edicion=0/*si es 1 entonces no se puede editar*/ ,decimal desp_id=0,
                                             string tipo_des=""/*P=PROVINCIA O L=LIMA - CALLAO*/)
         {
@@ -230,6 +229,14 @@ namespace CapaPresentacion.Controllers
             ViewBag.estado = estado;
             ViewBag.desp_id = desp_id;
             ViewBag.estado_edicion = estado_edicion;
+
+            List<Ent_Despacho_Delivery> _ListarServico = new List<Ent_Despacho_Delivery>
+            {
+                new Ent_Despacho_Delivery() { Codigo ="-1",Descripcion="--Seleccione--" }
+            };
+
+            ViewBag.Servicio = _ListarServico.Concat(dat_despacho.Listar_Servicio());
+            Session[_session_Listar_Servicio] = dat_despacho.Listar_Servicio().ToList();
 
             return View();
         }
@@ -360,7 +367,8 @@ namespace CapaPresentacion.Controllers
                              a.Distrito,
                              a.Direccion,
                              a.Referencia,
-                             a.Celular                            
+                             a.Celular,
+                             a.Delivery                        
                          };
             //Se devuelven los resultados por json
             return Json(new
@@ -658,7 +666,7 @@ namespace CapaPresentacion.Controllers
                     strDataDetalle += " Direccion=¿" + obj.strDireccion + "¿ ";
                     strDataDetalle += " Referencia=¿" + obj.strReferencia + "¿ ";
                     strDataDetalle += " Celular=¿" + obj.strCelular + "¿ ";
-
+                    strDataDetalle += " Delivery=¿" + obj.strDelivery + "¿ ";
 
                     strDataDetalle += "/>";
 
@@ -921,7 +929,8 @@ namespace CapaPresentacion.Controllers
                              a.Distrito,
                              a.Referencia,
                              a.Direccion,
-                             a.Celular
+                             a.Celular,
+                             a.Delivery
                          };
             //Se devuelven los resultados por json
             return Json(new
@@ -942,6 +951,7 @@ namespace CapaPresentacion.Controllers
             Page page = new Page();
             try
             {
+                List<Ent_Despacho_Delivery> _ListarServico =  (List<Ent_Despacho_Delivery>)Session[_session_Listar_Servicio];
                 List<Ent_Despacho_Almacen_Cab_Update> list_cab = desp.Almacen_Cab_Update;
                 List<Ent_Despacho_Almacen_Det_Update> list_det = desp.Almacen_Det_Update;
 
@@ -983,25 +993,26 @@ namespace CapaPresentacion.Controllers
                     else
                     {
                         switch (col.Name.ToUpper())
-                    {
-                        case "ASESOR":
-                        case "NOMBRELIDER":
-                        case "PROMOTOR":
-                        case "ROTULO":
-                        case "DISTRITO":
-                        case "DIRECCION":
-                        case "REFERENCIA":
-                        case "CELULAR":
-                        case "PEDIDO":
-                        case "TOTAL_CANTIDAD":
-                        case "TOTAL_CANTIDAD_ENVIO":
-                        case "TOTALVENTA":
-                        case "COBROFLETE":
-                        case "OBSERVACION":
-                        //case "DETALLE":
-                            strRowsHead = strRowsHead + "<td height=38  bgcolor='#969696' width='38'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;" + col.Name + "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</ td > ";
-                            break;
-                    }                 
+                        {
+                            case "ASESOR":
+                            case "NOMBRELIDER":
+                            case "PROMOTOR":
+                            case "ROTULO":
+                            case "DISTRITO":
+                            case "DIRECCION":
+                            case "REFERENCIA":
+                            case "CELULAR":
+                            case "PEDIDO":
+                            case "TOTAL_CANTIDAD":
+                            case "TOTAL_CANTIDAD_ENVIO":
+                            case "TOTALVENTA":
+                            case "COBROFLETE":
+                            case "OBSERVACION":
+                            case "DELIVERY":
+                                //case "DETALLE":
+                                strRowsHead = strRowsHead + "<td height=38  bgcolor='#969696' width='38'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;" + col.Name + "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</ td > ";
+                                break;
+                        }                 
                     }
                     
                 }
@@ -1039,12 +1050,13 @@ namespace CapaPresentacion.Controllers
                         strRows = strRows + "<td width='400' " + strClass + " >" + Item.Direccion + "</ td > ";
                         strRows = strRows + "<td width='400' " + strClass + " >" + Item.Referencia + "</ td > ";
                         strRows = strRows + "<td width='400' " + strClass + " >" + Item.Celular + "</ td > ";
-                        strRows = strRows + "<td width='400' " + strClass + " >" + Item.Pedido + "</ td > ";
+                        strRows = strRows + "<td width='400' " + strClass + " >" + Item.Pedido + "</ td > ";                        
                         strRows = strRows + "<td width='400' " + strClass + " >" + Item.Total_Cantidad.ToString() + "</ td > ";
                         strRows = strRows + "<td width='400' " + strClass + " >" + Item.Total_Cantidad_Envio.ToString() + "</ td > ";
                         strRows = strRows + "<td width='400' " + strClass + " >" + Item.TotalVenta.ToString() + "</ td > ";
                         strRows = strRows + "<td width='400' " + strClass + " >" + Item.CobroFlete + "</ td > ";
                         strRows = strRows + "<td width='400' " + strClass + " >" + Item.Observacion + "</ td > ";
+                        strRows = strRows + "<td width='400' " + strClass + " >" + _ListarServico.Where(x => x.Codigo == Item.Delivery).Select(y => new { Descripcion = y.Descripcion }).ElementAt(0).Descripcion + "</ td > ";
                         //strRows = strRows + "<td width='400' " + strClass + " >" + Item.Detalle + "</ td > ";
                     }
                     
@@ -1119,7 +1131,7 @@ namespace CapaPresentacion.Controllers
             {
                 //List<Ent_Despacho_Almacen_Cab_Update> list_cab = desp.Almacen_Cab_Update;
                 //List<Ent_Despacho_Almacen_Det_Update> list_det = desp.Almacen_Det_Update;
-
+                List<Ent_Despacho_Delivery> _ListarServico = (List<Ent_Despacho_Delivery>)Session[_session_Listar_Servicio];
                 String inicio;
               
 
@@ -1166,6 +1178,7 @@ namespace CapaPresentacion.Controllers
                             case "TOTALCANTIDAD":
                             case "TOTALVENTA":
                             case "FLETE":
+                            case "DELIVERY":
                                 strRowsHead = strRowsHead + "<td height=38  bgcolor='#969696' width='38'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;" + col.Name + "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</ td > ";
                                 break;
                         }
@@ -1207,6 +1220,7 @@ namespace CapaPresentacion.Controllers
                         strRows = strRows + "<td width='400' " + strClass + " >" + Item.TotalCantidad.ToString() + "</ td > ";
                         strRows = strRows + "<td width='400' " + strClass + " >" + Item.TotalVenta.ToString() + "</ td > ";
                         strRows = strRows + "<td width='400' " + strClass + " >" + Item.Flete + "</ td > ";
+                        strRows = strRows + "<td width='400' " + strClass + " >" + _ListarServico.Where(x => x.Codigo == Item.Delivery).Select(y => new { Descripcion = y.Descripcion }).ElementAt(0).Descripcion + "</ td > ";
                     }
                     
                     strRows = strRows + "</tr>";

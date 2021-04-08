@@ -3,6 +3,8 @@ using CapaEntidad.Util;
 using CapaPresentacion.Util;
 using CapaEntidad.Control;
 using CapaEntidad.Facturacion;
+using CapaEntidad.Logistica;
+using CapaDato.Logistica;
 using CapaDato.Facturacion;
 using CapaDato.Util;
 using CapaDato.Control;
@@ -23,6 +25,7 @@ namespace CapaPresentacion.Controllers
     public class FacturacionController : Controller
     {
         private Dat_Facturacion datFacturacion = new Dat_Facturacion();
+        private Dat_Despacho dat_despacho = new Dat_Despacho();
         private Dat_Util datUtil = new Dat_Util();
         private string _session_ListarMovimientosVentas = "_session_ListarMovimientosVentas";
         private string _session_ListarMovimientosVentasChart = "_session_ListarMovimientosVentasChart";
@@ -43,6 +46,7 @@ namespace CapaPresentacion.Controllers
         private string _session_ListarVentasSemanales_Excel = "_session_ListarVentasSemanales_Excel";
         private string _session_ListarVentasLider = "_session_ListarVentasLider";
         private string _session_ListarVentasLider_Excel = "_session_ListarVentasLider_Excel";
+        private string _session_Listar_Servicio = "_session_Listar_Servicio";
 
         #region <CONSULTA DE VENTAS POR CATEGORIA>
         public ActionResult Ventas_Categoria()
@@ -1841,7 +1845,8 @@ namespace CapaPresentacion.Controllers
 
                 ViewBag._Ent = _EntData;
                 ViewBag._Detalle = _EntData._Detalle;
-                        
+                ViewBag.Servicio = dat_despacho.Listar_Servicio();
+                Session[_session_Listar_Servicio] = dat_despacho.Listar_Servicio().ToList();
                 return View(_EntData._Cabecera);
             }
         }
@@ -2081,6 +2086,7 @@ namespace CapaPresentacion.Controllers
         public string get_html_ListarSalidaDespacho_str(List<Ent_Edit_Salida_Almacen_Detalle> _SalidaDespachoDetalle, Ent_Edit_Salida_Almacen_Cabecera _Cabecera)
         {
             StringBuilder sb = new StringBuilder();
+            List<Ent_Despacho_Delivery> _ListarServico = (List<Ent_Despacho_Delivery>)Session[_session_Listar_Servicio];
             var _Detalle = _SalidaDespachoDetalle.ToList();
             try
             {
@@ -2127,6 +2133,10 @@ namespace CapaPresentacion.Controllers
                 sb.Append("<th style='text-align: center;'><font color=''>TotalPares</font></th>\n");
                 sb.Append("<th style='text-align: center;'><font color=''>Flete</font></th>\n");
                 sb.Append("<th style='text-align: center;'><font color=''>Observacion</font></th>\n");
+                if (_Cabecera.Desp_Tipo == "L")
+                {
+                    sb.Append("<th style='text-align: center;'><font color=''>Delivery</font></th>\n");
+                }
                 sb.Append("</tr>\n");
 
                 foreach (var item in _Detalle)
@@ -2145,6 +2155,10 @@ namespace CapaPresentacion.Controllers
                     sb.Append("<td align=''>" + item.TotalPares + "</td>\n");
                     sb.Append("<td align=''>" + item.CobroFlete + "</td>\n");
                     sb.Append("<td align=''>" + item.Observacion + "</td>\n");
+                    if (_Cabecera.Desp_Tipo == "L")
+                    {
+                        sb.Append("<td align=''>" + _ListarServico.Where(x => x.Codigo == item.Delivery).Select(y => new { Descripcion = y.Descripcion }).ElementAt(0).Descripcion + "</td>\n");
+                    }
                     sb.Append("</tr>\n");
                 }
                 sb.Append("</table></div>");

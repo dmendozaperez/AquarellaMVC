@@ -58,10 +58,7 @@ namespace CapaEntidad.Logistica
         public string detalle { get; set; }
 
         public Boolean agregar { get; set; }
-
-      
-
-
+        public string Delivery { get; set; }
     }
     public class Ent_Despacho_Almacen_Liquidacion
     {
@@ -98,6 +95,7 @@ namespace CapaEntidad.Logistica
 
         public Boolean BolAgregar { get; set; }
 
+        public string strDelivery { get; set; }
     }
 
 
@@ -151,11 +149,7 @@ namespace CapaEntidad.Logistica
         public string atendido { get; set; }
         public string IdLider { get; set; }
         public string Lid_Prom { get; set; }
-
-       
-
-
-
+        public string Delivery { get; set; }
     }
     public class Ent_Despacho_Almacen_Det_Update
     {
@@ -167,5 +161,11 @@ namespace CapaEntidad.Logistica
         public Int32 CatalogPedidos { get; set; }
         public decimal MontoTotal { get; set; }
         
+    }
+
+    public class Ent_Despacho_Delivery
+    {
+        public string Codigo { get; set; }
+        public string Descripcion { get; set; }
     }
 }

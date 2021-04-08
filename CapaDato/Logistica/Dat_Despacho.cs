@@ -103,6 +103,7 @@ namespace CapaDato.Logistica
                                              Referencia = fila["Referencia"].ToString(),
                                              Celular = fila["Celular"].ToString(),
                                              agregar=Convert.ToBoolean(fila["agregar"]),
+                                             Delivery = Convert.ToString(fila["Delivery"])
                                          }
                                        ).ToList();
 
@@ -374,7 +375,7 @@ namespace CapaDato.Logistica
                                              Direccion = fila["Direccion"].ToString(),
                                              Referencia = fila["Referencia"].ToString(),
                                              Celular = fila["Celular"].ToString(),
-
+                                             Delivery = fila["Delivery"].ToString()
                                          }
                                        ).ToList();
 
@@ -396,8 +397,6 @@ namespace CapaDato.Logistica
                             obj = new Ent_Despacho_Almacen_Editar();
                             obj.Almacen_Cab_Update = lista_cab;
                             obj.Almacen_Det_Update = lista_det;
-
-
                         }
 
                     }
@@ -409,6 +408,41 @@ namespace CapaDato.Logistica
                 
             }
             return obj;
+        }
+
+        public List<Ent_Despacho_Delivery> Listar_Servicio()
+        {
+            List<Ent_Despacho_Delivery> Listar = new List<Ent_Despacho_Delivery>();
+            string sqlquery = "[USP_MVC_GET_DELIVERY]";
+            try
+            {
+                using (SqlConnection cn = new SqlConnection(Ent_Conexion.conexion))
+                {
+                    using (SqlCommand cmd = new SqlCommand(sqlquery, cn))
+                    {
+                        cmd.CommandType = CommandType.StoredProcedure;
+                        using (SqlDataAdapter da = new SqlDataAdapter(cmd))
+                        {
+                            DataTable dt = new DataTable();
+                            da.Fill(dt);
+
+                            Listar = new List<Ent_Despacho_Delivery>();
+                            Listar = (from DataRow dr in dt.Rows
+                                      select new Ent_Despacho_Delivery()
+                                      {
+                                          Codigo = Convert.ToString(dr["COD_DELI"]),
+                                          Descripcion = Convert.ToString(dr["DES_DELI"])
+                                      }
+                                    ).ToList();
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+            return Listar;
         }
     }
 }

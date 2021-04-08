@@ -402,7 +402,8 @@ namespace CapaDato.Facturacion
                                              IdLider = row.Field<Decimal?>("IdLider"),
                                              Lid_Prom = row.Field<string>("Lid_Prom"),
                                              Desp_Tipo_Des = row.Field<string>("Desp_Tipo_Des"),
-                                             Desp_Tipo = row.Field<string>("Desp_Tipo")
+                                             Desp_Tipo = row.Field<string>("Desp_Tipo"),
+                                             Delivery = row.Field<string>("Delivery"),
                                          }
                                        ).ToList();
 
