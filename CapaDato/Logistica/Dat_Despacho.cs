@@ -340,6 +340,7 @@ namespace CapaDato.Logistica
                                              asesor = fila["asesor"].ToString(),
                                              NombreLider = fila["NombreLider"].ToString(),
                                              Promotor = fila["Promotor"].ToString(),
+                                             Dni_Promotor = fila["DniPromotor"].ToString(),
                                              Rotulo = fila["Rotulo"].ToString(),
                                              Rotulo_Courier = fila["Rotulo_Courier"].ToString(),
                                              Agencia = fila["Agencia"].ToString(),
@@ -370,8 +371,8 @@ namespace CapaDato.Logistica
                                              atendido = fila["atendido"].ToString(),
                                              IdLider = fila["IdLider"].ToString(),
                                              Lid_Prom = fila["Lid_Prom"].ToString(),
-
-                                             Distrito= fila["Distrito"].ToString(),
+                                             
+                                             Distrito = fila["Distrito"].ToString(),
                                              Direccion = fila["Direccion"].ToString(),
                                              Referencia = fila["Referencia"].ToString(),
                                              Celular = fila["Celular"].ToString(),

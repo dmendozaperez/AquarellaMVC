@@ -203,6 +203,7 @@ namespace CapaEntidad.Facturacion
         public string Desp_Tipo_Des { get; set; }
         public string Desp_Tipo { get; set; }
         public string Delivery { get; set; }
+        public string Dni_Promotor { get; set; }
     }
 
     public class Ent_Ventas_Semanales

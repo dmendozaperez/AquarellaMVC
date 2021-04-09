@@ -114,6 +114,7 @@ namespace CapaEntidad.Logistica
         public string asesor { get; set; }
         public string NombreLider { get; set; }
         public string Promotor { get; set; }
+        public string Dni_Promotor { get; set; }
         public string Rotulo { get; set; }
         public string Rotulo_Courier { get; set; }
         public string Distrito { get; set; }
@@ -150,6 +151,7 @@ namespace CapaEntidad.Logistica
         public string IdLider { get; set; }
         public string Lid_Prom { get; set; }
         public string Delivery { get; set; }
+        
     }
     public class Ent_Despacho_Almacen_Det_Update
     {

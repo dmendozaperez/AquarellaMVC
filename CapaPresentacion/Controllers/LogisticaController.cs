@@ -997,6 +997,7 @@ namespace CapaPresentacion.Controllers
                             case "ASESOR":
                             case "NOMBRELIDER":
                             case "PROMOTOR":
+                            case "DNI_PROMOTOR":
                             case "ROTULO":
                             case "DISTRITO":
                             case "DIRECCION":
@@ -1045,6 +1046,7 @@ namespace CapaPresentacion.Controllers
                         strRows = strRows + "<td width='400' " + strClass + " >" + Item.asesor + "</ td > ";
                         strRows = strRows + "<td width='400' " + strClass + " >" + Item.NombreLider + "</ td > ";
                         strRows = strRows + "<td width='400' " + strClass + " >" + Item.Promotor + "</ td > ";
+                        strRows = strRows + "<td width='400' class='xlxTexto' " + strClass + " >" + Item.Dni_Promotor + "</ td > ";
                         strRows = strRows + "<td width='400' " + strClass + " >" + Item.Rotulo + "</ td > ";
                         strRows = strRows + "<td width='400' " + strClass + " >" + Item.Distrito + "</ td > ";
                         strRows = strRows + "<td width='400' " + strClass + " >" + Item.Direccion + "</ td > ";
@@ -1254,7 +1256,27 @@ namespace CapaPresentacion.Controllers
         public ActionResult ListaDespachoExcel()
         {
             string NombreArchivo = "Orden_Despacho";
-            String style = style = @"<style> .textmode { mso-number-format:\@; } </script> ";
+            String style = style = @"<style> .textmode { mso-number-format:\@; } 
+                                .xlxTexto
+	                            {padding-top:1px;
+	                            padding-right:1px;
+	                            padding-left:1px;
+	                            mso-ignore:padding;
+	                            color:black;
+	                            font-size:10.0pt;
+	                            font-weight:400;
+	                            font-style:normal;
+	                            text-decoration:none;
+	                            font-family:Calibri, sans-serif;
+	                            mso-font-charset:0;
+	                            mso-number-format:\@;
+	                            text-align:general;
+	                            vertical-align:bottom;
+	                            border:.5pt solid black;
+	                            background:white;
+	                            mso-pattern:black none;
+	                            white-space:normal;}
+                            </style> ";
             try
             {
                 Response.Clear();

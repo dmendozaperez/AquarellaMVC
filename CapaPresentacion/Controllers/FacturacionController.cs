@@ -2122,6 +2122,10 @@ namespace CapaPresentacion.Controllers
                 sb.Append("<th style='text-align: center;'><font color=''>Asesor</font></th>\n");
                 sb.Append("<th style='text-align: center;'><font color=''>Lider</font></th>\n");
                 sb.Append("<th style='text-align: center;'><font color=''>Promotor</font></th>\n");
+                if (_Cabecera.Desp_Tipo == "L")
+                {
+                    sb.Append("<th style='text-align: center; '><font color=''>Dni Promotor</font></th>\n");
+                }
                 sb.Append("<th style='text-align: center;'><font color=''>Rotulo</font></th>\n");
                 if (_Cabecera.Desp_Tipo == "P")
                 {
@@ -2145,6 +2149,10 @@ namespace CapaPresentacion.Controllers
                     sb.Append("<td align=''>" + item.Asesor+ "</td>\n");
                     sb.Append("<td align=''>" + item.NombreLider + "</td>\n");
                     sb.Append("<td align=''>" + item.Promotor + "</td>\n");
+                    if (_Cabecera.Desp_Tipo == "L")
+                    {
+                        sb.Append("<td align='' class='xlxTexto'>" + item.Dni_Promotor + "</td>\n");
+                    }
                     sb.Append("<td align=''>" + item.Rotulo + "</td>\n");
                     sb.Append("<td align=''>" + item.Agencia + "</td>\n");
                     if (_Cabecera.Desp_Tipo == "P")
@@ -2157,7 +2165,7 @@ namespace CapaPresentacion.Controllers
                     sb.Append("<td align=''>" + item.Observacion + "</td>\n");
                     if (_Cabecera.Desp_Tipo == "L")
                     {
-                        sb.Append("<td align=''>" + _ListarServico.Where(x => x.Codigo == item.Delivery).Select(y => new { Descripcion = y.Descripcion }).ElementAt(0).Descripcion + "</td>\n");
+                        sb.Append("<td align=''>" + (item.Delivery == "" ? "" : _ListarServico.Where(x => x.Codigo == item.Delivery).Select(y => new { Descripcion = y.Descripcion }).ElementAt(0).Descripcion) + "</td>\n");
                     }
                     sb.Append("</tr>\n");
                 }
@@ -2173,7 +2181,27 @@ namespace CapaPresentacion.Controllers
         public ActionResult ListarSalidaDespachoExcel()
         {
             string NombreArchivo = "Orden_Despacho";
-            String style = style = @"<style> .textmode { mso-number-format:\@; } </script> ";
+            String style = style = @"<style> .textmode { mso-number-format:\@; } 
+                                .xlxTexto
+	                            {padding-top:1px;
+	                            padding-right:1px;
+	                            padding-left:1px;
+	                            mso-ignore:padding;
+	                            color:black;
+	                            font-size:10.0pt;
+	                            font-weight:400;
+	                            font-style:normal;
+	                            text-decoration:none;
+	                            font-family:Calibri, sans-serif;
+	                            mso-font-charset:0;
+	                            mso-number-format:\@;
+	                            text-align:general;
+	                            vertical-align:bottom;
+	                            border:.5pt solid black;
+	                            background:white;
+	                            mso-pattern:black none;
+	                            white-space:normal;}
+                            </style> ";
             try
             {
                 Response.Clear();

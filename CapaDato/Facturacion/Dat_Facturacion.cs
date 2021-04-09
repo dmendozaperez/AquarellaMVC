@@ -404,6 +404,7 @@ namespace CapaDato.Facturacion
                                              Desp_Tipo_Des = row.Field<string>("Desp_Tipo_Des"),
                                              Desp_Tipo = row.Field<string>("Desp_Tipo"),
                                              Delivery = row.Field<string>("Delivery"),
+                                             Dni_Promotor = row.Field<string>("DniPromotor")
                                          }
                                        ).ToList();
 
