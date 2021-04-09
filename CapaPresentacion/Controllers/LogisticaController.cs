@@ -1056,7 +1056,7 @@ namespace CapaPresentacion.Controllers
                         strRows = strRows + "<td width='400' " + strClass + " >" + Item.TotalVenta.ToString() + "</ td > ";
                         strRows = strRows + "<td width='400' " + strClass + " >" + Item.CobroFlete + "</ td > ";
                         strRows = strRows + "<td width='400' " + strClass + " >" + Item.Observacion + "</ td > ";
-                        strRows = strRows + "<td width='400' " + strClass + " >" + _ListarServico.Where(x => x.Codigo == Item.Delivery).Select(y => new { Descripcion = y.Descripcion }).ElementAt(0).Descripcion + "</ td > ";
+                        strRows = strRows + "<td width='400' " + strClass + " >" + (Item.Delivery == "" ? "" : _ListarServico.Where(x => x.Codigo == Item.Delivery).Select(y => new { Descripcion = y.Descripcion }).ElementAt(0).Descripcion) + "</ td > ";
                         //strRows = strRows + "<td width='400' " + strClass + " >" + Item.Detalle + "</ td > ";
                     }
                     

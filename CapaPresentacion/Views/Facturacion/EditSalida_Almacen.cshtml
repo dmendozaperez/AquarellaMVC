@@ -347,7 +347,7 @@
 
                     let _Servicio = $(this).attr("data-Servicio");
                     let index = objSalidaAlmacenEdit._Servicio.findIndex(C => C.Codigo == _Servicio);
-                    let _ServicioNombre = objSalidaAlmacenEdit._Servicio[index].Descripcion;
+                    let _ServicioNombre =(index == -1 ? "" : objSalidaAlmacenEdit._Servicio[index].Descripcion);
                     
                     debugger
                     if (_coltrg == "Imprimir") {
