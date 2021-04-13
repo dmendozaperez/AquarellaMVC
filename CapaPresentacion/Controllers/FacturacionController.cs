@@ -1719,6 +1719,7 @@ namespace CapaPresentacion.Controllers
                 ViewBag.ListarTipo = ListarTipo;
                 Ent_Salida_Almacen EntSalidaDespacho = new Ent_Salida_Almacen();
                 ViewBag.EntSalidaDespacho = EntSalidaDespacho;
+                Session[_session_Listar_Servicio] = dat_despacho.Listar_Servicio().ToList();
                 return View();
             }
 
@@ -2171,9 +2172,9 @@ namespace CapaPresentacion.Controllers
                 }
                 sb.Append("</table></div>");
             }
-            catch
+            catch(Exception ex)
             {
-
+                throw new Exception(ex.Message);
             }
             return sb.ToString();
         }
