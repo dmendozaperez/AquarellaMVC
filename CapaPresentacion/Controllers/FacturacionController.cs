@@ -2132,7 +2132,6 @@ namespace CapaPresentacion.Controllers
                     sb.Append("<th style='text-align: center; '><font color=''>Agencia</font></th>\n");
                     sb.Append("<th style='text-align: center; '><font color=''>Destino</font></th>\n");
                 }
-
                 sb.Append("<th style='text-align: center;'><font color=''>Pedido</font></th>\n");
                 sb.Append("<th style='text-align: center;'><font color=''>TotalPares</font></th>\n");
                 sb.Append("<th style='text-align: center;'><font color=''>Flete</font></th>\n");
@@ -2154,12 +2153,13 @@ namespace CapaPresentacion.Controllers
                         sb.Append("<td align='' class='xlxTexto'>" + item.Dni_Promotor + "</td>\n");
                     }
                     sb.Append("<td align=''>" + item.Rotulo + "</td>\n");
-                    sb.Append("<td align=''>" + item.Agencia + "</td>\n");
+                   
                     if (_Cabecera.Desp_Tipo == "P")
                     {
-                        sb.Append("<td align=''>" + item.Destino + "</td>\n");
-                        sb.Append("<td align=''>" + item.Pedido + "</td>\n");
+                        sb.Append("<td align=''>" + item.Agencia + "</td>\n");
+                        sb.Append("<td align=''>" + item.Destino + "</td>\n");                        
                     }
+                    sb.Append("<td align=''>" + item.Pedido + "</td>\n");
                     sb.Append("<td align=''>" + item.TotalPares + "</td>\n");
                     sb.Append("<td align=''>" + item.CobroFlete + "</td>\n");
                     sb.Append("<td align=''>" + item.Observacion + "</td>\n");
