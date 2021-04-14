@@ -85,6 +85,7 @@
     <Compile Include="Pedido\Ent_Pago_NCredito.cs" />
     <Compile Include="Pedido\Ent_Liquidacion.cs" />
     <Compile Include="Pedido\Ent_Documents_Trans.cs" />
+    <Compile Include="Pedido\Ent_Pedido_Consultas.cs" />
     <Compile Include="Pedido\Ent_Pedido_Separado.cs" />
     <Compile Include="Pedido\Order_Dtl_Temp.cs" />
     <Compile Include="Pedido\Ent_Order_Dtl.cs" />

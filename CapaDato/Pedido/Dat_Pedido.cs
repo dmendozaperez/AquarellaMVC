@@ -1393,5 +1393,48 @@ namespace CapaDato.Pedido
             }
             return ds;
         }
+
+        public List<Ent_Pedido_Pagados> ListarPedido_Pagados(Ent_Pedido_Pagados _Ent)
+        {
+            List<Ent_Pedido_Pagados> Listar = new List<Ent_Pedido_Pagados>();
+            string sqlquery = "[USP_MVC_PEDIDO_PAGADO]";
+            try
+            {
+                using (SqlConnection cn = new SqlConnection(Ent_Conexion.conexion))
+                {
+                    using (SqlCommand cmd = new SqlCommand(sqlquery, cn))
+                    {
+                        cmd.CommandType = CommandType.StoredProcedure;
+                        cmd.Parameters.AddWithValue("@USU_ID", DbType.Decimal).Value = _Ent.Usu_Id;
+                        using (SqlDataAdapter da = new SqlDataAdapter(cmd))
+                        {
+                            DataTable dt = new DataTable();
+                            da.Fill(dt);
+
+                            Listar = new List<Ent_Pedido_Pagados>();
+                            Listar = (from DataRow fila in dt.Rows
+                                      select new Ent_Pedido_Pagados()
+                                      {
+                                          Asesor = (fila["Asesor"] is DBNull) ? string.Empty : (string)(fila["Asesor"]),
+                                          Lider = (fila["Lider"] is DBNull) ? string.Empty : (string)(fila["Lider"]),
+                                          Promotor = (fila["Promotor"] is DBNull) ? string.Empty : (string)(fila["Promotor"]),
+                                          Dni = (fila["Dni"] is DBNull) ? string.Empty : (string)(fila["Dni"]),
+                                          Ubicacion = (fila["Ubicacion"] is DBNull) ? string.Empty : (string)(fila["Ubicacion"]),
+                                          Pedido = (fila["Pedido"] is DBNull) ? string.Empty : (string)(fila["Pedido"]),
+                                          Tipo_Estado = (fila["Tipo_Estado"] is DBNull) ? string.Empty : (string)(fila["Tipo_Estado"]),
+                                          Fecha_Cruce = (fila["Fecha_Cruce"] is DBNull) ? string.Empty : (string)(fila["Fecha_Cruce"]),
+                                          Estado_Pedido = (fila["Estado_Pedido"] is DBNull) ? string.Empty : (string)(fila["Estado_Pedido"])
+                                      }
+                                    ).ToList();
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+            return Listar;
+        }
     }
 }

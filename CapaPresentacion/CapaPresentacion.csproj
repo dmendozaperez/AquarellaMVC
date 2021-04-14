@@ -246,6 +246,7 @@
     <Compile Include="Controllers\FinancieraController.cs" />
     <Compile Include="Controllers\LogisticaController.cs" />
     <Compile Include="Controllers\PedidoController.cs" />
+    <Compile Include="Controllers\Pedidos_ConsultasController.cs" />
     <Compile Include="Controllers\PermisosController.cs" />
     <Compile Include="Controllers\PromotorController.cs" />
     <Compile Include="Controllers\ControlController.cs" />
@@ -3168,6 +3169,7 @@
     <Content Include="Views\Facturacion\Ventas_Semanales.cshtml" />
     <Content Include="Views\Facturacion\Ventas_Lider.cshtml" />
     <Content Include="Views\RRHH\ConsultaPromotorXLider.cshtml" />
+    <Content Include="Views\Pedidos_Consultas\Pedido_Pagados.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
