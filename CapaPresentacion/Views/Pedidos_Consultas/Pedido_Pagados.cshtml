@@ -29,27 +29,42 @@
     <br />
     <br />
     <div class="row">
-        <div class="col-sm-3">
-
-        </div>
         <div class="col-md-3">
-        </div>
-        <div class="col-md-6">
-            <div class="col-md-5" style="padding-right: 0px;">
-
-            </div>
-            <div class="col-md-4">
-                <label for="" style="color: #3d566e;">Estado</label>
-                <select id='ddlEstado' class='form-control custom-input'>
-                    <option value="-1">Seleccione estado</option>
+            <label for="" style="color: #3d566e;">Estado</label>
+            <div class="form-group">
+                <select class="selectpicker" data-actions-box="true" data-live-search="true" data-selected-text-format="count > 2" id="ddlEstadoModulo" multiple="multiple" name="ddlEstadoModulo" tabindex="-98" style="max-width: 100%">
                 </select>
             </div>
-            <div class="col-md-3 text-right" style="padding:0px">
-                <button id="btnRefrescar" type="submit" title="Consultar" class="btn btn-primary" style="margin-top: 23px;">
-                    <i class="glyphicon glyphicon-refresh" style="color:#FFF"></i>
-                    &nbsp;&nbsp;Refrescar
-                </button>
+        </div>
+        <div class="col-md-2">
+            <label for="dtpFechaIni" style="color: #3d566e;">Fecha de Inicio</label>
+            <div id="datepickerIni" class="input-group date" data-date-format="dd/mm/yyyy">
+                <input id="dtpFechaInicio" type="text" class="form-control input-sm ui-cell-input" disabled style="max-width: 100%" />
+                <span class="input-group-addon btn btn-xs btn-default" style="padding: 4px 5px;">
+                    <i class="glyphicon glyphicon-calendar" height="20" width="20" style="color:#ff9f3f"></i>
+                </span>
             </div>
+        </div>
+        <div class="col-md-2">
+            <label for="dtpFechaFin" style="color: #3d566e; ">Fecha de Cierre</label>
+            <div id="datepickerFin" class="input-group date" data-date-format="dd/mm/yyyy">
+                <input id="dtpFechaFin" type="text" class="form-control input-sm ui-cell-input" disabled style="max-width: 100%" />
+                <span class="input-group-addon btn btn-xs btn-default" style="padding: 4px 5px;">
+                    <i class="glyphicon glyphicon-calendar" height="20" width="20" style="color:#ff9f3f"></i>
+                </span>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <label for="" style="color: #3d566e;">Tipo de pedido</label>
+            <select id='ddlEstado' class='form-control custom-input' style="max-width: 100%">
+                <option value="-1">Seleccione estado</option>
+            </select>
+        </div>
+        <div class="col-md-2 text-right">
+            <button id="btnBuscar" type="submit" title="Consultar" class="btn btn-primary" style="margin-top: 23px;">
+                <i class="glyphicon glyphicon-search" style="color:#FFF"></i>
+                &nbsp;&nbsp;Buscar
+            </button>
         </div>
     </div>
 </div>
@@ -77,9 +92,12 @@
                             <th style="text-align: center;">Promotor</th>
                             <th style="text-align: center;">Dni</th>
                             <th style="text-align: center;">Ubicación</th>
+                            <th style="text-align: center;">Agencia</th>
+                            <th style="text-align: center;">Destino</th>
+                            <th style="text-align: center;">Delivery</th>
                             <th style="text-align: center;">Pedido</th>
                             <th style="text-align: center;">Tipo Estado</th>
-                            <th style="text-align: center;">Fecha</th>
+                            <th style="text-align: center;">Fecha Cruce</th>
                             <th style="text-align: center;">Estado Pedido</th>
                         </tr>
                     </thead>
@@ -96,17 +114,41 @@
 
 @section scripts{
     <script>
-        //debugger
         var objPedPag = {
             Inicio: function () {
-                //debugger
                 /*[Inicializamos variables]*/
+                $("body").toggleClass('sidebar-collapse');
+
+                this.ListarEstadoModulo = function () { return @Html.Raw(Json.Encode(ViewBag.ListarEstadoModulo)); }();
+                objPedPag.generaal.dropdownlistMultiSelect.Llena(objPedPag.ListarEstadoModulo)
+                
+                var date = new Date();
+                $("#datepickerIni").datepicker({
+                    autoclose: true,
+                    todayHighlight: true
+                }).datepicker("setDate", date.getDate() + "/" + (date.getMonth() - 1) + "/" + date.getFullYear());
+
+                $("#datepickerFin").datepicker({
+                    autoclose: true,
+                    todayHighlight: true
+                }).datepicker("setDate", "0");
+
                 this.isOkUpdate = true;
                 this.isOkEstado = false;
                 this.ddlEstado = "-1";
-                objPedPag.grid.get();
+
+                this.FechaInicio = $("#dtpFechaInicio").val();
+                this.FechaFin = $("#dtpFechaFin").val();
+
+                let codEstadoModulo = $('#ddlEstadoModulo').val();
+                let CodConString = "";
+                for (var key in codEstadoModulo) {
+                    CodConString += codEstadoModulo[key] + ",";
+                }
+                this.EstadoModulo = CodConString.slice(0, -1);
                 /*[/Inicializamos variables]*/
 
+                objPedPag.grid.get();
                 /*[btn Exportar y refrescar]*/
                 $("#btnExportar").click(function () {
                     objPedPag.FechaInicio = $("#dtpFechaInicio").val();
@@ -114,26 +156,28 @@
                     waitingDialog.show("Espere por favor...")
                     objPedPag.generaal.exportar();
                 })
-                $("#btnRefrescar").click(function () {
+                $("#btnBuscar").click(function () {
                     objPedPag.isOkUpdate = true;
-                    objPedPag.isOkEstado = false;
-                    objPedPag.ddlEstado = "-1";
+                    objPedPag.FechaInicio = $("#dtpFechaInicio").val();
+                    objPedPag.FechaFin = $("#dtpFechaFin").val();
+                    let codEstadoModulo = $('#ddlEstadoModulo').val();
+                    let CodConString = "";
+                    for (var key in codEstadoModulo) {
+                        CodConString += codEstadoModulo[key] + ",";
+                    }
+                    objPedPag.EstadoModulo = CodConString.slice(0, -1);
                     objPedPag.grid.cargaTabla();
-                    objPedPag.generaal.timeAlertInfo();
                 });
                 /*[/btn Exportar y refrescar]*/
 
                 /*[Select]*/
                 $("#ddlEstado").change(function () {
-                    //objPedPag.isOkUpdate = true;
                     if(this.value==-1){
                         objPedPag.isOkEstado = false;
                         objPedPag.ddlEstado = "-1";
-                        objPedPag.grid.cargaTabla();
                     } else {
                         objPedPag.isOkEstado = true;
-                        objPedPag.ddlEstado = this.value
-                        objPedPag.grid.cargaTabla();
+                        objPedPag.ddlEstado = this.value;
                     }
                 })
                 /*[/Select]*/
@@ -162,6 +206,9 @@
                             aoData.push({ "name": "isOkUpdate", "value": objPedPag.isOkUpdate });
                             aoData.push({ "name": "isOkEstado", "value": objPedPag.isOkEstado });
                             aoData.push({ "name": "ddlEstado", "value": objPedPag.ddlEstado });
+                            aoData.push({ "name": "EstadoModulo", "value": objPedPag.EstadoModulo });
+                            aoData.push({ "name": "FechaInicio", "value": objPedPag.FechaInicio });
+                            aoData.push({ "name": "FechaFin", "value": objPedPag.FechaFin });
                         },
                         "bFilter": true,
                         "bdestroy": true,
@@ -177,6 +224,9 @@
                             { "sName": "Promotor", "mData": "Promotor", "sClass": "" },
                             { "sName": "Dni", "mData": "Dni", "sClass": "alignCenter" },
                             { "sName": "Ubicacion", "mData": "Ubicacion", "sClass": "" },
+                            { "sName": "Agencia", "mData": "Agencia", "sClass": "" },
+                            { "sName": "Destino", "mData": "Destino", "sClass": "" },
+                            { "sName": "Delivery", "mData": "Delivery", "sClass": "" },
                             { "sName": "Pedido", "mData": "Pedido", "sClass": "alignCenter" },
                             { "sName": "Tipo_Estado", "mData": "Tipo_Estado", "sClass": "" },
                             { "sName": "Fecha_Cruce", "mData": "Fecha_Cruce", "sClass": "" },
@@ -226,10 +276,14 @@
                     }
                 },
                 exportar: function () {
+                    let _Ent = function () { return @Html.Raw(Json.Encode(ViewBag.EntPedidoPagados)); }();
+                    _Ent.FechaInicio = objPedPag.FechaInicio;
+                    _Ent.FechaFin = objPedPag.FechaFin;
+
                     $.ajax({
                         type: "POST",
                         url: '@Url.Action("get_exporta_Pedido_Pagados_excel", "Pedidos_Consultas")',
-                        data : {},
+                        data: { _Ent: _Ent},
                         success: function (data) {
                             data = JSON.parse(data);
                             waitingDialog.hide();
@@ -304,6 +358,23 @@
                     Limpia: function () {
                         $('#ddlEstado').find('option').remove().end()
                         .append('<option value="-1">Seleccione estado</option>').val('-1');
+                    }
+                },
+                dropdownlistMultiSelect: {
+                    Llena: function (Lista) {
+                        //debugger
+                        var $select = $("#ddlEstadoModulo");
+                        $.each(Lista, function (k, v) {
+                            var $option = $("<option></option>", {
+                                "text": v.Descripcion,
+                                "value": v.Codigo
+                            });
+                            if (v.Codigo == "PF" || v.Codigo == "PM") {
+                                $option.attr("selected", "selected")
+                            }
+                            $select.append($option);
+                        });
+                        return $select.prop("outerHTML");
                     }
                 }
             }

@@ -17,6 +17,12 @@ namespace CapaEntidad.Pedido
         public string Tipo_Estado { get; set; }
         public string Fecha_Cruce { get; set; }
         public string Estado_Pedido { get; set; }
+        public string Delivery { get; set; }
+        public string Agencia { get; set; }
+        public string Destino { get; set; }
+        //campos adicionales
         public decimal Usu_Id { get; set; }
+        public DateTime FechaInicio { get; set; }
+        public DateTime FechaFin { get; set; }
     }
 }

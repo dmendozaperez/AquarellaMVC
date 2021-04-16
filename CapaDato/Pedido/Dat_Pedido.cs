@@ -1405,6 +1405,9 @@ namespace CapaDato.Pedido
                     using (SqlCommand cmd = new SqlCommand(sqlquery, cn))
                     {
                         cmd.CommandType = CommandType.StoredProcedure;
+                        cmd.Parameters.AddWithValue("@FECHA_INI", DbType.DateTime).Value = _Ent.FechaInicio;
+                        cmd.Parameters.AddWithValue("@FECHA_FIN", DbType.DateTime).Value = _Ent.FechaFin;
+                        cmd.Parameters.AddWithValue("@ESTADO_PEDIDO", DbType.String).Value = _Ent.Estado_Pedido;
                         cmd.Parameters.AddWithValue("@USU_ID", DbType.Decimal).Value = _Ent.Usu_Id;
                         using (SqlDataAdapter da = new SqlDataAdapter(cmd))
                         {
@@ -1423,7 +1426,10 @@ namespace CapaDato.Pedido
                                           Pedido = (fila["Pedido"] is DBNull) ? string.Empty : (string)(fila["Pedido"]),
                                           Tipo_Estado = (fila["Tipo_Estado"] is DBNull) ? string.Empty : (string)(fila["Tipo_Estado"]),
                                           Fecha_Cruce = (fila["Fecha_Cruce"] is DBNull) ? string.Empty : (string)(fila["Fecha_Cruce"]),
-                                          Estado_Pedido = (fila["Estado_Pedido"] is DBNull) ? string.Empty : (string)(fila["Estado_Pedido"])
+                                          Estado_Pedido = (fila["Estado_Pedido"] is DBNull) ? string.Empty : (string)(fila["Estado_Pedido"]),
+                                          Delivery = (fila["Delivery"] is DBNull) ? string.Empty : (string)(fila["Delivery"]),
+                                          Agencia = (fila["Agencia"] is DBNull) ? string.Empty : (string)(fila["Agencia"]),
+                                          Destino = (fila["Destino"] is DBNull) ? string.Empty : (string)(fila["Destino"]),
                                       }
                                     ).ToList();
                         }

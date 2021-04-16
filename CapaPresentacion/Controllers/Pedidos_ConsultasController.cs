@@ -1,9 +1,11 @@
 ﻿using System;
 using CapaDato.Pedido;
+using CapaDato.Maestros;
 using CapaEntidad.Util;
 using CapaEntidad.Control;
 using CapaEntidad.General;
 using CapaEntidad.Pedido;
+using CapaEntidad.Maestros;
 using System.Collections.Generic;
 using System.Linq;
 using System.Web;
@@ -17,6 +19,7 @@ namespace CapaPresentacion.Controllers
     {
         #region <DECLARACION DE VARIABLES>
         private Dat_Pedido datPedido = new Dat_Pedido();
+        private Dat_Estado datEstado = new Dat_Estado();
         private string _session_ListarPedido_Pagados = "_session_ListarPedido_Pagados";
         private string _session_ListarPedido_Pagados_Excel = "_session_ListarPedido_Pagados_Excel";
         #endregion
@@ -35,11 +38,18 @@ namespace CapaPresentacion.Controllers
                 return RedirectToAction("Login", "Control", new { returnUrl = return_view });
             }
             else
-            {
+            {                
+                Ent_Pedido_Pagados EntPedidoPagados = new Ent_Pedido_Pagados();
+                ViewBag.EntPedidoPagados = EntPedidoPagados;
+
+                Ent_Estado_Modulo entEstadoModulo = new Ent_Estado_Modulo();
+                entEstadoModulo.Est_Mod_Id = 2;
+                ViewBag.ListarEstadoModulo = datEstado.ListarEstadoModulo(entEstadoModulo).Where(x=> x.Codigo =="PF" || x.Codigo == "PM" || x.Codigo == "PDE").ToList();
+                
                 return View();
             }
         }
-        public JsonResult getListarPedido_PagadosAjax(Ent_jQueryDataTableParams param, bool isOkUpdate, bool isOkEstado, string ddlEstado)
+        public JsonResult getListarPedido_PagadosAjax(Ent_jQueryDataTableParams param, bool isOkUpdate, bool isOkEstado, string ddlEstado,string EstadoModulo,string FechaInicio,string FechaFin)
         {
             Ent_Pedido_Pagados Ent_Pedido_Pagados = new Ent_Pedido_Pagados();
             Ent_Usuario _usuario = (Ent_Usuario)Session[Ent_Constantes.NameSessionUser];
@@ -49,6 +59,9 @@ namespace CapaPresentacion.Controllers
             object ListaEstado = "";
             if (isOkUpdate)
             {
+                Ent_Pedido_Pagados.FechaInicio = DateTime.Parse(FechaInicio);
+                Ent_Pedido_Pagados.FechaFin = DateTime.Parse(FechaFin);
+                Ent_Pedido_Pagados.Estado_Pedido = EstadoModulo;
                 Ent_Pedido_Pagados.Usu_Id = _usuario.usu_id;
                 Session[_session_ListarPedido_Pagados] = datPedido.ListarPedido_Pagados(Ent_Pedido_Pagados).ToList();
             }
@@ -79,7 +92,10 @@ namespace CapaPresentacion.Controllers
                             m.Pedido.ToUpper().Contains(param.sSearch.ToUpper()) ||
                             m.Tipo_Estado.ToUpper().Contains(param.sSearch.ToUpper()) ||
                             m.Fecha_Cruce.ToUpper().Contains(param.sSearch.ToUpper()) ||
-                            m.Estado_Pedido.ToUpper().Contains(param.sSearch.ToUpper())
+                            m.Estado_Pedido.ToUpper().Contains(param.sSearch.ToUpper())||
+                            m.Delivery.ToUpper().Contains(param.sSearch.ToUpper()) ||
+                            m.Agencia.ToUpper().Contains(param.sSearch.ToUpper()) ||
+                            m.Destino.ToUpper().Contains(param.sSearch.ToUpper())
                 );
             }
             var sortIdx = Convert.ToInt32(Request["iSortCol_0"]);
@@ -99,6 +115,9 @@ namespace CapaPresentacion.Controllers
                         case 6: filteredMembers = filteredMembers.OrderBy(o => o.Tipo_Estado); break;
                         case 7: filteredMembers = filteredMembers.OrderBy(o => o.Fecha_Cruce); break;
                         case 8: filteredMembers = filteredMembers.OrderBy(o => o.Estado_Pedido); break;
+                        case 9: filteredMembers = filteredMembers.OrderBy(o => o.Delivery); break;
+                        case 10: filteredMembers = filteredMembers.OrderBy(o => o.Agencia); break;
+                        case 11: filteredMembers = filteredMembers.OrderBy(o => o.Destino); break;
                     }
                 }
                 else
@@ -114,6 +133,9 @@ namespace CapaPresentacion.Controllers
                         case 6: filteredMembers = filteredMembers.OrderByDescending(o => o.Tipo_Estado); break;
                         case 7: filteredMembers = filteredMembers.OrderByDescending(o => o.Fecha_Cruce); break;
                         case 8: filteredMembers = filteredMembers.OrderByDescending(o => o.Estado_Pedido); break;
+                        case 9: filteredMembers = filteredMembers.OrderByDescending(o => o.Delivery); break;
+                        case 10: filteredMembers = filteredMembers.OrderByDescending(o => o.Agencia); break;
+                        case 11: filteredMembers = filteredMembers.OrderByDescending(o => o.Destino); break;
                     }
                 }
             }
@@ -204,7 +226,12 @@ namespace CapaPresentacion.Controllers
             try
             {
                 var Lista = _ListarPedidoDespacho.ToList();
-                sb.Append("<div><table cellspacing='0' style='width: 1000px' rules='all' border='0' style='border-collapse:collapse;'><tr><td Colspan='13'></td></tr><tr><td Colspan='13' valign='middle' align='center' style='vertical-align: middle;font-size: 16.0pt;font-weight: bold;color:#285A8F'>REPORTE DE PEDIDOS PAGADOS</td></tr></table>");
+                sb.Append("<div>");
+                sb.Append("<table cellspacing='0' style='width: 1000px' rules='all' border='0' style='border-collapse:collapse;'>");
+                sb.Append("<tr><td Colspan='13'></td></tr>");
+                sb.Append("<tr><td Colspan='13' valign='middle' align='center' style='vertical-align: middle;font-size: 18.0pt;font-weight: bold;color:#285A8F'>REPORTE DE PEDIDOS PAGADOS</td></tr>");
+                sb.Append("<tr><td Colspan='13' valign='middle' align='center' style='vertical-align: middle;font-size: 10.0pt;font-weight: bold;color:#000000'>Rango: del " + String.Format("{0:dd/MM/yyyy}", _Ent.FechaInicio) + " al " + String.Format("{0:dd/MM/yyyy}", _Ent.FechaFin) + "</td></tr>");//subtitulo
+                sb.Append("</table>");
                 sb.Append("<table  border='1' bgColor='#ffffff' borderColor='#FFFFFF' cellSpacing='2' cellPadding='2' style='font-size:10.0pt; font-family:Calibri; background:white;width: 1000px'><tr  bgColor='#5799bf'>\n");
                 sb.Append("<tr bgColor='#1E77AB'>\n");
                 sb.Append("<th style='text-align: center; font-weight:bold;font-size:11.0pt;'><font color='#FFFFFF'>Asesor</font></th>\n");
@@ -212,6 +239,9 @@ namespace CapaPresentacion.Controllers
                 sb.Append("<th style='text-align: center; font-weight:bold;font-size:11.0pt;'><font color='#FFFFFF'>Promotor</font></th>\n");
                 sb.Append("<th style='text-align: center; font-weight:bold;font-size:11.0pt;'><font color='#FFFFFF'>Documento</font></th>\n");
                 sb.Append("<th style='text-align: center; font-weight:bold;font-size:11.0pt;'><font color='#FFFFFF'>Ubicación</font></th>\n");
+                sb.Append("<th style='text-align: center; font-weight:bold;font-size:11.0pt;'><font color='#FFFFFF'>Agencia</font></th>\n");
+                sb.Append("<th style='text-align: center; font-weight:bold;font-size:11.0pt;'><font color='#FFFFFF'>Destino</font></th>\n");
+                sb.Append("<th style='text-align: center; font-weight:bold;font-size:11.0pt;'><font color='#FFFFFF'>Delivery</font></th>\n");
                 sb.Append("<th style='text-align: center; font-weight:bold;font-size:11.0pt;'><font color='#FFFFFF'>Nro. Pedido</font></th>\n");
                 sb.Append("<th style='text-align: center; font-weight:bold;font-size:11.0pt;'><font color='#FFFFFF'>Tipo Estado</font></th>\n");
                 sb.Append("<th style='text-align: center; font-weight:bold;font-size:11.0pt;'><font color='#FFFFFF'>Fecha</font></th>\n");
@@ -226,6 +256,9 @@ namespace CapaPresentacion.Controllers
                     sb.Append("<td>" + item.Promotor + "</td>\n");
                     sb.Append("<td align='center'>" + item.Dni + "</td>\n");
                     sb.Append("<td>" + item.Ubicacion + "</td>\n");
+                    sb.Append("<td>" + item.Agencia + "</td>\n");
+                    sb.Append("<td>" + item.Destino + "</td>\n");
+                    sb.Append("<td>" + item.Delivery + "</td>\n");
                     sb.Append("<td align='Center'>" + item.Pedido + "</td>\n");
                     sb.Append("<td>" + item.Tipo_Estado + "</td>\n");
                     sb.Append("<td>" + item.Fecha_Cruce + "</td>\n");

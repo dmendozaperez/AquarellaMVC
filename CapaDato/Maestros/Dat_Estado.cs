@@ -53,5 +53,41 @@ namespace CapaDato.Maestros
             }
             return list;
         }
+
+        public List<Ent_Estado_Modulo> ListarEstadoModulo(Ent_Estado_Modulo _Ent)
+        {
+            List<Ent_Estado_Modulo> Listar = new List<Ent_Estado_Modulo>();
+            string sqlquery = "[USP_Leer_EstadoModulo]";
+            try
+            {
+                using (SqlConnection cn = new SqlConnection(Ent_Conexion.conexion))
+                {
+                    using (SqlCommand cmd = new SqlCommand(sqlquery, cn))
+                    {
+                        cmd.CommandType = CommandType.StoredProcedure;
+                        cmd.Parameters.AddWithValue("@est_mod_id", DbType.Int16).Value = _Ent.Est_Mod_Id;
+                        using (SqlDataAdapter da = new SqlDataAdapter(cmd))
+                        {
+                            DataTable dt = new DataTable();
+                            da.Fill(dt);
+
+                            Listar = new List<Ent_Estado_Modulo>();
+                            Listar = (from DataRow fila in dt.Rows
+                                      select new Ent_Estado_Modulo()
+                                      {
+                                          Codigo = (string)(fila["Est_Id"]),
+                                          Descripcion = (string)(fila["Est_Descripcion"]),
+                                      }
+                                    ).ToList();
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+            return Listar;
+        }
     }
 }
