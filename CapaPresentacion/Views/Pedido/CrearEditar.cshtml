@@ -1284,11 +1284,30 @@ else
                        url: '@Url.Action("LiquidarPedido", "Pedido")',
                        data: { tipo_des: tipo_des, agencia: agencia, destino: destino, direccion_agencia: agencia_direccion, direccion: direccion, referencia: referencia, liq_tipo_prov: liq_tipo_prov, liq_provincia: liq_provincia },
                        success: function (data) {
+                           waitingDialog.hide();
+                           if ((data.Success).toString() == "true") {
 
-                           toastr.success("Liquidacion generada con exito.", 'Mensaje');
+                               if (gEstado == "1") {
+                                   toastr.success("Se liquidó el pedido con éxito. Nro: " + data.Message + ".", "Mensaje");
+                                 
+                               }
+
+                               if (gEstado == "2") {
+                                   toastr.success("Se modifico la liquidació con éxito. Nro: " + data.Message + ".", "Mensaje");
+
+                               }
+                               $("#load").attr("src", "../AspNetForms/ReportLiquidation.aspx");
+                               $("#CRLiquidacion").modal({ backdrop: 'static', keyboard: false });
+
+
+                           } else {
+                               toastr.error(data.Message, "Error");
+                           }
+
+                           //toastr.success("Liquidacion generada con exito.", 'Mensaje');
                            //$('#load').show();
-                           $("#load").attr("src", "../AspNetForms/ReportLiquidation.aspx");
-                           $("#CRLiquidacion").modal({ backdrop: 'static', keyboard: false });
+                           //$("#load").attr("src", "../AspNetForms/ReportLiquidation.aspx");
+                           //$("#CRLiquidacion").modal({ backdrop: 'static', keyboard: false });
                            //if (data.estado == 0) {
 
 

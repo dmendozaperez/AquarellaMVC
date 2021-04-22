@@ -138,6 +138,7 @@
             grid: {
                 get: function () {
                     debugger
+                    waitingDialog.show("Espere por favor...")
                     objResVentas.Tabla.DataTable({
                         "language": {
                             "url": "../Scripts/DataTables/Spanish.json"
@@ -242,6 +243,7 @@
 
                         ],
                         "fnRowCallback": function (row, data, index) {
+                            waitingDialog.hide();
                         },
                         "drawCallback": function (settings) {
                             objResVentas.isOkUpdate = false;
