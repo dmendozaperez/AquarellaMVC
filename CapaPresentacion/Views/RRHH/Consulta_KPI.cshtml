@@ -1,0 +1,841 @@
+﻿@{
+    ViewBag.Title = "Consulta de Resultado KPI";
+    ViewBag.SubTitle = "";
+}
+<style>
+    .table thead {
+        background-color: #5799bf;
+        color: #fff;
+    }
+
+    .boton-xs-td {
+        padding-top: 5px !important;
+        padding-bottom: 5px !important;
+    }
+
+    .alignRight {
+        text-align: right;
+        vertical-align: middle;
+    }
+
+    .alignCenter {
+        text-align: center;
+        vertical-align: middle;
+    }
+
+    .control {
+        font-family: arial;
+        display: block;
+        position: relative;
+        padding-left: 30px;
+        margin-bottom: 10px;
+        padding-top: 3px;
+        cursor: pointer;
+        font-size: 12px;
+    }
+    .control input {
+        position: absolute;
+        z-index: -1;
+        opacity: 0;
+    }
+    .control_indicator {
+        position: absolute;
+        top: 2px;
+        left: 0;
+        height: 20px;
+        width: 20px;
+        background: #e6e6e6;
+        border: 1px solid #B1BAC1;
+        border-radius: undefinedpx;
+    }
+    .control:hover input ~ .control_indicator,
+    .control input:focus ~ .control_indicator {
+        background: #cccccc;
+    }
+
+    .control input:checked ~ .control_indicator {
+        background: #156aac;
+    }
+    .control:hover input:not([disabled]):checked ~ .control_indicator,
+    .control input:checked:focus ~ .control_indicator {
+        background: #0e6647d;
+    }
+    .control input:disabled ~ .control_indicator {
+        background: #e6e6e6;
+        opacity: 0.6;
+        pointer-events: none;
+    }
+    .control_indicator:after {
+        box-sizing: unset;
+        content: '';
+        position: absolute;
+        display: none;
+    }
+    .control input:checked ~ .control_indicator:after {
+        display: block;
+    }
+    .control-radio .control_indicator {
+        border-radius: 50%;
+    }
+
+    .control-radio .control_indicator:after {
+        left: 6px;
+        top: 6px;
+        height: 6px;
+        width: 6px;
+        border-radius: 50%;
+        background: #ffffff;
+        transition: background 250ms;
+    }
+    .control-radio input:disabled ~ .control_indicator:after {
+        background: #7b7b7b;
+    }
+</style>
+<p class="text-primary">Consulte entre un rango de fechas, Asesor o por lideres</p>
+<div class="box box-header box-primary">
+    <h3 class="box-title danger" style="color:#9c9c9c;font-weight:bold">Parametro de Busqueda</h3>
+    <br />
+    <br />       
+    <div class="row">
+        <div class="col-md-12">
+            <div class="panel panel-default p-10">
+                <div class="panel-body" style="padding-top: 7px;padding-bottom: 4px;">
+                    <div class="row">
+                        <div class="col-md-3">
+                            <label for="" style="color: #3d566e;">Asesor</label>
+                            <div id="DivAsesor" class="form-group">
+                                @Html.DropDownList("ddlAsesor", new SelectList(ViewBag.ListarAsesor, "Codigo", "Descripcion"), new { @class = "form-control selectpicker", @data_live_search = "true", @id = "ddlAsesor", @name = "ddlAsesor", @style = "max-width: 100%" })
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <label for="" style="color: #3d566e;">Lider</label>
+                            <div id="DivLider" class="form-group">
+                                @Html.DropDownList("ddlLider", new SelectList(ViewBag.ListarLider, "Codigo", "Descripcion"), new { @class = "form-control selectpicker", @data_live_search = "true", @id = "ddlLider", @name = "ddlLider", @style = "max-width: 100%" })
+                            </div>
+                        </div>
+                        <div class="col-md-2">
+                            <label for="dtpFechaIni" style="color: #3d566e;">Fecha de Inicio</label>
+                            <div id="datepickerIni" class="input-group date" data-date-format="dd/mm/yyyy">
+                                <input id="dtpFechaInicio" type="text" class="form-control input-sm ui-cell-input" disabled style="max-width: 100%" />
+                                <span class="input-group-addon btn btn-xs btn-default" style="padding: 4px 5px;">
+                                    <i class="glyphicon glyphicon-calendar" height="20" width="20" style="color:#ff9f3f"></i>
+                                </span>
+                            </div>
+                        </div>
+                        <div class="col-md-2">
+                            <label for="dtpFechaFin" style="color: #3d566e; ">Fecha de Cierre</label>
+                            <div id="datepickerFin" class="input-group date" data-date-format="dd/mm/yyyy">
+                                <input id="dtpFechaFin" type="text" class="form-control input-sm ui-cell-input" disabled style="max-width: 100%" />
+                                <span class="input-group-addon btn btn-xs btn-default" style="padding: 4px 5px;">
+                                    <i class="glyphicon glyphicon-calendar" height="20" width="20" style="color:#ff9f3f"></i>
+                                </span>
+                            </div>
+                        </div>
+                        <div class="col-md-2 text-right">
+                            <button id="btnBuscar" title="Consultar General" class="btn btn-primary" style="margin-top: 23px;">
+                                <i class="glyphicon glyphicon-search" style="color:#FFF"></i>
+                                &nbsp;&nbsp;Buscar
+                            </button>
+                            <button id="btnBuscarDet" title="Consultar Detalle" class="btn btn-primary" style="margin-top: 23px;">
+                                <i class="glyphicon glyphicon-search" style="color:#FFF"></i>
+                                &nbsp;&nbsp;Buscar
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-8" id="resumen">
+            <div class="panel panel-default p-10">
+                <div class="panel-body" style="padding-top: 7px;padding-bottom: 4px;">
+                    <label for="dtpFechaFin" style="color: #3d566e; ">Tipo de vista</label>
+                    <div class="row">
+                        <div class="col-md-4 ">
+                            <label class="control control-radio">
+                                Detallado por Asesor
+                                <input id="rdAsesor" type="radio" name="radio" />
+                                <div class="control_indicator"></div>
+                            </label>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="control control-radio">
+                                Detallado por Lider
+                                <input id="rdLider" type="radio" name="radio" />
+                                <div class="control_indicator"></div>
+                            </label>
+                        </div>
+                        <div class="col-md-4 ">
+                            <label class="control control-radio">
+                                General
+                                <input id="rdGeneral" type="radio" name="radio" />
+                                <div class="control_indicator"></div>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="box box-body box-primary">
+    <div class="row">
+        <div class="col-md-6">
+        </div>
+        <div class="col-md-6 text-right">
+            <button id="btnExportar" title="Actualizar" class="btn btn-success disabled" disabled>
+                <span class="glyphicon glyphicon-export"></span>&nbsp;&nbsp;Exportar Lista
+            </button>
+        </div>
+    </div>
+    <br />
+    <div class="row">
+        <div class="col-md-12">
+            <div class="table-responsive">
+                <table id="TablaConsulKPI" class="table table-hover table-bordered compact" style="max-width: 100%">
+
+                </table>
+                <table id="TablaConsulKPIDet" class="table table-hover table-bordered compact" style="max-width: 100%">
+
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+@section scripts{
+    <script>
+        debugger
+        var objConsulKPI = {
+            Inicio: function () {
+                $("body").toggleClass('sidebar-collapse');
+                debugger
+                /*[Inicializamos variables]*/
+                debugger
+                this.ListarAsesor = function () { return @Html.Raw(Json.Encode(ViewBag.ListarAsesor)); }();
+                this.ListarLider = function () { return @Html.Raw(Json.Encode(ViewBag.ListarLider)); }();
+
+                this._HtmlTabla = '<thead>'+
+	                                    '<tr>'+
+		                                    '<th style="text-align: center;">Concepto</th>'+
+		                                    '<th style="text-align: center;">Enero</th>'+
+		                                    '<th style="text-align: center;">Febrero</th>'+
+		                                    '<th style="text-align: center;">Marzo</th>'+
+		                                    '<th style="text-align: center;">Abril</th>'+
+		                                    '<th style="text-align: center;">Mayo</th>'+
+		                                    '<th style="text-align: center;">Junio</th>'+
+		                                    '<th style="text-align: center;">Julio</th>'+
+		                                    '<th style="text-align: center;">Agosto</th>'+
+		                                    '<th style="text-align: center;">Septiembre</th>'+
+		                                    '<th style="text-align: center;">Octubre</th>'+
+		                                    '<th style="text-align: center;">Noviembre</th>'+
+		                                    '<th style="text-align: center;">Diciembre</th>'+
+	                                    '</tr>'+
+                                    '</thead>'+
+                                    '<tbody>'+
+	                                    '<tr>'+
+		                                    '<td colspan=9>No se encontraron resultados</td>'+
+	                                    '</tr>'+
+                                    '</tbody>';
+
+                this._HtmlTablaDet = '<thead>'+
+	                                    '<tr>'+
+		                                    '<th style="text-align: center;">Lider</th>'+
+		                                    '<th style="text-align: center;">Asesor</th>'+
+		                                    '<th style="text-align: center;">Anio</th>'+
+		                                    '<th style="text-align: center;">Mes</th>'+
+		                                    '<th style="text-align: center;">Facturación</th>'+
+		                                    '<th style="text-align: center;">Continuas</th>'+
+		                                    '<th style="text-align: center;">Afiliadas</th>'+
+		                                    '<th style="text-align: center;">Reactivadas</th>'+
+		                                    '<th style="text-align: center;">Activasenmes</th>'+
+		                                    '<th style="text-align: center;">Desactivadas</th>'+
+		                                    '<th style="text-align: center;">%Desact</th>'+
+		                                    '<th style="text-align: center;">Reg Mes</th>'+
+		                                    '<th style="text-align: center;">TactRegMes</th>'+
+		                                    '<th style="text-align: center;">%Afiliadas Mes</th>'+
+		                                    '<th style="text-align: center;">Activas De Otro Me</th>'+
+		                                    '<th style="text-align: center;">Total Activas</th>'+
+		                                    '<th style="text-align: center;">Ticket Prom</th>'+
+	                                    '</tr>'+
+                                    '</thead>'+
+                                    '<tbody>'+
+	                                    '<tr>'+
+		                                    '<td colspan=16>No se encontraron resultados</td>'+
+	                                    '</tr>'+
+                                    '</tbody>';
+
+                $("#datepickerIni").datepicker({
+                    autoclose: true,
+                    todayHighlight: true
+                }).datepicker("setDate", "0");
+
+                $("#datepickerFin").datepicker({
+                    autoclose: true,
+                    todayHighlight: true
+                }).datepicker("setDate", "0");
+
+                $("#rdGeneral").attr('checked', true);
+
+                $("#btnBuscarDet").attr('style', 'display:none');
+                $("#btnBuscar").attr('style', 'visibility: visible;margin-top: 23px;');
+
+                this.isOkUpdate = false;
+                this.FechaInicio = $("#dtpFechaInicio").val();
+                this.FechaFin = $("#dtpFechaFin").val();
+                this.IdAsesor = $("#ddlAsesor").val();
+                this.IdLider = $("#ddlLider").val();
+                this.IsAseOrLider = false;
+                this.IsGeneral = true;
+                this.IsOk = true;
+                this.TablaConsulKPI = $('#TablaConsulKPI');
+                this.TablaConsulKPIDet = $('#TablaConsulKPIDet');
+
+                this.blEnero = true;
+                this.blFebrero = true;
+                this.blMarzo = true;
+                this.blAbril = true;
+                this.blMayo = true;
+                this.blJunio = true;
+                this.blJulio = true;
+                this.blAgosto = true;
+                this.blSeptiembre = true;
+                this.blOctubre = true;
+                this.blNoviembre = true;
+                this.blDiciembre = true;
+
+                objConsulKPI.grid.getColum();
+                /*[/Inicializamos variables]*/
+
+                $("#rdAsesor").click(function () {
+                    objConsulKPI.IsAseOrLider = true;
+                    objConsulKPI.IsGeneral = false;
+                    
+                    $('#ddlAsesor').selectpicker('val', '');
+                    objConsulKPI.generaal.dropdownlist.Llena('-1', 'Lider', objConsulKPI.ListarLider);
+                    $("#ddlAsesor").attr("disabled", false);
+                    $("#ddlLider").attr("disabled", true);
+                    $("#btnBuscar").attr('style', 'display:none');
+                    $("#btnBuscarDet").attr('style', 'visibility: visible;margin-top: 23px;');
+                });
+
+                $("#rdLider").click(function () {
+                    objConsulKPI.IsAseOrLider = false;
+                    objConsulKPI.IsGeneral = false;
+                    
+                    $('#ddlAsesor').selectpicker('val', '');
+                    objConsulKPI.generaal.dropdownlist.Llena('-1', 'Lider', objConsulKPI.ListarLider);
+                    $("#ddlAsesor").attr("disabled", true);
+                    $("#ddlLider").attr("disabled", false);
+                    $("#btnBuscar").attr('style', 'display:none');
+                    $("#btnBuscarDet").attr('style', 'visibility: visible;margin-top: 23px;');
+                });
+
+                $("#rdGeneral").click(function () {
+                    objConsulKPI.IsGeneral = true;
+                    $('#ddlAsesor').selectpicker('val', '');
+                    objConsulKPI.generaal.dropdownlist.Llena('-1', 'Lider', objConsulKPI.ListarLider);
+                    $("#ddlAsesor").attr("disabled", false);
+                    $("#ddlLider").attr("disabled", false);
+                    $("#btnBuscarDet").attr('style', 'display:none');
+                    $("#btnBuscar").attr('style', 'visibility: visible;margin-top: 23px;');
+                });
+
+                /*[Select]*/
+                $("#ddlAsesor").change(function () {
+                    debugger;
+                    //alert("Hola")
+                    if (objConsulKPI.IsGeneral) {
+                        if (this.value=='') {
+                            objConsulKPI.generaal.dropdownlist.Llena('-1', 'Lider', objConsulKPI.ListarLider);
+                        }else{
+                            objConsulKPI.generaal.dropdownlist.Llena(this.value, 'Lider', objConsulKPI.ListarLider);
+                        }                        
+                    }
+                })
+                /*[/Select]*/
+
+                /*[btn Exportar y buscar]*/
+                $("#btnExportar").click(function () {
+                    objConsulKPI.FechaInicio = $("#dtpFechaInicio").val();
+                    objConsulKPI.FechaFin = $("#dtpFechaFin").val();
+                    waitingDialog.show("Espere por favor...")
+                    if (objConsulKPI.IsGeneral) {
+                        objConsulKPI.generaal.exportar.ConsulKPI();
+                    } else {
+                        objConsulKPI.generaal.exportar.ConsulKPIDet();
+                    }                    
+                })
+
+                $("#btnBuscar").click(function () {
+                    debugger
+                    objConsulKPI.isOkUpdate = true;
+                    objConsulKPI.FechaInicio = $("#dtpFechaInicio").val();
+                    objConsulKPI.FechaFin = $("#dtpFechaFin").val();
+                    objConsulKPI.IdAsesor = $("#ddlAsesor").val();
+                    objConsulKPI.IdLider = $("#ddlLider").val();
+
+                    if (!objConsulKPI.IsOk) {
+                        debugger
+                        objConsulKPI.TablaConsulKPIDet.DataTable().destroy();
+                        objConsulKPI.TablaConsulKPIDet.empty();
+                    }
+                    objConsulKPI.grid.getColum();
+                    //objConsulKPI.generaal.consultar();
+                })
+
+                $("#btnBuscarDet").click(function () {
+                    
+                    objConsulKPI.isOkUpdate = true;
+                    objConsulKPI.FechaInicio = $("#dtpFechaInicio").val();
+                    objConsulKPI.FechaFin = $("#dtpFechaFin").val();
+                    objConsulKPI.IdAsesor = $("#ddlAsesor").val();
+                    objConsulKPI.IdLider = $("#ddlLider").val();
+                    if (objConsulKPI.IsOk) {
+                        objConsulKPI.TablaConsulKPI.DataTable().destroy();
+                        objConsulKPI.TablaConsulKPI.empty();
+                    }
+                    objConsulKPI.grid.getColum();
+                    //objConsulKPI.generaal.consultar();
+                })
+
+                
+                /*[btn Exportar y buscar]*/
+
+                //objConsulKPI.grid.getConsulKPIDet();
+                //objConsulKPI.grid.getConsulKPI();
+            },
+            grid: {
+                getColum: function () {
+                    //debugger
+                    if (objConsulKPI.generaal.Validar()) {
+                        waitingDialog.show("Espere por favor...")
+                        if (objConsulKPI.IsGeneral) {
+                            $("#TablaConsulKPI").html(objConsulKPI._HtmlTabla);
+                            objConsulKPI.grid.getConsulKPI();
+                        } else {
+                            //debugger
+
+                            $("#TablaConsulKPIDet").html(objConsulKPI._HtmlTablaDet);
+                            objConsulKPI.grid.getConsulKPIDet();
+                        }
+                    }
+                },
+                getConsulKPIDet: function () {
+                    objConsulKPI.IsOk = false;
+                    debugger
+                    objConsulKPI.TablaConsulKPIDet.DataTable({
+                        "language": {
+                            "url": "../Scripts/DataTables/Spanish.json"
+                        },
+                       "fnServerData": function (sSource, aoData, fnCallback) {
+                            $.getJSON(sSource, aoData, function (json) {
+                                json.bIsAseOrLider == true ? objConsulKPI.TablaConsulKPIDet.DataTable().columns([0]).visible(false) : objConsulKPI.TablaConsulKPIDet.DataTable().columns([0]).visible(true);
+                                fnCallback(json);
+                            });
+                        },
+                        "bServerSide": true,
+                        "bAutoWidth": false,
+                        "sAjaxSource": '@Url.Action("getLisConsultaKPI_DetalleAjax", "RRHH")',
+                        "fnServerParams": function (aoData) {
+                            debugger;
+                            aoData.push({ "name": "isOkUpdate", "value": objConsulKPI.isOkUpdate });
+                            aoData.push({ "name": "FechaInicio", "value": objConsulKPI.FechaInicio });
+                            aoData.push({ "name": "FechaFin", "value": objConsulKPI.FechaFin });
+                            aoData.push({ "name": "IdAsesor", "value": objConsulKPI.IdAsesor });
+                            aoData.push({ "name": "IdLider", "value": objConsulKPI.IdLider });
+                            aoData.push({ "name": "IsAseOrLider", "value": objConsulKPI.IsAseOrLider });
+                        },
+                        "bFilter": true,
+                        "destroy": true, //reinializa la tabla
+                        "start": 0,
+                        "columnDefs": [{
+                            "orderable": false,
+                            "targets": [],
+                        }],
+                        "bDeferRender": true,
+                        "aoColumns": [
+                            { "sName": "Lider", "mData": "Lider", "sClass": "" },
+                            { "sName": "Asesor", "mData": "Asesor", "sClass": "" },
+                            { "sName": "Anio", "mData": "Anio", "sClass": ".alignCenter" },
+                            { "sName": "Mes", "mData": "Mes", "sClass": "alignCenter" },
+                            { "sName": "Facturacion", "mData": "Facturacion", "sClass": "alignRight" },
+                            { "sName": "Continuas", "mData": "Continuas", "sClass": "alignRight" },
+                            { "sName": "Afiliadas", "mData": "Afiliadas", "sClass": "alignRight" },
+                            { "sName": "Reactivadas", "mData": "Reactivadas", "sClass": "alignRight" },
+                            { "sName": "Activasenmes", "mData": "Activasenmes", "sClass": "alignRight" },
+                            { "sName": "Desactivadas", "mData": "Desactivadas", "sClass": "alignRight" },
+                            { "sName": "PorDesact", "mData": "PorDesact", "sClass": "alignRight" },
+                            { "sName": "Reg_Mes", "mData": "Reg_Mes", "sClass": "alignRight" },
+                            { "sName": "TactRegMes", "mData": "TactRegMes", "sClass": "alignRight" },
+                            { "sName": "PorAfiliadasMes", "mData": "PorAfiliadasMes", "sClass": "alignRight" },
+                            { "sName": "ActivasOtroMes", "mData": "ActivasOtroMes", "sClass": "alignRight" },
+                            { "sName": "TotalActivas", "mData": "TotalActivas", "sClass": "alignRight" },
+                            { "sName": "TicketProm", "mData": "TicketProm", "sClass": "alignRight" }
+                        ],
+                        "fnRowCallback": function (row, data, index) {
+                        },
+                        "drawCallback": function (settings) {
+                            objConsulKPI.isOkUpdate = false;
+                            var table = objConsulKPI.TablaConsulKPIDet.dataTable();
+                            var data = table.fnGetData();
+                            if (data.length == 0) {
+                                $("#btnExportar").addClass("disabled");
+                                $("#btnExportar").attr('disabled', 'disabled');
+                            } else {
+                                $("#btnExportar").removeClass("disabled");
+                                $("#btnExportar").removeAttr("disabled");
+                            }
+                            waitingDialog.hide();
+                        },
+                        "initComplete": function (settings, json) {
+                        }
+                    });
+                },
+                cargaTablaConsulKPIDet: function () {
+                    debugger
+                    waitingDialog.show("Espere por favor...")
+                    objConsulKPI.TablaConsulKPIDet.DataTable().ajax.reload(function () {
+                        waitingDialog.hide();
+                    });
+                },
+                getConsulKPI: function () {
+                    debugger
+                    objConsulKPI.IsOk = true;
+                    objConsulKPI.TablaConsulKPI.DataTable({
+                        "language": {
+                            "url": "../Scripts/DataTables/Spanish.json"
+                        },
+                        "fnServerData": function (sSource, aoData, fnCallback) {
+                            $.getJSON(sSource, aoData, function (json) {
+                                if (json.iTotalRecords > 0) {
+                                    json.dEnero == 0 ? objConsulKPI.TablaConsulKPI.DataTable().columns([1]).visible(false) : objConsulKPI.TablaConsulKPI.DataTable().columns([1]).visible(true);
+                                    json.dFebrero == 0 ? objConsulKPI.TablaConsulKPI.DataTable().columns([2]).visible(false) : objConsulKPI.TablaConsulKPI.DataTable().columns([2]).visible(true);
+                                    json.dMarzo == 0 ? objConsulKPI.TablaConsulKPI.DataTable().columns([3]).visible(false) : objConsulKPI.TablaConsulKPI.DataTable().columns([3]).visible(true);
+                                    json.dAbril == 0 ? objConsulKPI.TablaConsulKPI.DataTable().columns([4]).visible(false) : objConsulKPI.TablaConsulKPI.DataTable().columns([4]).visible(true);
+                                    json.dMayo == 0 ? objConsulKPI.TablaConsulKPI.DataTable().columns([5]).visible(false) : objConsulKPI.TablaConsulKPI.DataTable().columns([5]).visible(true);
+                                    json.dJunio == 0 ? objConsulKPI.TablaConsulKPI.DataTable().columns([6]).visible(false) : objConsulKPI.TablaConsulKPI.DataTable().columns([6]).visible(true);
+                                    json.dJulio == 0 ? objConsulKPI.TablaConsulKPI.DataTable().columns([7]).visible(false) : objConsulKPI.TablaConsulKPI.DataTable().columns([7]).visible(true);
+                                    json.dAgosto == 0 ? objConsulKPI.TablaConsulKPI.DataTable().columns([8]).visible(false) : objConsulKPI.TablaConsulKPI.DataTable().columns([8]).visible(true);
+                                    json.dSeptiembre == 0 ? objConsulKPI.TablaConsulKPI.DataTable().columns([9]).visible(false) : objConsulKPI.TablaConsulKPI.DataTable().columns([9]).visible(true);
+                                    json.dOctubre == 0 ? objConsulKPI.TablaConsulKPI.DataTable().columns([10]).visible(false) : objConsulKPI.TablaConsulKPI.DataTable().columns([10]).visible(true);
+                                    json.dNoviembre == 0 ? objConsulKPI.TablaConsulKPI.DataTable().columns([11]).visible(false) : objConsulKPI.TablaConsulKPI.DataTable().columns([11]).visible(true);
+                                    json.dDiciembre == 0 ? objConsulKPI.TablaConsulKPI.DataTable().columns([12]).visible(false) : objConsulKPI.TablaConsulKPI.DataTable().columns([12]).visible(true);
+                                }
+                                fnCallback(json);
+                            });
+                        },
+                        "bServerSide": true,
+                        "bAutoWidth": false,
+                        "sAjaxSource": '@Url.Action("getLisConsultaKPIAjax", "RRHH")',
+                        "fnServerParams": function (aoData) {
+                            debugger;
+                            aoData.push({ "name": "isOkUpdate", "value": objConsulKPI.isOkUpdate });
+                            aoData.push({ "name": "FechaInicio", "value": objConsulKPI.FechaInicio });
+                            aoData.push({ "name": "FechaFin", "value": objConsulKPI.FechaFin });
+                            aoData.push({ "name": "IdAsesor", "value": objConsulKPI.IdAsesor });
+                            aoData.push({ "name": "IdLider", "value": objConsulKPI.IdLider });
+                        },
+                        "bFilter": true,
+                        "destroy": true, //reinializa la tabla
+                        "start": 0,
+                        "columnDefs": [{
+                            "orderable": false,
+                            "targets": [],
+                        }],
+                        "bDeferRender": true,
+                        "aoColumns": [
+                            { "sName": "concepto", "mData": "concepto", "sClass": "" },
+                            //Enero
+                            {
+                                "mData": null,
+                                "sClass": "alignRight",
+                                "bVisible": objConsulKPI.blEnero,
+                                "render": function (Data, type, full, meta) {
+                                    let Monto = full.Enero;
+                                    return (Monto == undefined || Monto == null || Monto == 0) ? ' ' : 'S/ ' + objConsulKPI.generaal.FormatDecimal(Monto, 2, '.', ',');
+                                }
+                            },
+                            //Febrero
+                            {
+                                "mData": null,
+                                "sClass": "alignRight",
+                                "bVisible": objConsulKPI.blFebrero,
+                                "render": function (Data, type, full, meta) {
+                                    let Monto = full.Febrero;
+                                    return (Monto == undefined || Monto == null || Monto == 0) ? ' ' : 'S/ ' + objConsulKPI.generaal.FormatDecimal(Monto, 2, '.', ',');
+                                }
+                            },
+                            //Marzo
+                            {
+                                "mData": null,
+                                "sClass": "alignRight",
+                                "bVisible": objConsulKPI.blMarzo,
+                                "render": function (Data, type, full, meta) {
+                                    let Monto = full.Marzo;
+                                    return (Monto == undefined || Monto == null || Monto == 0) ? ' ' : 'S/ ' + objConsulKPI.generaal.FormatDecimal(Monto, 2, '.', ',');
+                                }
+                            },
+                            //Abril
+                            {
+                                "mData": null,
+                                "sClass": "alignRight",
+                                "bVisible": objConsulKPI.blAbril,
+                                "render": function (Data, type, full, meta) {
+                                    let Monto = full.Abril;
+                                    return (Monto == undefined || Monto == null || Monto == 0) ? ' ' : 'S/ ' + objConsulKPI.generaal.FormatDecimal(Monto, 2, '.', ',');
+                                }
+                            },
+                            //Mayo
+                            {
+                                "mData": null,
+                                "sClass": "alignRight",
+                                "bVisible": objConsulKPI.blMayo,
+                                "render": function (Data, type, full, meta) {
+                                    let Monto = full.Mayo;
+                                    return (Monto == undefined || Monto == null || Monto == 0) ? ' ' : 'S/ ' + objConsulKPI.generaal.FormatDecimal(Monto, 2, '.', ',');
+                                }
+                            },
+                            //Junio
+                            {
+                                "mData": null,
+                                "sClass": "alignRight",
+                                "bVisible": objConsulKPI.blJunio,
+                                "render": function (Data, type, full, meta) {
+                                    let Monto = full.Junio;
+                                    return (Monto == undefined || Monto == null || Monto == 0) ? ' ' : 'S/ ' + objConsulKPI.generaal.FormatDecimal(Monto, 2, '.', ',');
+                                }
+                            },
+                            //Julio
+                            {
+                                "mData": null,
+                                "sClass": "alignRight",
+                                "bVisible": objConsulKPI.blJulio,
+                                "render": function (Data, type, full, meta) {
+                                    let Monto = full.Julio;
+                                    return (Monto == undefined || Monto == null || Monto == 0) ? ' ' : 'S/ ' + objConsulKPI.generaal.FormatDecimal(Monto, 2, '.', ',');
+                                }
+                            },
+                            //Agosto
+                            {
+                                "mData": null,
+                                "sClass": "alignRight",
+                                "bVisible": objConsulKPI.blAgosto,
+                                "render": function (Data, type, full, meta) {
+                                    let Monto = full.Agosto;
+                                    return (Monto == undefined || Monto == null || Monto == 0) ? ' ' : 'S/ ' + objConsulKPI.generaal.FormatDecimal(Monto, 2, '.', ',');
+                                }
+                            },
+                            //Septiembre
+                            {
+                                "mData": null,
+                                "sClass": "alignRight",
+                                "bVisible": objConsulKPI.blSeptiembre,
+                                "render": function (Data, type, full, meta) {
+                                    let Monto = full.Septiembre;
+                                    return (Monto == undefined || Monto == null || Monto == 0) ? ' ' : 'S/ ' + objConsulKPI.generaal.FormatDecimal(Monto, 2, '.', ',');
+                                }
+                            },
+                            //Octubre
+                            {
+                                "mData": null,
+                                "sClass": "alignRight",
+                                "bVisible": objConsulKPI.blOctubre,
+                                "render": function (Data, type, full, meta) {
+                                    let Monto = full.Octubre;
+                                    return (Monto == undefined || Monto == null || Monto == 0) ? ' ' : 'S/ ' + objConsulKPI.generaal.FormatDecimal(Monto, 2, '.', ',');
+                                }
+                            },
+                            //Noviembre
+                            {
+                                "mData": null,
+                                "sClass": "alignRight",
+                                "bVisible": objConsulKPI.blNoviembre,
+                                "render": function (Data, type, full, meta) {
+                                    let Monto = full.Noviembre;
+                                    return (Monto == undefined || Monto == null || Monto == 0) ? ' ' : 'S/ ' + objConsulKPI.generaal.FormatDecimal(Monto, 2, '.', ',');
+                                }
+                            },
+                            //Diciembre
+                            {
+                                "mData": null,
+                                "sClass": "alignRight",
+                                "bVisible": objConsulKPI.blDiciembre,
+                                "render": function (Data, type, full, meta) {
+                                    let Monto = full.Diciembre;
+                                    return (Monto == undefined || Monto == null || Monto == 0) ? ' ' : 'S/ ' + objConsulKPI.generaal.FormatDecimal(Monto, 2, '.', ',');
+                                }
+                            }
+                        ],
+                        "fnRowCallback": function (row, data, index) {
+                        },
+                        "drawCallback": function (settings) {
+                            objConsulKPI.isOkUpdate = false;
+                            var table = objConsulKPI.TablaConsulKPI.dataTable();
+                            var data = table.fnGetData();
+                            if (data.length == 0) {
+                                $("#btnExportar").addClass("disabled");
+                                $("#btnExportar").attr('disabled', 'disabled');
+                            } else {
+                                $("#btnExportar").removeClass("disabled");
+                                $("#btnExportar").removeAttr("disabled");
+                            }
+                            waitingDialog.hide();
+                        },
+                        "initComplete": function (settings, json) {
+                        }
+                    });
+                },
+                cargaTablaConsulKPI: function () {
+                    debugger
+                    waitingDialog.show("Espere por favor...")
+                    objConsulKPI.TablaConsulKPI.DataTable().ajax.reload(function () {
+                        waitingDialog.hide();
+                    });
+                }
+            },
+            generaal: {
+                FormatDecimal: function (numero, decimales, separadorDecimal, separadorMiles) {
+                    //debugger
+                    var partes, array;
+                    if (!isFinite(numero) || isNaN(numero = parseFloat(numero))) {
+                        return "";
+                    }
+                    if (typeof decimales === "undefined") {
+                        decimales = 2;
+                    }
+                    if (typeof separadorDecimal === "undefined") {
+                        separadorDecimal = ".";
+                    }
+                    if (typeof separadorMiles === "undefined") {
+                        separadorMiles = ",";
+                    }
+                    // Redondeamos
+                    if (!isNaN(parseInt(decimales))) {
+                        if (decimales >= 0) {
+                            numero = numero.toFixed(decimales);
+                        } else {
+                            numero = (
+                                Math.round(numero / Math.pow(10, Math.abs(decimales))) * Math.pow(10, Math.abs(decimales))
+                            ).toFixed();
+                        }
+                    } else {
+                        numero = numero.toString();
+                    }
+                    // Damos formato
+                    partes = numero.split(".", 2);
+                    array = partes[0].split("");
+                    for (var i = array.length - 3; i > 0 && array[i - 1] !== "-"; i -= 3) {
+                        array.splice(i, 0, separadorMiles);
+                    }
+                    numero = array.join("");
+                    if (partes.length > 1) {
+                        numero += separadorDecimal + partes[1];
+                    }
+                    return numero;
+                },
+                Validar : function(){
+                    debugger;
+                    if (objConsulKPI.FechaInicio == undefined || objConsulKPI.FechaInicio == null || objConsulKPI.FechaInicio.length == 0 || objConsulKPI.FechaInicio == '') {
+                        toastr.error("La fecha de Inicio no puede estar vacio", "Alerta");
+                        return false;
+                    }
+                    if (objConsulKPI.FechaFin == undefined || objConsulKPI.FechaFin == null || objConsulKPI.FechaFin.length == 0 || objConsulKPI.FechaFin == '') {
+                        toastr.error("La fecha de Fin no puede estar vacio", "Alerta");
+                        return false;
+                    }
+                    return true;
+                },
+                consultar: function () {
+                    debugger
+                    if (objConsulKPI.generaal.Validar()) {
+                        if (objConsulKPI.IsGeneral) {
+                            objConsulKPI.grid.cargaTablaConsulKPI();
+                        }else{
+                            objConsulKPI.grid.cargaTablaConsulKPIDet();
+                        }
+                    }
+                },
+                exportar:{
+                    ConsulKPI: function () {
+                        var _Ent = function () { return @Html.Raw(Json.Encode(ViewBag.EntConsultaKPI)); }();
+                        _Ent.FechaInicio = objConsulKPI.FechaInicio;
+                        _Ent.FechaFin = objConsulKPI.FechaFin;
+                        $.ajax({
+                            type: "POST",
+                            url: '@Url.Action("get_exporta_LisConsultaKPI_excel", "RRHH")',
+                            data : {_Ent:_Ent},
+                            success: function (data) {
+                                data = JSON.parse(data);
+                                waitingDialog.hide();
+                                if (data.Success) {
+                                    toastr.success(data.Message);
+                                    window.location = '@Url.Action("ListarConsultaKPIExcel")';
+                                }
+                                else {
+                                    toastr.error(data.Message, "Alerta");
+                                }
+                            },
+                            error: function (XMLHttpRequest, textStatus, errorThrown) {
+                                waitingDialog.hide();
+                                toastr.error("Error al exportar excel.", "Alerta");
+                            }
+                        });
+                    },
+                    ConsulKPIDet: function () {
+                        var _Ent = function () { return @Html.Raw(Json.Encode(ViewBag.EntConsultaKPIDetalle)); }();
+                        _Ent.FechaInicio = objConsulKPI.FechaInicio;
+                        _Ent.FechaFin = objConsulKPI.FechaFin;
+                        _Ent.IsAseOrLider = objConsulKPI.IsAseOrLider;
+                        $.ajax({
+                            type: "POST",
+                            url: '@Url.Action("get_exporta_LisConsultaKPI_Detalle_excel", "RRHH")',
+                            data : {_Ent:_Ent},
+                            success: function (data) {
+                                data = JSON.parse(data);
+                                waitingDialog.hide();
+                                if (data.Success) {
+                                    toastr.success(data.Message);
+                                    window.location = '@Url.Action("ListarConsultaKPI_DetalleExcel")';
+                                }
+                                else {
+                                    toastr.error(data.Message, "Alerta");
+                                }
+                            },
+                            error: function (XMLHttpRequest, textStatus, errorThrown) {
+                                waitingDialog.hide();
+                                toastr.error("Error al exportar excel.", "Alerta");
+                            }
+                        });
+                    }
+                },
+                dropdownlist: {
+                    Llena: function (Value, Id, Listado) {
+                        debugger
+                        let Lista = (Value == '-1') ? Listado : Listado.filter((item) => { return item.IdAsesor === Value; });
+                        let dropdownlist = '<select class="form-control selectpicker" data-live-search="true" id="ddl' + Id + '" name="ddl' + Id + '" style="max-width: 100%" tabindex="-98">';
+                        //$.each(Lista, function (k, v) {
+                        //    dropdownlist += '<option value = ' + v.Codigo + '>' + v.Descripcion + '</option>';
+                        //});
+                        for (var key in Lista) {
+                            dropdownlist += '<option value = ' + Lista[key].Codigo + '>' + Lista[key].Descripcion + '</option>';
+                        }
+                        dropdownlist += '</select>';
+                        //document.getElementById("Div" + Id).innerHTML = dropdownlist;
+
+                        $("#Div" + Id).html(dropdownlist);
+                        $('.selectpicker').selectpicker({
+                            liveSearch: true,
+                            showSubtext: true
+                        });         
+                    }
+                }
+            }
+        };
+        $(document).ready(function () {
+            objConsulKPI.Inicio();
+        });
+    </script>
+}

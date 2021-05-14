@@ -3170,6 +3170,7 @@
     <Content Include="Views\Facturacion\Ventas_Lider.cshtml" />
     <Content Include="Views\RRHH\ConsultaPromotorXLider.cshtml" />
     <Content Include="Views\Pedidos_Consultas\Pedido_Pagados.cshtml" />
+    <Content Include="Views\RRHH\Consulta_KPI.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
