@@ -696,47 +696,51 @@ namespace CapaPresentacion.Controllers
             }
             var sortIdx = Convert.ToInt32(Request["iSortCol_0"]);
 
-            if (param.iSortingCols > 0)
+            if (sortIdx!=0)
             {
-                if (Request["sSortDir_0"].ToString() == "asc")
+                if (param.iSortingCols > 0)
                 {
-                    switch (sortIdx)
+                    if (Request["sSortDir_0"].ToString() == "asc")
                     {
-                        case 0: filteredMembers = filteredMembers.OrderBy(o => o.concepto); break;
-                        case 1: filteredMembers = filteredMembers.OrderBy(o => o.Enero); break;
-                        case 2: filteredMembers = filteredMembers.OrderBy(o => o.Febrero); break;
-                        case 3: filteredMembers = filteredMembers.OrderBy(o => o.Marzo); break;
-                        case 4: filteredMembers = filteredMembers.OrderBy(o => o.Abril); break;
-                        case 5: filteredMembers = filteredMembers.OrderBy(o => o.Mayo); break;
-                        case 6: filteredMembers = filteredMembers.OrderBy(o => o.Junio); break;
-                        case 7: filteredMembers = filteredMembers.OrderBy(o => o.Julio); break;
-                        case 8: filteredMembers = filteredMembers.OrderBy(o => o.Agosto); break;
-                        case 9: filteredMembers = filteredMembers.OrderBy(o => o.Septiembre); break;
-                        case 10: filteredMembers = filteredMembers.OrderBy(o => o.Octubre); break;
-                        case 11: filteredMembers = filteredMembers.OrderBy(o => o.Noviembre); break;
-                        case 12: filteredMembers = filteredMembers.OrderBy(o => o.Diciembre); break;
+                        switch (sortIdx)
+                        {
+                            case 0: filteredMembers = filteredMembers.OrderBy(o => o.concepto); break;
+                            case 1: filteredMembers = filteredMembers.OrderBy(o => o.Enero); break;
+                            case 2: filteredMembers = filteredMembers.OrderBy(o => o.Febrero); break;
+                            case 3: filteredMembers = filteredMembers.OrderBy(o => o.Marzo); break;
+                            case 4: filteredMembers = filteredMembers.OrderBy(o => o.Abril); break;
+                            case 5: filteredMembers = filteredMembers.OrderBy(o => o.Mayo); break;
+                            case 6: filteredMembers = filteredMembers.OrderBy(o => o.Junio); break;
+                            case 7: filteredMembers = filteredMembers.OrderBy(o => o.Julio); break;
+                            case 8: filteredMembers = filteredMembers.OrderBy(o => o.Agosto); break;
+                            case 9: filteredMembers = filteredMembers.OrderBy(o => o.Septiembre); break;
+                            case 10: filteredMembers = filteredMembers.OrderBy(o => o.Octubre); break;
+                            case 11: filteredMembers = filteredMembers.OrderBy(o => o.Noviembre); break;
+                            case 12: filteredMembers = filteredMembers.OrderBy(o => o.Diciembre); break;
+                        }
                     }
-                }
-                else
-                {
-                    switch (sortIdx)
+                    else
                     {
-                        case 0: filteredMembers = filteredMembers.OrderByDescending(o => o.concepto); break;
-                        case 1: filteredMembers = filteredMembers.OrderByDescending(o => o.Enero); break;
-                        case 2: filteredMembers = filteredMembers.OrderByDescending(o => o.Febrero); break;
-                        case 3: filteredMembers = filteredMembers.OrderByDescending(o => o.Marzo); break;
-                        case 4: filteredMembers = filteredMembers.OrderByDescending(o => o.Abril); break;
-                        case 5: filteredMembers = filteredMembers.OrderByDescending(o => o.Mayo); break;
-                        case 6: filteredMembers = filteredMembers.OrderByDescending(o => o.Junio); break;
-                        case 7: filteredMembers = filteredMembers.OrderByDescending(o => o.Julio); break;
-                        case 8: filteredMembers = filteredMembers.OrderByDescending(o => o.Agosto); break;
-                        case 9: filteredMembers = filteredMembers.OrderByDescending(o => o.Septiembre); break;
-                        case 10: filteredMembers = filteredMembers.OrderByDescending(o => o.Octubre); break;
-                        case 11: filteredMembers = filteredMembers.OrderByDescending(o => o.Noviembre); break;
-                        case 12: filteredMembers = filteredMembers.OrderByDescending(o => o.Diciembre); break;
+                        switch (sortIdx)
+                        {
+                            case 0: filteredMembers = filteredMembers.OrderByDescending(o => o.concepto); break;
+                            case 1: filteredMembers = filteredMembers.OrderByDescending(o => o.Enero); break;
+                            case 2: filteredMembers = filteredMembers.OrderByDescending(o => o.Febrero); break;
+                            case 3: filteredMembers = filteredMembers.OrderByDescending(o => o.Marzo); break;
+                            case 4: filteredMembers = filteredMembers.OrderByDescending(o => o.Abril); break;
+                            case 5: filteredMembers = filteredMembers.OrderByDescending(o => o.Mayo); break;
+                            case 6: filteredMembers = filteredMembers.OrderByDescending(o => o.Junio); break;
+                            case 7: filteredMembers = filteredMembers.OrderByDescending(o => o.Julio); break;
+                            case 8: filteredMembers = filteredMembers.OrderByDescending(o => o.Agosto); break;
+                            case 9: filteredMembers = filteredMembers.OrderByDescending(o => o.Septiembre); break;
+                            case 10: filteredMembers = filteredMembers.OrderByDescending(o => o.Octubre); break;
+                            case 11: filteredMembers = filteredMembers.OrderByDescending(o => o.Noviembre); break;
+                            case 12: filteredMembers = filteredMembers.OrderByDescending(o => o.Diciembre); break;
+                        }
                     }
                 }
             }
+            
 
             var Result = filteredMembers
                 .Skip(param.iDisplayStart)
