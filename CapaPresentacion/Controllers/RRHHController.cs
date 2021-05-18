@@ -366,6 +366,7 @@ namespace CapaPresentacion.Controllers
                             m.Anio.ToString().Contains(param.sSearch.ToUpper()) ||
                             m.Mes.ToUpper().Contains(param.sSearch.ToUpper()) ||
                             m.Facturacion.ToString().Contains(param.sSearch.ToUpper()) ||
+                            m.Margen.ToString().Contains(param.sSearch.ToUpper()) ||
                             m.Continuas.ToString().Contains(param.sSearch.ToUpper()) ||
                             m.Afiliadas.ToString().Contains(param.sSearch.ToUpper()) ||
                             m.Reactivadas.ToString().Contains(param.sSearch.ToUpper()) ||
@@ -393,18 +394,19 @@ namespace CapaPresentacion.Controllers
                         case 2: filteredMembers = filteredMembers.OrderBy(o => o.Anio); break;
                         case 3: filteredMembers = filteredMembers.OrderBy(o => o.Mes); break;
                         case 4: filteredMembers = filteredMembers.OrderBy(o => o.Facturacion); break;
-                        case 5: filteredMembers = filteredMembers.OrderBy(o => o.Continuas); break;
-                        case 6: filteredMembers = filteredMembers.OrderBy(o => o.Afiliadas); break;
-                        case 7: filteredMembers = filteredMembers.OrderBy(o => o.Reactivadas); break;
-                        case 8: filteredMembers = filteredMembers.OrderBy(o => o.Activasenmes); break;
-                        case 9: filteredMembers = filteredMembers.OrderBy(o => o.Desactivadas); break;
-                        case 10: filteredMembers = filteredMembers.OrderBy(o => o.PorDesact); break;
-                        case 11: filteredMembers = filteredMembers.OrderBy(o => o.Reg_Mes); break;
-                        case 12: filteredMembers = filteredMembers.OrderBy(o => o.TactRegMes); break;
-                        case 13: filteredMembers = filteredMembers.OrderBy(o => o.PorAfiliadasMes); break;
-                        case 14: filteredMembers = filteredMembers.OrderBy(o => o.ActivasOtroMes); break;
-                        case 15: filteredMembers = filteredMembers.OrderBy(o => o.TotalActivas); break;
-                        case 16: filteredMembers = filteredMembers.OrderBy(o => o.TicketProm); break;
+                        case 5: filteredMembers = filteredMembers.OrderBy(o => o.Margen); break;
+                        case 6: filteredMembers = filteredMembers.OrderBy(o => o.Continuas); break;
+                        case 7: filteredMembers = filteredMembers.OrderBy(o => o.Afiliadas); break;
+                        case 8: filteredMembers = filteredMembers.OrderBy(o => o.Reactivadas); break;
+                        case 9: filteredMembers = filteredMembers.OrderBy(o => o.Activasenmes); break;
+                        case 10: filteredMembers = filteredMembers.OrderBy(o => o.Desactivadas); break;
+                        case 11: filteredMembers = filteredMembers.OrderBy(o => o.PorDesact); break;
+                        case 12: filteredMembers = filteredMembers.OrderBy(o => o.Reg_Mes); break;
+                        case 13: filteredMembers = filteredMembers.OrderBy(o => o.TactRegMes); break;
+                        case 14: filteredMembers = filteredMembers.OrderBy(o => o.PorAfiliadasMes); break;
+                        case 15: filteredMembers = filteredMembers.OrderBy(o => o.ActivasOtroMes); break;
+                        case 16: filteredMembers = filteredMembers.OrderBy(o => o.TotalActivas); break;
+                        case 17: filteredMembers = filteredMembers.OrderBy(o => o.TicketProm); break;
                     }
                 }
                 else
@@ -416,18 +418,19 @@ namespace CapaPresentacion.Controllers
                         case 2: filteredMembers = filteredMembers.OrderByDescending(o => o.Anio); break;
                         case 3: filteredMembers = filteredMembers.OrderByDescending(o => o.Mes); break;
                         case 4: filteredMembers = filteredMembers.OrderByDescending(o => o.Facturacion); break;
-                        case 5: filteredMembers = filteredMembers.OrderByDescending(o => o.Continuas); break;
-                        case 6: filteredMembers = filteredMembers.OrderByDescending(o => o.Afiliadas); break;
-                        case 7: filteredMembers = filteredMembers.OrderByDescending(o => o.Reactivadas); break;
-                        case 8: filteredMembers = filteredMembers.OrderByDescending(o => o.Activasenmes); break;
-                        case 9: filteredMembers = filteredMembers.OrderByDescending(o => o.Desactivadas); break;
-                        case 10: filteredMembers = filteredMembers.OrderByDescending(o => o.PorDesact); break;
-                        case 11: filteredMembers = filteredMembers.OrderByDescending(o => o.Reg_Mes); break;
-                        case 12: filteredMembers = filteredMembers.OrderByDescending(o => o.TactRegMes); break;
-                        case 13: filteredMembers = filteredMembers.OrderByDescending(o => o.PorAfiliadasMes); break;
-                        case 14: filteredMembers = filteredMembers.OrderByDescending(o => o.ActivasOtroMes); break;
-                        case 15: filteredMembers = filteredMembers.OrderByDescending(o => o.TotalActivas); break;
-                        case 16: filteredMembers = filteredMembers.OrderByDescending(o => o.TicketProm); break;
+                        case 5: filteredMembers = filteredMembers.OrderBy(o => o.Margen); break;
+                        case 6: filteredMembers = filteredMembers.OrderByDescending(o => o.Continuas); break;
+                        case 7: filteredMembers = filteredMembers.OrderByDescending(o => o.Afiliadas); break;
+                        case 8: filteredMembers = filteredMembers.OrderByDescending(o => o.Reactivadas); break;
+                        case 9: filteredMembers = filteredMembers.OrderByDescending(o => o.Activasenmes); break;
+                        case 10: filteredMembers = filteredMembers.OrderByDescending(o => o.Desactivadas); break;
+                        case 11: filteredMembers = filteredMembers.OrderByDescending(o => o.PorDesact); break;
+                        case 12: filteredMembers = filteredMembers.OrderByDescending(o => o.Reg_Mes); break;
+                        case 13: filteredMembers = filteredMembers.OrderByDescending(o => o.TactRegMes); break;
+                        case 14: filteredMembers = filteredMembers.OrderByDescending(o => o.PorAfiliadasMes); break;
+                        case 15: filteredMembers = filteredMembers.OrderByDescending(o => o.ActivasOtroMes); break;
+                        case 16: filteredMembers = filteredMembers.OrderByDescending(o => o.TotalActivas); break;
+                        case 17: filteredMembers = filteredMembers.OrderByDescending(o => o.TicketProm); break;
                     }
                 }
             }
@@ -517,6 +520,7 @@ namespace CapaPresentacion.Controllers
                 sb.Append("<th bgColor='#1E77AB' style='text-align: center; font-weight:bold;font-size:11.0pt;'><font color='#FFFFFF'>Anio</font></th>\n");
                 sb.Append("<th bgColor='#1E77AB' style='text-align: center; font-weight:bold;font-size:11.0pt;'><font color='#FFFFFF'>Mes</font></th>\n");
                 sb.Append("<th bgColor='#1E77AB' style='text-align: center; font-weight:bold;font-size:11.0pt;'><font color='#FFFFFF'>Facturacion</font></th>\n");
+                sb.Append("<th bgColor='#1E77AB' style='text-align: center; font-weight:bold;font-size:11.0pt;'><font color='#FFFFFF'>Margen</font></th>\n");
                 sb.Append("<th bgColor='#1E77AB' style='text-align: center; font-weight:bold;font-size:11.0pt;'><font color='#FFFFFF'>Continuas</font></th>\n");
                 sb.Append("<th bgColor='#1E77AB' style='text-align: center; font-weight:bold;font-size:11.0pt;'><font color='#FFFFFF'>Afiliadas</font></th>\n");
                 sb.Append("<th bgColor='#1E77AB' style='text-align: center; font-weight:bold;font-size:11.0pt;'><font color='#FFFFFF'>Reactivadas</font></th>\n");
@@ -542,6 +546,7 @@ namespace CapaPresentacion.Controllers
                     sb.Append("<td align='Center'>" + item.Anio + "</td>\n");
                     sb.Append("<td align='Center'>" + item.Mes + "</td>\n");
                     sb.Append("<td align='Right'>" + item.Facturacion + "</td>\n");
+                    sb.Append("<td align='Right'>" + item.Margen + "</td>\n");
                     sb.Append("<td align='Right'>" + item.Continuas + "</td>\n");
                     sb.Append("<td align='Right'>" + item.Afiliadas + "</td>\n");
                     sb.Append("<td align='Right'>" + item.Reactivadas + "</td>\n");

@@ -48,6 +48,8 @@ namespace CapaEntidad.RRHH
         public int? Anio { get; set; }
         public string Mes { get; set; }
         public Decimal? Facturacion { get; set; }
+        public Decimal? Margen { get; set; }
+        
         public int? Continuas { get; set; }
         public int? Afiliadas { get; set; }
         public int? Reactivadas { get; set; }

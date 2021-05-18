@@ -166,6 +166,7 @@ namespace CapaDato.RRHH
                                           Anio = (fila["Anio"] is DBNull) ? (int?)null : Convert.ToInt32(fila["Anio"]),
                                           Mes = (fila["Mes"] is DBNull) ? string.Empty : (string)(fila["Mes"]),
                                           Facturacion = (fila["Facturacion"] is DBNull) ? (Decimal?)null : Convert.ToDecimal(fila["Facturacion"]),
+                                          Margen = (fila["margen"] is DBNull) ? (Decimal?)null : Convert.ToDecimal(fila["margen"]),
                                           Continuas = (fila["Continuas"] is DBNull) ? (int?)null : Convert.ToInt32(fila["Continuas"]),
                                           Afiliadas = (fila["Afiliadas"] is DBNull) ? (int?)null : Convert.ToInt32(fila["Afiliadas"]),
                                           Reactivadas = (fila["Reactivadas"] is DBNull) ? (int?)null : Convert.ToInt32(fila["Reactivadas"]),
