@@ -146,6 +146,7 @@ namespace CapaDato.RRHH
                 {
                     using (SqlCommand cmd = new SqlCommand(sqlquery, cn))
                     {
+                        cmd.CommandTimeout = 0;
                         cmd.CommandType = CommandType.StoredProcedure;
                         cmd.Parameters.AddWithValue("@asesor", DbType.String).Value = _Ent.IdAsesor;
                         cmd.Parameters.AddWithValue("@are_id", DbType.String).Value = _Ent.IdLider;
