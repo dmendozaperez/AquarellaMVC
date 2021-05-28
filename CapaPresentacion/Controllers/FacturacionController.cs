@@ -47,6 +47,8 @@ namespace CapaPresentacion.Controllers
         private string _session_ListarVentasLider = "_session_ListarVentasLider";
         private string _session_ListarVentasLider_Excel = "_session_ListarVentasLider_Excel";
         private string _session_Listar_Servicio = "_session_Listar_Servicio";
+        private string _session_ListarConsulta_Premios = "_session_ListarConsulta_Premios";
+        private string _session_ListarConsulta_Premios_Excel = "_session_ListarConsulta_Premios_Excel";
 
         #region <CONSULTA DE VENTAS POR CATEGORIA>
         public ActionResult Ventas_Categoria()
@@ -2995,6 +2997,252 @@ namespace CapaPresentacion.Controllers
             catch
             {
 
+            }
+            return Json(new { estado = 0, mensaje = 1 });
+        }
+        #endregion
+
+        #region <CONSULTA DE PREMIOS>	
+        public ActionResult Consulta_Premios()
+        {
+            Ent_Usuario _usuario = (Ent_Usuario)Session[Ent_Constantes.NameSessionUser];
+            string actionName = this.ControllerContext.RouteData.GetRequiredString("action");
+            string controllerName = this.ControllerContext.RouteData.GetRequiredString("controller");
+            string return_view = actionName + "|" + controllerName;
+
+            if (_usuario == null)
+            {
+                return RedirectToAction("Login", "Control", new { returnUrl = return_view });
+            }
+            else
+            {
+                Session[_session_ListarConsulta_Premios] = null;
+
+                DateTime date = DateTime.Now;
+                ViewBag.ListarCamFecha = datFacturacion.ListarCampaniaFecha().Where(x=>x.Anio == date.Year);
+
+                Ent_Consulta_Premios EntConsultaPremios = new Ent_Consulta_Premios();
+                ViewBag.EntConsultaPremios = EntConsultaPremios;
+                return View();
+            }
+        }
+        public JsonResult getLisConsulta_PremiosAjax(Ent_jQueryDataTableParams param, bool isOkUpdate, string FechaInicio,string FechaFin)
+        {
+            Ent_Consulta_Premios EntConsultaPremios = new Ent_Consulta_Premios();
+
+            if (isOkUpdate)
+            {
+                EntConsultaPremios.FechaIni = DateTime.Parse(FechaInicio);
+                EntConsultaPremios.FechaFin = DateTime.Parse(FechaFin);
+                EntConsultaPremios.Valida =false;
+
+                List<Ent_Consulta_Premios> _ListarConsulta_Premios = datFacturacion.List_ConsultaPremio(EntConsultaPremios).ToList();
+                Session[_session_ListarConsulta_Premios] = _ListarConsulta_Premios;
+            }
+
+            /*verificar si esta null*/
+            if (Session[_session_ListarConsulta_Premios] == null)
+            {
+                List<Ent_Consulta_Premios> _ListarConsulta_Premios = new List<Ent_Consulta_Premios>();
+                Session[_session_ListarConsulta_Premios] = _ListarConsulta_Premios;
+            }
+
+            IQueryable<Ent_Consulta_Premios> entDocTrans = ((List<Ent_Consulta_Premios>)(Session[_session_ListarConsulta_Premios])).AsQueryable();
+            //Manejador de filtros
+            int totalCount = entDocTrans.Count();
+            IEnumerable<Ent_Consulta_Premios> filteredMembers = entDocTrans;
+            if (!string.IsNullOrEmpty(param.sSearch))
+            {
+                filteredMembers = entDocTrans.Where(
+                        m =>
+                            m.Asesor.ToUpper().Contains(param.sSearch.ToUpper()) ||
+                            m.Lider.ToUpper().Contains(param.sSearch.ToUpper()) ||
+                            m.Promotor.ToUpper().Contains(param.sSearch.ToUpper()) ||
+                            m.Documento.ToUpper().Contains(param.sSearch.ToUpper()) ||
+                            m.Total.ToString().Contains(param.sSearch.ToUpper()) ||
+                            m.Limite.ToString().Contains(param.sSearch.ToUpper()) ||
+                            m.Saldo.ToString().Contains(param.sSearch.ToUpper()) ||
+                            m.Descripcion.ToUpper().Contains(param.sSearch.ToUpper()) ||
+                            m.Liqprem.ToString().Contains(param.sSearch.ToUpper()) ||
+                            m.Liqpremiori.ToString().Contains(param.sSearch.ToUpper()) ||
+                            m.Xentrega.ToUpper().Contains(param.sSearch.ToUpper())
+                );
+            }
+            var sortIdx = Convert.ToInt32(Request["iSortCol_0"]);
+
+            if (param.iSortingCols > 0)
+            {
+                if (Request["sSortDir_0"].ToString() == "asc")
+                {
+                    switch (sortIdx)
+                    {
+                        case 0: filteredMembers = filteredMembers.OrderBy(o => o.Asesor); break;
+                        case 1: filteredMembers = filteredMembers.OrderBy(o => o.Lider); break;
+                        case 2: filteredMembers = filteredMembers.OrderBy(o => o.Promotor); break;
+                        case 3: filteredMembers = filteredMembers.OrderBy(o => o.Documento); break;
+                        case 4: filteredMembers = filteredMembers.OrderBy(o => o.Total); break;
+                        case 5: filteredMembers = filteredMembers.OrderBy(o => o.Limite); break;
+                        case 6: filteredMembers = filteredMembers.OrderBy(o => o.Saldo); break;
+                        case 7: filteredMembers = filteredMembers.OrderBy(o => o.Descripcion); break;
+                        case 8: filteredMembers = filteredMembers.OrderBy(o => o.Liqprem); break;
+                        case 9: filteredMembers = filteredMembers.OrderBy(o => o.Liqpremiori); break;
+                        case 10: filteredMembers = filteredMembers.OrderBy(o => o.Xentrega); break;
+                    }
+                }
+                else
+                {
+                    switch (sortIdx)
+                    {
+                        case 0: filteredMembers = filteredMembers.OrderByDescending(o => o.Asesor); break;
+                        case 1: filteredMembers = filteredMembers.OrderByDescending(o => o.Lider); break;
+                        case 2: filteredMembers = filteredMembers.OrderByDescending(o => o.Promotor); break;
+                        case 3: filteredMembers = filteredMembers.OrderByDescending(o => o.Documento); break;
+                        case 4: filteredMembers = filteredMembers.OrderByDescending(o => o.Total); break;
+                        case 5: filteredMembers = filteredMembers.OrderByDescending(o => o.Limite); break;
+                        case 6: filteredMembers = filteredMembers.OrderByDescending(o => o.Saldo); break;
+                        case 7: filteredMembers = filteredMembers.OrderByDescending(o => o.Descripcion); break;
+                        case 8: filteredMembers = filteredMembers.OrderByDescending(o => o.Liqprem); break;
+                        case 9: filteredMembers = filteredMembers.OrderByDescending(o => o.Liqpremiori); break;
+                        case 10: filteredMembers = filteredMembers.OrderByDescending(o => o.Xentrega); break;
+                    }
+                }
+            }
+
+            var Result = filteredMembers
+                .Skip(param.iDisplayStart)
+                .Take(param.iDisplayLength);
+
+            //Se devuelven los resultados por json
+            return Json(new
+            {
+                sEcho = param.sEcho,
+                iTotalRecords = totalCount,
+                iTotalDisplayRecords = filteredMembers.Count(),
+                aaData = Result
+            }, JsonRequestBehavior.AllowGet);
+        }
+
+        public ActionResult get_exporta_LisConsulta_Premios_excel(Ent_Consulta_Premios _Ent)
+        {
+            JsonResponse objResult = new JsonResponse();
+            try
+            {
+                Session[_session_ListarConsulta_Premios_Excel] = null;
+                string cadena = "";
+                if (Session[_session_ListarConsulta_Premios] != null)
+                {
+
+                    List<Ent_Consulta_Premios> _ListarConsulta_Premios = (List<Ent_Consulta_Premios>)Session[_session_ListarConsulta_Premios];
+                    if (_ListarConsulta_Premios.Count == 0)
+                    {
+                        objResult.Success = false;
+                        objResult.Message = "No hay filas para exportar";
+                    }
+                    else
+                    {
+                        cadena = get_html_ListarConsulta_Premios_str((List<Ent_Consulta_Premios>)Session[_session_ListarConsulta_Premios], _Ent);
+                        if (cadena.Length == 0)
+                        {
+                            objResult.Success = false;
+                            objResult.Message = "Error del formato html";
+                        }
+                        else
+                        {
+                            objResult.Success = true;
+                            objResult.Message = "Se genero el excel correctamente";
+                            Session[_session_ListarConsulta_Premios_Excel] = cadena;
+                        }
+                    }
+                }
+                else
+                {
+                    objResult.Success = false;
+                    objResult.Message = "No hay filas para exportar";
+                }
+
+            }
+            catch (Exception ex)
+            {
+                objResult.Success = false;
+                objResult.Message = "No hay filas para exportar";
+            }
+
+            var JSON = JsonConvert.SerializeObject(objResult);
+
+            return Json(JSON, JsonRequestBehavior.AllowGet);
+        }
+
+        public string get_html_ListarConsulta_Premios_str(List<Ent_Consulta_Premios> _ListarConsulta_Premios, Ent_Consulta_Premios _Ent)
+        {
+            StringBuilder sb = new StringBuilder();
+            var Lista = _ListarConsulta_Premios.ToList();
+            try
+            {
+                sb.Append("<div>");
+                sb.Append("<table cellspacing='0' style='width: 1000px' rules='all' border='0' style='border-collapse:collapse;'>");
+                sb.Append("<tr><td Colspan='10'></td></tr>");
+                sb.Append("<tr><td Colspan='10' valign='middle' align='center' style='vertical-align: middle;font-size: 18.0pt;font-weight: bold;color:#285A8F'>REPORTE DE PREMIOS</td></tr>");
+                sb.Append("<tr><td Colspan='10' valign='middle' align='center' style='vertical-align: middle;font-size: 10.0pt;font-weight: bold;color:#000000'>Rango de : " + String.Format("{0:dd/MM/yyyy}", _Ent.FechaIni) + " hasta " + String.Format("{0:dd/MM/yyyy}", _Ent.FechaFin) + "</td></tr>");//subtitulo
+                sb.Append("<tr>\n");
+                sb.Append("<th bgColor='#1E77AB' style='text-align: center; font-weight:bold;font-size:11.0pt;'><font color='#FFFFFF'>Asesor</font></th>\n");
+                sb.Append("<th bgColor='#1E77AB' style='text-align: center; font-weight:bold;font-size:11.0pt;'><font color='#FFFFFF'>Directora</font></th>\n");
+                sb.Append("<th bgColor='#1E77AB' style='text-align: center; font-weight:bold;font-size:11.0pt;'><font color='#FFFFFF'>Promotor</font></th>\n");
+                sb.Append("<th bgColor='#1E77AB' style='text-align: center; font-weight:bold;font-size:11.0pt;'><font color='#FFFFFF'>Documento</font></th>\n");
+                sb.Append("<th bgColor='#1E77AB' style='text-align: center; font-weight:bold;font-size:11.0pt;'><font color='#FFFFFF'>Venta Bruta</font></th>\n");
+                sb.Append("<th bgColor='#1E77AB' style='text-align: center; font-weight:bold;font-size:11.0pt;'><font color='#FFFFFF'>Venta Minima</font></th>\n");
+                sb.Append("<th bgColor='#1E77AB' style='text-align: center; font-weight:bold;font-size:11.0pt;'><font color='#FFFFFF'>Falta premio</font></th>\n");
+                sb.Append("<th bgColor='#1E77AB' style='text-align: center; font-weight:bold;font-size:11.0pt;'><font color='#FFFFFF'>Descripcion</font></th>\n");
+                sb.Append("<th bgColor='#1E77AB' style='text-align: center; font-weight:bold;font-size:11.0pt;'><font color='#FFFFFF'>Nro Regalo</font></th>\n");
+                sb.Append("<th bgColor='#1E77AB' style='text-align: center; font-weight:bold;font-size:11.0pt;'><font color='#FFFFFF'>Nro Pedido</font></th>\n");
+                sb.Append("</tr>\n");
+                // {0:N2} Separacion miles , {0:F2} solo dos decimales
+                foreach (var item in Lista)
+                {
+                    sb.Append("<tr>\n");
+                    sb.Append("<td align=''>" + item.Asesor + "</td>\n");
+                    sb.Append("<td align=''>" + item.Lider + "</td>\n");
+                    sb.Append("<td align=''>" + item.Promotor + "</td>\n");
+                    sb.Append("<td align=''>" + item.Documento + "</td>\n");
+                    sb.Append("<td align=''>" + item.Total + "</td>\n");
+                    sb.Append("<td align='Right'>" + item.Limite + "</td>\n");
+                    sb.Append("<td align='Right'>" + item.Saldo + "</td>\n");
+                    sb.Append("<td align='Right'>" + item.Descripcion + "</td>\n");
+                    sb.Append("<td align='Center'>" + item.Liqprem + "</td>\n");
+                    sb.Append("<td align='Center'>" + item.Liqpremiori + "</td>\n");
+                    sb.Append("</tr>\n");
+                }
+                //sb.Append("<tfoot>\n");
+                //sb.Append("<tr bgcolor='#085B8C'>\n");
+                //sb.Append("</tr>\n");
+                //sb.Append("</tfoot>\n");
+                sb.Append("</table></div>");
+            }
+            catch (Exception e)
+            {
+                throw new Exception(e.Message);
+            }
+            return sb.ToString();
+        }
+
+        public ActionResult ListarConsulta_PremiosExcel()
+        {
+            string NombreArchivo = "Consulta_Premios";
+            String style = style = @"<style> .textmode { mso-number-format:\@; }</style>";
+            try
+            {
+                Response.Clear();
+                Response.Buffer = true;
+                Response.ContentType = "application/vnd.ms-excel";
+                Response.AddHeader("Content-Disposition", "attachment;filename=" + NombreArchivo + ".xls");
+                Response.Charset = "UTF-8";
+                Response.ContentEncoding = Encoding.Default;
+                Response.Write(style);
+                Response.Write(Session[_session_ListarConsulta_Premios_Excel].ToString());
+                Response.End();
+            }
+            catch (Exception e)
+            {
+                throw new Exception(e.Message);
             }
             return Json(new { estado = 0, mensaje = 1 });
         }

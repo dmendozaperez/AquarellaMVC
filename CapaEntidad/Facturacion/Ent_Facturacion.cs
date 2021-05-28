@@ -247,4 +247,32 @@ namespace CapaEntidad.Facturacion
         public string cssColor { get; set; }
         public string fName{ get; set; }
     }
+
+    public class Ent_Campaña_Fecha
+    {
+        public int Anio { get; set; }
+        public int CamFec_Num { get; set; }
+        public string CamFec_Ini { get; set; }
+        public string CamFec_Fin { get; set; }
+        public string CamFec_Nom { get; set; }
+    }
+
+    public class Ent_Consulta_Premios
+    {
+        public string Asesor { get; set; }
+        public string Lider { get; set; }
+        public string Promotor { get; set; }
+        public string Documento { get; set; }
+        public Decimal? Total { get; set; }
+        public Decimal? Limite { get; set; }
+        public Decimal? Saldo { get; set; }
+        public string Descripcion { get; set; }
+        public string Liqprem { get; set; }
+        public string Liqpremiori { get; set; }
+        public string Xentrega { get; set; }
+        //Campos Agregados
+        public DateTime FechaIni { get; set; }
+        public DateTime FechaFin { get; set; }
+        public bool Valida { get; set; }
+    }
 }

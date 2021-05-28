@@ -1,0 +1,279 @@
+﻿@{
+    ViewBag.Title = "Consulta de Premios";
+}
+<style>
+    .table thead {
+        background-color: #5799bf;
+        color: #fff;
+    }
+
+    .boton-xs-td {
+        padding-top: 5px !important;
+        padding-bottom: 5px !important;
+    }
+    .alignRight {
+        text-align: right;
+        vertical-align: middle;
+    }
+
+    .alignCenter {
+        text-align: center;
+        vertical-align: middle;
+    }
+</style>
+<p class="text-primary">Consulta de premios, filtrado por fecha de campaña.</p>
+<div class="box box-header box-primary">
+    <h3 class="box-title danger" style="color:#9c9c9c;font-weight:bold">Parametro de Busqueda</h3>
+    <br />
+    <br />
+    <div class="row">
+
+
+
+
+        <div class="col-md-12">
+            <div class="panel panel-default p-10">
+                <div class="panel-body" style="padding-top: 7px;padding-bottom: 4px;">
+                    <div class="row">
+                        <div class="col-sm-3">
+
+                        </div>
+                        <div class="col-md-3" style="padding-left: 30px; padding-right: 0px;">
+                        </div>
+                        <div class="col-md-6" style="padding-left: 0px;">
+                            <div class="col-md-4">
+                                <label for="dwCate">Fecha Campaña</label>
+                                <div class="form-group">
+                                    @Html.DropDownList("ddlMes", new SelectList(ViewBag.ListarCamFecha, "CamFec_Num", "CamFec_Nom"), new { @class = "form-control selectpicker", @data_live_search = "true", @id = "ddlMes", @name = "ddlMes" })
+                                </div>
+                            </div>
+                            <div class="col-md-3" style="padding-right: 0px;">
+                                <label for="lblFechaInicio" style="color: #ff6767;">Fecha Inicio</label>
+                                <div id="datepickerIni" class="input-group date" data-date-format="dd/mm/yyyy">
+                                    <input id="dtpFechaInicio" type="text" class="form-control input-sm ui-cell-input alignCenter" data-date-format="dd/mm/yyyy" disabled style="max-width: 100%" />
+                                </div>
+                            </div>
+                            <div class="col-md-3" style="padding-right: 0px;">
+                                <label for="lblFechaInicio" style="color: #ff6767;">Fecha Fin</label>
+                                <div id="datepickerFin" class="input-group date" data-date-format="dd/mm/yyyy">
+                                    <input id="dtpFechaFin" type="text" class="form-control input-sm ui-cell-input alignCenter" data-date-format="dd/mm/yyyy" disabled style="max-width: 100%" />
+                                </div>
+                            </div>
+                            <div class="col-md-2 text-right" style="padding:0px">
+                                <button id="btnBuscar" type="submit" title="Consultar" class="btn btn-primary" style="margin-top: 21px;">
+                                    <span class="glyphicon glyphicon-search"></span>&nbsp;&nbsp;Buscar
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="box box-body box-primary">
+    <div class="row">
+        <div class="col-md-6">
+        </div>
+        <div class="col-md-6 text-right">
+            <button id="btnExportar" title="Exportar" class="btn btn-success disabled" disabled>
+                <span class="glyphicon glyphicon-export"></span>&nbsp;&nbsp;Exportar Lista
+            </button>
+        </div>
+    </div>
+    <br />
+    <div class="row">
+        <div class="col-md-12">
+            <div class="table-responsive">
+                <table id="tbTabla" class="table table-hover table-bordered compact">
+                    <thead>
+                        <tr>
+                            <th style="text-align: center;">Asesor</th>
+                            <th style="text-align: center;">Directora</th>
+                            <th style="text-align: center;">Promotor</th>
+                            <th style="text-align: center;">Documento</th>
+                            <th style="text-align: center;">Venta Bruta</th>
+                            <th style="text-align: center;">Venta Minima</th>
+                            <th style="text-align: center;">Falta premio</th>
+                            <th style="text-align: center;">Descripcion</th>
+                            <th style="text-align: center;">Nro Regalo</th>
+                            <th style="text-align: center;">Nro Pedido</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td colspan='10'>No se encontraron resultados</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+@section scripts{
+ <script>
+    var objConsultaPremios = {
+        Inicio: function () {
+            debugger;
+            $("body").toggleClass('sidebar-collapse');
+
+            /*[Inicializamos variables]*/
+            this.ListarCamFecha = function () { return @Html.Raw(Json.Encode(ViewBag.ListarCamFecha)); }();
+
+            var date = new Date();
+            var Mes = date.getMonth() + 1;
+            $('#ddlMes').selectpicker('val', Mes);
+            let iindex = objConsultaPremios.ListarCamFecha.findIndex(C => C.CamFec_Num == Mes);
+
+            $("#dtpFechaInicio").val(objConsultaPremios.ListarCamFecha[iindex].CamFec_Ini.substring(0, 10));
+            $("#dtpFechaFin").val(objConsultaPremios.ListarCamFecha[iindex].CamFec_Fin.substring(0, 10));
+
+
+            $("#btnExportar").addClass("disabled");
+            $("#btnExportar").attr('disabled', 'disabled');
+            this.isOkUpdate = false;
+            this.FechaInicio = "";
+            this.FechaFin = "";
+            /*[/Inicializamos variables]*/
+
+            /*[btn Exportar y buscar]*/
+            $("#btnBuscar").click(function () {
+                debugger
+                let strMes = $("#ddlMes").val();
+                let index = objConsultaPremios.ListarCamFecha.findIndex(C => C.CamFec_Num == strMes);
+                objConsultaPremios.isOkUpdate = true;
+                objConsultaPremios.FechaInicio = objConsultaPremios.ListarCamFecha[index].CamFec_Ini;
+                objConsultaPremios.FechaFin = objConsultaPremios.ListarCamFecha[index].CamFec_Fin;
+                objConsultaPremios.generaal.consultar();
+            });
+
+            $("#btnExportar").click(function () {
+                objConsultaPremios.FechaInicio = $("#dtpFechaInicio").val();
+                objConsultaPremios.FechaFin = $("#dtpFechaFin").val();
+                objConsultaPremios.Tip_Rep = $('#dwTipo').val();
+                waitingDialog.show("Espere por favor...")
+                objConsultaPremios.generaal.exportar();
+            })
+            /*[btn Exportar y buscar]*/
+
+            /*[Select]*/
+            $("#ddlMes").change(function () {
+                debugger;
+                let strMes = this.value;
+                let index = objConsultaPremios.ListarCamFecha.findIndex(C => C.CamFec_Num == strMes);
+                $("#dtpFechaInicio").val(objConsultaPremios.ListarCamFecha[index].CamFec_Ini.substring(0, 10));
+                $("#dtpFechaFin").val(objConsultaPremios.ListarCamFecha[index].CamFec_Fin.substring(0, 10));
+            })
+            /*[/Select]*/
+
+            objConsultaPremios.grid.get();
+        },
+        grid: {
+            get: function () {
+                // debugger
+                waitingDialog.show("Espere por favor...")
+                $('#tbTabla').DataTable({
+                    "language": {
+                        "url": "../Scripts/DataTables/Spanish.json"
+                    },
+                    //"fnServerData": function (sSource, aoData, fnCallback) {
+                    //},
+                    "bServerSide": true,
+                    "bAutoWidth": false,
+                    "sAjaxSource": '@Url.Action("getLisConsulta_PremiosAjax", "Facturacion")',
+                    "fnServerParams": function (aoData) {
+                        debugger;
+                        aoData.push({ "name": "isOkUpdate", "value": objConsultaPremios.isOkUpdate });
+                        aoData.push({ "name": "FechaInicio", "value": objConsultaPremios.FechaInicio });
+                        aoData.push({ "name": "FechaFin", "value": objConsultaPremios.FechaFin });
+                    },
+                    "bFilter": true,
+                    "bdestroy": true,
+                    "start": 0,
+                    "columnDefs": [{
+                        "orderable": false,
+                        "targets": [],
+                    }],
+                    "bDeferRender": true,
+                    "aoColumns": [
+                        { "sName": "Asesor", "mData": "Asesor", "sClass": "" },
+                        { "sName": "Lider", "mData": "Lider", "sClass": "" },
+                        { "sName": "Promotor", "mData": "Promotor", "sClass": "" },
+                        { "sName": "Documento", "mData": "Documento", "sClass": "" },
+                        { "sName": "Total", "mData": "Total", "sClass": "alignRight" },
+                        { "sName": "Limite", "mData": "Limite", "sClass": "alignRight" },
+                        { "sName": "Saldo", "mData": "Saldo", "sClass": "alignRight" },
+                        { "sName": "Descripcion", "mData": "Descripcion", "sClass": "" },
+                        { "sName": "Liqprem", "mData": "Liqprem", "sClass": "alignCenter" },
+                        { "sName": "Liqpremiori", "mData": "Liqpremiori", "sClass": "alignCenter" }
+                    ],
+                    "fnRowCallback": function (row, data, index) {
+                    },
+                    "drawCallback": function (settings) {
+                        objConsultaPremios.isOkUpdate = false;
+                        var table = $('#tbTabla').dataTable();
+                        var data = table.fnGetData();
+                        if (data.length == 0) {
+                            $("#btnExportar").addClass("disabled");
+                            $("#btnExportar").attr('disabled', 'disabled');
+                        } else {
+                            $("#btnExportar").removeClass("disabled");
+                            $("#btnExportar").removeAttr("disabled");
+                        }
+                        waitingDialog.hide();
+                    },
+                    "initComplete": function (settings, json) {
+                    }
+                });
+            },
+            cargaTabla: function () {
+                //debugger
+                waitingDialog.show("Espere por favor...")
+                $('#tbTabla').DataTable().ajax.reload(function () {
+                    waitingDialog.hide();
+                });
+            },
+        },
+        generaal: {
+            Validar: function () {
+                return true;
+            },
+            consultar: function () {
+                debugger
+                if (objConsultaPremios.generaal.Validar()) {
+                    objConsultaPremios.grid.cargaTabla();
+                }
+            },
+            exportar: function () {
+                var _Ent = function () { return @Html.Raw(Json.Encode(ViewBag.EntConsultaPremios)); }();
+                _Ent.FechaIni = objConsultaPremios.FechaInicio;
+                _Ent.FechaFin = objConsultaPremios.FechaFin;
+                $.ajax({
+                    type: "POST",
+                    url: '@Url.Action("get_exporta_LisConsulta_Premios_excel", "Facturacion")',
+                    data : {_Ent:_Ent},
+                    success: function (data) {
+                        data = JSON.parse(data);
+                        waitingDialog.hide();
+                        if (data.Success) {
+                            toastr.success(data.Message);
+                            window.location = '@Url.Action("ListarConsulta_PremiosExcel")';
+                        }
+                        else {
+                            toastr.error(data.Message, "Alerta");
+                        }
+                    },
+                    error: function (XMLHttpRequest, textStatus, errorThrown) {
+                        waitingDialog.hide();
+                        toastr.error("Error al exportar excel.", "Alerta");
+                    }
+                });
+            }
+        }
+    };
+    $(document).ready(function () {
+        objConsultaPremios.Inicio();
+    });
+</script>
+   
+}

@@ -525,5 +525,90 @@ namespace CapaDato.Facturacion
             }
             return dt;
         }
+
+        public List<Ent_Campaña_Fecha> ListarCampaniaFecha()
+        {
+            List<Ent_Campaña_Fecha> Listar = new List<Ent_Campaña_Fecha>();
+            string sqlquery = "[USP_MVC_LISTAR_CAMPFECHA]";
+            try
+            {
+                using (SqlConnection cn = new SqlConnection(Ent_Conexion.conexion))
+                {
+                    using (SqlCommand cmd = new SqlCommand(sqlquery, cn))
+                    {
+                        cmd.CommandType = CommandType.StoredProcedure;
+                        using (SqlDataAdapter da = new SqlDataAdapter(cmd))
+                        {
+                            DataTable dt = new DataTable();
+                            da.Fill(dt);
+                            Listar = new List<Ent_Campaña_Fecha>();
+                            Listar = (from DataRow fila in dt.Rows
+                                      select new Ent_Campaña_Fecha()
+                                      {
+                                          Anio = Convert.ToInt32(fila["Anio"]),
+                                          CamFec_Num = Convert.ToInt32(fila["CamFec_Num"]),
+                                          CamFec_Ini = Convert.ToString(fila["CamFec_Ini"]),
+                                          CamFec_Fin = Convert.ToString(fila["CamFec_Fin"]),
+                                          CamFec_Nom = Convert.ToString(fila["CamFec_Nom"])
+                                      }
+                                    ).ToList();
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+            return Listar;
+        }
+
+        public List<Ent_Consulta_Premios> List_ConsultaPremio(Ent_Consulta_Premios _Ent)
+        {
+            List<Ent_Consulta_Premios> Listar = new List<Ent_Consulta_Premios>();
+            string sqlquery = "[USP_MVC_ConsultaPremios]";
+            try
+            {
+                using (SqlConnection cn = new SqlConnection(Ent_Conexion.conexion))
+                {
+                    using (SqlCommand cmd = new SqlCommand(sqlquery, cn))
+                    {
+                        cmd.CommandTimeout = 0;
+                        cmd.CommandType = CommandType.StoredProcedure;
+                        cmd.Parameters.AddWithValue("@FECHA_INI_3", DbType.DateTime).Value = _Ent.FechaIni;
+                        cmd.Parameters.AddWithValue("@FECHA_FIN_3", DbType.DateTime).Value = _Ent.FechaFin;
+                        cmd.Parameters.AddWithValue("@VALIDA", DbType.Boolean).Value = _Ent.Valida;
+                        using (SqlDataAdapter da = new SqlDataAdapter(cmd))
+                        {
+                            DataTable dt = new DataTable();
+                            da.Fill(dt);
+                            Listar = new List<Ent_Consulta_Premios>();
+                            Listar = (from DataRow fila in dt.Rows
+                                      select new Ent_Consulta_Premios()
+                                      {
+                                          Asesor = (fila["Asesor"] is DBNull) ? string.Empty : (string)(fila["Asesor"]),
+                                          Lider = (fila["Lider"] is DBNull) ? string.Empty : (string)(fila["Lider"]),
+                                          Promotor = (fila["Promotor"] is DBNull) ? string.Empty : (string)(fila["Promotor"]),
+                                          Documento = (fila["Documento"] is DBNull) ? string.Empty : (string)(fila["Documento"]),
+                                          Total = (fila["Total"] is DBNull) ? (Decimal?)null : Convert.ToDecimal(fila["Total"]),
+                                          Limite = (fila["Limite"] is DBNull) ? (Decimal?)null : Convert.ToDecimal(fila["Limite"]),
+                                          Saldo = (fila["Saldo"] is DBNull) ? (Decimal?)null : Convert.ToDecimal(fila["Saldo"]),
+                                          Descripcion = (fila["Descripcion"] is DBNull) ? string.Empty : (string)(fila["Descripcion"]),
+                                          Liqprem = (fila["Liqprem"] is DBNull) ? string.Empty : (string)(fila["Liqprem"]),
+                                          Liqpremiori = (fila["Liqpremiori"] is DBNull) ? string.Empty : (string)(fila["Liqpremiori"]),
+                                          Xentrega = (fila["Xentrega"] is DBNull) ? string.Empty : (string)(fila["Xentrega"])
+                                      }
+                                    ).ToList();
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+            return Listar;
+        }
+
     }
 }
