@@ -200,7 +200,15 @@
                         { "sName": "Lider", "mData": "Lider", "sClass": "" },
                         { "sName": "Promotor", "mData": "Promotor", "sClass": "" },
                         { "sName": "Documento", "mData": "Documento", "sClass": "" },
-                        { "sName": "Total", "mData": "Total", "sClass": "alignRight" },
+                        //"Total"
+                        {
+                            "mData": null,
+                            "sClass": "alignRight",
+                            "render": function (Data, type, full, meta) {
+                                let Monto = full.Total;
+                                return (Monto == undefined || Monto == null || Monto == 0) ? ' ' :  objConsultaPremios.generaal.FormatDecimal(Monto, 2, '.', ',');
+                            }
+                        },
                         { "sName": "Limite", "mData": "Limite", "sClass": "alignRight" },
                         { "sName": "Saldo", "mData": "Saldo", "sClass": "alignRight" },
                         { "sName": "Descripcion", "mData": "Descripcion", "sClass": "" },
@@ -235,6 +243,45 @@
             },
         },
         generaal: {
+            FormatDecimal: function (numero, decimales, separadorDecimal, separadorMiles) {
+                //debugger
+                var partes, array;
+                if (!isFinite(numero) || isNaN(numero = parseFloat(numero))) {
+                    return "";
+                }
+                if (typeof decimales === "undefined") {
+                    decimales = 2;
+                }
+                if (typeof separadorDecimal === "undefined") {
+                    separadorDecimal = ".";
+                }
+                if (typeof separadorMiles === "undefined") {
+                    separadorMiles = ",";
+                }
+                // Redondeamos
+                if (!isNaN(parseInt(decimales))) {
+                    if (decimales >= 0) {
+                        numero = numero.toFixed(decimales);
+                    } else {
+                        numero = (
+                            Math.round(numero / Math.pow(10, Math.abs(decimales))) * Math.pow(10, Math.abs(decimales))
+                        ).toFixed();
+                    }
+                } else {
+                    numero = numero.toString();
+                }
+                // Damos formato
+                partes = numero.split(".", 2);
+                array = partes[0].split("");
+                for (var i = array.length - 3; i > 0 && array[i - 1] !== "-"; i -= 3) {
+                    array.splice(i, 0, separadorMiles);
+                }
+                numero = array.join("");
+                if (partes.length > 1) {
+                    numero += separadorDecimal + partes[1];
+                }
+                return numero;
+            },
             Validar: function () {
                 return true;
             },
