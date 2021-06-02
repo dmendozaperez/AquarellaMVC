@@ -103,7 +103,7 @@ namespace CapaDato.RRHH
         public List<Ent_KPI_Lider> ListarLider(Ent_KPI_Lider _Ent)
         {
             List<Ent_KPI_Lider> Listar = new List<Ent_KPI_Lider>();
-            string sqlquery = "[USP_Leer_Area]";
+            string sqlquery = "[USP_MVC_LEER_LISTA_LIDER]";
             try
             {
                 using (SqlConnection cn = new SqlConnection(Ent_Conexion.conexion))
@@ -111,7 +111,7 @@ namespace CapaDato.RRHH
                     using (SqlCommand cmd = new SqlCommand(sqlquery, cn))
                     {
                         cmd.CommandType = CommandType.StoredProcedure;
-                        cmd.Parameters.AddWithValue("@asesor", DbType.String).Value = _Ent.IdAsesor;
+                        //cmd.Parameters.AddWithValue("@asesor", DbType.String).Value = _Ent.IdAsesor;
                         using (SqlDataAdapter da = new SqlDataAdapter(cmd))
                         {
                             DataTable dt = new DataTable();
@@ -122,8 +122,8 @@ namespace CapaDato.RRHH
                                       select new Ent_KPI_Lider()
                                       {
                                           IdAsesor = (fila["Bas_Aco_Id"] is DBNull) ? string.Empty : (string)(fila["Bas_Aco_Id"]),
-                                          Codigo = (fila["Are_Id"] is DBNull) ? string.Empty : (string)(fila["Are_Id"]),
-                                          Descripcion = (fila["Are_Descripcion"] is DBNull) ? string.Empty : (string)(fila["Are_Descripcion"])
+                                          Codigo = (fila["bas_are_id"] is DBNull) ? string.Empty : (string)(fila["bas_are_id"]),
+                                          Descripcion = (fila["nombres"] is DBNull) ? string.Empty : (string)(fila["nombres"])
                                       }
                                     ).ToList();
                         }

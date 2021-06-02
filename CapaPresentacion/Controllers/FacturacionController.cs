@@ -3027,7 +3027,7 @@ namespace CapaPresentacion.Controllers
                 ViewBag.ListarAsesor =(_usuario.usu_tip_id == "09" ? ListarAsesor.Concat(datRRHH.ListarAsesor()).Where(x=> x.Bas_Id == _usuario.usu_id) : (_usuario.usu_tip_id == "04" ? datRRHH.ListarAsesor() : ListarAsesor));
                 _EntL.IdAsesor = "";
                 ViewBag.usu_tip_id = _usuario.usu_tip_id;
-                ViewBag.ListarLider = ListarLider.Concat(datRRHH.ListarLider(_EntL));
+                ViewBag.ListarLider = datRRHH.ListarLider(_EntL);
 
                 DateTime date = DateTime.Now;
                 ViewBag.ListarCamFecha = datFacturacion.ListarCampaniaFecha().Where(x=>x.Anio == date.Year);
