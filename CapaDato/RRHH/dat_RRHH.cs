@@ -86,7 +86,8 @@ namespace CapaDato.RRHH
                                       select new Ent_KPI_Asesor()
                                       {
                                           Codigo = (fila["Bas_Aco_Id"] is DBNull) ? string.Empty : (string)(fila["Bas_Aco_Id"]),
-                                          Descripcion = (fila["Nombres"] is DBNull) ? string.Empty : (string)(fila["Nombres"])                                          
+                                          Descripcion = (fila["Nombres"] is DBNull) ? string.Empty : (string)(fila["Nombres"]),
+                                          Bas_Id = (fila["Bas_Id"] is DBNull) ? (Decimal?)null : Convert.ToDecimal(fila["Bas_Id"])
                                       }
                                     ).ToList();
                         }

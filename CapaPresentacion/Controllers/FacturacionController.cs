@@ -4,9 +4,11 @@ using CapaPresentacion.Util;
 using CapaEntidad.Control;
 using CapaEntidad.Facturacion;
 using CapaEntidad.Logistica;
+using CapaEntidad.RRHH;
 using CapaDato.Logistica;
 using CapaDato.Facturacion;
 using CapaDato.Util;
+using CapaDato.RRHH;
 using CapaDato.Control;
 using System;
 using System.Collections.Generic;
@@ -27,6 +29,7 @@ namespace CapaPresentacion.Controllers
         private Dat_Facturacion datFacturacion = new Dat_Facturacion();
         private Dat_Despacho dat_despacho = new Dat_Despacho();
         private Dat_Util datUtil = new Dat_Util();
+        private Dat_RRHH datRRHH = new Dat_RRHH();
         private string _session_ListarMovimientosVentas = "_session_ListarMovimientosVentas";
         private string _session_ListarMovimientosVentasChart = "_session_ListarMovimientosVentasChart";
         private string _session_ListarMovimientosVentas_Excel = "_session_ListarMovimientosVentas_Excel";
@@ -3018,6 +3021,14 @@ namespace CapaPresentacion.Controllers
             {
                 Session[_session_ListarConsulta_Premios] = null;
 
+                Ent_KPI_Lider _EntL = new Ent_KPI_Lider();
+                List<Ent_KPI_Asesor> ListarAsesor = new List<Ent_KPI_Asesor> { new Ent_KPI_Asesor() { Codigo = "", Descripcion = "Seleccionar a todos" } };
+                List<Ent_KPI_Lider> ListarLider = new List<Ent_KPI_Lider> { new Ent_KPI_Lider() { Codigo = "-1", Descripcion = "Seleccionar a todos" } };
+                ViewBag.ListarAsesor =(_usuario.usu_tip_id == "09" ? ListarAsesor.Concat(datRRHH.ListarAsesor()).Where(x=> x.Bas_Id == _usuario.usu_id) : (_usuario.usu_tip_id == "04" ? datRRHH.ListarAsesor() : ListarAsesor));
+                _EntL.IdAsesor = "";
+                ViewBag.usu_tip_id = _usuario.usu_tip_id;
+                ViewBag.ListarLider = ListarLider.Concat(datRRHH.ListarLider(_EntL));
+
                 DateTime date = DateTime.Now;
                 ViewBag.ListarCamFecha = datFacturacion.ListarCampaniaFecha().Where(x=>x.Anio == date.Year);
 
@@ -3026,7 +3037,7 @@ namespace CapaPresentacion.Controllers
                 return View();
             }
         }
-        public JsonResult getLisConsulta_PremiosAjax(Ent_jQueryDataTableParams param, bool isOkUpdate, string FechaInicio,string FechaFin)
+        public JsonResult getLisConsulta_PremiosAjax(Ent_jQueryDataTableParams param, bool isOkUpdate, string FechaInicio,string FechaFin, string Are_Id)
         {
             Ent_Consulta_Premios EntConsultaPremios = new Ent_Consulta_Premios();
 
@@ -3035,6 +3046,7 @@ namespace CapaPresentacion.Controllers
                 EntConsultaPremios.FechaIni = DateTime.Parse(FechaInicio);
                 EntConsultaPremios.FechaFin = DateTime.Parse(FechaFin);
                 EntConsultaPremios.Valida =false;
+                EntConsultaPremios.Are_Id = Are_Id;
 
                 List<Ent_Consulta_Premios> _ListarConsulta_Premios = datFacturacion.List_ConsultaPremio(EntConsultaPremios).ToList();
                 Session[_session_ListarConsulta_Premios] = _ListarConsulta_Premios;

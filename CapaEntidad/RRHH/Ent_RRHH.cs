@@ -34,6 +34,7 @@ namespace CapaEntidad.RRHH
     {
         public string Codigo { get; set; }
         public string Descripcion { get; set; }
+        public decimal? Bas_Id { get; set; }
     }
     public class Ent_KPI_Lider
     {

@@ -27,21 +27,29 @@
     <br />
     <br />
     <div class="row">
-
-
-
-
         <div class="col-md-12">
             <div class="panel panel-default p-10">
                 <div class="panel-body" style="padding-top: 7px;padding-bottom: 4px;">
                     <div class="row">
-                        <div class="col-sm-3">
+                        <div class="col-sm-2">
 
                         </div>
-                        <div class="col-md-3" style="padding-left: 30px; padding-right: 0px;">
+                        <div class="col-md-4" style="padding-left: 30px; padding-right: 0px;">
+                            <div class="col-md-6" style="padding-left: 0px;">
+                                <label for="" style="color: #3d566e;">Asesor</label>
+                                <div id="DivAsesor" class="form-group">
+                                    @Html.DropDownList("ddlAsesor", new SelectList(ViewBag.ListarAsesor, "Codigo", "Descripcion"), new { @class = "form-control selectpicker", @data_live_search = "true", @id = "ddlAsesor", @name = "ddlAsesor", @style = "max-width: 100%" })
+                                </div>
+                            </div>
+                            <div class="col-md-6" style="padding-left: 0px;">
+                                <label for="" style="color: #3d566e;">Directora</label>
+                                <div id="DivLider" class="form-group">
+                                    @Html.DropDownList("ddlLider", new SelectList(ViewBag.ListarLider, "Codigo", "Descripcion"), new { @class = "form-control selectpicker", @data_live_search = "true", @id = "ddlLider", @name = "ddlLider", @style = "max-width: 100%" })
+                                </div>
+                            </div>
                         </div>
                         <div class="col-md-6" style="padding-left: 0px;">
-                            <div class="col-md-4">
+                            <div class="col-md-4" style="padding-left: 0px;padding-right: 0px;">
                                 <label for="dwCate">Fecha Campaña</label>
                                 <div class="form-group">
                                     @Html.DropDownList("ddlMes", new SelectList(ViewBag.ListarCamFecha, "CamFec_Num", "CamFec_Nom"), new { @class = "form-control selectpicker", @data_live_search = "true", @id = "ddlMes", @name = "ddlMes" })
@@ -119,6 +127,8 @@
 
             /*[Inicializamos variables]*/
             this.ListarCamFecha = function () { return @Html.Raw(Json.Encode(ViewBag.ListarCamFecha)); }();
+            this.ListarAsesor = function () { return @Html.Raw(Json.Encode(ViewBag.ListarAsesor)); }();
+            this.ListarLider = function () { return @Html.Raw(Json.Encode(ViewBag.ListarLider)); }();
 
             var date = new Date();
             var Mes = date.getMonth() + 1;
@@ -128,12 +138,17 @@
             $("#dtpFechaInicio").val(objConsultaPremios.ListarCamFecha[iindex].CamFec_Ini.substring(0, 10));
             $("#dtpFechaFin").val(objConsultaPremios.ListarCamFecha[iindex].CamFec_Fin.substring(0, 10));
 
-
             $("#btnExportar").addClass("disabled");
             $("#btnExportar").attr('disabled', 'disabled');
             this.isOkUpdate = false;
             this.FechaInicio = "";
             this.FechaFin = "";
+            this.Are_Id = "";
+
+            var usutip = @ViewBag.usu_tip_id;
+            if(usutip=="09"){
+                objConsultaPremios.generaal.dropdownlist.Llena($("#ddlAsesor").val(), 'Lider', objConsultaPremios.ListarLider);
+            }            
             /*[/Inicializamos variables]*/
 
             /*[btn Exportar y buscar]*/
@@ -144,13 +159,11 @@
                 objConsultaPremios.isOkUpdate = true;
                 objConsultaPremios.FechaInicio = objConsultaPremios.ListarCamFecha[index].CamFec_Ini;
                 objConsultaPremios.FechaFin = objConsultaPremios.ListarCamFecha[index].CamFec_Fin;
+                objConsultaPremios.Are_Id = $("#ddlLider").val();
                 objConsultaPremios.generaal.consultar();
             });
 
             $("#btnExportar").click(function () {
-                objConsultaPremios.FechaInicio = $("#dtpFechaInicio").val();
-                objConsultaPremios.FechaFin = $("#dtpFechaFin").val();
-                objConsultaPremios.Tip_Rep = $('#dwTipo').val();
                 waitingDialog.show("Espere por favor...")
                 objConsultaPremios.generaal.exportar();
             })
@@ -163,6 +176,11 @@
                 let index = objConsultaPremios.ListarCamFecha.findIndex(C => C.CamFec_Num == strMes);
                 $("#dtpFechaInicio").val(objConsultaPremios.ListarCamFecha[index].CamFec_Ini.substring(0, 10));
                 $("#dtpFechaFin").val(objConsultaPremios.ListarCamFecha[index].CamFec_Fin.substring(0, 10));
+            })
+
+            $("#ddlAsesor").change(function () {
+                debugger;
+                objConsultaPremios.generaal.dropdownlist.Llena(this.value, 'Lider', objConsultaPremios.ListarLider);
             })
             /*[/Select]*/
 
@@ -186,6 +204,7 @@
                         aoData.push({ "name": "isOkUpdate", "value": objConsultaPremios.isOkUpdate });
                         aoData.push({ "name": "FechaInicio", "value": objConsultaPremios.FechaInicio });
                         aoData.push({ "name": "FechaFin", "value": objConsultaPremios.FechaFin });
+                        aoData.push({ "name": "Are_Id", "value": objConsultaPremios.Are_Id });                        
                     },
                     "bFilter": true,
                     "bdestroy": true,
@@ -315,6 +334,23 @@
                         toastr.error("Error al exportar excel.", "Alerta");
                     }
                 });
+            },
+            dropdownlist: {
+                Llena: function (Value, Id, Listado) {
+                    debugger
+                    let Lista = (Value == '-1') ? Listado : Listado.filter((item) => { return item.IdAsesor === Value; });
+                    let dropdownlist = '<select class="form-control selectpicker" data-live-search="true" id="ddl' + Id + '" name="ddl' + Id + '" style="max-width: 100%" tabindex="-98">';
+                    for (var key in Lista) {
+                        dropdownlist += '<option value = ' + Lista[key].Codigo + '>' + Lista[key].Descripcion + '</option>';
+                    }
+                    dropdownlist += '</select>';
+
+                    $("#Div" + Id).html(dropdownlist);
+                    $('.selectpicker').selectpicker({
+                        liveSearch: true,
+                        showSubtext: true
+                    });
+                }
             }
         }
     };
