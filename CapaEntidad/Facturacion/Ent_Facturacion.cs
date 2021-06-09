@@ -275,5 +275,11 @@ namespace CapaEntidad.Facturacion
         public DateTime FechaFin { get; set; }
         public bool Valida { get; set; }
         public string Are_Id { get; set; }
+        //
+        public string Bas_Are_Id { get; set; }
+        public string Bas_Id { get; set; }
+        public string Nombres { get; set; }
+        public string Bas_Aco_Id { get; set; }
+        public string Bas_Usu_TipId { get; set; }
     }
 }

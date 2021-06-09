@@ -44,7 +44,7 @@
                             <div class="col-md-6" style="padding-left: 0px;">
                                 <label for="" style="color: #3d566e;">Directora</label>
                                 <div id="DivLider" class="form-group">
-                                    @Html.DropDownList("ddlLider", new SelectList(ViewBag.ListarLider, "bas_are_id", "nombres"), new { @class = "form-control selectpicker", @data_live_search = "true", @id = "ddlLider", @name = "ddlLider", @style = "max-width: 100%" })
+                                    @Html.DropDownList("ddlLider", new SelectList(ViewBag.ListarLider, "bas_id", "nombres"), new { @class = "form-control selectpicker", @data_live_search = "true", @id = "ddlLider", @name = "ddlLider", @style = "max-width: 100%" })
                                 </div>
                             </div>
                         </div>
@@ -143,14 +143,9 @@
             this.isOkUpdate = false;
             this.FechaInicio = "";
             this.FechaFin = "";
-            this.Are_Id = "";
-
-            //objConsultaPremios.generaal.dropdownlist.Llena($("#ddlAsesor").val(), 'Lider', objConsultaPremios.ListarLider);
-
-            @*var usutip = @ViewBag.usu_tip_id;
-            if(usutip=="09"){
-                
-            }*@            
+            this.Bas_Id = "";
+            this.Bas_Aco_Id = "";
+            
             /*[/Inicializamos variables]*/
 
             /*[btn Exportar y buscar]*/
@@ -161,7 +156,8 @@
                 objConsultaPremios.isOkUpdate = true;
                 objConsultaPremios.FechaInicio = objConsultaPremios.ListarCamFecha[index].CamFec_Ini;
                 objConsultaPremios.FechaFin = objConsultaPremios.ListarCamFecha[index].CamFec_Fin;
-                objConsultaPremios.Are_Id = $("#ddlLider").val();
+                objConsultaPremios.Bas_Id = $("#ddlLider").val();
+                objConsultaPremios.Bas_Aco_Id = $("#ddlAsesor").val();
                 objConsultaPremios.generaal.consultar();
             });
 
@@ -206,7 +202,8 @@
                         aoData.push({ "name": "isOkUpdate", "value": objConsultaPremios.isOkUpdate });
                         aoData.push({ "name": "FechaInicio", "value": objConsultaPremios.FechaInicio });
                         aoData.push({ "name": "FechaFin", "value": objConsultaPremios.FechaFin });
-                        aoData.push({ "name": "Are_Id", "value": objConsultaPremios.Are_Id });                        
+                        aoData.push({ "name": "Bas_Id", "value": objConsultaPremios.Bas_Id });
+                        aoData.push({ "name": "Bas_Aco_Id", "value": objConsultaPremios.Bas_Aco_Id });
                     },
                     "bFilter": true,
                     "bdestroy": true,

@@ -578,7 +578,8 @@ namespace CapaDato.Facturacion
                         cmd.Parameters.AddWithValue("@FECHA_INI_3", DbType.DateTime).Value = _Ent.FechaIni;
                         cmd.Parameters.AddWithValue("@FECHA_FIN_3", DbType.DateTime).Value = _Ent.FechaFin;
                         cmd.Parameters.AddWithValue("@VALIDA", DbType.Boolean).Value = _Ent.Valida;
-                        cmd.Parameters.AddWithValue("@ARE_ID", DbType.String).Value = _Ent.Are_Id;
+                        cmd.Parameters.AddWithValue("@BAS_ID", DbType.String).Value = _Ent.Bas_Id;
+                        cmd.Parameters.AddWithValue("@ASESOR", DbType.String).Value = _Ent.Bas_Aco_Id;
                         using (SqlDataAdapter da = new SqlDataAdapter(cmd))
                         {
                             DataTable dt = new DataTable();

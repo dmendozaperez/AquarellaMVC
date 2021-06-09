@@ -3027,20 +3027,21 @@ namespace CapaPresentacion.Controllers
 
                 if (_usuario.usu_tip_id =="09")
                 {
+                    ListarLider = new List<Ent_Combo>() { new Ent_Combo() { bas_id = -1, nombres = "Seleccionar a todos" } };
                     ListarAsesor = ListarAsesorLider.Where(x => x.bas_usu_tipid == "09" && x.bas_aco_id == _usuario.usu_asesor).ToList();
-                    ListarLider = ListarAsesorLider.Where(x => x.bas_usu_tipid != "09" && x.bas_aco_id == _usuario.usu_asesor).ToList();
+                    ListarLider = ListarLider.Concat(ListarAsesorLider.Where(x => x.bas_usu_tipid != "09" && x.bas_aco_id == _usuario.usu_asesor)).ToList();
                 }
 
                 if (_usuario.usu_tip_id == "01")
-                {
+                {                   
                     ListarAsesor = ListarAsesorLider.Where(x => x.bas_usu_tipid == "09" && x.bas_aco_id == _usuario.usu_asesor).ToList();
                     ListarLider = ListarAsesorLider.Where(x => x.bas_usu_tipid != "09" && x.bas_aco_id == _usuario.usu_asesor && x.bas_id == _usuario.usu_id).ToList();
                 }
 
                 if (_usuario.usu_tip_id == "04" || _usuario.usu_tip_id == "07")
                 {
-                    ListarAsesor = new List<Ent_Combo>(){ new Ent_Combo() { bas_aco_id ="-1", nombres ="--Seleccione--" }};
-                    ListarLider = new List<Ent_Combo>() { new Ent_Combo() { bas_are_id = "-1", nombres = "--Seleccione--" } };
+                    ListarAsesor = new List<Ent_Combo>(){ new Ent_Combo() { bas_aco_id ="", nombres ="Seleccionar a todos" }};
+                    ListarLider = new List<Ent_Combo>() { new Ent_Combo() { bas_id = -1, nombres = "Seleccionar a todos" } };
                     ListarAsesor = ListarAsesor.Concat(ListarAsesorLider.Where(x => x.bas_usu_tipid == "09")).ToList();
                     ListarLider = ListarLider.Concat(ListarAsesorLider.Where(x => x.bas_usu_tipid != "09" && x.bas_aco_id != "")).ToList();
                 }
@@ -3055,7 +3056,7 @@ namespace CapaPresentacion.Controllers
                 return View();
             }
         }
-        public JsonResult getLisConsulta_PremiosAjax(Ent_jQueryDataTableParams param, bool isOkUpdate, string FechaInicio,string FechaFin, string Are_Id)
+        public JsonResult getLisConsulta_PremiosAjax(Ent_jQueryDataTableParams param, bool isOkUpdate, string FechaInicio,string FechaFin, string Bas_Id, string Bas_Aco_Id)
         {
             Ent_Consulta_Premios EntConsultaPremios = new Ent_Consulta_Premios();
 
@@ -3064,7 +3065,8 @@ namespace CapaPresentacion.Controllers
                 EntConsultaPremios.FechaIni = DateTime.Parse(FechaInicio);
                 EntConsultaPremios.FechaFin = DateTime.Parse(FechaFin);
                 EntConsultaPremios.Valida =false;
-                EntConsultaPremios.Are_Id = Are_Id;
+                EntConsultaPremios.Bas_Id = Bas_Id;
+                EntConsultaPremios.Bas_Aco_Id = (Bas_Id == "-1" ) ? Bas_Aco_Id : Bas_Aco_Id = "";
 
                 List<Ent_Consulta_Premios> _ListarConsulta_Premios = datFacturacion.List_ConsultaPremio(EntConsultaPremios).ToList();
                 Session[_session_ListarConsulta_Premios] = _ListarConsulta_Premios;
