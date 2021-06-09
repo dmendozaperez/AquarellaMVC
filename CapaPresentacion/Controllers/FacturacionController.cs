@@ -3065,7 +3065,7 @@ namespace CapaPresentacion.Controllers
                 EntConsultaPremios.FechaIni = DateTime.Parse(FechaInicio);
                 EntConsultaPremios.FechaFin = DateTime.Parse(FechaFin);
                 EntConsultaPremios.Valida =false;
-                EntConsultaPremios.Bas_Id = Bas_Id;
+                EntConsultaPremios.Bas_Id = (Bas_Id == "") ? Bas_Id = "-1" : Bas_Id;
                 EntConsultaPremios.Bas_Aco_Id = (Bas_Id == "-1" ) ? Bas_Aco_Id : Bas_Aco_Id = "";
 
                 List<Ent_Consulta_Premios> _ListarConsulta_Premios = datFacturacion.List_ConsultaPremio(EntConsultaPremios).ToList();

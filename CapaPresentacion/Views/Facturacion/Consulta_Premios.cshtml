@@ -339,8 +339,9 @@
                     debugger
                     let Lista = (Value == '-1') ? Listado : Listado.filter((item) => { return item.bas_aco_id === Value; });
                     let dropdownlist = '<select class="form-control selectpicker" data-live-search="true" id="ddl' + Id + '" name="ddl' + Id + '" style="max-width: 100%" tabindex="-98">';
+                    dropdownlist += '<option value = "-1">Seleccionar a todos</option>';
                     for (var key in Lista) {
-                        dropdownlist += '<option value = ' + Lista[key].bas_are_id + '>' + Lista[key].nombres + '</option>';
+                        dropdownlist += '<option value = ' + Lista[key].bas_id + '>' + Lista[key].nombres + '</option>';
                     }
                     dropdownlist += '</select>';
 
