@@ -3021,17 +3021,35 @@ namespace CapaPresentacion.Controllers
             {
                 Session[_session_ListarConsulta_Premios] = null;
 
-                Ent_KPI_Lider _EntL = new Ent_KPI_Lider();
-                List<Ent_KPI_Asesor> ListarAsesor = new List<Ent_KPI_Asesor> { new Ent_KPI_Asesor() { Codigo = "", Descripcion = "Seleccionar a todos" } };
-                List<Ent_KPI_Lider> ListarLider = new List<Ent_KPI_Lider> { new Ent_KPI_Lider() { Codigo = "-1", Descripcion = "Seleccionar a todos" } };
-                ViewBag.ListarAsesor =(_usuario.usu_tip_id == "09" ? ListarAsesor.Concat(datRRHH.ListarAsesor()).Where(x=> x.Bas_Id == _usuario.usu_id) : (_usuario.usu_tip_id == "04" ? datRRHH.ListarAsesor() : ListarAsesor));
-                _EntL.IdAsesor = "";
-                ViewBag.usu_tip_id = _usuario.usu_tip_id;
-                ViewBag.ListarLider = datRRHH.ListarLider(_EntL);
+                List<Ent_Combo> ListarLider = new List<Ent_Combo>();
+                List<Ent_Combo> ListarAsesor = new List<Ent_Combo>();
+                var ListarAsesorLider = datUtil.Lista_Asesor_Lider().ToList();
+
+                if (_usuario.usu_tip_id =="09")
+                {
+                    ListarAsesor = ListarAsesorLider.Where(x => x.bas_usu_tipid == "09" && x.bas_aco_id == _usuario.usu_asesor).ToList();
+                    ListarLider = ListarAsesorLider.Where(x => x.bas_usu_tipid != "09" && x.bas_aco_id == _usuario.usu_asesor).ToList();
+                }
+
+                if (_usuario.usu_tip_id == "01")
+                {
+                    ListarAsesor = ListarAsesorLider.Where(x => x.bas_usu_tipid == "09" && x.bas_aco_id == _usuario.usu_asesor).ToList();
+                    ListarLider = ListarAsesorLider.Where(x => x.bas_usu_tipid != "09" && x.bas_aco_id == _usuario.usu_asesor && x.bas_id == _usuario.usu_id).ToList();
+                }
+
+                if (_usuario.usu_tip_id == "04" || _usuario.usu_tip_id == "07")
+                {
+                    ListarAsesor = new List<Ent_Combo>(){ new Ent_Combo() { bas_aco_id ="-1", nombres ="--Seleccione--" }};
+                    ListarLider = new List<Ent_Combo>() { new Ent_Combo() { bas_are_id = "-1", nombres = "--Seleccione--" } };
+                    ListarAsesor = ListarAsesor.Concat(ListarAsesorLider.Where(x => x.bas_usu_tipid == "09")).ToList();
+                    ListarLider = ListarLider.Concat(ListarAsesorLider.Where(x => x.bas_usu_tipid != "09" && x.bas_aco_id != "")).ToList();
+                }
+
+                ViewBag.ListarAsesor = ListarAsesor.ToList();
+                ViewBag.ListarLider = ListarLider.ToList();
 
                 DateTime date = DateTime.Now;
-                ViewBag.ListarCamFecha = datFacturacion.ListarCampaniaFecha().Where(x=>x.Anio == date.Year);
-
+                ViewBag.ListarCamFecha = datFacturacion.ListarCampaniaFecha().Where(x => x.Anio == date.Year);
                 Ent_Consulta_Premios EntConsultaPremios = new Ent_Consulta_Premios();
                 ViewBag.EntConsultaPremios = EntConsultaPremios;
                 return View();

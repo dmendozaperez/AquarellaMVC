@@ -279,5 +279,43 @@ namespace CapaDato.Util
             }
             return listar;
         }
+        public List<Ent_Combo> Lista_Asesor_Lider()
+        {
+            List<Ent_Combo> listar = null;
+            string sqlquery = "USP_MVC_LEER_LISTA_ASESOR_LIDER";
+            try
+            {
+                using (SqlConnection cn = new SqlConnection(Ent_Conexion.conexion))
+                {
+                    using (SqlCommand cmd = new SqlCommand(sqlquery, cn))
+                    {
+                        cmd.CommandTimeout = 0;
+                        cmd.CommandType = CommandType.StoredProcedure;
+                        using (SqlDataAdapter da = new SqlDataAdapter(cmd))
+                        {
+                            DataTable dt = new DataTable();
+                            da.Fill(dt);
+                            listar = new List<Ent_Combo>();
+                            listar = (from DataRow fila in dt.Rows
+                                      select new Ent_Combo()
+                                      {
+                                          bas_are_id = fila["bas_are_id"].ToString(),
+                                          bas_id = Convert.ToDecimal(fila["bas_id"]),
+                                          nombres = fila["nombres"].ToString(),
+                                          bas_aco_id = fila["bas_aco_id"].ToString(),
+                                          bas_usu_tipid = fila["bas_usu_tipid"].ToString(),
+                                      }
+                                   ).ToList();
+                        }
+                    }
+                }
+            }
+            catch (Exception exc)
+            {
+
+                listar = new List<Ent_Combo>();
+            }
+            return listar;
+        }
     }
 }

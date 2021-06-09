@@ -38,13 +38,13 @@
                             <div class="col-md-6" style="padding-left: 0px;">
                                 <label for="" style="color: #3d566e;">Asesor</label>
                                 <div id="DivAsesor" class="form-group">
-                                    @Html.DropDownList("ddlAsesor", new SelectList(ViewBag.ListarAsesor, "Codigo", "Descripcion"), new { @class = "form-control selectpicker", @data_live_search = "true", @id = "ddlAsesor", @name = "ddlAsesor", @style = "max-width: 100%" })
+                                    @Html.DropDownList("ddlAsesor", new SelectList(ViewBag.ListarAsesor, "bas_aco_id", "nombres"), new { @class = "form-control selectpicker", @data_live_search = "true", @id = "ddlAsesor", @name = "ddlAsesor", @style = "max-width: 100%" })
                                 </div>
                             </div>
                             <div class="col-md-6" style="padding-left: 0px;">
                                 <label for="" style="color: #3d566e;">Directora</label>
                                 <div id="DivLider" class="form-group">
-                                    @Html.DropDownList("ddlLider", new SelectList(ViewBag.ListarLider, "Codigo", "Descripcion"), new { @class = "form-control selectpicker", @data_live_search = "true", @id = "ddlLider", @name = "ddlLider", @style = "max-width: 100%" })
+                                    @Html.DropDownList("ddlLider", new SelectList(ViewBag.ListarLider, "bas_are_id", "nombres"), new { @class = "form-control selectpicker", @data_live_search = "true", @id = "ddlLider", @name = "ddlLider", @style = "max-width: 100%" })
                                 </div>
                             </div>
                         </div>
@@ -127,8 +127,8 @@
 
             /*[Inicializamos variables]*/
             this.ListarCamFecha = function () { return @Html.Raw(Json.Encode(ViewBag.ListarCamFecha)); }();
-            this.ListarAsesor = function () { return @Html.Raw(Json.Encode(ViewBag.ListarAsesor)); }();
             this.ListarLider = function () { return @Html.Raw(Json.Encode(ViewBag.ListarLider)); }();
+            //this.ListarLider = function () { return @Html.Raw(Json.Encode(ViewBag.ListarLider)); }();
 
             var date = new Date();
             var Mes = date.getMonth() + 1;
@@ -145,10 +145,12 @@
             this.FechaFin = "";
             this.Are_Id = "";
 
-            var usutip = @ViewBag.usu_tip_id;
+            //objConsultaPremios.generaal.dropdownlist.Llena($("#ddlAsesor").val(), 'Lider', objConsultaPremios.ListarLider);
+
+            @*var usutip = @ViewBag.usu_tip_id;
             if(usutip=="09"){
-                objConsultaPremios.generaal.dropdownlist.Llena($("#ddlAsesor").val(), 'Lider', objConsultaPremios.ListarLider);
-            }            
+                
+            }*@            
             /*[/Inicializamos variables]*/
 
             /*[btn Exportar y buscar]*/
@@ -338,10 +340,10 @@
             dropdownlist: {
                 Llena: function (Value, Id, Listado) {
                     debugger
-                    let Lista = (Value == '-1') ? Listado : Listado.filter((item) => { return item.IdAsesor === Value; });
+                    let Lista = (Value == '-1') ? Listado : Listado.filter((item) => { return item.bas_aco_id === Value; });
                     let dropdownlist = '<select class="form-control selectpicker" data-live-search="true" id="ddl' + Id + '" name="ddl' + Id + '" style="max-width: 100%" tabindex="-98">';
                     for (var key in Lista) {
-                        dropdownlist += '<option value = ' + Lista[key].Codigo + '>' + Lista[key].Descripcion + '</option>';
+                        dropdownlist += '<option value = ' + Lista[key].bas_are_id + '>' + Lista[key].nombres + '</option>';
                     }
                     dropdownlist += '</select>';
 

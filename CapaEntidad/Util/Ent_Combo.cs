@@ -13,6 +13,11 @@ namespace CapaEntidad.Util
 
         public string codigo { get; set; }
         public string descripcion { get; set; }
-
+        //LISTA ASESOR LIDER
+        public string bas_are_id { get; set; }
+        public Decimal bas_id { get; set; }
+        public string nombres { get; set; }
+        public string bas_aco_id { get; set; }
+        public string bas_usu_tipid { get; set; }
     }
 }
