@@ -3038,7 +3038,7 @@ namespace CapaPresentacion.Controllers
                     ListarLider = ListarAsesorLider.Where(x => x.bas_usu_tipid != "09" && x.bas_aco_id == _usuario.usu_asesor && x.bas_id == _usuario.usu_id).ToList();
                 }
 
-                if (_usuario.usu_tip_id == "04" || _usuario.usu_tip_id == "07")
+                if (_usuario.usu_tip_id != "09" && _usuario.usu_tip_id !="01")
                 {
                     ListarAsesor = new List<Ent_Combo>(){ new Ent_Combo() { bas_aco_id ="", nombres ="Seleccionar a todos" }};
                     ListarLider = new List<Ent_Combo>() { new Ent_Combo() { bas_id = -1, nombres = "Seleccionar a todos" } };
