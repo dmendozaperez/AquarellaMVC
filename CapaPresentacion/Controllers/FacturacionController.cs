@@ -26,6 +26,7 @@ namespace CapaPresentacion.Controllers
 {
     public class FacturacionController : Controller
     {
+        #region <DECLARACION DE VARIABLES>
         private Dat_Facturacion datFacturacion = new Dat_Facturacion();
         private Dat_Despacho dat_despacho = new Dat_Despacho();
         private Dat_Util datUtil = new Dat_Util();
@@ -52,6 +53,7 @@ namespace CapaPresentacion.Controllers
         private string _session_Listar_Servicio = "_session_Listar_Servicio";
         private string _session_ListarConsulta_Premios = "_session_ListarConsulta_Premios";
         private string _session_ListarConsulta_Premios_Excel = "_session_ListarConsulta_Premios_Excel";
+        #endregion
 
         #region <CONSULTA DE VENTAS POR CATEGORIA>
         public ActionResult Ventas_Categoria()
@@ -3038,7 +3040,7 @@ namespace CapaPresentacion.Controllers
                     ListarLider = ListarAsesorLider.Where(x => x.bas_usu_tipid != "09" && x.bas_aco_id == _usuario.usu_asesor && x.bas_id == _usuario.usu_id).ToList();
                 }
 
-                if (_usuario.usu_tip_id == "04" || _usuario.usu_tip_id == "07")
+                if (_usuario.usu_tip_id != "09" || _usuario.usu_tip_id != "01")
                 {
                     ListarAsesor = new List<Ent_Combo>(){ new Ent_Combo() { bas_aco_id ="", nombres ="Seleccionar a todos" }};
                     ListarLider = new List<Ent_Combo>() { new Ent_Combo() { bas_id = -1, nombres = "Seleccionar a todos" } };
@@ -3056,15 +3058,16 @@ namespace CapaPresentacion.Controllers
                 return View();
             }
         }
-        public JsonResult getLisConsulta_PremiosAjax(Ent_jQueryDataTableParams param, bool isOkUpdate, string FechaInicio,string FechaFin, string Bas_Id, string Bas_Aco_Id)
+        public JsonResult getLisConsulta_PremiosAjax(Ent_jQueryDataTableParams param, bool isOkUpdate, string FechaInicio,string FechaFin, string Bas_Id, string Bas_Aco_Id,int intMes)
         {
             Ent_Consulta_Premios EntConsultaPremios = new Ent_Consulta_Premios();
 
             if (isOkUpdate)
             {
+                DateTime date = DateTime.Now;
                 EntConsultaPremios.FechaIni = DateTime.Parse(FechaInicio);
                 EntConsultaPremios.FechaFin = DateTime.Parse(FechaFin);
-                EntConsultaPremios.Valida =false;
+                EntConsultaPremios.Valida = (date.Month == intMes) ? true: false;
                 EntConsultaPremios.Bas_Id = (Bas_Id == "") ? Bas_Id = "-1" : Bas_Id;
                 EntConsultaPremios.Bas_Aco_Id = (Bas_Id == "-1" ) ? Bas_Aco_Id : Bas_Aco_Id = "";
 
@@ -3213,7 +3216,7 @@ namespace CapaPresentacion.Controllers
                 sb.Append("<div>");
                 sb.Append("<table cellspacing='0' style='width: 1000px' rules='all' border='0' style='border-collapse:collapse;'>");
                 sb.Append("<tr><td Colspan='10'></td></tr>");
-                sb.Append("<tr><td Colspan='10' valign='middle' align='center' style='vertical-align: middle;font-size: 18.0pt;font-weight: bold;color:#285A8F'>REPORTE DE PREMIOS</td></tr>");
+                sb.Append("<tr><td Colspan='10' valign='middle' align='center' style='vertical-align: middle;font-size: 18.0pt;font-weight: bold;color:#285A8F'>REPORTE DE PREMIOS - " + _Ent.Mes.ToUpper() + "</td></tr>");
                 sb.Append("<tr><td Colspan='10' valign='middle' align='center' style='vertical-align: middle;font-size: 10.0pt;font-weight: bold;color:#000000'>Rango de : " + String.Format("{0:dd/MM/yyyy}", _Ent.FechaIni) + " hasta " + String.Format("{0:dd/MM/yyyy}", _Ent.FechaFin) + "</td></tr>");//subtitulo
                 sb.Append("<tr>\n");
                 sb.Append("<th bgColor='#1E77AB' style='text-align: center; font-weight:bold;font-size:11.0pt;'><font color='#FFFFFF'>Asesor</font></th>\n");
@@ -3221,9 +3224,9 @@ namespace CapaPresentacion.Controllers
                 sb.Append("<th bgColor='#1E77AB' style='text-align: center; font-weight:bold;font-size:11.0pt;'><font color='#FFFFFF'>Promotor</font></th>\n");
                 sb.Append("<th bgColor='#1E77AB' style='text-align: center; font-weight:bold;font-size:11.0pt;'><font color='#FFFFFF'>Documento</font></th>\n");
                 sb.Append("<th bgColor='#1E77AB' style='text-align: center; font-weight:bold;font-size:11.0pt;'><font color='#FFFFFF'>Venta Bruta</font></th>\n");
-                sb.Append("<th bgColor='#1E77AB' style='text-align: center; font-weight:bold;font-size:11.0pt;'><font color='#FFFFFF'>Monto Minima</font></th>\n");
-                sb.Append("<th bgColor='#1E77AB' style='text-align: center; font-weight:bold;font-size:11.0pt;'><font color='#FFFFFF'>Monto premio</font></th>\n");
-                sb.Append("<th bgColor='#1E77AB' style='text-align: center; font-weight:bold;font-size:11.0pt;'><font color='#FFFFFF'>Descripcion</font></th>\n");
+                sb.Append("<th bgColor='#1E77AB' style='text-align: center; font-weight:bold;font-size:11.0pt;'><font color='#FFFFFF'>Monto Premio</font></th>\n");
+                sb.Append("<th bgColor='#1E77AB' style='text-align: center; font-weight:bold;font-size:11.0pt;'><font color='#FFFFFF'>Falta Premio</font></th>\n");
+                sb.Append("<th bgColor='#1E77AB' style='text-align: center; font-weight:bold;font-size:11.0pt;'><font color='#FFFFFF'>Regalo</font></th>\n");
                 sb.Append("<th bgColor='#1E77AB' style='text-align: center; font-weight:bold;font-size:11.0pt;'><font color='#FFFFFF'>Nro Regalo</font></th>\n");
                 sb.Append("<th bgColor='#1E77AB' style='text-align: center; font-weight:bold;font-size:11.0pt;'><font color='#FFFFFF'>Nro Pedido</font></th>\n");
                 sb.Append("</tr>\n");
