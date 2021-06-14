@@ -281,5 +281,7 @@ namespace CapaEntidad.Facturacion
         public string Nombres { get; set; }
         public string Bas_Aco_Id { get; set; }
         public string Bas_Usu_TipId { get; set; }
+        public string Mes { get; set; }
+        public int intMes { get; set; }
     }
 }

@@ -101,9 +101,9 @@
                             <th style="text-align: center;">Promotor</th>
                             <th style="text-align: center;">Documento</th>
                             <th style="text-align: center;">Venta Bruta</th>
-                            <th style="text-align: center;">Venta Minima</th>
-                            <th style="text-align: center;">Monto premio</th>
-                            <th style="text-align: center;">Descripcion</th>
+                            <th style="text-align: center;">Monto Premio</th>
+                            <th style="text-align: center;">Falta Premio</th>
+                            <th style="text-align: center;">Regalo</th>
                             <th style="text-align: center;">Nro Regalo</th>
                             <th style="text-align: center;">Nro Pedido</th>
                         </tr>
@@ -145,7 +145,8 @@
             this.FechaFin = "";
             this.Bas_Id = "";
             this.Bas_Aco_Id = "";
-            
+            this.intMes = 0;
+
             /*[/Inicializamos variables]*/
 
             /*[btn Exportar y buscar]*/
@@ -153,6 +154,7 @@
                 debugger
                 let strMes = $("#ddlMes").val();
                 let index = objConsultaPremios.ListarCamFecha.findIndex(C => C.CamFec_Num == strMes);
+                objConsultaPremios.intMes = strMes;
                 objConsultaPremios.isOkUpdate = true;
                 objConsultaPremios.FechaInicio = objConsultaPremios.ListarCamFecha[index].CamFec_Ini;
                 objConsultaPremios.FechaFin = objConsultaPremios.ListarCamFecha[index].CamFec_Fin;
@@ -171,7 +173,7 @@
             $("#ddlMes").change(function () {
                 debugger;
                 let strMes = this.value;
-                let index = objConsultaPremios.ListarCamFecha.findIndex(C => C.CamFec_Num == strMes);
+                let index = objConsultaPremios.ListarCamFecha.findIndex(C => C.CamFec_Num == strMes);                
                 $("#dtpFechaInicio").val(objConsultaPremios.ListarCamFecha[index].CamFec_Ini.substring(0, 10));
                 $("#dtpFechaFin").val(objConsultaPremios.ListarCamFecha[index].CamFec_Fin.substring(0, 10));
             })
@@ -204,6 +206,7 @@
                         aoData.push({ "name": "FechaFin", "value": objConsultaPremios.FechaFin });
                         aoData.push({ "name": "Bas_Id", "value": objConsultaPremios.Bas_Id });
                         aoData.push({ "name": "Bas_Aco_Id", "value": objConsultaPremios.Bas_Aco_Id });
+                        aoData.push({ "name": "intMes", "value": objConsultaPremios.intMes });
                     },
                     "bFilter": true,
                     "bdestroy": true,
@@ -313,6 +316,8 @@
                 var _Ent = function () { return @Html.Raw(Json.Encode(ViewBag.EntConsultaPremios)); }();
                 _Ent.FechaIni = objConsultaPremios.FechaInicio;
                 _Ent.FechaFin = objConsultaPremios.FechaFin;
+                _Ent.Mes = $("#ddlMes option:selected").text();
+                
                 $.ajax({
                     type: "POST",
                     url: '@Url.Action("get_exporta_LisConsulta_Premios_excel", "Facturacion")',

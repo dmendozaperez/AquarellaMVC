@@ -1775,6 +1775,8 @@ namespace CapaPresentacion.Controllers
 
                 Ent_Saldos_Anticipos entSaldosAnticipos = new Ent_Saldos_Anticipos();
                 ViewBag.entSaldo = entSaldosAnticipos;
+
+                ViewBag.ListarSaldosAnticipos = datDocumento_Transaccion.Listar_Saldos_Anticipos().ToList();
                 return View();
             }
         }
@@ -1784,11 +1786,14 @@ namespace CapaPresentacion.Controllers
         /// <param name="param"></param>
         /// <param name="isOkUpdate"></param>
         /// <returns>JSON</returns>
-        public JsonResult getListaSaldosAnticiposAjax(Ent_jQueryDataTableParams param,bool isOkUpdate)
+        public JsonResult getListaSaldosAnticiposAjax(Ent_jQueryDataTableParams param,bool isOkUpdate, bool isOkSaldo,Decimal Saldo)
         {
+            List<Ent_Saldos_Anticipos> ListarSaldosAnticipos;
+
             if (isOkUpdate)
             {
-                Session[_session_listSaldosAnticipos] = datDocumento_Transaccion.Listar_Saldos_Anticipos().ToList(); ;
+                ListarSaldosAnticipos = (Saldo == 0) ? datDocumento_Transaccion.Listar_Saldos_Anticipos().ToList() : datDocumento_Transaccion.Listar_Saldos_Anticipos().Where(x => x.Saldo <= Saldo).ToList();
+                Session[_session_listSaldosAnticipos] = ListarSaldosAnticipos;
             }
 
             /*verificar si esta null*/
@@ -1871,7 +1876,8 @@ namespace CapaPresentacion.Controllers
                 sEcho = param.sEcho,
                 iTotalRecords = totalCount,
                 iTotalDisplayRecords = filteredMembers.Count(),
-                aaData = Result
+                aaData = Result,
+                iDisplayStart = param.iDisplayStart
             }, JsonRequestBehavior.AllowGet);
         }
         /// <summary>
