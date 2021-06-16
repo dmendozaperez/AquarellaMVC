@@ -3042,7 +3042,7 @@ namespace CapaPresentacion.Controllers
                     ListarLider = ListarAsesorLider.Where(x => x.bas_usu_tipid != "09" && x.bas_aco_id == _usuario.usu_asesor && x.bas_id == _usuario.usu_id).ToList();
                 }
 
-                if (_usuario.usu_tip_id != "09" || _usuario.usu_tip_id != "01")
+                if (_usuario.usu_tip_id != "09" && _usuario.usu_tip_id != "01")
                 {
                     ListarAsesor = new List<Ent_Combo>(){ new Ent_Combo() { bas_aco_id ="", nombres ="Seleccionar a todos" }};
                     ListarLider = new List<Ent_Combo>() { new Ent_Combo() { bas_id = -1, nombres = "Seleccionar a todos" } };
@@ -3228,7 +3228,7 @@ namespace CapaPresentacion.Controllers
                 sb.Append("<th bgColor='#1E77AB' style='text-align: center; font-weight:bold;font-size:11.0pt;'><font color='#FFFFFF'>Venta Bruta</font></th>\n");
                 sb.Append("<th bgColor='#1E77AB' style='text-align: center; font-weight:bold;font-size:11.0pt;'><font color='#FFFFFF'>Monto Premio</font></th>\n");
                 sb.Append("<th bgColor='#1E77AB' style='text-align: center; font-weight:bold;font-size:11.0pt;'><font color='#FFFFFF'>Falta Premio</font></th>\n");
-                sb.Append("<th bgColor='#1E77AB' style='text-align: center; font-weight:bold;font-size:11.0pt;'><font color='#FFFFFF'>Regalo</font></th>\n");
+                sb.Append("<th bgColor='#1E77AB' style='text-align: center; font-weight:bold;font-size:11.0pt;'><font color='#FFFFFF'>Descripcion</font></th>\n");
                 sb.Append("<th bgColor='#1E77AB' style='text-align: center; font-weight:bold;font-size:11.0pt;'><font color='#FFFFFF'>Nro Regalo</font></th>\n");
                 sb.Append("<th bgColor='#1E77AB' style='text-align: center; font-weight:bold;font-size:11.0pt;'><font color='#FFFFFF'>Nro Pedido</font></th>\n");
                 sb.Append("</tr>\n");
@@ -3318,7 +3318,7 @@ namespace CapaPresentacion.Controllers
                     ListarLider = ListarAsesorLider.Where(x => x.bas_usu_tipid != "09" && x.bas_aco_id == _usuario.usu_asesor && x.bas_id == _usuario.usu_id).ToList();
                 }
 
-                if (_usuario.usu_tip_id != "09" || _usuario.usu_tip_id != "01")
+                if (_usuario.usu_tip_id != "09" && _usuario.usu_tip_id != "01")
                 {
                     ListarAsesor = new List<Ent_Combo>() { new Ent_Combo() { bas_aco_id = "", nombres = "Seleccionar a todos" } };
                     ListarLider = new List<Ent_Combo>() { new Ent_Combo() { bas_id = -1, nombres = "Seleccionar a todos" } };
