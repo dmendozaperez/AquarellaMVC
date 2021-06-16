@@ -26,7 +26,6 @@ namespace CapaPresentacion.Controllers
 {
     public class FacturacionController : Controller
     {
-        #region <DECLARACION DE VARIABLES>
         private Dat_Facturacion datFacturacion = new Dat_Facturacion();
         private Dat_Despacho dat_despacho = new Dat_Despacho();
         private Dat_Util datUtil = new Dat_Util();
@@ -3218,7 +3217,7 @@ namespace CapaPresentacion.Controllers
                 sb.Append("<div>");
                 sb.Append("<table cellspacing='0' style='width: 1000px' rules='all' border='0' style='border-collapse:collapse;'>");
                 sb.Append("<tr><td Colspan='10'></td></tr>");
-                sb.Append("<tr><td Colspan='10' valign='middle' align='center' style='vertical-align: middle;font-size: 18.0pt;font-weight: bold;color:#285A8F'>REPORTE DE PREMIOS - " + _Ent.Mes.ToUpper() + "</td></tr>");
+                sb.Append("<tr><td Colspan='10' valign='middle' align='center' style='vertical-align: middle;font-size: 18.0pt;font-weight: bold;color:#285A8F'>REPORTE DE PREMIOS</td></tr>");
                 sb.Append("<tr><td Colspan='10' valign='middle' align='center' style='vertical-align: middle;font-size: 10.0pt;font-weight: bold;color:#000000'>Rango de : " + String.Format("{0:dd/MM/yyyy}", _Ent.FechaIni) + " hasta " + String.Format("{0:dd/MM/yyyy}", _Ent.FechaFin) + "</td></tr>");//subtitulo
                 sb.Append("<tr>\n");
                 sb.Append("<th bgColor='#1E77AB' style='text-align: center; font-weight:bold;font-size:11.0pt;'><font color='#FFFFFF'>Asesor</font></th>\n");
