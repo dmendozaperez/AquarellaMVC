@@ -26,6 +26,7 @@ namespace CapaPresentacion.Controllers
 {
     public class FacturacionController : Controller
     {
+        #region <DECLARACION DE VARIABLE>
         private Dat_Facturacion datFacturacion = new Dat_Facturacion();
         private Dat_Despacho dat_despacho = new Dat_Despacho();
         private Dat_Util datUtil = new Dat_Util();
