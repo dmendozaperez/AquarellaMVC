@@ -53,6 +53,8 @@ namespace CapaPresentacion.Controllers
         private string _session_Listar_Servicio = "_session_Listar_Servicio";
         private string _session_ListarConsulta_Premios = "_session_ListarConsulta_Premios";
         private string _session_ListarConsulta_Premios_Excel = "_session_ListarConsulta_Premios_Excel";
+        private string _session_ListarComision_Lider = "_session_ListarComision_Lider";
+        private string _session_ListarComision_Lider_Excel = "_session_ListarComision_Lider_Excel";
         #endregion
 
         #region <CONSULTA DE VENTAS POR CATEGORIA>
@@ -3238,9 +3240,9 @@ namespace CapaPresentacion.Controllers
                     sb.Append("<td align=''>" + item.Lider + "</td>\n");
                     sb.Append("<td align=''>" + item.Promotor + "</td>\n");
                     sb.Append("<td align=''>" + item.Documento + "</td>\n");
-                    sb.Append("<td align=''>" + item.Total + "</td>\n");
+                    sb.Append("<td align='right'>" + "S/ " + Convert.ToDecimal(string.Format("{0:F2}", item.Total)) + "</td>");
                     sb.Append("<td align='Right'>" + item.Limite + "</td>\n");
-                    sb.Append("<td align='Right'>" + item.Saldo + "</td>\n");
+                    sb.Append("<td align='right'>" + "S/ " + Convert.ToDecimal(string.Format("{0:F2}", item.Saldo)) + "</td>");
                     sb.Append("<td align='Right'>" + item.Descripcion + "</td>\n");
                     sb.Append("<td align='Center'>" + item.Liqprem + "</td>\n");
                     sb.Append("<td align='Center'>" + item.Liqpremiori + "</td>\n");
@@ -3273,6 +3275,280 @@ namespace CapaPresentacion.Controllers
                 Response.ContentEncoding = Encoding.Default;
                 Response.Write(style);
                 Response.Write(Session[_session_ListarConsulta_Premios_Excel].ToString());
+                Response.End();
+            }
+            catch (Exception e)
+            {
+                throw new Exception(e.Message);
+            }
+            return Json(new { estado = 0, mensaje = 1 });
+        }
+        #endregion
+
+        #region <CONSULTA DE COMISIONES POR LIDER>	
+        public ActionResult Comisiones_Lider()
+        {
+            Ent_Usuario _usuario = (Ent_Usuario)Session[Ent_Constantes.NameSessionUser];
+            string actionName = this.ControllerContext.RouteData.GetRequiredString("action");
+            string controllerName = this.ControllerContext.RouteData.GetRequiredString("controller");
+            string return_view = actionName + "|" + controllerName;
+
+            if (_usuario == null)
+            {
+                return RedirectToAction("Login", "Control", new { returnUrl = return_view });
+            }
+            else
+            {
+                Session[_session_ListarComision_Lider] = null;
+
+                List<Ent_Combo> ListarLider = new List<Ent_Combo>();
+                List<Ent_Combo> ListarAsesor = new List<Ent_Combo>();
+                var ListarAsesorLider = datUtil.Lista_Asesor_Lider().ToList();
+
+                if (_usuario.usu_tip_id == "09")
+                {
+                    ListarLider = new List<Ent_Combo>() { new Ent_Combo() { bas_id = -1, nombres = "Seleccionar a todos" } };
+                    ListarAsesor = ListarAsesorLider.Where(x => x.bas_usu_tipid == "09" && x.bas_aco_id == _usuario.usu_asesor).ToList();
+                    ListarLider = ListarLider.Concat(ListarAsesorLider.Where(x => x.bas_usu_tipid != "09" && x.bas_aco_id == _usuario.usu_asesor)).ToList();
+                }
+
+                if (_usuario.usu_tip_id == "01")
+                {
+                    ListarAsesor = ListarAsesorLider.Where(x => x.bas_usu_tipid == "09" && x.bas_aco_id == _usuario.usu_asesor).ToList();
+                    ListarLider = ListarAsesorLider.Where(x => x.bas_usu_tipid != "09" && x.bas_aco_id == _usuario.usu_asesor && x.bas_id == _usuario.usu_id).ToList();
+                }
+
+                if (_usuario.usu_tip_id != "09" || _usuario.usu_tip_id != "01")
+                {
+                    ListarAsesor = new List<Ent_Combo>() { new Ent_Combo() { bas_aco_id = "", nombres = "Seleccionar a todos" } };
+                    ListarLider = new List<Ent_Combo>() { new Ent_Combo() { bas_id = -1, nombres = "Seleccionar a todos" } };
+                    ListarAsesor = ListarAsesor.Concat(ListarAsesorLider.Where(x => x.bas_usu_tipid == "09")).ToList();
+                    ListarLider = ListarLider.Concat(ListarAsesorLider.Where(x => x.bas_usu_tipid != "09" && x.bas_aco_id != "")).ToList();
+                }
+
+                ViewBag.ListarAsesor = ListarAsesor.ToList();
+                ViewBag.ListarLider = ListarLider.ToList();
+
+                Ent_Comision_Lider EntComisionLider = new Ent_Comision_Lider();
+                ViewBag.EntComisionLider = EntComisionLider;
+                return View();
+            }
+        }
+        public JsonResult getLisComision_LiderAjax(Ent_jQueryDataTableParams param, bool isOkUpdate, string FechaInicio, string FechaFin, string Bas_Id, string Bas_Aco_Id)
+        {
+            Ent_Comision_Lider EntComisionLider = new Ent_Comision_Lider();
+
+            if (isOkUpdate)
+            {
+                EntComisionLider.FechaIni = DateTime.Parse(FechaInicio);
+                EntComisionLider.FechaFin = DateTime.Parse(FechaFin);
+                EntComisionLider.Bas_Id = (Bas_Id == "") ? Bas_Id = "-1" : Bas_Id;
+                EntComisionLider.Bas_Aco_Id = (Bas_Id == "-1") ? Bas_Aco_Id : Bas_Aco_Id = "";
+
+                List<Ent_Comision_Lider> _ListarComision_Lider = datFacturacion.Listar_Comision_Lider(EntComisionLider).ToList();
+                Session[_session_ListarComision_Lider] = _ListarComision_Lider;
+            }
+
+            /*verificar si esta null*/
+            if (Session[_session_ListarComision_Lider] == null)
+            {
+                List<Ent_Comision_Lider> _ListarComision_Lider = new List<Ent_Comision_Lider>();
+                Session[_session_ListarComision_Lider] = _ListarComision_Lider;
+            }
+
+            IQueryable<Ent_Comision_Lider> entDocTrans = ((List<Ent_Comision_Lider>)(Session[_session_ListarComision_Lider])).AsQueryable();
+            //Manejador de filtros
+            int totalCount = entDocTrans.Count();
+            IEnumerable<Ent_Comision_Lider> filteredMembers = entDocTrans;
+            if (!string.IsNullOrEmpty(param.sSearch))
+            {
+                filteredMembers = entDocTrans.Where(
+                        m =>
+                            m.AreaId.ToUpper().Contains(param.sSearch.ToUpper()) ||
+                            m.Asesor.ToUpper().Contains(param.sSearch.ToUpper()) ||
+                            m.Lider.ToUpper().Contains(param.sSearch.ToUpper()) ||
+                            m.LiderDni.ToUpper().Contains(param.sSearch.ToUpper()) ||
+                            m.TotalPares.ToString().Contains(param.sSearch.ToUpper()) ||
+                            m.TotalVenta.ToString().Contains(param.sSearch.ToUpper()) ||
+                            m.PorcentajeComision.ToString().Contains(param.sSearch.ToUpper()) ||
+                            m.Comision.ToString().Contains(param.sSearch.ToUpper()) ||
+                            m.BonosNuevas.ToString().Contains(param.sSearch.ToUpper()) ||
+                            m.SubTotalSinIGV.ToString().Contains(param.sSearch.ToUpper()) ||
+                            m.CostoT.ToString().Contains(param.sSearch.ToUpper()) ||
+                            m.Margen.ToString().Contains(param.sSearch.ToUpper())
+                );
+            }
+            var sortIdx = Convert.ToInt32(Request["iSortCol_0"]);
+
+            if (param.iSortingCols > 0)
+            {
+                if (Request["sSortDir_0"].ToString() == "asc")
+                {
+                    switch (sortIdx)
+                    {
+                        case 0: filteredMembers = filteredMembers.OrderBy(o => o.AreaId); break;
+                        case 1: filteredMembers = filteredMembers.OrderBy(o => o.Asesor); break;
+                        case 2: filteredMembers = filteredMembers.OrderBy(o => o.Lider); break;
+                        case 3: filteredMembers = filteredMembers.OrderBy(o => o.LiderDni); break;
+                        case 4: filteredMembers = filteredMembers.OrderBy(o => o.TotalPares); break;
+                        case 5: filteredMembers = filteredMembers.OrderBy(o => o.TotalVenta); break;
+                        case 6: filteredMembers = filteredMembers.OrderBy(o => o.PorcentajeComision); break;
+                        case 7: filteredMembers = filteredMembers.OrderBy(o => o.Comision); break;
+                        case 8: filteredMembers = filteredMembers.OrderBy(o => o.BonosNuevas); break;
+                        case 9: filteredMembers = filteredMembers.OrderBy(o => o.SubTotalSinIGV); break;
+                        case 10: filteredMembers = filteredMembers.OrderBy(o => o.CostoT); break;
+                        case 11: filteredMembers = filteredMembers.OrderBy(o => o.Margen); break;
+                    }
+                }
+                else
+                {
+                    switch (sortIdx)
+                    {
+                        case 0: filteredMembers = filteredMembers.OrderByDescending(o => o.AreaId); break;
+                        case 1: filteredMembers = filteredMembers.OrderByDescending(o => o.Asesor); break;
+                        case 2: filteredMembers = filteredMembers.OrderByDescending(o => o.Lider); break;
+                        case 3: filteredMembers = filteredMembers.OrderByDescending(o => o.LiderDni); break;
+                        case 4: filteredMembers = filteredMembers.OrderByDescending(o => o.TotalPares); break;
+                        case 5: filteredMembers = filteredMembers.OrderByDescending(o => o.TotalVenta); break;
+                        case 6: filteredMembers = filteredMembers.OrderByDescending(o => o.PorcentajeComision); break;
+                        case 7: filteredMembers = filteredMembers.OrderByDescending(o => o.Comision); break;
+                        case 8: filteredMembers = filteredMembers.OrderByDescending(o => o.BonosNuevas); break;
+                        case 9: filteredMembers = filteredMembers.OrderByDescending(o => o.SubTotalSinIGV); break;
+                        case 10: filteredMembers = filteredMembers.OrderByDescending(o => o.CostoT); break;
+                        case 11: filteredMembers = filteredMembers.OrderByDescending(o => o.Margen); break;
+                    }
+                }
+            }
+
+            var Result = filteredMembers
+                .Skip(param.iDisplayStart)
+                .Take(param.iDisplayLength);
+
+            //Se devuelven los resultados por json
+            return Json(new
+            {
+                sEcho = param.sEcho,
+                iTotalRecords = totalCount,
+                iTotalDisplayRecords = filteredMembers.Count(),
+                aaData = Result
+            }, JsonRequestBehavior.AllowGet);
+        }
+
+        public ActionResult get_exporta_LisComision_Lider_excel(Ent_Comision_Lider _Ent)
+        {
+            JsonResponse objResult = new JsonResponse();
+            try
+            {
+                Session[_session_ListarComision_Lider_Excel] = null;
+                string cadena = "";
+                if (Session[_session_ListarComision_Lider] != null)
+                {
+
+                    List<Ent_Comision_Lider> _ListarComision_Lider = (List<Ent_Comision_Lider>)Session[_session_ListarComision_Lider];
+                    if (_ListarComision_Lider.Count == 0)
+                    {
+                        objResult.Success = false;
+                        objResult.Message = "No hay filas para exportar";
+                    }
+                    else
+                    {
+                        cadena = get_html_ListarComision_Lider_str((List<Ent_Comision_Lider>)Session[_session_ListarComision_Lider], _Ent);
+                        if (cadena.Length == 0)
+                        {
+                            objResult.Success = false;
+                            objResult.Message = "Error del formato html";
+                        }
+                        else
+                        {
+                            objResult.Success = true;
+                            objResult.Message = "Se genero el excel correctamente";
+                            Session[_session_ListarComision_Lider_Excel] = cadena;
+                        }
+                    }
+                }
+                else
+                {
+                    objResult.Success = false;
+                    objResult.Message = "No hay filas para exportar";
+                }
+            }
+            catch (Exception ex)
+            {
+                objResult.Success = false;
+                objResult.Message = "No hay filas para exportar";
+            }
+
+            var JSON = JsonConvert.SerializeObject(objResult);
+
+            return Json(JSON, JsonRequestBehavior.AllowGet);
+        }
+
+        public string get_html_ListarComision_Lider_str(List<Ent_Comision_Lider> _ListarComision_Lider, Ent_Comision_Lider _Ent)
+        {
+            StringBuilder sb = new StringBuilder();
+            var Lista = _ListarComision_Lider.ToList();
+            try
+            {
+                sb.Append("<div>");
+                sb.Append("<table cellspacing='0' style='width: 1000px' rules='all' border='0' style='border-collapse:collapse;'>");
+                sb.Append("<tr><td Colspan='10'></td></tr>");
+                sb.Append("<tr><td Colspan='10' valign='middle' align='center' style='vertical-align: middle;font-size: 18.0pt;font-weight: bold;color:#285A8F'>REPORTE DE COMISIONES LIDER </td></tr>");
+                sb.Append("<tr><td Colspan='10' valign='middle' align='center' style='vertical-align: middle;font-size: 10.0pt;font-weight: bold;color:#000000'>Rango de : " + String.Format("{0:dd/MM/yyyy}", _Ent.FechaIni) + " hasta " + String.Format("{0:dd/MM/yyyy}", _Ent.FechaFin) + "</td></tr>");//subtitulo
+                sb.Append("<tr>\n");
+                sb.Append("<th bgColor='#1E77AB' style='text-align: center; font-weight:bold;font-size:11.0pt;'><font color='#FFFFFF'>Asesor</font></th>\n");
+                sb.Append("<th bgColor='#1E77AB' style='text-align: center; font-weight:bold;font-size:11.0pt;'><font color='#FFFFFF'>Directora</font></th>\n");
+                sb.Append("<th bgColor='#1E77AB' style='text-align: center; font-weight:bold;font-size:11.0pt;'><font color='#FFFFFF'>Doc. Directora</font></th>\n");
+                sb.Append("<th bgColor='#1E77AB' style='text-align: center; font-weight:bold;font-size:11.0pt;'><font color='#FFFFFF'>Total Pares</font></th>\n");
+                sb.Append("<th bgColor='#1E77AB' style='text-align: center; font-weight:bold;font-size:11.0pt;'><font color='#FFFFFF'>Total Venta Neta</font></th>\n");
+                sb.Append("<th bgColor='#1E77AB' style='text-align: center; font-weight:bold;font-size:11.0pt;'><font color='#FFFFFF'>Comision Lider</font></th>\n");
+                sb.Append("<th bgColor='#1E77AB' style='text-align: center; font-weight:bold;font-size:11.0pt;'><font color='#FFFFFF'>% de Comision</font></th>\n");
+                sb.Append("<th bgColor='#1E77AB' style='text-align: center; font-weight:bold;font-size:11.0pt;'><font color='#FFFFFF'>Bono</font></th>\n");
+                sb.Append("<th bgColor='#1E77AB' style='text-align: center; font-weight:bold;font-size:11.0pt;'><font color='#FFFFFF'>Margen</font></th>\n");
+
+                sb.Append("</tr>\n");
+                // {0:N2} Separacion miles , {0:F2} solo dos decimales
+                foreach (var item in Lista)
+                {
+                    sb.Append("<tr>\n");
+                    sb.Append("<td align=''>" + item.Asesor + "</td>\n");
+                    sb.Append("<td align=''>" + item.Lider + "</td>\n");
+                    sb.Append("<td align=''>" + item.LiderDni + "</td>\n");
+                    sb.Append("<td align='right'>" + (item.TotalPares == null || item.TotalPares == 0 ? " " : " "+ Convert.ToDecimal(string.Format("{0:F2}", item.TotalPares))) + "</td>\n");
+                    sb.Append("<td align='right'>" + (item.TotalVenta == null || item.TotalVenta == 0 ? " " : " " + Convert.ToDecimal(string.Format("{0:F2}", item.TotalVenta))) + "</td>\n");
+                    sb.Append("<td align='right'>" + (item.Comision == null || item.Comision == 0 ? " " : "" + Convert.ToDecimal(string.Format("{0:F2}", item.Comision))) + "</td>\n");
+                    sb.Append("<td align='right'>" + (item.PorcentajeComision == null || item.PorcentajeComision == 0 ? " " : " " + Convert.ToDecimal(string.Format("{0:F2}", item.PorcentajeComision))) + "</td>\n");
+                    sb.Append("<td align='right'>" + (item.BonosNuevas == null || item.BonosNuevas  == 0 ? " " : " " + Convert.ToDecimal(string.Format("{0:F2}", item.BonosNuevas))) + "</td>\n");
+                    sb.Append("<td align='right'>" + (item.Margen == null || item.Margen == 0 ? " " : " " + Convert.ToDecimal(string.Format("{0:F2}", item.Margen))) + "</td>\n");
+
+                    sb.Append("</tr>\n");
+                }
+                //sb.Append("<tfoot>\n");
+                //sb.Append("<tr bgcolor='#085B8C'>\n");
+                //sb.Append("</tr>\n");
+                //sb.Append("</tfoot>\n");
+                sb.Append("</table></div>");
+            }
+            catch (Exception e)
+            {
+                throw new Exception(e.Message);
+            }
+            return sb.ToString();
+        }
+
+        public ActionResult ListarComision_LiderExcel()
+        {
+            string NombreArchivo = "Comision_Lider";
+            String style = style = @"<style> .textmode { mso-number-format:\@; }</style>";
+            try
+            {
+                Response.Clear();
+                Response.Buffer = true;
+                Response.ContentType = "application/vnd.ms-excel";
+                Response.AddHeader("Content-Disposition", "attachment;filename=" + NombreArchivo + ".xls");
+                Response.Charset = "UTF-8";
+                Response.ContentEncoding = Encoding.Default;
+                Response.Write(style);
+                Response.Write(Session[_session_ListarComision_Lider_Excel].ToString());
                 Response.End();
             }
             catch (Exception e)

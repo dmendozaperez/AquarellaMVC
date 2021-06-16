@@ -1,0 +1,388 @@
+﻿@{
+    ViewBag.Title = "Consulta de Premios";
+}
+<style>
+    .table thead {
+        background-color: #5799bf;
+        color: #fff;
+    }
+
+    .boton-xs-td {
+        padding-top: 5px !important;
+        padding-bottom: 5px !important;
+    }
+
+    .alignRight {
+        text-align: right;
+        vertical-align: middle;
+    }
+
+    .alignCenter {
+        text-align: center;
+        vertical-align: middle;
+    }
+</style>
+<p class="text-primary">Consulta de premios, filtrado por fecha de campaña.</p>
+<div class="box box-header box-primary">
+    <h3 class="box-title danger" style="color:#9c9c9c;font-weight:bold">Parametro de Busqueda</h3>
+    <br />
+    <br />
+    <div class="row">
+        <div class="col-md-12">
+            <div class="panel panel-default p-10">
+                <div class="panel-body" style="padding-top: 7px;padding-bottom: 4px;">
+                    <div class="row">
+                        <div class="col-sm-2">
+
+                        </div>
+                        <div class="col-md-4" style="padding-left: 30px; padding-right: 0px;">
+                            <div class="col-md-6" style="padding-left: 0px;">
+                                <label for="" style="color: #3d566e;">Asesor</label>
+                                <div id="DivAsesor" class="form-group">
+                                    @Html.DropDownList("ddlAsesor", new SelectList(ViewBag.ListarAsesor, "bas_aco_id", "nombres"), new { @class = "form-control selectpicker", @data_live_search = "true", @id = "ddlAsesor", @name = "ddlAsesor", @style = "max-width: 100%" })
+                                </div>
+                            </div>
+                            <div class="col-md-6" style="padding-left: 0px;">
+                                <label for="" style="color: #3d566e;">Directora</label>
+                                <div id="DivLider" class="form-group">
+                                    @Html.DropDownList("ddlLider", new SelectList(ViewBag.ListarLider, "bas_id", "nombres"), new { @class = "form-control selectpicker", @data_live_search = "true", @id = "ddlLider", @name = "ddlLider", @style = "max-width: 100%" })
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6" style="padding-left: 0px;">
+                            <div class="col-md-5" style="padding-right: 0px;">
+                                <div>
+                                    <label for="lblFechaInicio" style="color: #3d566e;">Fecha de Inicio</label>
+                                    <div id="datepickerIni" class="input-group date" data-date-format="dd/mm/yyyy">
+                                        <input id="dtpFechaInicio" type="text" class="form-control input-sm ui-cell-input" disabled style="max-width: 100%" />
+                                        <span class="input-group-addon btn btn-xs btn-default" style="padding: 4px 5px;">
+                                            <i class="glyphicon glyphicon-calendar" height="20" width="20" style="color:#ff9f3f"></i>
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-5">
+                                <label for="lblFechaFin" style="color: #3d566e;">Fecha de Cierre</label>
+                                <div id="datepickerFin" class="input-group date" data-date-format="dd/mm/yyyy">
+                                    <input id="dtpFechaFin" type="text" class="form-control input-sm ui-cell-input" disabled style="max-width: 100%" />
+                                    <span class="input-group-addon btn btn-xs btn-default" style="padding: 4px 5px;">
+                                        <i class="glyphicon glyphicon-calendar" height="20" width="20" style="color:#ff9f3f"></i>
+                                    </span>
+                                </div>
+                            </div>
+                            <div class="col-md-2 text-right" style="padding:0px">
+                                <button id="btnBuscar" type="submit" title="Consultar" class="btn btn-primary" style="margin-top: 19px;">
+                                    <span class="glyphicon glyphicon-search"></span>&nbsp;&nbsp;Buscar
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="box box-body box-primary">
+    <div class="row">
+        <div class="col-md-6">
+        </div>
+        <div class="col-md-6 text-right">
+            <button id="btnExportar" title="Exportar" class="btn btn-success disabled" disabled>
+                <span class="glyphicon glyphicon-export"></span>&nbsp;&nbsp;Exportar Lista
+            </button>
+        </div>
+    </div>
+    <br />
+    <div class="row">
+        <div class="col-md-12">
+            <div class="table-responsive">
+                <table id="tbTabla" class="table table-hover table-bordered compact">
+                    <thead>
+                        <tr>
+                            <th style="text-align: center;">Asesor</th>
+                            <th style="text-align: center;">Directora</th>
+                            <th style="text-align: center;">Doc. Directora</th>
+                            <th style="text-align: center;">Tot. Pares</th>
+                            <th style="text-align: center;">Tot. Venta Neta</th>
+                            <th style="text-align: center;">Comisión Directora</th>
+                            <th style="text-align: center;">% de Comisión</th>
+                            <th style="text-align: center;">Bono</th>
+                            <th style="text-align: center;">Margen</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td colspan='10'>No se encontraron resultados</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+@section scripts{
+    <script>
+    var objComsionLider = {
+        Inicio: function () {
+            debugger;
+            $("body").toggleClass('sidebar-collapse');
+
+            /*[Inicializamos variables]*/
+            this.ListarLider = function () { return @Html.Raw(Json.Encode(ViewBag.ListarLider)); }();
+
+            var date = new Date();
+
+            $("#datepickerIni").datepicker({
+                autoclose: true,
+                todayHighlight: true
+            }).datepicker("setDate", "01/" + (date.getMonth() + 1) + "/" + date.getFullYear());
+
+            $("#datepickerFin").datepicker({
+                autoclose: true,
+                todayHighlight: true
+            }).datepicker("setDate", "0");
+
+            $("#btnExportar").addClass("disabled");
+            $("#btnExportar").attr('disabled', 'disabled');
+            this.isOkUpdate = false;
+            this.FechaInicio = $("#dtpFechaInicio").val();
+            this.FechaFin = $("#dtpFechaFin").val();
+            this.Bas_Id = "";
+            this.Bas_Aco_Id = "";
+
+            /*[/Inicializamos variables]*/
+
+            /*[btn Exportar y buscar]*/
+            $("#btnBuscar").click(function () {
+                objComsionLider.isOkUpdate = true;
+                objComsionLider.FechaInicio = $("#dtpFechaInicio").val();
+                objComsionLider.FechaFin = $("#dtpFechaFin").val();
+                objComsionLider.Bas_Id = $("#ddlLider").val();
+                objComsionLider.Bas_Aco_Id = $("#ddlAsesor").val();
+                objComsionLider.generaal.consultar();
+            });
+
+            $("#btnExportar").click(function () {
+                waitingDialog.show("Espere por favor...")
+                objComsionLider.generaal.exportar();
+            })
+            /*[btn Exportar y buscar]*/
+
+            /*[Select]*/
+            $("#ddlAsesor").change(function () {
+                debugger;
+                objComsionLider.generaal.dropdownlist.Llena(this.value, 'Lider', objComsionLider.ListarLider);
+            })
+            /*[/Select]*/
+
+            objComsionLider.grid.get();
+        },
+        grid: {
+            get: function () {
+                // debugger
+                waitingDialog.show("Espere por favor...")
+                $('#tbTabla').DataTable({
+                    "language": {
+                        "url": "../Scripts/DataTables/Spanish.json"
+                    },
+                    //"fnServerData": function (sSource, aoData, fnCallback) {
+                    //},
+                    "bServerSide": true,
+                    "bAutoWidth": false,
+                    "sAjaxSource": '@Url.Action("getLisComision_LiderAjax", "Facturacion")',
+                    "fnServerParams": function (aoData) {
+                        debugger;
+                        aoData.push({ "name": "isOkUpdate", "value": objComsionLider.isOkUpdate });
+                        aoData.push({ "name": "FechaInicio", "value": objComsionLider.FechaInicio });
+                        aoData.push({ "name": "FechaFin", "value": objComsionLider.FechaFin });
+                        aoData.push({ "name": "Bas_Id", "value": objComsionLider.Bas_Id });
+                        aoData.push({ "name": "Bas_Aco_Id", "value": objComsionLider.Bas_Aco_Id });
+                    },
+                    "bFilter": true,
+                    "bdestroy": true,
+                    "start": 0,
+                    "columnDefs": [{
+                        "orderable": false,
+                        "targets": [],
+                    }],
+                    "bDeferRender": true,
+                    "aoColumns": [
+                        { "sName": "Asesor", "mData": "Asesor", "sClass": "" },
+                        { "sName": "Lider", "mData": "Lider", "sClass": "" },
+                        { "sName": "LiderDni", "mData": "LiderDni", "sClass": "alignCenter" },
+                        {
+                            "mData": null,
+                            "sClass": "alignRight",
+                            "render": function (Data, type, full, meta) {
+                                let Monto = full.TotalPares;
+                                return (Monto == undefined || Monto == null || Monto == 0) ? ' ' : objComsionLider.generaal.FormatDecimal(Monto, 2, '.', ',');
+                            }
+                        },
+                        {
+                            "mData": null,
+                            "sClass": "alignRight",
+                            "render": function (Data, type, full, meta) {
+                                let Monto = full.TotalVenta;
+                                return (Monto == undefined || Monto == null || Monto == 0) ? ' ' : objComsionLider.generaal.FormatDecimal(Monto, 2, '.', ',');
+                            }
+                        },
+                        {
+                            "mData": null,
+                            "sClass": "alignRight",
+                            "render": function (Data, type, full, meta) {
+                                let Monto = full.Comision;
+                                return (Monto == undefined || Monto == null || Monto == 0) ? ' ' : objComsionLider.generaal.FormatDecimal(Monto, 2, '.', ',');
+                            }
+                        },
+                        {
+                            "mData": null,
+                            "sClass": "alignRight",
+                            "render": function (Data, type, full, meta) {
+                                let Monto = full.PorcentajeComision;
+                                return (Monto == undefined || Monto == null || Monto == 0) ? ' ' : objComsionLider.generaal.FormatDecimal(Monto, 2, '.', ',');
+                            }
+                        },
+                        {
+                            "mData": null,
+                            "sClass": "alignRight",
+                            "render": function (Data, type, full, meta) {
+                                let Monto = full.BonosNuevas;
+                                return (Monto == undefined || Monto == null || Monto == 0) ? ' ' : objComsionLider.generaal.FormatDecimal(Monto, 2, '.', ',');
+                            }
+                        },
+                        {
+                            "mData": null,
+                            "sClass": "alignRight",
+                            "render": function (Data, type, full, meta) {
+                                let Monto = full.Margen;
+                                return (Monto == undefined || Monto == null || Monto == 0) ? ' ' : objComsionLider.generaal.FormatDecimal(Monto, 2, '.', ',');
+                            }
+                        },
+                    ],
+                    "fnRowCallback": function (row, data, index) {
+                    },
+                    "drawCallback": function (settings) {
+                        objComsionLider.isOkUpdate = false;
+                        var table = $('#tbTabla').dataTable();
+                        var data = table.fnGetData();
+                        if (data.length == 0) {
+                            $("#btnExportar").addClass("disabled");
+                            $("#btnExportar").attr('disabled', 'disabled');
+                        } else {
+                            $("#btnExportar").removeClass("disabled");
+                            $("#btnExportar").removeAttr("disabled");
+                        }
+                        waitingDialog.hide();
+                    },
+                    "initComplete": function (settings, json) {
+                    }
+                });
+            },
+            cargaTabla: function () {
+                //debugger
+                waitingDialog.show("Espere por favor...")
+                $('#tbTabla').DataTable().ajax.reload(function () {
+                    waitingDialog.hide();
+                });
+            },
+        },
+        generaal: {
+            FormatDecimal: function (numero, decimales, separadorDecimal, separadorMiles) {
+                //debugger
+                var partes, array;
+                if (!isFinite(numero) || isNaN(numero = parseFloat(numero))) {
+                    return "";
+                }
+                if (typeof decimales === "undefined") {
+                    decimales = 2;
+                }
+                if (typeof separadorDecimal === "undefined") {
+                    separadorDecimal = ".";
+                }
+                if (typeof separadorMiles === "undefined") {
+                    separadorMiles = ",";
+                }
+                // Redondeamos
+                if (!isNaN(parseInt(decimales))) {
+                    if (decimales >= 0) {
+                        numero = numero.toFixed(decimales);
+                    } else {
+                        numero = (
+                            Math.round(numero / Math.pow(10, Math.abs(decimales))) * Math.pow(10, Math.abs(decimales))
+                        ).toFixed();
+                    }
+                } else {
+                    numero = numero.toString();
+                }
+                // Damos formato
+                partes = numero.split(".", 2);
+                array = partes[0].split("");
+                for (var i = array.length - 3; i > 0 && array[i - 1] !== "-"; i -= 3) {
+                    array.splice(i, 0, separadorMiles);
+                }
+                numero = array.join("");
+                if (partes.length > 1) {
+                    numero += separadorDecimal + partes[1];
+                }
+                return numero;
+            },
+            Validar: function () {
+                return true;
+            },
+            consultar: function () {
+                debugger
+                if (objComsionLider.generaal.Validar()) {
+                    objComsionLider.grid.cargaTabla();
+                }
+            },
+            exportar: function () {
+                var _Ent = function () { return @Html.Raw(Json.Encode(ViewBag.EntComisionLider)); }();
+                _Ent.FechaIni = objComsionLider.FechaInicio;
+                _Ent.FechaFin = objComsionLider.FechaFin;
+
+                $.ajax({
+                    type: "POST",
+                    url: '@Url.Action("get_exporta_LisComision_Lider_excel", "Facturacion")',
+                    data : {_Ent:_Ent},
+                    success: function (data) {
+                        data = JSON.parse(data);
+                        waitingDialog.hide();
+                        if (data.Success) {
+                            toastr.success(data.Message);
+                            window.location = '@Url.Action("ListarComision_LiderExcel")';
+                        }
+                        else {
+                            toastr.error(data.Message, "Alerta");
+                        }
+                    },
+                    error: function (XMLHttpRequest, textStatus, errorThrown) {
+                        waitingDialog.hide();
+                        toastr.error("Error al exportar excel.", "Alerta");
+                    }
+                });
+            },
+            dropdownlist: {
+                Llena: function (Value, Id, Listado) {
+                    debugger
+                    let Lista = (Value == '-1') ? Listado : Listado.filter((item) => { return item.bas_aco_id === Value; });
+                    let dropdownlist = '<select class="form-control selectpicker" data-live-search="true" id="ddl' + Id + '" name="ddl' + Id + '" style="max-width: 100%" tabindex="-98">';
+                    dropdownlist += '<option value = "-1">Seleccionar a todos</option>';
+                    for (var key in Lista) {
+                        dropdownlist += '<option value = ' + Lista[key].bas_id + '>' + Lista[key].nombres + '</option>';
+                    }
+                    dropdownlist += '</select>';
+
+                    $("#Div" + Id).html(dropdownlist);
+                    $('.selectpicker').selectpicker({
+                        liveSearch: true,
+                        showSubtext: true
+                    });
+                }
+            }
+        }
+    };
+    $(document).ready(function () {
+        objComsionLider.Inicio();
+    });
+    </script>
+}

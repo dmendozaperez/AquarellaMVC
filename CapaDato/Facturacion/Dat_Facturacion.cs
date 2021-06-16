@@ -612,5 +612,54 @@ namespace CapaDato.Facturacion
             return Listar;
         }
 
+        public List<Ent_Comision_Lider> Listar_Comision_Lider(Ent_Comision_Lider _Ent)
+        {
+            List<Ent_Comision_Lider> Listar = new List<Ent_Comision_Lider>();
+            string sqlquery = "[USP_MVC_Leer_ComisionPersona]";
+            try
+            {
+                using (SqlConnection cn = new SqlConnection(Ent_Conexion.conexion))
+                {
+                    using (SqlCommand cmd = new SqlCommand(sqlquery, cn))
+                    {
+                        cmd.CommandTimeout = 0;
+                        cmd.CommandType = CommandType.StoredProcedure;
+                        cmd.Parameters.AddWithValue("@FECHA_INI", DbType.DateTime).Value = _Ent.FechaIni;
+                        cmd.Parameters.AddWithValue("@FECHA_FIN", DbType.DateTime).Value = _Ent.FechaFin;
+                        cmd.Parameters.AddWithValue("@BAS_ID", DbType.String).Value = _Ent.Bas_Id;
+                        cmd.Parameters.AddWithValue("@ASESOR", DbType.String).Value = _Ent.Bas_Aco_Id;
+                        using (SqlDataAdapter da = new SqlDataAdapter(cmd))
+                        {
+                            DataTable dt = new DataTable();
+                            da.Fill(dt);
+                            Listar = new List<Ent_Comision_Lider>();
+                            Listar = (from DataRow fila in dt.Rows
+                                      select new Ent_Comision_Lider()
+                                      {
+                                          AreaId = (fila["AreaId"] is DBNull) ? string.Empty : Convert.ToString(fila["AreaId"]),
+                                          Asesor = (fila["Asesor"] is DBNull) ? string.Empty : Convert.ToString(fila["Asesor"]),
+                                          Lider = (fila["Lider"] is DBNull) ? string.Empty : Convert.ToString(fila["Lider"]),
+                                          LiderDni = (fila["LiderDni"] is DBNull) ? string.Empty : Convert.ToString(fila["LiderDni"]),
+                                          TotalPares = (fila["TotalPares"] is DBNull) ? (Decimal?)null : Convert.ToDecimal(fila["TotalPares"]),
+                                          TotalVenta = (fila["TotalVenta"] is DBNull) ? (Decimal?)null : Convert.ToDecimal(fila["TotalVenta"]),
+                                          PorcentajeComision = (fila["PorcentajeComision"] is DBNull) ? (Decimal?)null : Convert.ToDecimal(fila["PorcentajeComision"]),
+                                          Comision = (fila["Comision"] is DBNull) ? (Decimal?)null : Convert.ToDecimal(fila["Comision"]),
+                                          BonosNuevas = (fila["BonosNuevas"] is DBNull) ? (Decimal?)null : Convert.ToDecimal(fila["BonosNuevas"]),
+                                          SubTotalSinIGV = (fila["SubTotalSinIGV"] is DBNull) ? (Decimal?)null : Convert.ToDecimal(fila["SubTotalSinIGV"]),
+                                          CostoT = (fila["CostoT"] is DBNull) ? (Decimal?)null : Convert.ToDecimal(fila["CostoT"]),
+                                          Margen = (fila["Margen"] is DBNull) ? (Decimal?)null : Convert.ToDecimal(fila["Margen"])
+                                      }
+                                    ).ToList();
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+            return Listar;
+        }
+
     }
 }

@@ -284,4 +284,25 @@ namespace CapaEntidad.Facturacion
         public string Mes { get; set; }
         public int intMes { get; set; }
     }
+
+    public class Ent_Comision_Lider
+    {
+        public string AreaId { get; set; }
+        public string Asesor { get; set; }
+        public string Lider { get; set; }
+        public string LiderDni { get; set; }
+        public Decimal? TotalPares { get; set; }
+        public Decimal? TotalVenta { get; set; }
+        public Decimal? PorcentajeComision { get; set; }
+        public Decimal? Comision { get; set; }
+        public Decimal? BonosNuevas { get; set; }
+        public Decimal? SubTotalSinIGV { get; set; }
+        public Decimal? CostoT { get; set; }
+        public Decimal? Margen { get; set; }
+        //Campos de busqueda
+        public DateTime FechaIni { get; set; }
+        public DateTime FechaFin { get; set; }
+        public string Bas_Id { get; set; }
+        public string Bas_Aco_Id { get; set; }
+    }
 }
