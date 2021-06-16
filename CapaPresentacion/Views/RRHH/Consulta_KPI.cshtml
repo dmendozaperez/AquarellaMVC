@@ -268,10 +268,11 @@
 	                                    '</tr>'+
                                     '</tbody>';
 
+                var date = new Date();
                 $("#datepickerIni").datepicker({
                     autoclose: true,
                     todayHighlight: true
-                }).datepicker("setDate", "0");
+                }).datepicker("setDate", "01/" + (date.getMonth() + 1) + "/" + date.getFullYear());
 
                 $("#datepickerFin").datepicker({
                     autoclose: true,
@@ -821,6 +822,7 @@
                         //$.each(Lista, function (k, v) {
                         //    dropdownlist += '<option value = ' + v.Codigo + '>' + v.Descripcion + '</option>';
                         //});
+                        dropdownlist += '<option value = "-1">Seleccionar a todos</option>';
                         for (var key in Lista) {
                             dropdownlist += '<option value = ' + Lista[key].Codigo + '>' + Lista[key].Descripcion + '</option>';
                         }

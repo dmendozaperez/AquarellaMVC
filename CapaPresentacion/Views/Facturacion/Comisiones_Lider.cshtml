@@ -1,5 +1,5 @@
 ﻿@{
-    ViewBag.Title = "Consulta de Premios";
+    ViewBag.Title = "Consulta de Comisiones";
 }
 <style>
     .table thead {
@@ -22,7 +22,7 @@
         vertical-align: middle;
     }
 </style>
-<p class="text-primary">Consulta de premios, filtrado por fecha de campaña.</p>
+<p class="text-primary">Consulte entre un rango de fechas, todas las Comisiones y bonos obtenidas.</p>
 <div class="box box-header box-primary">
     <h3 class="box-title danger" style="color:#9c9c9c;font-weight:bold">Parametro de Busqueda</h3>
     <br />
@@ -104,9 +104,9 @@
                             <th style="text-align: center;">Doc. Directora</th>
                             <th style="text-align: center;">Tot. Pares</th>
                             <th style="text-align: center;">Tot. Venta Neta</th>
-                            <th style="text-align: center;">Comisión Directora</th>
                             <th style="text-align: center;">% de Comisión</th>
                             <th style="text-align: center;">Bono</th>
+                            <th style="text-align: center;">Comisión Directora</th>
                             <th style="text-align: center;">Margen</th>
                         </tr>
                     </thead>
@@ -230,14 +230,6 @@
                             "mData": null,
                             "sClass": "alignRight",
                             "render": function (Data, type, full, meta) {
-                                let Monto = full.Comision;
-                                return (Monto == undefined || Monto == null || Monto == 0) ? ' ' : objComsionLider.generaal.FormatDecimal(Monto, 2, '.', ',');
-                            }
-                        },
-                        {
-                            "mData": null,
-                            "sClass": "alignRight",
-                            "render": function (Data, type, full, meta) {
                                 let Monto = full.PorcentajeComision;
                                 return (Monto == undefined || Monto == null || Monto == 0) ? ' ' : objComsionLider.generaal.FormatDecimal(Monto, 2, '.', ',');
                             }
@@ -247,6 +239,14 @@
                             "sClass": "alignRight",
                             "render": function (Data, type, full, meta) {
                                 let Monto = full.BonosNuevas;
+                                return (Monto == undefined || Monto == null || Monto == 0) ? ' ' : objComsionLider.generaal.FormatDecimal(Monto, 2, '.', ',');
+                            }
+                        },
+                        {
+                            "mData": null,
+                            "sClass": "alignRight",
+                            "render": function (Data, type, full, meta) {
+                                let Monto = full.Comision;
                                 return (Monto == undefined || Monto == null || Monto == 0) ? ' ' : objComsionLider.generaal.FormatDecimal(Monto, 2, '.', ',');
                             }
                         },
