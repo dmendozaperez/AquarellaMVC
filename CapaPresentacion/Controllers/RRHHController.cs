@@ -545,20 +545,20 @@ namespace CapaPresentacion.Controllers
                     sb.Append("<td align=''>" + item.Asesor + "</td>\n");
                     sb.Append("<td align='Center'>" + item.Anio + "</td>\n");
                     sb.Append("<td align='Center'>" + item.Mes + "</td>\n");
-                    sb.Append("<td align='Right'>" + item.Facturacion + "</td>\n");
-                    sb.Append("<td align='Right'>" + item.Margen + "</td>\n");
-                    sb.Append("<td align='Right'>" + item.Continuas + "</td>\n");
-                    sb.Append("<td align='Right'>" + item.Afiliadas + "</td>\n");
-                    sb.Append("<td align='Right'>" + item.Reactivadas + "</td>\n");
-                    sb.Append("<td align='Right'>" + item.Activasenmes + "</td>\n");
-                    sb.Append("<td align='Right'>" + item.Desactivadas + "</td>\n");
-                    sb.Append("<td align='Right'>" + item.PorDesact + "</td>\n");
-                    sb.Append("<td align='Right'>" + item.Reg_Mes + "</td>\n");
-                    sb.Append("<td align='Right'>" + item.TactRegMes + "</td>\n");
-                    sb.Append("<td align='Right'>" + item.PorAfiliadasMes + "</td>\n");
-                    sb.Append("<td align='Right'>" + item.ActivasOtroMes + "</td>\n");
-                    sb.Append("<td align='Right'>" + item.TotalActivas + "</td>\n");
-                    sb.Append("<td align='Right'>" + item.TicketProm + "</td>\n");
+                    sb.Append("<td align='Right'>" + string.Format("{0:N2}", item.Facturacion) + "</td>\n");
+                    sb.Append("<td align='Right'>" + string.Format("{0:N2}", item.Margen)  + "</td>\n");
+                    sb.Append("<td align='Right'>" + string.Format("{0:N2}", item.Continuas)  + "</td>\n");
+                    sb.Append("<td align='Right'>" + string.Format("{0:N2}", item.Afiliadas)  + "</td>\n");
+                    sb.Append("<td align='Right'>" + string.Format("{0:N2}", item.Reactivadas)  + "</td>\n");
+                    sb.Append("<td align='Right'>" + string.Format("{0:N2}", item.Activasenmes)  + "</td>\n");
+                    sb.Append("<td align='Right'>" + string.Format("{0:N2}", item.Desactivadas)  + "</td>\n");
+                    sb.Append("<td align='Right'>" + string.Format("{0:N2}", item.PorDesact)  + "</td>\n");
+                    sb.Append("<td align='Right'>" + string.Format("{0:N2}", item.Reg_Mes)  + "</td>\n");
+                    sb.Append("<td align='Right'>" + string.Format("{0:N2}", item.TactRegMes)  + "</td>\n");
+                    sb.Append("<td align='Right'>" + string.Format("{0:N2}", item.PorAfiliadasMes)  + "</td>\n");
+                    sb.Append("<td align='Right'>" + string.Format("{0:N2}", item.ActivasOtroMes)  + "</td>\n");
+                    sb.Append("<td align='Right'>" + string.Format("{0:N2}", item.TotalActivas)  + "</td>\n");
+                    sb.Append("<td align='Right'>" + string.Format("{0:N2}", item.TicketProm)  + "</td>\n");
                     sb.Append("</tr>\n");
                 }
                 //sb.Append("<tfoot>\n");
@@ -924,51 +924,51 @@ namespace CapaPresentacion.Controllers
                     sb.Append("<td bgcolor='' align=''>" + item.concepto + "</td>\n");
                     if (Enero > 0)
                     {
-                        sb.Append("<td align='right'>" + (item.Enero == null || item.Enero == 0 ? " " : "S/ " + string.Format("{0:N2}", item.Enero)) + "</td>\n");
+                        sb.Append("<td align='right'>" + (item.Enero == null || item.Enero == 0 ? " " : " " + string.Format("{0:N2}", item.Enero)) + "</td>\n");
                     }
                     if (Febrero > 0)
                     {
-                        sb.Append("<td align='right'>" + (item.Febrero == null || item.Febrero == 0 ? " " : "S/ " + string.Format("{0:N2}", item.Febrero)) + "</td>\n");
+                        sb.Append("<td align='right'>" + (item.Febrero == null || item.Febrero == 0 ? " " : "" + string.Format("{0:N2}", item.Febrero)) + "</td>\n");
                     }
                     if (Marzo > 0)
                     {
-                        sb.Append("<td align='right'>" + (item.Marzo == null || item.Marzo == 0 ? " " : "S/ " + string.Format("{0:N2}", item.Marzo)) + "</td>\n");
+                        sb.Append("<td align='right'>" + (item.Marzo == null || item.Marzo == 0 ? " " : " " + string.Format("{0:N2}", item.Marzo)) + "</td>\n");
                     }
                     if (Abril > 0)
                     {
-                        sb.Append("<td align='right'>" + (item.Abril == null || item.Abril == 0 ? " " : "S/ " + string.Format("{0:N2}", item.Abril)) + "</td>\n");
+                        sb.Append("<td align='right'>" + (item.Abril == null || item.Abril == 0 ? " " : " " + string.Format("{0:N2}", item.Abril)) + "</td>\n");
                     }
                     if (Mayo > 0)
                     {
-                        sb.Append("<td align='right'>" + (item.Mayo == null || item.Mayo == 0 ? " " : "S/ " + string.Format("{0:N2}", item.Mayo)) + "</td>\n");
+                        sb.Append("<td align='right'>" + (item.Mayo == null || item.Mayo == 0 ? " " : "" + string.Format("{0:N2}", item.Mayo)) + "</td>\n");
                     }
                     if (Junio > 0)
                     {
-                        sb.Append("<td align='right'>" + (item.Junio == null || item.Junio == 0 ? " " : "S/ " + string.Format("{0:N2}", item.Junio)) + "</td>\n");
+                        sb.Append("<td align='right'>" + (item.Junio == null || item.Junio == 0 ? " " : " " + string.Format("{0:N2}", item.Junio)) + "</td>\n");
                     }
                     if (Julio > 0)
                     {
-                        sb.Append("<td align='right'>" + (item.Julio == null || item.Julio == 0 ? " " : "S/ " + string.Format("{0:N2}", item.Julio)) + "</td>\n");
+                        sb.Append("<td align='right'>" + (item.Julio == null || item.Julio == 0 ? " " : " " + string.Format("{0:N2}", item.Julio)) + "</td>\n");
                     }
                     if (Agosto > 0)
                     {
-                        sb.Append("<td align='right'>" + (item.Agosto == null || item.Agosto == 0 ? " " : "S/ " + string.Format("{0:N2}", item.Agosto)) + "</td>\n");
+                        sb.Append("<td align='right'>" + (item.Agosto == null || item.Agosto == 0 ? " " : " " + string.Format("{0:N2}", item.Agosto)) + "</td>\n");
                     }
                     if (Septiembre > 0)
                     {
-                        sb.Append("<td align='right'>" + (item.Septiembre == null || item.Septiembre == 0 ? " " : "S/ " + string.Format("{0:N2}", item.Septiembre)) + "</td>\n");
+                        sb.Append("<td align='right'>" + (item.Septiembre == null || item.Septiembre == 0 ? " " : " " + string.Format("{0:N2}", item.Septiembre)) + "</td>\n");
                     }
                     if (Octubre > 0)
                     {
-                        sb.Append("<td align='right'>" + (item.Octubre == null || item.Octubre == 0 ? " " : "S/ " + string.Format("{0:N2}", item.Octubre)) + "</td>\n");
+                        sb.Append("<td align='right'>" + (item.Octubre == null || item.Octubre == 0 ? " " : " " + string.Format("{0:N2}", item.Octubre)) + "</td>\n");
                     }
                     if (Noviembre > 0)
                     {
-                        sb.Append("<td align='right'>" + (item.Noviembre == null || item.Noviembre == 0 ? " " : "S/ " + string.Format("{0:N2}", item.Noviembre)) + "</td>\n");
+                        sb.Append("<td align='right'>" + (item.Noviembre == null || item.Noviembre == 0 ? " " : " " + string.Format("{0:N2}", item.Noviembre)) + "</td>\n");
                     }
                     if (Diciembre > 0)
                     {
-                        sb.Append("<td align='right'>" + (item.Diciembre == null || item.Diciembre == 0 ? " " : "S/ " + string.Format("{0:N2}", item.Diciembre)) + "</td>\n");
+                        sb.Append("<td align='right'>" + (item.Diciembre == null || item.Diciembre == 0 ? " " : " " + string.Format("{0:N2}", item.Diciembre)) + "</td>\n");
 
                     }
                     sb.Append("</tr>\n");
