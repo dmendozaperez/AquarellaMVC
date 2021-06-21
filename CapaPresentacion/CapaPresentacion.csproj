@@ -3173,6 +3173,7 @@
     <Content Include="Views\RRHH\Consulta_KPI.cshtml" />
     <Content Include="Views\Facturacion\Consulta_Premios.cshtml" />
     <Content Include="Views\Facturacion\Comisiones_Lider.cshtml" />
+    <Content Include="Views\Facturacion\Ventas_Anual.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

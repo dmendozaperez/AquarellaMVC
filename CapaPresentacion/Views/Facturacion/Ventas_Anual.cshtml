@@ -1,0 +1,326 @@
+﻿@{
+    ViewBag.Title = "Estadistica de Venta Anual";
+    ViewBag.SubTitle = "";
+}
+<style>
+    .table thead {
+        background-color: #5799bf;
+        color: #fff;
+    }
+
+    .boton-xs-td {
+        padding-top: 5px !important;
+        padding-bottom: 5px !important;
+    }
+
+    .alignRight {
+        text-align: right;
+        vertical-align: middle;
+    }
+
+    .alignCenter {
+        text-align: center;
+        vertical-align: middle;
+    }
+    /*[style RadioBox]*/
+        .control {
+        font-family: arial;
+        display: block;
+        position: relative;
+        padding-left: 30px;
+        margin-bottom: 10px;
+        padding-top: 3px;
+        cursor: pointer;
+        font-size: 12px;
+    }
+    .control input {
+        position: absolute;
+        z-index: -1;
+        opacity: 0;
+    }
+    .control_indicator {
+        position: absolute;
+        top: 2px;
+        left: 0;
+        height: 20px;
+        width: 20px;
+        background: #e6e6e6;
+        border: 1px solid #B1BAC1;
+        border-radius: undefinedpx;
+    }
+    .control:hover input ~ .control_indicator,
+    .control input:focus ~ .control_indicator {
+        background: #cccccc;
+    }
+
+    .control input:checked ~ .control_indicator {
+        background: #156aac;
+    }
+    .control:hover input:not([disabled]):checked ~ .control_indicator,
+    .control input:checked:focus ~ .control_indicator {
+        background: #0e6647d;
+    }
+    .control input:disabled ~ .control_indicator {
+        background: #e6e6e6;
+        opacity: 0.6;
+        pointer-events: none;
+    }
+    .control_indicator:after {
+        box-sizing: unset;
+        content: '';
+        position: absolute;
+        display: none;
+    }
+    .control input:checked ~ .control_indicator:after {
+        display: block;
+    }
+    .control-radio .control_indicator {
+        border-radius: 50%;
+    }
+
+    .control-radio .control_indicator:after {
+        left: 6px;
+        top: 6px;
+        height: 6px;
+        width: 6px;
+        border-radius: 50%;
+        background: #ffffff;
+        transition: background 250ms;
+    }
+    .control-radio input:disabled ~ .control_indicator:after {
+        background: #7b7b7b;
+    }
+    /*[/style RadioBox]*/
+</style>
+<p class="text-primary">Esta consulta son las ventas neto Anual.</p>
+<div class="box box-header box-primary">
+    <h3 class="box-title danger" style="color:#9c9c9c;font-weight:bold">Parametro de Busqueda</h3>
+    <br />
+    <br />
+    <div class="row">
+        <div class="col-md-6">
+            <div class="panel panel-default p-10">
+                <div class="panel-body" style="padding-top: 7px;padding-bottom: 4px;margin-bottom: 9px;">
+                    <label for="dtpFechaFin" style="color: #3d566e; ">Tipo de consulta</label>
+                    <div class="row" style="margin-top: 10px;">
+                        <div class="col-md-4 ">
+                            <label class="control control-radio">
+                                Monto
+                                <input id="rdMonto" type="radio" name="radio" />
+                                <div class="control_indicator"></div>
+                            </label>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="control control-radio">
+                                Unidad
+                                <input id="rdUnidad" type="radio" name="radio" />
+                                <div class="control_indicator"></div>
+                            </label>
+                        </div>
+                        <div class="col-md-4 ">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="panel panel-default p-10">
+                <div class="panel-body" style="padding-top: 7px;padding-bottom: 4px;">
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="col-md-6 text-left">
+
+                            </div>
+                            <div class="col-md-4">
+                                <label for="">Año</label>
+                                <div class="form-group">
+                                    @Html.DropDownList("ddlAnio", new SelectList(ViewBag.ListarAnio, "IdAnio", "IdAnio"), new { @class = "form-control selectpicker", @data_live_search = "true", @id = "ddlAnio", @name = "ddlAnio", @style = "max-width: 100%" })
+                                </div>
+                            </div>
+                            <div class="col-md-2 text-right" >
+                                <button id="btnBuscar" type="button" title="Consultar" class="btn btn-primary" style="margin-top: 22px;">
+                                    <span class="glyphicon glyphicon-search"></span>&nbsp;&nbsp;Buscar
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="box box-header box-primary">
+    <div class="row">
+        <div class="col-md-12">
+            <div class="panel panel-default p-10">
+                <div class="panel-body" style="padding-top: 7px;padding-bottom: 4px;margin-bottom: 9px;">
+                    <label for="dtpFechaFin" style="color: #3d566e; "></label>
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="col-md-2">
+                            </div>
+                            <div class="col-md-8">
+                                <p class="text-center">
+                                    <strong id="StrComentario">Gráfico Barras - Ventas Neta Anual 2021</strong>
+                                </p>
+                                <div class="chart">
+                                    <canvas id="ChartBar" style="height: 310px; width:500px"></canvas>
+                                </div>
+                            </div>
+                            <!-- /.chart-responsive -->
+                            <div class="col-md-2">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section scripts{
+    <script>
+        var objVentaAnual = {
+            Inicio: function () {
+                //debugger
+                /*[Inicializamos variables]*/
+                $("#rdMonto").attr('checked', true);
+                debugger
+                var date = new Date();
+                var Anio = date.getFullYear();
+                $('#ddlAnio').selectpicker('val', Anio);
+
+                this.AnioSelect = $('#ddlAnio').val();
+                this.IsMonto = true;
+                this.IsTxtMonto = "Neta";
+                this.IsTxtunidad = "Unidad";
+
+                this.ChartBar;
+                var dataV = { Success: false, Data :{}};
+                objVentaAnual.generaal.GetChartBar(dataV);
+                objVentaAnual.generaal.consultar();
+
+                /*[/Inicializamos variables]*/
+
+                /*[buscar]*/
+                $("#btnBuscar").click(function () {
+                    debugger
+                    objVentaAnual.AnioSelect = $('#ddlAnio').val();
+                    $("#StrComentario").text("Gráfico Barras - Ventas " + (objVentaAnual.IsMonto == true ? objVentaAnual.IsTxtMonto : objVentaAnual.IsTxtunidad) + " Anual " + objVentaAnual.AnioSelect)
+					objVentaAnual.generaal.consultar();
+                })
+                /*[buscar]*/
+
+                /*[Radio Button]*/
+                $("#rdMonto").click(function () {
+                    objVentaAnual.IsMonto = true;
+                });
+
+                $("#rdUnidad").click(function () {
+                    objVentaAnual.IsMonto = false;
+                });
+                /*[/Radio Button]*/
+            },            
+            generaal: {
+                consultar: function () {
+                    var _Ent = function () { return @Html.Raw(Json.Encode(ViewBag.Ent_VentasAnual)); }();
+                    _Ent.Anio = objVentaAnual.AnioSelect;
+                    _Ent.Opcion = objVentaAnual.IsMonto == true ? "0" : "1";
+
+                    $.ajax({
+                        type: "POST",
+                        url: '@Url.Action("getChartVentaAnual", "Facturacion")',
+                        data : {_Ent:_Ent},
+                        success: function (data) {
+                            data = JSON.parse(data);
+                            objVentaAnual.ChartBar.destroy();
+                            objVentaAnual.generaal.GetChartBar(data);
+                        },
+                        error: function (XMLHttpRequest, textStatus, errorThrown) {
+                            waitingDialog.hide();
+                            toastr.error("Error al exportar excel.", "Alerta");
+                        }
+                    });
+                },
+                GetChartBar: function (_data) {
+                    //debugger
+                    //[Config chart]
+                    objVentaAnual.ChartBar = new Chart(document.getElementById("ChartBar"),
+                        {
+                            type: 'bar',
+                            data: _data.Data,
+                            plugins: [ChartDataLabels],
+                            options: {
+                                //title:
+                                //{
+                                //    display: true,
+                                //    text: "Venta Neta por Categoría"
+                                //},
+                                //responsive: true,
+                                maintainAspectRatio: true,
+                                scales: {
+                                    yAxes: [{
+                                        ticks: {
+                                            beginAtZero: true,
+                                        }
+                                    }],
+                                    xAxes: [{
+                                        ticks: {
+                                            callback: function (value) {
+                                                if (value.length > 7 && 5 == 6) {
+                                                    return value.substr(0, 7) + "..."; //truncate
+                                                } else {
+                                                    return value
+                                                }
+                                            }
+                                        }
+                                    }],
+                                },
+                                tooltips: {
+                                    mode: 'index',
+                                    intersect: false,
+                                    backgroundColor: 'rgba(237, 237, 237,0.8)',
+                                    bodyFontColor: 'rgba(73, 73, 73,0.8)',
+                                    borderWidth: 1,
+                                    borderColor: 'rgba(158, 158, 158, 1)',
+                                    titleFontColor: 'rgba(73, 73, 73,0.8)',
+                                    callbacks: {
+                                        title: function (tooltipItems, data) {
+                                            //if (informe == 6){
+                                            var idx = tooltipItems[0].index;
+                                            return data.labels[idx]; //do something with title
+                                            //}
+                                        },
+                                    }
+                                },
+                                plugins: {
+                                    datalabels: {
+                                        align: 'end',
+                                        anchor: 'end',
+                                        //color: function (context) {
+                                        //    return context.dataset.backgroundColor;
+                                        //},
+                                        color: "#00578A",
+                                        font: {
+                                            weigth: 'bold',
+                                            size: 12,
+                                        },
+                                        textAlign: 'end'
+                                    }
+                                },
+                                legend: {
+                                    display: false,
+                                }
+                            }
+                        });
+                    //[/Config chart]
+                }
+            }
+        };
+        $(document).ready(function () {
+            objVentaAnual .Inicio();
+        });
+    </script>
+}

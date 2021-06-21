@@ -661,5 +661,78 @@ namespace CapaDato.Facturacion
             return Listar;
         }
 
+        public List<Ent_Ventas_Anual> Listar_Anio()
+        {
+            List<Ent_Ventas_Anual> Listar = new List<Ent_Ventas_Anual>();
+            string sqlquery = "[USP_Leer_Año]";
+            try
+            {
+                using (SqlConnection cn = new SqlConnection(Ent_Conexion.conexion))
+                {
+                    using (SqlCommand cmd = new SqlCommand(sqlquery, cn))
+                    {
+                        cmd.CommandTimeout = 0;
+                        cmd.CommandType = CommandType.StoredProcedure;
+                        using (SqlDataAdapter da = new SqlDataAdapter(cmd))
+                        {
+                            DataTable dt = new DataTable();
+                            da.Fill(dt);
+                            Listar = new List<Ent_Ventas_Anual>();
+                            Listar = (from DataRow fila in dt.Rows
+                                      select new Ent_Ventas_Anual()
+                                      {
+                                          IdAnio = Convert.ToInt32(fila["IdAnio"]),
+                                          Anio = Convert.ToInt32(fila["Anio"])
+                                      }
+                                    ).ToList();
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+            return Listar;
+        }
+
+        public List<Ent_Ventas_Anual> Listar_VentaAnual(Ent_Ventas_Anual _Ent)
+        {
+            List<Ent_Ventas_Anual> Listar = new List<Ent_Ventas_Anual>();
+            string sqlquery = "[USP_Venta_EstadisticaAnual]";
+            try
+            {
+                using (SqlConnection cn = new SqlConnection(Ent_Conexion.conexion))
+                {
+                    using (SqlCommand cmd = new SqlCommand(sqlquery, cn))
+                    {
+                        cmd.CommandTimeout = 0;
+                        cmd.CommandType = CommandType.StoredProcedure;
+                        cmd.Parameters.AddWithValue("@var_opcion", DbType.String).Value = _Ent.Opcion;
+                        cmd.Parameters.AddWithValue("@var_anio", DbType.Int32).Value = _Ent.Anio;
+                        using (SqlDataAdapter da = new SqlDataAdapter(cmd))
+                        {
+                            DataTable dt = new DataTable();
+                            da.Fill(dt);
+                            Listar = new List<Ent_Ventas_Anual>();
+                            Listar = (from DataRow fila in dt.Rows
+                                      select new Ent_Ventas_Anual()
+                                      {
+                                          Anio = Convert.ToInt32(fila["Anio"]),
+                                          Mes = Convert.ToInt32(fila["Mes"]),
+                                          MesNombre = Convert.ToString(fila["MesCaracter"]),
+                                          Total = Convert.ToDecimal(fila["Total"])
+                                      }
+                                    ).ToList();
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+            return Listar;
+        }
     }
 }

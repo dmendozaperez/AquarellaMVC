@@ -3558,5 +3558,54 @@ namespace CapaPresentacion.Controllers
             return Json(new { estado = 0, mensaje = 1 });
         }
         #endregion
+
+        #region <ESTADISTICA DE VENTA ANUAL>
+
+        public ActionResult Ventas_Anual()
+        {
+            Ent_Usuario _usuario = (Ent_Usuario)Session[Ent_Constantes.NameSessionUser];
+            string actionName = this.ControllerContext.RouteData.GetRequiredString("action");
+            string controllerName = this.ControllerContext.RouteData.GetRequiredString("controller");
+            string return_view = actionName + "|" + controllerName;
+
+            if (_usuario == null)
+            {
+                return RedirectToAction("Login", "Control", new { returnUrl = return_view });
+            }
+            else
+            {
+                Ent_Ventas_Anual Ent_VentasAnual = new Ent_Ventas_Anual();
+                ViewBag.Ent_VentasAnual = Ent_VentasAnual;
+                ViewBag.ListarAnio = datFacturacion.Listar_Anio();
+                return View();
+            }
+
+        }
+        public JsonResult getChartVentaAnual(Ent_Ventas_Anual _Ent)
+        {
+            JsonResponse objResult = new JsonResponse();
+
+            List<Ent_Ventas_Anual> _Listar_VentaAnualReturn = datFacturacion.Listar_VentaAnual(_Ent).Select(x => new Ent_Ventas_Anual { Mes = x.Mes, MesNombre = x.MesNombre, Total = x.Total }).OrderBy(x => x.Mes).ToList();
+
+            Ent_Ventas_Anual_Chart_Data Ent_VentasAnualChartData = new Ent_Ventas_Anual_Chart_Data();
+            Ent_VentasAnualChartData.datasets = new List<Ent_Ventas_Anual_Chart>()
+            {
+                (new Ent_Ventas_Anual_Chart()
+                {
+                    label = "",
+                    backgroundColor = new string[] { "#3c8dbc", "#00c0ef", "#00a65a", "#f39c12", "#f56954", "#d2d6de", "#001F3F", "#39CCCC", "#605ca8", "#ca195a", "#009473"},
+                    borderWidth = "1",
+                    data = _Listar_VentaAnualReturn.Select(s => s.Total).ToArray()
+                })
+            };
+            Ent_VentasAnualChartData.labels = _Listar_VentaAnualReturn.Select(s => s.MesNombre).ToArray();
+            objResult.Data = Ent_VentasAnualChartData;
+            objResult.Success = (_Listar_VentaAnualReturn.Count == 0 ? false : true);
+
+            var JSON = JsonConvert.SerializeObject(objResult);
+
+            return Json(JSON, JsonRequestBehavior.AllowGet);
+        }
+        #endregion
     }
 }

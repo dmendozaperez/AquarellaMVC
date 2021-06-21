@@ -305,4 +305,27 @@ namespace CapaEntidad.Facturacion
         public string Bas_Id { get; set; }
         public string Bas_Aco_Id { get; set; }
     }
+
+    public class Ent_Ventas_Anual
+    {
+        public int IdAnio { get; set; }
+        public int Anio { get; set; }
+        public int Mes { get; set; }
+        public string MesNombre { get; set; }
+        public Decimal Total { get; set; }
+        public string Opcion { get; set; }
+    }
+    public class Ent_Ventas_Anual_Chart_Data
+    {
+        public string[] labels { get; set; }
+        public string[] labelsTooltip { get; set; }
+        public List<Ent_Ventas_Anual_Chart> datasets { get; set; }
+    }
+    public class Ent_Ventas_Anual_Chart
+    {
+        public string label { get; set; }
+        public string[] backgroundColor { get; set; }
+        public string borderWidth { get; set; }
+        public decimal[] data { get; set; }
+    }
 }
