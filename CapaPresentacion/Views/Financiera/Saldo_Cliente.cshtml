@@ -33,7 +33,7 @@
             <div class="col-md-7">
                 <label for="" style="color: #3d566e;">Cliente</label>
                 <div class="form-group">
-                    @Html.DropDownList("ddlClientes", new SelectList(ViewBag.ListarCLiente, "Codigo", "Descripcion", "-1"), "Selecione", new { @class = "form-control selectpicker", @data_live_search = "true", @id = "ddlClientes", @name = "ddlClientes", @style = "max-width: 100%" })
+                    @Html.DropDownList("ddlClientes", new SelectList(ViewBag.ListarCLiente, "Codigo", "Descripcion", "-1"), new { @class = "form-control selectpicker", @data_live_search = "true", @id = "ddlClientes", @name = "ddlClientes", @style = "max-width: 100%" })
                 </div>
             </div>
             <div class="col-md-5" style="padding-left: 0px; padding-right: 0px;">
@@ -134,7 +134,7 @@
                     todayHighlight: true
                 }).datepicker("setDate", "0");
 
-                this.isOkUpdate = true;
+                this.isOkUpdate = false;
                 this.FechaInicio = $("#dtpFechaInicio").val();
                 this.FechaFin = $("#dtpFechaFin").val();
                 this.Cod_Id = "-1";

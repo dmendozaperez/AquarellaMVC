@@ -2,6 +2,7 @@
 using CapaDato.Financiera;
 using CapaDato.Pedido;
 using CapaDato.Persona;
+using CapaDato.Util;
 using CapaEntidad.Control;
 using CapaEntidad.Financiera;
 using CapaEntidad.General;
@@ -27,6 +28,7 @@ namespace CapaPresentacion.Controllers
 {
     public class FinancieraController : Controller
     {
+        #region <DECLARACION DE VARIABLES>
         private Dat_Pedido datPedido = new Dat_Pedido();
         private Dat_Persona datPersona = new Dat_Persona();
         private Dat_Financiera datFinanciera = new Dat_Financiera();
@@ -35,6 +37,8 @@ namespace CapaPresentacion.Controllers
         private Dat_Concepto datConcepto = new Dat_Concepto();
         private Dat_Pago datPago = new Dat_Pago();
         private Dat_Estado datEstado = new Dat_Estado();
+        private Dat_Util datUtil = new Dat_Util();
+
         private string _sessionPagsLiqs = "_SessionPagsLiqs";
         private string _sessin_customer = "_sessin_customer";
         private string _session_listCuentasContables = "_session_listCuentasContables";
@@ -53,7 +57,8 @@ namespace CapaPresentacion.Controllers
         private string _session_ListarSaldoCliente_Excel = "_session_ListarSaldoCliente_Excel";
         private string _session_ListarMovimientosPagos = "_session_ListarMovimientosPagos";
         private string _session_ListarMovimientosPagos_Excel = "_session_ListarMovimientosPagos_Excel";
-        // GET: Financiera
+        #endregion
+        
         public ActionResult Index()
         {
             return View();
@@ -2765,7 +2770,12 @@ namespace CapaPresentacion.Controllers
             {
                 Ent_Saldo_Cliente EnSaldCliente = new Ent_Saldo_Cliente();
                 ViewBag.Listar_ConceptoSC = datFinanciera.Listar_Concepto_Saldo().Where(x => x.Codigo == "90" || x.Codigo == "98" || x.Codigo == "9F" || x.Codigo == "9INT");
-                ViewBag.ListarCLiente = datFinanciera.Leer_Clientes_Saldo();
+                //ViewBag.ListarCLiente = datFinanciera.Leer_Clientes_Saldo();
+                List<Ent_Combo> ListarCLiente = new List<Ent_Combo>();
+                ListarCLiente.Add(new Ent_Combo() { codigo = "-1", descripcion = "-- Selecionar Todos--" });
+                int Cant = datUtil.Listar_Clientes(_usuario).Count();
+                ViewBag.ListarCLiente = (Cant == 1 ? datUtil.Listar_Clientes(_usuario) : ListarCLiente.Concat(datUtil.Listar_Clientes(_usuario)));
+
                 ViewBag.EnSaldCliente = EnSaldCliente;
                 return View();
             }
@@ -3004,6 +3014,7 @@ namespace CapaPresentacion.Controllers
             return Json(new { estado = 0, mensaje = 1 });
         }
         #endregion
+ 
         #region <MOVIMIENTO DE VENTAS-PAGOS>
         /// <summary>
         /// 
