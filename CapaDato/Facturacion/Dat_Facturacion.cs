@@ -734,5 +734,86 @@ namespace CapaDato.Facturacion
             }
             return Listar;
         }
+
+        public DataTable ListarVentaStatus(Ent_Ventas_Status _Ent)
+        {
+            string sqlquery = "[USP_MVC_Leer_prospectacionXLider]";
+            SqlConnection cn = null;
+            SqlCommand cmd = null;
+            SqlDataAdapter da = null;
+            DataTable dt = null;
+            try
+            {
+                cn = new SqlConnection(Ent_Conexion.conexion);
+                cmd = new SqlCommand(sqlquery, cn);
+                cmd.CommandTimeout = 0;
+                cmd.CommandType = CommandType.StoredProcedure;
+                cmd.Parameters.AddWithValue("@fecha_inicio", DbType.DateTime).Value = _Ent.FechaInicio;
+                cmd.Parameters.AddWithValue("@fecha_final", DbType.DateTime).Value = _Ent.FechaFin;
+                da = new SqlDataAdapter(cmd);
+                dt = new DataTable();
+                da.Fill(dt);
+            }
+            catch
+            {
+                dt = null;
+            }
+            return dt;
+        }
+
+        public List<Ent_Ventas_PorZona> Listar_Ventas_PorZona(Ent_Ventas_PorZona _Ent)
+        {
+            List<Ent_Ventas_PorZona> Listar = new List<Ent_Ventas_PorZona>();
+            string sqlquery = "[USP_MVC_Leer_VenZonCat]";
+            try
+            {
+                using (SqlConnection cn = new SqlConnection(Ent_Conexion.conexion))
+                {
+                    using (SqlCommand cmd = new SqlCommand(sqlquery, cn))
+                    {
+                        cmd.CommandTimeout = 0;
+                        cmd.CommandType = CommandType.StoredProcedure;
+                        cmd.Parameters.AddWithValue("@FECHA_INI", DbType.DateTime).Value = _Ent.FechaIni;
+                        cmd.Parameters.AddWithValue("@FECHA_FIN", DbType.DateTime).Value = _Ent.FechaFin;
+                        cmd.Parameters.AddWithValue("@BAS_ID", DbType.String).Value = _Ent.Bas_Id;
+                        cmd.Parameters.AddWithValue("@ASESOR", DbType.String).Value = _Ent.Bas_Aco_Id;
+                        cmd.Parameters.AddWithValue("@CODDEP", DbType.String).Value = _Ent.CodDep;
+                        cmd.Parameters.AddWithValue("@CODPRV", DbType.String).Value = _Ent.CodPrv;
+                        cmd.Parameters.AddWithValue("@LINEA", DbType.String).Value = _Ent.Linea;
+                        cmd.Parameters.AddWithValue("@CODCAT", DbType.String).Value = _Ent.CodCat;
+                        using (SqlDataAdapter da = new SqlDataAdapter(cmd))
+                        {
+                            DataTable dt = new DataTable();
+                            da.Fill(dt);
+                            Listar = new List<Ent_Ventas_PorZona>();
+                            Listar = (from DataRow fila in dt.Rows
+                                      select new Ent_Ventas_PorZona()
+                                      {
+                                          Asesor = (fila["Asesor"] is DBNull) ? string.Empty : Convert.ToString(fila["Asesor"]),
+                                          Directora = (fila["Lider"] is DBNull) ? string.Empty : Convert.ToString(fila["Lider"]),
+                                          Promotor = (fila["Promotor"] is DBNull) ? string.Empty : Convert.ToString(fila["Promotor"]),
+                                          DniPromotor = (fila["DniPromotor"] is DBNull) ? string.Empty : Convert.ToString(fila["DniPromotor"]),
+                                          Departamento = (fila["Departamento"] is DBNull) ? string.Empty : Convert.ToString(fila["Departamento"]),
+                                          Provincia = (fila["Provincia"] is DBNull) ? string.Empty : Convert.ToString(fila["Provincia"]),
+                                          Distrito = (fila["Distrito"] is DBNull) ? string.Empty : Convert.ToString(fila["Distrito"]),
+                                          Linea = (fila["Linea"] is DBNull) ? string.Empty : Convert.ToString(fila["Linea"]),
+                                          Categoria = (fila["Categoria"] is DBNull) ? string.Empty : Convert.ToString(fila["Categoria"]),
+                                          SubCategoria = (fila["SubCategoria"] is DBNull) ? string.Empty : Convert.ToString(fila["SubCategoria"]),
+                                          Pares = (fila["Pares"] is DBNull) ? (int?)null : Convert.ToInt32(fila["Pares"]),
+                                          Soles = (fila["Soles"] is DBNull) ? (Decimal?)null : Convert.ToDecimal(fila["Soles"]),
+                                          Costo = (fila["Costo"] is DBNull) ? (Decimal?)null : Convert.ToDecimal(fila["Costo"]),
+                                          Margen = (fila["Margen"] is DBNull) ? (Decimal?)null : Convert.ToDecimal(fila["Margen"])
+                                      }
+                                    ).ToList();
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+            return Listar;
+        }
     }
 }

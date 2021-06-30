@@ -328,4 +328,70 @@ namespace CapaEntidad.Facturacion
         public string borderWidth { get; set; }
         public decimal[] data { get; set; }
     }
+
+    public class Ent_Ventas_Status
+    {
+        public int Asesor { get; set; }
+        public int Lider { get; set; }
+        public DateTime FechaRegistro { get; set; }
+        public DateTime FechaActivacion { get; set; }
+        public string Telefono { get; set; }
+        public string Departamento { get; set; }
+        public string Provincia { get; set; }
+        public string Distrito { get; set; }
+        public string NroDocumento { get; set; }
+        public Decimal TotalVenta { get; set; }
+        public int Anio { get; set; }
+        public int MesNro { get; set; }
+        //campos adicionales
+        public DateTime FechaInicio { get; set; }
+        public DateTime FechaFin { get; set; }
+        //lista de Meses
+        public int IdMes { get; set; }
+        public string Mes { get; set; }
+        //Armamos cabecera del vista
+        public string[] RorwsTh1 { get; set; }
+        public string[] RorwsTh2 { get; set; }
+        public object Data { get; set; }
+        public List<Ent_Ventas_Status_Col> _List_Ent_Ventas_Status_Col { get; set; }
+        //
+        public bool isOkUpdate { get; set; }
+        public int Estado { get; set; }
+    }
+    public class Ent_Ventas_Status_Col
+    {
+        public string sName { get; set; }
+        public string mData { get; set; }
+        public string sClass { get; set; }
+
+        public string cssColor { get; set; }
+        public string fName { get; set; }
+    }
+
+    public class Ent_Ventas_PorZona
+    {
+        public string Asesor { get; set; }
+        public string Directora { get; set; }
+        public string Promotor { get; set; }
+        public string DniPromotor { get; set; }
+        public string Departamento { get; set; }
+        public string Provincia { get; set; }
+        public string Distrito { get; set; }
+        public string Categoria { get; set; }
+        public string SubCategoria { get; set; }
+        public int? Pares { get; set; }
+        public Decimal? Soles { get; set; }
+        public Decimal? Costo { get; set; }
+        public Decimal? Margen { get; set; }
+        //Campos de busqueda
+        public DateTime FechaIni { get; set; }
+        public DateTime FechaFin { get; set; }
+        public string Bas_Aco_Id { get; set; }
+        public string Bas_Id { get; set; }
+        public string CodDep { get; set; }
+        public string CodPrv { get; set; }
+        public string Linea { get; set; }
+        public string CodCat { get; set; }
+    }
+
 }

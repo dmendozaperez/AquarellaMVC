@@ -1,0 +1,529 @@
+﻿@{
+    ViewBag.Title = "Status y venta de Directoras.";
+    ViewBag.SubTitle = "";
+}
+<style>
+    .table thead {
+        background-color: #5799bf;
+        color: #fff;
+    }
+
+    .boton-xs-td {
+        padding-top: 5px !important;
+        padding-bottom: 5px !important;
+    }
+
+    .alignRight {
+        text-align: right;
+        vertical-align: middle;
+    }
+
+    .alignCenter {
+        text-align: center;
+        vertical-align: middle;
+    }
+
+    .table .ColC1 {
+        color: #000 !important;
+        background-color: #BCE4FA;
+        font-weight: bold;
+        vertical-align: middle;
+    }
+
+    .table .ColC2 {
+        color: #000 !important;
+        background-color: #E2F4FE;
+        font-weight: bold;
+        vertical-align: middle;
+    }
+
+    .table .ColC3 {
+        color: #000 !important;
+        background-color: #7FCCF4;
+        font-weight: bold;
+        vertical-align: middle;
+    }
+
+    .table .SelectNuevoActivo {
+        color: #000 !important;
+        background-color: #01ff70 !important;       
+    }
+
+    .table .SelectActivo {
+        color: #000 !important;
+        background-color: #56adf9 !important;       
+    }
+    
+    .table .SelectDesactivo{
+        color: #000 !important;
+        background-color: #ffa75a !important;       
+    }
+    .table .SelectProspectado {
+        color: #000 !important;
+        background-color: #FF635A !important;       
+    }
+</style>
+<p class="text-primary">Consulte entre un rango de fechas.</p>
+<div class="box box-header box-primary">
+    <h3 class="box-title danger" style="color:#9c9c9c;font-weight:bold">Parametro de Busqueda</h3>
+    <br />
+    <br />
+    <div class="row">
+        <div class="col-md-12">
+            <div class="panel panel-default p-10">
+                <div class="panel-body" style="padding-top: 7px;padding-bottom: 4px;">
+                    <div class="row">
+                        <div class="col-sm-4">
+                        </div>
+                        <div class="col-md-2" style="padding-right: 0px;">
+                            <label for="" style="color: #3d566e;">Estado</label>
+                            <div id="DivEstado" class="form-group">
+                            </div>
+                        </div>
+                        <div class="col-md-6" style="padding-left: 0px;">
+                            <div class="col-md-5" style="padding-right: 0px;">
+                                <div>
+                                    <label for="lblFechaInicio" style="color: #3d566e;">Fecha de Inicio</label>
+                                    <div id="datepickerIni" class="input-group date" data-date-format="dd/mm/yyyy">
+                                        <input id="dtpFechaInicio" type="text" class="form-control input-sm ui-cell-input" disabled style="max-width: 100%" />
+                                        <span class="input-group-addon btn btn-xs btn-default" style="padding: 4px 5px;">
+                                            <i class="glyphicon glyphicon-calendar" height="20" width="20" style="color:#ff9f3f"></i>
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-5">
+                                <label for="lblFechaFin" style="color: #3d566e;">Fecha de Cierre</label>
+                                <div id="datepickerFin" class="input-group date" data-date-format="dd/mm/yyyy">
+                                    <input id="dtpFechaFin" type="text" class="form-control input-sm ui-cell-input" disabled style="max-width: 100%" />
+                                    <span class="input-group-addon btn btn-xs btn-default" style="padding: 4px 5px;">
+                                        <i class="glyphicon glyphicon-calendar" height="20" width="20" style="color:#ff9f3f"></i>
+                                    </span>
+                                </div>
+                            </div>
+                            <div class="col-md-2 text-right" style="padding:0px">
+                                <button id="btnBuscar" type="submit" title="Consultar" class="btn btn-primary" style="margin-top: 19px;">
+                                    <span class="glyphicon glyphicon-search"></span>&nbsp;&nbsp;Buscar
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="box box-body box-primary">
+    <div class="row">
+        <div class="col-md-6">
+        </div>
+        <div class="col-md-6 text-right">
+            <button id="btnExportar" title="Exportar" class="btn btn-success disabled" disabled>
+                <span class="glyphicon glyphicon-export"></span>&nbsp;&nbsp;Exportar Lista
+            </button>
+        </div>
+    </div>
+    <br />
+    <div class="row">
+        <div class="col-md-12">
+            <div class="table-responsive">
+                <table id="TbTabla" class="table table-hover dataTable table-bordered compact"></table>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section scripts{
+<script>
+    debugger
+    var objVentaStatus = {
+        Inicio: function () {
+            $("body").toggleClass('sidebar-collapse');
+            this.ListarColores = [{ Value: "-1", Text: "--Todos--", style: "-" },
+                                   { Value: "0", Text: "Nuevo Activo", style: "background-color:#01ff70" },
+                                   { Value: "1", Text: "Activo", style: "background-color:#56adf9" },
+                                   { Value: "2", Text: "Desactivo", style: "background-color:#ffa75a" },
+                                   { Value: "3", Text: "Propectado", style: "background-color:#FF635A" }];
+
+            objVentaStatus.generaal.dropdownlist.Llena(objVentaStatus.ListarColores);
+            //debugger
+            /*[Inicializamos variables]*/
+            var date = new Date();
+            $("#datepickerIni").datepicker({
+                autoclose: true,
+                todayHighlight: true
+            }).datepicker("setDate", "01/" + (date.getMonth() + 1) + "/" + date.getFullYear());
+
+            $("#datepickerFin").datepicker({
+                autoclose: true,
+                todayHighlight: true
+            }).datepicker("setDate", "0");
+
+            this._HtmlTabla = '<thead>' +
+                	             '<tr>' +
+		                            '<th colspan="8"></th>' +
+		                            '<th>Año</th>' +
+	                            '</tr>' +
+	                            '<tr>' +
+		                            '<th colspan="8"></th>' +
+		                            '<th>Mes</th>' +
+	                            '</tr>' +
+	                            '<tr>' +
+		                            '<th>Asesor</th>' +
+		                            '<th>Directora</th>' +
+		                            '<th>Fec.Registro</th>' +
+		                            '<th>Fec.Activación</th>' +
+		                            '<th>Telefono</th>' +
+		                            '<th>Departamento</th>' +
+		                            '<th>Provincia</th>' +
+		                            '<th>Distrito</th>' +
+		                            '<th>Total</th>' +
+	                            '</tr>' +
+                            '</thead>' +
+                            '<tbody>' +
+                                '<tr>' +
+                                    '<td colspan="9">No se encontraron resultados</td>' +
+                                '</tr>' +
+                            '</tbody>';
+
+            $("#TbTabla").html(objVentaStatus._HtmlTabla);
+
+            this.isOkUpdate = true;
+            this.FechaInicio = $("#dtpFechaInicio").val();
+            this.FechaFin = $("#dtpFechaFin").val();
+            this.Tabla = $('#TbTabla');
+            this.Columns = [];
+            this.Response = null;
+            this.isOkDestroy = false;
+            this.Estado = -1;
+            objVentaStatus.grid.getColum();
+            /*[/Inicializamos variables]*/
+
+            /*[btn Exportar y buscar]*/
+            $("#btnExportar").click(function () {
+                objVentaStatus.FechaInicio = $("#dtpFechaInicio").val();
+                objVentaStatus.FechaFin = $("#dtpFechaFin").val();
+                waitingDialog.show("Espere por favor...");
+                objVentaStatus.generaal.exportar();
+            })
+
+            $("#btnBuscar").click(function () {
+                //waitingDialog.show("Espere por favor...");
+                objVentaStatus.FechaInicio = $("#dtpFechaInicio").val();
+                objVentaStatus.FechaFin = $("#dtpFechaFin").val();
+                objVentaStatus.Estado = $("#ddlEstado").val();               
+                objVentaStatus.isOkUpdate = true;
+
+                if (!objVentaStatus.generaal.Validar())
+                    return;
+
+                if (objVentaStatus.isOkDestroy) {
+                    $('#TbTabla').DataTable().destroy();
+                    $("#TbTabla").empty();
+                    $("#TbTabla").html(objVentaStatus._HtmlTabla);
+                }
+           
+                objVentaStatus.generaal.consultar();
+            })
+            /*[btn Exportar y buscar]*/
+
+            /*[Select Estado]*/
+            $("#ddlEstado").change(function () {
+                if($("#ddlEstado").val() == -1){
+                    objVentaStatus.isOkUpdate = true;
+                }else{
+                    objVentaStatus.isOkUpdate = false;
+                }                
+                objVentaStatus.Estado = $("#ddlEstado").val();
+            })
+            /*[Select Estado]*/
+        },
+        grid: {
+            getColum: function () {                
+                //debugger
+                waitingDialog.show("Espere por favor...");
+                var _Ent = function () { return @Html.Raw(Json.Encode(ViewBag.Ent_VentasStatus)); }();
+                _Ent.FechaInicio = objVentaStatus.FechaInicio;
+                _Ent.FechaFin = objVentaStatus.FechaFin;
+                _Ent.Estado = objVentaStatus.Estado;
+                $.ajax({
+                    type: "POST",
+                    url: '@Url.Action("getVentasStatusCol", "Facturacion")',
+                    data: { _Ent: _Ent },
+                    //async: false,
+                    success: function (data) {
+                        //debugger
+                        data = JSON.parse(data);
+                        if (data.Success) {
+                            objVentaStatus.isOkDestroy = true;
+                            $("#TbTabla").html(objVentaStatus._HtmlTabla);
+                            //debugger;
+                            objVentaStatus.Columns = data.Data._List_Ent_Ventas_Status_Col;
+                            debugger
+                            var output = objVentaStatus.grid.getTableTh(data.Data);
+                            $("#TbTabla").html(output)
+                            objVentaStatus.grid.get();
+                            $("#btnExportar").removeClass("disabled");
+                            $("#btnExportar").removeAttr("disabled");
+                            $("#TbTabla").removeAttr("style");
+                            waitingDialog.hide();
+                        }
+                        else {
+                            objVentaStatus.isOkDestroy = false;
+                            //$("#TbTabla").attr("style", "width: 400.5px;")
+                            $("#btnExportar").addClass("disabled");
+                            $("#btnExportar").attr('disabled', 'disabled');
+                            waitingDialog.hide();
+                        }
+                    },
+                    error: function (XMLHttpRequest, textStatus, errorThrown) {
+                        waitingDialog.hide();
+                        toastr.error("Error al listar", "Alerta");
+                    }
+                });
+            },
+            get: function () {
+                debugger
+                objVentaStatus.Tabla.DataTable({
+                    "language": {
+                        "url": "../Scripts/DataTables/Spanish.json"
+                    },
+                    "fnServerData": function (sSource, aoData, fnCallback, oSettings) {
+                        debugger
+                        oSettings.jqXHR = $.ajax( {
+                            "dataType": 'json',
+                            "type": "POST",
+                            "url": sSource,
+                            "data": aoData,
+                            "success": function (data) {
+                                var datas = JSON.parse(data.aaData.Data)
+                                var objData = {
+                                        aaData : JSON.parse(data.aaData.Data),
+                                        sEcho : data.sEcho,
+                                        iTotalRecords :data.iTotalRecords,
+                                        iTotalDisplayRecords : data.iTotalDisplayRecords
+                                    };
+                                fnCallback(objData);
+                            },
+                            "error": function (e) {
+                                console.log(e.message);
+                            }
+                        });
+                    },
+                    "fnServerParams": function (aoData) {
+                        debugger;
+                        aoData.push({ "name": "isOkUpdate", "value": objVentaStatus.isOkUpdate });
+                        aoData.push({ "name": "Estado", "value": objVentaStatus.Estado });
+                    },
+                    "bServerSide": true,
+                    "bAutoWidth": false,
+                    "sAjaxSource": '@Url.Action("getVentasStatusListarAjax", "Facturacion")',
+                    "bFilter": true,
+                    "retrieve": true,
+                    "destroy": true, //reinializa la tabla
+                    //"bdestroy": true,
+                    "bDeferRender": true,   
+                    "lengthChange": true, //Lista por cantidad
+                    "start": 0,
+                    "columnDefs": [{
+                        "orderable": false,
+                        "targets": [],
+                    }],
+                    "aoColumns": objVentaStatus.Columns,
+                    "fnRowCallback": function (row, data, index) {
+                        if (data.Estado == 0) {
+                            $("td:eq(3)", row).addClass('SelectNuevoActivo');
+                        }
+                        if (data.Estado == 1) {
+                            $("td:eq(3)", row).addClass('SelectActivo');
+                        }
+                        if (data.Estado == 2) {
+                            $("td:eq(3)", row).addClass('SelectDesactivo');
+                        }
+                        if (data.Estado == 3) {
+                            $("td:eq(3)", row).addClass('SelectProspectado');
+                        }
+                    },
+                    "drawCallback": function (settings) {
+                        var table = objVentaStatus.Tabla.dataTable();
+                        var data = table.fnGetData();
+                        if (data.length == 0) {
+                            $("#btnExportar").addClass("disabled");
+                            $("#btnExportar").attr('disabled', 'disabled');
+                        } else {
+                            $("#btnExportar").removeClass("disabled");
+                            $("#btnExportar").removeAttr("disabled");
+                        }
+                        $("#TbTabla td:nth-child(1)").addClass("ColC2");
+                        $("#TbTabla td:nth-child(2)").addClass("ColC2");
+                        $("#TbTabla td:nth-child(3)").addClass("ColC2");
+                        $("#TbTabla td:nth-child(4)").addClass("ColC2");
+                        $("#TbTabla td:nth-child(5)").addClass("ColC2");
+                        $("#TbTabla td:nth-child(6)").addClass("ColC2");
+                        $("#TbTabla td:nth-child(7)").addClass("ColC2");
+                        $("#TbTabla td:nth-child(8)").addClass("ColC2");
+                        $("#TbTabla td:nth-child(9)").addClass("ColC2");
+
+                        objVentaStatus.grid.MergeGridCells("Asesor");
+                        objVentaStatus.grid.MergeGridCells("Directora");
+                        waitingDialog.hide();
+                    },
+                    "initComplete": function (settings, json) {
+                    }
+                });
+            },
+            getTableTh: function (Data) {
+                //debugger
+                var result = "<thead>";
+                result += "<tr><th colspan=9></th>";
+
+                for (var key in Data.RorwsTh1) {
+                    let AnioTH = Data.RorwsTh1[key];
+                    result += "<th  style='text-align: center;' colspan=" + AnioTH.substr((AnioTH.indexOf("/") + 1)) + ">" + AnioTH.substr(0, AnioTH.indexOf("/")) + "</th>";
+                }
+                result += "</tr>";
+                result += "<tr><th>Asesor</th><th>Directora</th><th>Fec.Registro</th><th>Fec.Activacion</th><th>Telefono</th><th>Departamento</th><th>Provincia</th><th>Distrito</th><th>Nro.Documento</th>";
+                for (var key in Data.RorwsTh2) {
+                    debugger
+                    let StrMesTH = Data.RorwsTh2[key];
+                    result += "<th  style='text-align: center;'>" + StrMesTH.substr((StrMesTH.indexOf("/") + 1)) + "</th>";
+                }
+                result += "</tr>";
+                result += "</thead>"
+                return result;
+            },
+            htmlTable : function(Data){
+
+            },
+            /*Merge*/
+            MergeGridCells: function (clasS) {
+                var topMatchTd;
+                var previousValue = "";
+                var rowSpan = 1;
+                $('#TbTabla .' + clasS).each(function () {
+                    if ($(this).text() == previousValue) {
+                        rowSpan++;
+                        $(topMatchTd).attr('rowspan', rowSpan);
+                        $(this).remove();
+                    }
+                    else {
+                        topMatchTd = $(this);
+                        rowSpan = 1;
+                    }
+                    previousValue = $(this).text();
+                });
+            },
+            cargaTabla: function () {
+                waitingDialog.show("Espere por favor...")
+                objVentaStatus.Tabla.DataTable().ajax.reload(function () {
+                    waitingDialog.hide();
+                });
+            },
+        },
+        generaal: {
+            FormatDecimal: function (numero, decimales, separadorDecimal, separadorMiles) {
+                //debugger
+                var partes, array;
+                if (!isFinite(numero) || isNaN(numero = parseFloat(numero))) {
+                    return "";
+                }
+                if (typeof decimales === "undefined") {
+                    decimales = 2;
+                }
+                if (typeof separadorDecimal === "undefined") {
+                    separadorDecimal = ".";
+                }
+                if (typeof separadorMiles === "undefined") {
+                    separadorMiles = ",";
+                }
+                // Redondeamos
+                if (!isNaN(parseInt(decimales))) {
+                    if (decimales >= 0) {
+                        numero = numero.toFixed(decimales);
+                    } else {
+                        numero = (
+                            Math.round(numero / Math.pow(10, Math.abs(decimales))) * Math.pow(10, Math.abs(decimales))
+                        ).toFixed();
+                    }
+                } else {
+                    numero = numero.toString();
+                }
+                // Damos formato
+                partes = numero.split(".", 2);
+                array = partes[0].split("");
+                for (var i = array.length - 3; i > 0 && array[i - 1] !== "-"; i -= 3) {
+                    array.splice(i, 0, separadorMiles);
+                }
+                numero = array.join("");
+                if (partes.length > 1) {
+                    numero += separadorDecimal + partes[1];
+                }
+                return numero;
+            },
+            Validar : function(){
+                //debugger;
+                if (objVentaStatus.FechaInicio == undefined || objVentaStatus.FechaInicio == null || objVentaStatus.FechaInicio.length == 0 || objVentaStatus.FechaInicio == '') {
+                    toastr.error("La fecha de Inicio no puede estar vacio", "Alerta");
+                    return false;
+                }
+                if (objVentaStatus.FechaFin == undefined || objVentaStatus.FechaFin == null || objVentaStatus.FechaFin.length == 0 || objVentaStatus.FechaFin == '') {
+                    toastr.error("La fecha de Fin no puede estar vacio", "Alerta");
+                    return false;
+                }
+                return true;
+            },
+            consultar: function () {
+                objVentaStatus.grid.getColum();
+            },
+            exportar: function () {
+                var _Ent = function () { return @Html.Raw(Json.Encode(ViewBag.Ent_VentasStatus)); }();
+                _Ent.FechaInicio = objVentaStatus.FechaInicio;
+                _Ent.FechaFin = objVentaStatus.FechaFin;
+                $.ajax({
+                    type: "POST",
+                    url: '@Url.Action("get_exporta_VentasStatusListar_excel", "Facturacion")',
+                    data : {_Ent:_Ent},
+                    success: function (data) {
+                        data = JSON.parse(data);
+                        waitingDialog.hide();
+                        if (data.Success) {
+                            toastr.success(data.Message);
+                            window.location = '@Url.Action("ListarVentasStatusExcel")';
+                        }
+                        else {
+                            toastr.error(data.Message, "Alerta");
+                        }
+                    },
+                    error: function (XMLHttpRequest, textStatus, errorThrown) {
+                        waitingDialog.hide();
+                        toastr.error("Error al exportar excel.", "Alerta");
+                    }
+                });
+            },
+            dropdownlist: {
+                Llena: function (Lista) {
+                    debugger  
+                    let dropdownlist = '<select class="form-control selectpicker" data-live-search="true" style="max-width: 100%" tabindex="-98" id="ddlEstado">';
+                    for (var key in Lista) {
+                        dropdownlist += '<option style = ' + Lista[key].style + ' value = ' + Lista[key].Value + '>' + Lista[key].Text + '</option>';
+                    }
+                    dropdownlist += '</select>';
+                    //document.getElementById("Div" + Id).innerHTML = dropdownlist;
+
+                    $("#DivEstado").html(dropdownlist);
+                    $('.selectpicker').selectpicker({
+                        liveSearch: true,
+                        showSubtext: true
+                    });
+                }
+            }
+        }
+    };
+    //[Inicializamos]
+    $(document).ready(function () {
+        objVentaStatus.Inicio();
+    });
+    //[/Inicializamos]
+</script>
+}

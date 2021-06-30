@@ -317,5 +317,114 @@ namespace CapaDato.Util
             }
             return listar;
         }
+
+        public List<Ent_Combo> Lista_Departamento_Provincia()
+        {
+            List<Ent_Combo> listar = null;
+            string sqlquery = "[USP_MVC_Listar_Departamento_Provincia]";
+            try
+            {
+                using (SqlConnection cn = new SqlConnection(Ent_Conexion.conexion))
+                {
+                    using (SqlCommand cmd = new SqlCommand(sqlquery, cn))
+                    {
+                        cmd.CommandTimeout = 0;
+                        cmd.CommandType = CommandType.StoredProcedure;
+                        using (SqlDataAdapter da = new SqlDataAdapter(cmd))
+                        {
+                            DataTable dt = new DataTable();
+                            da.Fill(dt);
+                            listar = new List<Ent_Combo>();
+                            listar = (from DataRow fila in dt.Rows
+                                      select new Ent_Combo()
+                                      {
+                                          CodDep = fila["CodDep"].ToString(),
+                                          DescripcionDep = fila["DescripcionDep"].ToString(),
+                                          CodPrv = fila["CodPrv"].ToString(),
+                                          DescripcionPrv = fila["DescripcionPrv"].ToString()
+                                      }
+                                   ).ToList();
+                        }
+                    }
+                }
+            }
+            catch (Exception exc)
+            {
+
+                listar = new List<Ent_Combo>();
+            }
+            return listar;
+        }
+
+        public List<Ent_Combo> Lista_Categoria()
+        {
+            List<Ent_Combo> listar = null;
+            string sqlquery = "[USP_LeerCategoria]";
+            try
+            {
+                using (SqlConnection cn = new SqlConnection(Ent_Conexion.conexion))
+                {
+                    using (SqlCommand cmd = new SqlCommand(sqlquery, cn))
+                    {
+                        cmd.CommandTimeout = 0;
+                        cmd.CommandType = CommandType.StoredProcedure;
+                        using (SqlDataAdapter da = new SqlDataAdapter(cmd))
+                        {
+                            DataTable dt = new DataTable();
+                            da.Fill(dt);
+                            listar = new List<Ent_Combo>();
+                            listar = (from DataRow fila in dt.Rows
+                                      select new Ent_Combo()
+                                      {
+                                          codigo = fila["Cat_Id"].ToString(),
+                                          descripcion = fila["Cat_Descripcion"].ToString(),
+                                      }
+                                   ).ToList();
+                        }
+                    }
+                }
+            }
+            catch (Exception exc)
+            {
+
+                listar = new List<Ent_Combo>();
+            }
+            return listar;
+        }
+        public List<Ent_Combo> Lista_Linea()
+        {
+            List<Ent_Combo> listar = null;
+            string sqlquery = "[USP_Leer_CategoriaPrincipal]";
+            try
+            {
+                using (SqlConnection cn = new SqlConnection(Ent_Conexion.conexion))
+                {
+                    using (SqlCommand cmd = new SqlCommand(sqlquery, cn))
+                    {
+                        cmd.CommandTimeout = 0;
+                        cmd.CommandType = CommandType.StoredProcedure;
+                        using (SqlDataAdapter da = new SqlDataAdapter(cmd))
+                        {
+                            DataTable dt = new DataTable();
+                            da.Fill(dt);
+                            listar = new List<Ent_Combo>();
+                            listar = (from DataRow fila in dt.Rows
+                                      select new Ent_Combo()
+                                      {
+                                          codigo = fila["Cat_Pri_Id"].ToString(),
+                                          descripcion = fila["Cat_Pri_Descripcion"].ToString(),
+                                      }
+                                   ).ToList();
+                        }
+                    }
+                }
+            }
+            catch (Exception exc)
+            {
+
+                listar = new List<Ent_Combo>();
+            }
+            return listar;
+        }
     }
 }

@@ -188,6 +188,88 @@ namespace CapaPresentacion.Util
             return dt;
         }
 
+        public DataTable PivotDataStatus(string DataField, AggregateFunction Aggregate, string[] RowFields, string[] ColumnFields, List<Ent_Ventas_Status> ListaMes)
+        {
+            DataTable dt = new DataTable();
+            string Separator = "/";
+            var RowList = _SourceTable.DefaultView.ToTable(true, RowFields).AsEnumerable().ToList();
+            for (int index = RowFields.Count() - 1; index >= 0; index--)
+                RowList = RowList.OrderBy(x => x.Field<object>(RowFields[index])).ToList();
+
+            var grpAnio = _SourceTable.AsEnumerable()
+                         .Where(x => x.Field<int>("Anio") != 0 && x.Field<int>("MesNro") != 0)
+                         .GroupBy(x => new {
+                             Anio = x.Field<int>("Anio")
+                         })
+                         .Select(x => new {
+                             Anio = x.Key.Anio,
+                             Mes = x.GroupBy(y => new {                                 
+                                 Mes = ListaMes.Where(t => t.IdMes == y.Field<int>("MesNro")).Select(m => new { Mes = m.Mes }).ToList().First().Mes,
+                                 MesNro = y.Field<int>("MesNro")
+                             }).Select(y => new {
+                                 Mes = y.Key.Mes,
+                                 MesNro = y.Key.MesNro
+                             }).OrderBy(o => o.MesNro).ToList()
+                         })
+                         .OrderBy(o => o.Anio)
+                         .ToList();
+
+
+            foreach (string s in RowFields)
+                dt.Columns.Add(s);
+
+            List<string> ColList = new List<string>();
+            foreach (var item in grpAnio)
+            {
+                foreach (var itemM in item.Mes)
+                {
+                    dt.Columns.Add(item.Anio + "/" + itemM.Mes , typeof(string));
+                    ColList.Add(item.Anio + "/" + itemM.Mes);
+                }
+            }
+
+            foreach (var RowName in RowList)
+            {
+                DataRow row = dt.NewRow();
+                string strFilter = string.Empty;
+
+                foreach (string Field in RowFields)
+                {
+                    row[Field] = RowName[Field];
+                    strFilter += " and " + Field + " = '" + RowName[Field].ToString() + "'";
+
+                }
+                strFilter = strFilter.Substring(5);
+
+                string DataFieldstr = "";
+                foreach (var col in ColList)
+                {
+                    string filter = strFilter;
+                    string[] strColValues = col.ToString().Split(Separator.ToCharArray(), StringSplitOptions.None);
+                    for (int i = 0; i < ColumnFields.Length; i++)
+                    {
+                        if (strColValues[i] == "TotalVenta")
+                        {
+                            DataFieldstr = strColValues[i];
+                        }
+                        else if (strColValues[i] == "")
+                        {
+                            break;
+                        }
+                        else
+                        {
+                            filter += " and " + ColumnFields[i] + " = '" + strColValues[i] + "'";
+                        }
+                    }
+
+                    row[col.ToString()] = GetData(filter, (DataFieldstr == "" ? DataField : DataFieldstr), Aggregate);
+                    DataFieldstr = "";
+                }
+                dt.Rows.Add(row);
+            }
+            return dt;
+        }
+
         /// <summary>
         /// Retrives the data for matching RowField value and ColumnFields values with Aggregate function applied on them.
         /// </summary>

@@ -19,5 +19,10 @@ namespace CapaEntidad.Util
         public string nombres { get; set; }
         public string bas_aco_id { get; set; }
         public string bas_usu_tipid { get; set; }
+        //Departamento y provincia
+        public string CodDep { get; set; }
+        public string DescripcionDep { get; set; }
+        public string CodPrv { get; set; }
+        public string DescripcionPrv  { get; set; }
     }
 }
