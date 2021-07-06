@@ -815,5 +815,45 @@ namespace CapaDato.Facturacion
             }
             return Listar;
         }
+        public List<Ent_Ventas_Devolucion> Listar_VentasDevolucion(Ent_Ventas_Devolucion _Ent)
+        {
+            List<Ent_Ventas_Devolucion> Listar = new List<Ent_Ventas_Devolucion>();
+            string sqlquery = "[USP_MVC_Leer_VentasDevolucion]";
+            try
+            {
+                using (SqlConnection cn = new SqlConnection(Ent_Conexion.conexion))
+                {
+                    using (SqlCommand cmd = new SqlCommand(sqlquery, cn))
+                    {
+                        cmd.CommandTimeout = 0;
+                        cmd.CommandType = CommandType.StoredProcedure;
+                        cmd.Parameters.AddWithValue("@FECHA_INI", DbType.DateTime).Value = _Ent.FechaIni;
+                        cmd.Parameters.AddWithValue("@FECHA_FIN", DbType.DateTime).Value = _Ent.FechaFin;
+                        cmd.Parameters.AddWithValue("@BAS_ID", DbType.String).Value = _Ent.Bas_Id;
+                        cmd.Parameters.AddWithValue("@ASESOR", DbType.String).Value = _Ent.Bas_Aco_Id;
+                        using (SqlDataAdapter da = new SqlDataAdapter(cmd))
+                        {
+                            DataTable dt = new DataTable();
+                            da.Fill(dt);
+                            Listar = new List<Ent_Ventas_Devolucion>();
+                            Listar = (from DataRow fila in dt.Rows
+                                      select new Ent_Ventas_Devolucion()
+                                      {
+                                          Clientes = (fila["Clientes"] is DBNull) ? string.Empty : Convert.ToString(fila["Clientes"]),
+                                          DniRuc = (fila["DniRuc"] is DBNull) ? string.Empty : Convert.ToString(fila["DniRuc"]),
+                                          Salida = Convert.ToInt32(fila["Salida"]),
+                                          Devolucion = Convert.ToInt32(fila["Devolucion"])
+                                      }
+                                    ).ToList();
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+            return Listar;
+        }
     }
 }

@@ -28,51 +28,70 @@
     <h3 class="box-title danger" style="color:#9c9c9c;font-weight:bold">Parametro de Busqueda</h3>
     <br />
     <br />
+
     <div class="row">
-        <div class="col-md-6" style="padding-left: 0px;">
-            <div class="col-md-7">
-                <label for="" style="color: #3d566e;">Cliente</label>
-                <div class="form-group">
-                    @Html.DropDownList("ddlClientes", new SelectList(ViewBag.ListarCLiente, "Codigo", "Descripcion", "-1"), new { @class = "form-control selectpicker", @data_live_search = "true", @id = "ddlClientes", @name = "ddlClientes", @style = "max-width: 100%" })
-                </div>
-            </div>
-            <div class="col-md-5" style="padding-left: 0px; padding-right: 0px;">
-                <label for="" style="color: #3d566e;">Concepto</label>
-                <div class="form-group">
-                    @Html.DropDownList("ddlConceptos", new SelectList(ViewBag.Listar_ConceptoSC, "Codigo", "Descripcion", "-1"), new { @class = "selectpicker", @data_live_search = "true", multiple = "multiple", @id = "ddlConceptos", @name = "ddlConceptos", @data_actions_box = "true", @data_selected_text_format = "count > 2", @style = "width:auto;" })
+        <div class="col-md-12">
+            <div class="panel panel-default p-10">
+                <div class="panel-body" style="padding-top: 7px;padding-bottom: 4px;">
+                    
+                    <div class="row">
+                        <div class="col-md-7" style="padding-left: 0px;">
+                            <div class="col-md-8">
+                                <div class="col-md-6" style="padding-left: 0px;">
+                                    <label for="" style="color: #3d566e;">Asesor</label>
+                                    <div id="DivAsesor" class="form-group">
+                                        @Html.DropDownList("ddlAsesor", new SelectList(ViewBag.ListarAsesor, "bas_aco_id", "nombres"), new { @class = "form-control selectpicker", @data_live_search = "true", @id = "ddlAsesor", @name = "ddlAsesor", @style = "max-width: 100%" })
+                                    </div>
+                                </div>
+                                <div class="col-md-6" style="padding-left: 0px;">
+                                    <label for="" style="color: #3d566e;">Directora</label>
+                                    <div id="DivLider" class="form-group">
+                                        @Html.DropDownList("ddlClientes", new SelectList(ViewBag.ListarLider, "bas_id", "nombres"), new { @class = "form-control selectpicker", @data_live_search = "true", @id = "ddlClientes", @name = "ddlClientes", @style = "max-width: 100%" })
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-4" style="padding-left: 0px; padding-right: 0px;">
+                                <label for="" style="color: #3d566e;">Concepto</label>
+                                <div class="form-group">
+                                    @Html.DropDownList("ddlConceptos", new SelectList(ViewBag.Listar_ConceptoSC, "Codigo", "Descripcion", "-1"), new { @class = "selectpicker", @data_live_search = "true", multiple = "multiple", @id = "ddlConceptos", @name = "ddlConceptos", @data_actions_box = "true", @data_selected_text_format = "count > 2", @style = "width:auto;" })
 
-                </div>
-            </div>
-        </div>
+                                </div>
+                            </div>
+                        </div>
 
-        <div class="col-md-6" style="padding-left: 0px;">
-            <div class="col-md-5" style="padding-right: 0px;">
-                <div>
-                    <label for="dtpFechaNotaCredito" style="color: #3d566e;">Fecha de Inicio</label>
-                    <div id="datepickerIni" class="input-group date" data-date-format="dd/mm/yyyy">
-                        <input id="dtpFechaInicio" type="text" class="form-control input-sm ui-cell-input" disabled style="max-width: 100%" />
-                        <span class="input-group-addon btn btn-xs btn-default" style="padding: 4px 5px;">
-                            <i class="glyphicon glyphicon-calendar" height="20" width="20" style="color:#ff9f3f"></i>
-                        </span>
+                        <div class="col-md-5" style="padding-left: 0px;">
+                            <div class="col-md-5" style="padding-right: 0px;">
+                                <div>
+                                    <label for="dtpFechaNotaCredito" style="color: #3d566e;">Fecha de Inicio</label>
+                                    <div id="datepickerIni" class="input-group date" data-date-format="dd/mm/yyyy">
+                                        <input id="dtpFechaInicio" type="text" class="form-control input-sm ui-cell-input" disabled style="max-width: 100%" />
+                                        <span class="input-group-addon btn btn-xs btn-default" style="padding: 4px 5px;">
+                                            <i class="glyphicon glyphicon-calendar" height="20" width="20" style="color:#ff9f3f"></i>
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-5">
+                                <label for="dtpFechaNotaCredito" style="color: #3d566e;">Fecha de Cierre</label>
+                                <div id="datepickerFin" class="input-group date" data-date-format="dd/mm/yyyy">
+                                    <input id="dtpFechaFin" type="text" class="form-control input-sm ui-cell-input" disabled style="max-width: 100%" />
+                                    <span class="input-group-addon btn btn-xs btn-default" style="padding: 4px 5px;">
+                                        <i class="glyphicon glyphicon-calendar" height="20" width="20" style="color:#ff9f3f"></i>
+                                    </span>
+                                </div>
+                            </div>
+                            <div class="col-md-2 text-right" style="padding:0px">
+                                <button id="btnBuscar" type="submit" title="Consultar" class="btn btn-primary" style="margin-top: 22px;">
+                                    <span class="glyphicon glyphicon-search"></span>&nbsp;&nbsp;Buscar
+                                </button>
+                            </div>
+                        </div>
                     </div>
+
                 </div>
-            </div>
-            <div class="col-md-5">
-                <label for="dtpFechaNotaCredito" style="color: #3d566e;">Fecha de Cierre</label>
-                <div id="datepickerFin" class="input-group date" data-date-format="dd/mm/yyyy">
-                    <input id="dtpFechaFin" type="text" class="form-control input-sm ui-cell-input" disabled style="max-width: 100%" />
-                    <span class="input-group-addon btn btn-xs btn-default" style="padding: 4px 5px;">
-                        <i class="glyphicon glyphicon-calendar" height="20" width="20" style="color:#ff9f3f"></i>
-                    </span>
-                </div>
-            </div>
-            <div class="col-md-2 text-right" style="padding:0px">
-                <button id="btnBuscar" type="submit" title="Consultar" class="btn btn-primary" style="margin-top: 22px;">
-                    <span class="glyphicon glyphicon-search"></span>&nbsp;&nbsp;Buscar
-                </button>
             </div>
         </div>
-    </div>
+    </div> 
 </div>
 
 <div class="box box-body box-primary">
@@ -94,7 +113,7 @@
                     <thead>
                         <tr>
                             <th style="text-align: center;">Asesor</th>
-                            <th style="text-align: center;">Lider</th>
+                            <th style="text-align: center;">Directora</th>
                             <th style="text-align: center;">Dni/Ruc (Promotor)</th>
                             <th style="text-align: center;">Promotor</th>
                             <th style="text-align: center;">Concepto</th>
@@ -122,6 +141,8 @@
             Inicio: function () {
                 debugger
                 /*[Inicializamos variables]*/
+                this.ListarLider = function () { return @Html.Raw(Json.Encode(ViewBag.ListarLider)); }();
+
                 var date = new Date();
 
                 $("#datepickerIni").datepicker({
@@ -140,6 +161,7 @@
                 this.Cod_Id = "-1";
                 this.Bas_Id = -1;
                 this.Tabla = $('#TbTabla');
+                this.Bas_Aco_Id = "";
 
                 objSaldoCliente.grid.get();
                 /*[/Inicializamos variables]*/
@@ -156,8 +178,9 @@
                     debugger
                     objSaldoCliente.isOkUpdate = true;
                     objSaldoCliente.FechaInicio = $("#dtpFechaInicio").val();
-                    objSaldoCliente.FechaFin = $("#dtpFechaFin").val();                    
+                    objSaldoCliente.FechaFin = $("#dtpFechaFin").val();
                     objSaldoCliente.Bas_Id = $("#ddlClientes").val();
+                    objSaldoCliente.Bas_Aco_Id = $("#ddlAsesor").val();
                     var CodConArray = $("#ddlConceptos").val();
                     var CodConString = "";
                     for (const key in CodConArray) {
@@ -168,6 +191,13 @@
                     objSaldoCliente.generaal.consultar();
                 })
                 /*[btn Exportar y buscar]*/
+
+                /*[Select]*/
+                $("#ddlAsesor").change(function () {
+                    debugger;
+                    objSaldoCliente.generaal.dropdownlist.Llena(this.value, 'Clientes', objSaldoCliente.ListarLider);
+                })
+                /*[/Select]*/
             },
             grid: {
                 get: function () {
@@ -188,6 +218,7 @@
                             aoData.push({ "name": "FechaFin", "value": objSaldoCliente.FechaFin });
                             aoData.push({ "name": "Cod_Id", "value": objSaldoCliente.Cod_Id });
                             aoData.push({ "name": "Bas_Id", "value": objSaldoCliente.Bas_Id });
+                            aoData.push({ "name": "Bas_Aco_Id", "value": objSaldoCliente.Bas_Aco_Id });
                         },
                         "bFilter": true,
                         "bdestroy": true,
@@ -308,6 +339,26 @@
                             toastr.error("Error al exportar excel.", "Alerta");
                         }
                     });
+                },
+                dropdownlist: {
+                    Llena: function (Value, Id, Listado) {
+                        debugger
+                        let Lista = (Value == '') ? Listado : Listado.filter((item) => { return item.bas_aco_id === Value; });
+                        let dropdownlist = '<select class="form-control selectpicker" data-live-search="true" id="ddl' + Id + '" name="ddl' + Id + '" style="max-width: 100%" tabindex="-98">';
+                            
+                        dropdownlist += (Lista.length == 1) ? '' : '<option value = "-1">Seleccionar a todos</option>';
+   
+                        for (var key in Lista) {
+                            dropdownlist += '<option value = ' + Lista[key].bas_id + '>' + Lista[key].nombres + '</option>';
+                        }
+                        dropdownlist += '</select>';
+
+                        $("#DivLider").html(dropdownlist);
+                        $('.selectpicker').selectpicker({
+                            liveSearch: true,
+                            showSubtext: true
+                        });
+                    }
                 }
             }
         };

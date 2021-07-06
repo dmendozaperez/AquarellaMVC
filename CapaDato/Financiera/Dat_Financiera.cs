@@ -373,7 +373,7 @@ namespace CapaDato.Financiera
         public List<Ent_Saldo_Cliente> Leer_Saldos_Pendientes(Ent_Saldo_Cliente _Ent)
         {
             List<Ent_Saldo_Cliente> Listar = null;
-            string sqlquery = "[USP_Leer_Saldos_Pendientes]";
+            string sqlquery = "[USP_MVC_Leer_Saldos_Pendientes]";
             try
             {
                 using (SqlConnection cn = new SqlConnection(Ent_Conexion.conexion))
@@ -382,6 +382,7 @@ namespace CapaDato.Financiera
                     {
                         cmd.CommandType = CommandType.StoredProcedure;
                         cmd.Parameters.AddWithValue("@BAS_ID", DbType.Int32).Value = _Ent.Bas_Id;
+                        cmd.Parameters.AddWithValue("@ASESOR", DbType.Int32).Value = _Ent.Bas_Aco_Id;
                         cmd.Parameters.AddWithValue("@CON_ID", DbType.String).Value = _Ent.Cod_Id;
                         cmd.Parameters.AddWithValue("@fecha_ini", DbType.DateTime).Value = _Ent.FechaInicio;
                         cmd.Parameters.AddWithValue("@fecha_fin", DbType.DateTime).Value = _Ent.FechaFin;

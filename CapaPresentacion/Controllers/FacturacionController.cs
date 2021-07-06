@@ -58,7 +58,8 @@ namespace CapaPresentacion.Controllers
         private string _session_ListarVentasStatus_Excel = "_session_ListarVentasStatus_Excel";
         private string _session_ListarVentas_PorZona = "_session_ListarVentas_PorZona";
         private string _session_ListarVentas_PorZona_Excel = "_session_ListarVentas_PorZona_Excel";
-
+        private string _session_ListarVentas_Devolucion = "_session_ListarVentas_Devolucion";
+        private string _session_ListarVentas_Devolucion_Excel = "_session_ListarVentas_Devolucion_Excel";
         #endregion
 
         #region <CONSULTA DE VENTAS POR CATEGORIA>
@@ -4355,5 +4356,259 @@ namespace CapaPresentacion.Controllers
         }
         #endregion
 
+        #region <VENTAS DEVOLUCION>
+
+        public ActionResult Ventas_Resumido()
+        {
+            Ent_Usuario _usuario = (Ent_Usuario)Session[Ent_Constantes.NameSessionUser];
+            string actionName = this.ControllerContext.RouteData.GetRequiredString("action");
+            string controllerName = this.ControllerContext.RouteData.GetRequiredString("controller");
+            string return_view = actionName + "|" + controllerName;
+
+            if (_usuario == null)
+            {
+                return RedirectToAction("Login", "Control", new { returnUrl = return_view });
+            }
+            else
+            {
+                Session[_session_ListarVentas_Devolucion] = null;
+
+                List<Ent_Combo> ListarLider = new List<Ent_Combo>();
+                List<Ent_Combo> ListarAsesor = new List<Ent_Combo>();
+                var ListarAsesorLider = datUtil.Lista_Asesor_Lider().ToList();
+
+                if (_usuario.usu_tip_id == "09")
+                {
+                    ListarLider = new List<Ent_Combo>() { new Ent_Combo() { bas_id = -1, nombres = "Seleccionar a todos" } };
+                    ListarAsesor = ListarAsesorLider.Where(x => x.bas_usu_tipid == "09" && x.bas_aco_id == _usuario.usu_asesor).ToList();
+                    ListarLider = (ListarAsesorLider.Where(x => x.bas_usu_tipid != "09" && x.bas_aco_id == _usuario.usu_asesor).Count() == 1) ? ListarAsesorLider.Where(x => x.bas_usu_tipid != "09" && x.bas_aco_id == _usuario.usu_asesor).ToList() : ListarLider.Concat(ListarAsesorLider.Where(x => x.bas_usu_tipid != "09" && x.bas_aco_id == _usuario.usu_asesor)).ToList();
+                }
+
+                if (_usuario.usu_tip_id == "01")
+                {
+                    ListarAsesor = ListarAsesorLider.Where(x => x.bas_usu_tipid == "09" && x.bas_aco_id == _usuario.usu_asesor).ToList();
+                    ListarLider = ListarAsesorLider.Where(x => x.bas_usu_tipid != "09" && x.bas_aco_id == _usuario.usu_asesor && x.bas_id == _usuario.usu_id).ToList();
+                }
+
+                if (_usuario.usu_tip_id != "09" && _usuario.usu_tip_id != "01")
+                {
+                    ListarAsesor = new List<Ent_Combo>() { new Ent_Combo() { bas_aco_id = "", nombres = "Seleccionar a todos" } };
+                    ListarLider = new List<Ent_Combo>() { new Ent_Combo() { bas_id = -1, nombres = "Seleccionar a todos" } };
+                    ListarAsesor = ListarAsesor.Concat(ListarAsesorLider.Where(x => x.bas_usu_tipid == "09")).ToList();
+                    ListarLider = ListarLider.Concat(ListarAsesorLider.Where(x => x.bas_usu_tipid != "09" && x.bas_aco_id != "")).ToList();
+                }
+
+                ViewBag.ListarAsesor = ListarAsesor.ToList();
+                ViewBag.ListarLider = ListarLider.ToList();
+
+                ViewBag.ListarAsesor = ListarAsesor.ToList();
+                ViewBag.ListarLider = ListarLider.ToList();
+
+                Ent_Ventas_Devolucion Ent_VentasDevolucion = new Ent_Ventas_Devolucion();
+                ViewBag.Ent_VentasDevolucion = Ent_VentasDevolucion;
+                return View();
+            }
+        }
+        public JsonResult getLisVentas_DevolucionAjax(Ent_jQueryDataTableParams param, bool isOkUpdate, string FechaInicio, string FechaFin, string Bas_Id, string Bas_Aco_Id)
+        {
+            Ent_Ventas_Devolucion Ent_VentasDevolucion = new Ent_Ventas_Devolucion();
+
+            int iParesVentas = 0, iParesDevolucion = 0, iTotGeneral = 0;
+
+            if (isOkUpdate)
+            {
+                Ent_VentasDevolucion.FechaIni = DateTime.Parse(FechaInicio);
+                Ent_VentasDevolucion.FechaFin = DateTime.Parse(FechaFin);
+                Ent_VentasDevolucion.Bas_Id =  Bas_Id;
+                Ent_VentasDevolucion.Bas_Aco_Id = (Bas_Id == "-1") ? Bas_Aco_Id : Bas_Aco_Id = "";
+
+                List<Ent_Ventas_Devolucion> _ListarVentas_Devolucion = datFacturacion.Listar_VentasDevolucion(Ent_VentasDevolucion).ToList();
+                Session[_session_ListarVentas_Devolucion] = _ListarVentas_Devolucion;
+            }
+
+            /*verificar si esta null*/
+            if (Session[_session_ListarVentas_Devolucion] == null)
+            {
+                List<Ent_Ventas_Devolucion> _ListarVentas_Devolucion = new List<Ent_Ventas_Devolucion>();
+                Session[_session_ListarVentas_Devolucion] = _ListarVentas_Devolucion;
+            }
+
+            IQueryable<Ent_Ventas_Devolucion> entDocTrans = ((List<Ent_Ventas_Devolucion>)(Session[_session_ListarVentas_Devolucion])).AsQueryable();
+
+            if (entDocTrans.Count() > 0)
+            {
+                iParesVentas = entDocTrans.Sum(a => a.Salida);
+                iParesDevolucion = entDocTrans.Sum(a => a.Devolucion);
+                iTotGeneral = iParesVentas + iParesDevolucion;                
+            }
+
+            //Manejador de filtros
+            int totalCount = entDocTrans.Count();
+            IEnumerable<Ent_Ventas_Devolucion> filteredMembers = entDocTrans;
+            if (!string.IsNullOrEmpty(param.sSearch))
+            {
+                filteredMembers = entDocTrans.Where(
+                        m =>
+                            m.Clientes.ToUpper().Contains(param.sSearch.ToUpper()) ||
+                            m.DniRuc.ToUpper().Contains(param.sSearch.ToUpper()) ||
+                            m.Salida.ToString().Contains(param.sSearch.ToUpper()) ||
+                            m.Devolucion.ToString().Contains(param.sSearch.ToUpper())
+                );
+            }
+            var sortIdx = Convert.ToInt32(Request["iSortCol_0"]);
+
+            if (param.iSortingCols > 0)
+            {
+                if (Request["sSortDir_0"].ToString() == "asc")
+                {
+                    switch (sortIdx)
+                    {
+                        case 0: filteredMembers = filteredMembers.OrderBy(o => o.Clientes); break;
+                        case 1: filteredMembers = filteredMembers.OrderBy(o => o.DniRuc); break;
+                        case 2: filteredMembers = filteredMembers.OrderBy(o => o.Salida); break;
+                        case 3: filteredMembers = filteredMembers.OrderBy(o => o.Devolucion); break;
+                    }
+                }
+                else
+                {
+                    switch (sortIdx)
+                    {
+                        case 0: filteredMembers = filteredMembers.OrderByDescending(o => o.Clientes); break;
+                        case 1: filteredMembers = filteredMembers.OrderByDescending(o => o.DniRuc); break;
+                        case 2: filteredMembers = filteredMembers.OrderByDescending(o => o.Salida); break;
+                        case 3: filteredMembers = filteredMembers.OrderByDescending(o => o.Devolucion); break;
+                    }
+                }
+            }
+
+            var Result = filteredMembers
+                .Skip(param.iDisplayStart)
+                .Take(param.iDisplayLength);
+
+            //Se devuelven los resultados por json
+            return Json(new
+            {
+                sEcho = param.sEcho,
+                iTotalRecords = totalCount,
+                iTotalDisplayRecords = filteredMembers.Count(),
+                aaData = Result,
+                iParesVentas = iParesVentas,
+                iParesDevolucion = iParesDevolucion,
+                iTotGeneral = iTotGeneral
+            }, JsonRequestBehavior.AllowGet);
+        }
+
+        public ActionResult get_exporta_LisVentas_Devolucion_excel(Ent_Ventas_Devolucion _Ent)
+        {
+            JsonResponse objResult = new JsonResponse();
+            try
+            {
+                Session[_session_ListarVentas_Devolucion_Excel] = null;
+                string cadena = "";
+                if (Session[_session_ListarVentas_Devolucion] != null)
+                {
+
+                    List<Ent_Ventas_Devolucion> _ListarVentas_Devolucion = (List<Ent_Ventas_Devolucion>)Session[_session_ListarVentas_Devolucion];
+                    if (_ListarVentas_Devolucion.Count == 0)
+                    {
+                        objResult.Success = false;
+                        objResult.Message = "No hay filas para exportar";
+                    }
+                    else
+                    {
+                        cadena = get_html_ListarVentas_Devolucion_str((List<Ent_Ventas_Devolucion>)Session[_session_ListarVentas_Devolucion], _Ent);
+                        if (cadena.Length == 0)
+                        {
+                            objResult.Success = false;
+                            objResult.Message = "Error del formato html";
+                        }
+                        else
+                        {
+                            objResult.Success = true;
+                            objResult.Message = "Se genero el excel correctamente";
+                            Session[_session_ListarVentas_Devolucion_Excel] = cadena;
+                        }
+                    }
+                }
+                else
+                {
+                    objResult.Success = false;
+                    objResult.Message = "No hay filas para exportar";
+                }
+
+            }
+            catch (Exception ex)
+            {
+                objResult.Success = false;
+                objResult.Message = "No hay filas para exportar";
+            }
+
+            var JSON = JsonConvert.SerializeObject(objResult);
+
+            return Json(JSON, JsonRequestBehavior.AllowGet);
+        }
+
+        public string get_html_ListarVentas_Devolucion_str(List<Ent_Ventas_Devolucion> _ListarVentas_Devolucion, Ent_Ventas_Devolucion _Ent)
+        {
+            StringBuilder sb = new StringBuilder();
+            var Lista = _ListarVentas_Devolucion.ToList();
+            try
+            {
+                sb.Append("<div>");
+                sb.Append("<table cellspacing='0' style='width: 1000px' rules='all' border='0' style='border-collapse:collapse;'>");
+                sb.Append("<tr><td Colspan='4'></td></tr>");
+                sb.Append("<tr><td Colspan='4' valign='middle' align='center' style='vertical-align: middle;font-size: 18.0pt;font-weight: bold;color:#285A8F'>REPORTE DE VENTAS POR LIDER RESUMIDO </td></tr>");
+                sb.Append("<tr><td Colspan='4' valign='middle' align='center' style='vertical-align: middle;font-size: 10.0pt;font-weight: bold;color:#000000'>Rango de : " + String.Format("{0:dd/MM/yyyy}", _Ent.FechaIni) + " hasta " + String.Format("{0:dd/MM/yyyy}", _Ent.FechaFin) + "</td></tr>");//subtitulo
+                sb.Append("<tr>\n");
+                sb.Append("<th bgColor='#1E77AB' style='text-align: center; font-weight:bold;font-size:11.0pt;'><font color='#FFFFFF'>Clientes</font></th>\n");
+                sb.Append("<th bgColor='#1E77AB' style='text-align: center; font-weight:bold;font-size:11.0pt;'><font color='#FFFFFF'>Dni/Ruc</font></th>\n");
+                sb.Append("<th bgColor='#1E77AB' style='text-align: center; font-weight:bold;font-size:11.0pt;'><font color='#FFFFFF'>Pares-Venta</font></th>\n");
+                sb.Append("<th bgColor='#1E77AB' style='text-align: center; font-weight:bold;font-size:11.0pt;'><font color='#FFFFFF'>Pares-Devolución</font></th>\n");
+                sb.Append("</tr>\n");
+                // {0:N2} Separacion miles , {0:F2} solo dos decimales
+                foreach (var item in Lista)
+                {
+                    sb.Append("<tr>\n");
+                    sb.Append("<td align=''>" + item.Clientes + "</td>\n");
+                    sb.Append("<td align=''>" + item.DniRuc + "</td>\n");
+                    sb.Append("<td align='Right'>" + item.Salida + "</td>\n");
+                    sb.Append("<td align='Right'>" + item.Devolucion + "</td>\n");
+                    sb.Append("</tr>\n");
+                }
+                sb.Append("</table></div>");
+            }
+            catch (Exception e)
+            {
+                throw new Exception(e.Message);
+            }
+            return sb.ToString();
+        }
+
+        public ActionResult ListarVentas_DevolucionExcel()
+        {
+            string NombreArchivo = "Ventas_Resumido";
+            String style = style = @"<style> .textmode { mso-number-format:\@; }</style>";
+            try
+            {
+                Response.Clear();
+                Response.Buffer = true;
+                Response.ContentType = "application/vnd.ms-excel";
+
+
+                Response.AddHeader("Content-Disposition", "attachment;filename=" + NombreArchivo + ".xls");
+                Response.Charset = "UTF-8";
+                Response.ContentEncoding = Encoding.Default;
+                Response.Write(style);
+                Response.Write(Session[_session_ListarVentas_Devolucion_Excel].ToString());
+                Response.End();
+            }
+            catch (Exception e)
+            {
+                throw new Exception(e.Message);
+            }
+            return Json(new { estado = 0, mensaje = 1 });
+
+        }
+        #endregion
     }
 }

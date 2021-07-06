@@ -103,6 +103,7 @@ namespace CapaEntidad.Financiera
         public int Bas_Id { get; set; }
         public string Cod_Id { get; set; }
         public string Usu_Tipo { get; set; }
+        public string Bas_Aco_Id { get; set; }
     }
     public class Ent_Movimientos_Pagos
     {

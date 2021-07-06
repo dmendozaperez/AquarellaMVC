@@ -394,4 +394,16 @@ namespace CapaEntidad.Facturacion
         public string CodCat { get; set; }
     }
 
+    public class Ent_Ventas_Devolucion
+    {
+        public string Clientes { get; set; }
+        public string DniRuc { get; set; }
+        public int Salida { get; set; }
+        public int Devolucion { get; set; }
+        //Campos de busqueda
+        public string Bas_Id { get; set; }
+        public DateTime FechaIni { get; set; }
+        public DateTime FechaFin { get; set; }
+        public string Bas_Aco_Id { get; set; }
+    }
 }

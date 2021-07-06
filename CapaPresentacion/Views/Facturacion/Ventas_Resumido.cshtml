@@ -1,0 +1,364 @@
+﻿@{
+    ViewBag.Title = "Consulta de Ventas por directora resumido";
+}
+<style>
+    .table thead {
+        background-color: #5799bf;
+        color: #fff;
+    }
+
+    .boton-xs-td {
+        padding-top: 5px !important;
+        padding-bottom: 5px !important;
+    }
+
+    .alignRight {
+        text-align: right;
+        vertical-align: middle;
+    }
+
+    .alignCenter {
+        text-align: center;
+        vertical-align: middle;
+    }
+</style>
+<p class="text-primary">Consulte entre un rango de fechas, todas las Ventas por los lideres resumido.</p>
+<div class="box box-header box-primary">
+    <h3 class="box-title danger" style="color:#9c9c9c;font-weight:bold">Parametro de Busqueda</h3>
+    <br />
+    <br />
+    <div class="row">
+        <div class="col-md-12">
+            <div class="panel panel-default p-10">
+                <div class="panel-body" style="padding-top: 7px;padding-bottom: 4px;">
+                    <div class="row">
+                        <div class="col-sm-2">
+
+                        </div>
+                        <div class="col-md-4" style="padding-left: 30px; padding-right: 0px;">
+                            <div class="col-md-6" style="padding-left: 0px;">
+                                <label for="" style="color: #3d566e;">Asesor</label>
+                                <div id="DivAsesor" class="form-group">
+                                    @Html.DropDownList("ddlAsesor", new SelectList(ViewBag.ListarAsesor, "bas_aco_id", "nombres"), new { @class = "form-control selectpicker", @data_live_search = "true", @id = "ddlAsesor", @name = "ddlAsesor", @style = "max-width: 100%" })
+                                </div>
+                            </div>
+                            <div class="col-md-6" style="padding-left: 0px;">
+                                <label for="" style="color: #3d566e;">Directora</label>
+                                <div id="DivLider" class="form-group">
+                                    @Html.DropDownList("ddlLider", new SelectList(ViewBag.ListarLider, "bas_id", "nombres"), new { @class = "form-control selectpicker", @data_live_search = "true", @id = "ddlLider", @name = "ddlLider", @style = "max-width: 100%" })
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6" style="padding-left: 0px;">
+                            <div class="col-md-5" style="padding-right: 0px;">
+                                <div>
+                                    <label for="lblFechaInicio" style="color: #3d566e;">Fecha de Inicio</label>
+                                    <div id="datepickerIni" class="input-group date" data-date-format="dd/mm/yyyy">
+                                        <input id="dtpFechaInicio" type="text" class="form-control input-sm ui-cell-input" disabled style="max-width: 100%" />
+                                        <span class="input-group-addon btn btn-xs btn-default" style="padding: 4px 5px;">
+                                            <i class="glyphicon glyphicon-calendar" height="20" width="20" style="color:#ff9f3f"></i>
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-5">
+                                <label for="lblFechaFin" style="color: #3d566e;">Fecha de Cierre</label>
+                                <div id="datepickerFin" class="input-group date" data-date-format="dd/mm/yyyy">
+                                    <input id="dtpFechaFin" type="text" class="form-control input-sm ui-cell-input" disabled style="max-width: 100%" />
+                                    <span class="input-group-addon btn btn-xs btn-default" style="padding: 4px 5px;">
+                                        <i class="glyphicon glyphicon-calendar" height="20" width="20" style="color:#ff9f3f"></i>
+                                    </span>
+                                </div>
+                            </div>
+                            <div class="col-md-2 text-right" style="padding:0px">
+                                <button id="btnBuscar" type="submit" title="Consultar" class="btn btn-primary" style="margin-top: 19px;">
+                                    <span class="glyphicon glyphicon-search"></span>&nbsp;&nbsp;Buscar
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="box box-body box-primary">
+    <div class="row">
+        <div class="col-md-6">
+        </div>
+        <div class="col-md-6 text-right">
+            <button id="btnExportar" title="Exportar" class="btn btn-success disabled" disabled>
+                <span class="glyphicon glyphicon-export"></span>&nbsp;&nbsp;Exportar Lista
+            </button>
+        </div>
+    </div>
+    <br />
+    <div class="row">
+        <div class="col-md-12">
+            <div class="table-responsive">
+                <table id="tbTabla" class="table table-hover table-bordered compact">
+                    <thead>
+                        <tr>
+                            <th style="text-align: center;">Clientes</th>
+                            <th style="text-align: center;">Dni/Ruc</th>
+                            <th style="text-align: center;">Pares-Venta</th>
+                            <th style="text-align: center;">Pares-Devolución</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td colspan='4'>No se encontraron resultados</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>   
+</div>
+<div class="box box-header box-primary">
+    <label style="color:#9c9c9c;font-weight:bold">Información de totalizado</label>
+    <div class="row">
+        <div class="col-md-6">
+            @*[cuerpo del form]*@
+            <form role="form">
+                <div class="row">
+                    <div class="col-sm-8">
+                        <div class="form-group" style="margin-bottom: 0px;">
+                            <label>Total pares ventas:</label>
+                        </div>
+                    </div>
+                    <div class="col-sm-4">
+                        <div class="form-group" style="margin-bottom: 0px;">
+                            <label class="text-right" id="lblParesVentas"></label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-sm-8">
+                        <div class="form-group" style="margin-bottom: 0px;">
+                            <label>Total Pares Devolución:</label>
+                        </div>
+                    </div>
+                    <div class="col-sm-4">
+                        <div class="form-group" style="margin-bottom: 0px;">
+                            <label class="text-right" id="lblParesDevolucion"></label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-sm-8">
+                        <div class="form-group" style="margin-bottom: 0px;">
+                            <label>Total General:</label>
+                        </div>
+                    </div>
+                    <div class="col-sm-4">
+                        <div class="form-group" style="margin-bottom: 0px;">
+                            <label class="text-right" id="lblTotGeneral"></label>
+                        </div>
+                    </div>
+                </div>
+            </form>
+            @*[/cuerpo del form]*@
+        </div>
+    </div>
+</div>
+@section scripts{
+    <script>
+    var objVentasResumido = {
+        Inicio: function () {
+            debugger;
+            $("body").toggleClass('sidebar-collapse');
+
+            /*[Inicializamos variables]*/
+            this.ListarLider = function () { return @Html.Raw(Json.Encode(ViewBag.ListarLider)); }();
+
+            var date = new Date();
+
+            $("#datepickerIni").datepicker({
+                autoclose: true,
+                todayHighlight: true
+            }).datepicker("setDate", "01/" + (date.getMonth() + 1) + "/" + date.getFullYear());
+
+            $("#datepickerFin").datepicker({
+                autoclose: true,
+                todayHighlight: true
+            }).datepicker("setDate", "0");
+
+            $("#btnExportar").addClass("disabled");
+            $("#btnExportar").attr('disabled', 'disabled');
+            this.isOkUpdate = false;
+            this.FechaInicio = $("#dtpFechaInicio").val();
+            this.FechaFin = $("#dtpFechaFin").val();
+            this.Bas_Id = -1;
+            this.Bas_Aco_Id = "";
+
+            /*[/Inicializamos variables]*/
+
+            /*[btn Exportar y buscar]*/
+            $("#btnBuscar").click(function () {
+                objVentasResumido.isOkUpdate = true;
+                objVentasResumido.FechaInicio = $("#dtpFechaInicio").val();
+                objVentasResumido.FechaFin = $("#dtpFechaFin").val();
+                objVentasResumido.Bas_Id = $("#ddlLider").val();
+                objVentasResumido.Bas_Aco_Id = $("#ddlAsesor").val();
+                objVentasResumido.generaal.consultar();
+            });
+
+            $("#btnExportar").click(function () {
+                waitingDialog.show("Espere por favor...")
+                objVentasResumido.generaal.exportar();
+            })
+            /*[btn Exportar y buscar]*/
+
+            /*[Select]*/
+            $("#ddlAsesor").change(function () {
+                debugger;
+                objVentasResumido.generaal.dropdownlist.Llena(this.value, 'Lider', objVentasResumido.ListarLider);
+            })
+            /*[/Select]*/
+
+            objVentasResumido.grid.get();
+        },
+        grid: {
+            get: function () {
+                // debugger
+                waitingDialog.show("Espere por favor...")
+                $('#tbTabla').DataTable({
+                    "language": {
+                        "url": "../Scripts/DataTables/Spanish.json"
+                    },
+                    "fnServerData": function (sSource, aoData, fnCallback) {
+                        $.getJSON(sSource, aoData, function (json) {
+                            //debugger            
+                            $("#lblParesVentas").html(json.iParesVentas);
+                            $("#lblParesDevolucion").html(json.iParesDevolucion);
+                            $("#lblTotGeneral").html(json.iTotGeneral);
+                            fnCallback(json);
+                        });
+                    },
+                    "bServerSide": true,
+                    "bAutoWidth": false,
+                    "sAjaxSource": '@Url.Action("getLisVentas_DevolucionAjax", "Facturacion")',
+                    "fnServerParams": function (aoData) {
+                        debugger;
+                        aoData.push({ "name": "isOkUpdate", "value": objVentasResumido.isOkUpdate });
+                        aoData.push({ "name": "FechaInicio", "value": objVentasResumido.FechaInicio });
+                        aoData.push({ "name": "FechaFin", "value": objVentasResumido.FechaFin });
+                        aoData.push({ "name": "Bas_Id", "value": objVentasResumido.Bas_Id });
+                        aoData.push({ "name": "Bas_Aco_Id", "value": objVentasResumido.Bas_Aco_Id });
+                    },
+                    "bFilter": true,
+                    "bdestroy": true,
+                    "start": 0,
+                    "columnDefs": [{
+                        "orderable": false,
+                        "targets": [],
+                    }],
+                    "bDeferRender": true,
+                    "aoColumns": [
+                        { "sName": "Clientes", "mData": "Clientes", "sClass": "" },
+                        { "sName": "DniRuc", "mData": "DniRuc", "sClass": "alignCenter" },
+                        { "sName": "Salida", "mData": "Salida", "sClass": "alignRight" },
+                        { "sName": "Devolucion", "mData": "Devolucion", "sClass": "alignRight" }
+                    ],
+                    "fnRowCallback": function (row, data, index) {
+                    },
+                    "drawCallback": function (settings) {
+                        objVentasResumido.isOkUpdate = false;
+                        var table = $('#tbTabla').dataTable();
+                        var data = table.fnGetData();
+                        if (data.length == 0) {
+                            $("#btnExportar").addClass("disabled");
+                            $("#btnExportar").attr('disabled', 'disabled');
+                        } else {
+                            $("#btnExportar").removeClass("disabled");
+                            $("#btnExportar").removeAttr("disabled");
+                        }
+                        waitingDialog.hide();
+                    },
+                    "initComplete": function (settings, json) {
+                    }
+                });
+            },
+            cargaTabla: function () {
+                //debugger
+                waitingDialog.show("Espere por favor...")
+                $('#tbTabla').DataTable().ajax.reload(function () {
+                    waitingDialog.hide();
+                });
+            },
+        },
+        generaal: {
+            Validar: function () {
+                debugger;
+                if (objVentasResumido.FechaInicio == undefined || objVentasResumido.FechaInicio == null || objVentasResumido.FechaInicio.length == 0 || objVentasResumido.FechaInicio == '') {
+                    toastr.error("La fecha de Inicio no puede estar vacio", "Alerta");
+                    return false;
+                }
+                if (objVentasResumido.FechaFin == undefined || objVentasResumido.FechaFin == null || objVentasResumido.FechaFin.length == 0 || objVentasResumido.FechaFin == '') {
+                    toastr.error("La fecha de Fin no puede estar vacio", "Alerta");
+                    return false;
+                }
+                return true;
+            },
+            consultar: function () {
+                debugger
+                if (objVentasResumido.generaal.Validar()) {
+                    objVentasResumido.grid.cargaTabla();
+                }
+            },
+            exportar: function () {
+                var _Ent = function () { return @Html.Raw(Json.Encode(ViewBag.Ent_VentasDevolucion)); }();
+                _Ent.FechaIni = objVentasResumido.FechaInicio;
+                _Ent.FechaFin = objVentasResumido.FechaFin;
+
+                $.ajax({
+                    type: "POST",
+                    url: '@Url.Action("get_exporta_LisVentas_Devolucion_excel", "Facturacion")',
+                    data : {_Ent:_Ent},
+                    success: function (data) {
+                        data = JSON.parse(data);
+                        waitingDialog.hide();
+                        if (data.Success) {
+                            toastr.success(data.Message);
+                            window.location = '@Url.Action("ListarVentas_DevolucionExcel")';
+                        }
+                        else {
+                            toastr.error(data.Message, "Alerta");
+                        }
+                    },
+                    error: function (XMLHttpRequest, textStatus, errorThrown) {
+                        waitingDialog.hide();
+                        toastr.error("Error al exportar excel.", "Alerta");
+                    }
+                });
+            },
+            dropdownlist: {
+                Llena: function (Value, Id, Listado) {
+                    debugger
+                    let Lista = (Value == '') ? Listado : Listado.filter((item) => { return item.bas_aco_id === Value; });
+                    let dropdownlist = '<select class="form-control selectpicker" data-live-search="true" id="ddl' + Id + '" name="ddl' + Id + '" style="max-width: 100%" tabindex="-98">';
+
+                    dropdownlist += (Lista.length == 1) ? '' : '<option value = "-1">Seleccionar a todos</option>';
+
+                    for (var key in Lista) {
+                        dropdownlist += '<option value = ' + Lista[key].bas_id + '>' + Lista[key].nombres + '</option>';
+                    }
+                    dropdownlist += '</select>';
+
+                    $("#DivLider").html(dropdownlist);
+                    $('.selectpicker').selectpicker({
+                        liveSearch: true,
+                        showSubtext: true
+                    });
+                }
+            }
+        }
+    };
+    $(document).ready(function () {
+        objVentasResumido.Inicio();
+    });
+    </script>
+}

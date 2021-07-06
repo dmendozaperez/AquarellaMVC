@@ -2770,11 +2770,34 @@ namespace CapaPresentacion.Controllers
             {
                 Ent_Saldo_Cliente EnSaldCliente = new Ent_Saldo_Cliente();
                 ViewBag.Listar_ConceptoSC = datFinanciera.Listar_Concepto_Saldo().Where(x => x.Codigo == "90" || x.Codigo == "98" || x.Codigo == "9F" || x.Codigo == "9INT");
-                //ViewBag.ListarCLiente = datFinanciera.Leer_Clientes_Saldo();
-                List<Ent_Combo> ListarCLiente = new List<Ent_Combo>();
-                ListarCLiente.Add(new Ent_Combo() { codigo = "-1", descripcion = "-- Selecionar Todos--" });
-                int Cant = datUtil.Listar_Clientes(_usuario).Count();
-                ViewBag.ListarCLiente = (Cant == 1 ? datUtil.Listar_Clientes(_usuario) : ListarCLiente.Concat(datUtil.Listar_Clientes(_usuario)));
+
+                List<Ent_Combo> ListarLider = new List<Ent_Combo>();
+                List<Ent_Combo> ListarAsesor = new List<Ent_Combo>();
+                var ListarAsesorLider = datUtil.Lista_Asesor_Lider().ToList();
+
+                if (_usuario.usu_tip_id == "09")
+                {
+                    ListarLider = new List<Ent_Combo>() { new Ent_Combo() { bas_id = -1, nombres = "Seleccionar a todos" } };
+                    ListarAsesor = ListarAsesorLider.Where(x => x.bas_usu_tipid == "09" && x.bas_aco_id == _usuario.usu_asesor).ToList();
+                    ListarLider = (ListarAsesorLider.Where(x => x.bas_usu_tipid != "09" && x.bas_aco_id == _usuario.usu_asesor).Count() == 1) ? ListarAsesorLider.Where(x => x.bas_usu_tipid != "09" && x.bas_aco_id == _usuario.usu_asesor).ToList() : ListarLider.Concat(ListarAsesorLider.Where(x => x.bas_usu_tipid != "09" && x.bas_aco_id == _usuario.usu_asesor)).ToList() ;
+                }
+
+                if (_usuario.usu_tip_id == "01")
+                {
+                    ListarAsesor = ListarAsesorLider.Where(x => x.bas_usu_tipid == "09" && x.bas_aco_id == _usuario.usu_asesor).ToList();
+                    ListarLider = ListarAsesorLider.Where(x => x.bas_usu_tipid != "09" && x.bas_aco_id == _usuario.usu_asesor && x.bas_id == _usuario.usu_id).ToList();
+                }
+
+                if (_usuario.usu_tip_id != "09" && _usuario.usu_tip_id != "01")
+                {
+                    ListarAsesor = new List<Ent_Combo>() { new Ent_Combo() { bas_aco_id = "", nombres = "Seleccionar a todos" } };
+                    ListarLider = new List<Ent_Combo>() { new Ent_Combo() { bas_id = -1, nombres = "Seleccionar a todos" } };
+                    ListarAsesor = ListarAsesor.Concat(ListarAsesorLider.Where(x => x.bas_usu_tipid == "09")).ToList();
+                    ListarLider = ListarLider.Concat(ListarAsesorLider.Where(x => x.bas_usu_tipid != "09" && x.bas_aco_id != "")).ToList();
+                }
+
+                ViewBag.ListarAsesor = ListarAsesor.ToList();
+                ViewBag.ListarLider = ListarLider.ToList();
 
                 ViewBag.EnSaldCliente = EnSaldCliente;
                 return View();
@@ -2792,13 +2815,14 @@ namespace CapaPresentacion.Controllers
         /// <param name="Cod_Id"></param>
         /// <param name="Bas_Id"></param>
         /// <returns></returns>
-        public JsonResult getLisSaldoClientesAjax(Ent_jQueryDataTableParams param, bool isOkUpdate, string FechaInicio, string FechaFin, string Cod_Id, int Bas_Id)
+        public JsonResult getLisSaldoClientesAjax(Ent_jQueryDataTableParams param, bool isOkUpdate, string FechaInicio, string FechaFin, string Cod_Id, int Bas_Id, string Bas_Aco_Id)
         {
             Ent_Saldo_Cliente EntSaldoCliente = new Ent_Saldo_Cliente();
 
             if (isOkUpdate)
             {
                 EntSaldoCliente.Bas_Id = Bas_Id;
+                EntSaldoCliente.Bas_Aco_Id = (Bas_Id == -1) ? Bas_Aco_Id : Bas_Aco_Id = "";
                 EntSaldoCliente.Cod_Id = Cod_Id;
                 EntSaldoCliente.FechaInicio = DateTime.Parse(FechaInicio);
                 EntSaldoCliente.FechaFin = DateTime.Parse(FechaFin);
@@ -2949,7 +2973,7 @@ namespace CapaPresentacion.Controllers
                 sb.Append("<table  border='1' bgColor='#ffffff' borderColor='#FFFFFF' cellSpacing='2' cellPadding='2' style='font-size:10.0pt; font-family:Calibri; background:white;width: 1000px'><tr  bgColor='#5799bf'>\n");
                 sb.Append("<tr bgColor='#1E77AB'>\n");
                 sb.Append("<th style='text-align: center; font-weight:bold;font-size:11.0pt;'><font color='#FFFFFF'>Asesor</font></th>\n");
-                sb.Append("<th style='text-align: center; font-weight:bold;font-size:11.0pt;'><font color='#FFFFFF'>Lider</font></th>\n");
+                sb.Append("<th style='text-align: center; font-weight:bold;font-size:11.0pt;'><font color='#FFFFFF'>Directora</font></th>\n");
                 sb.Append("<th style='text-align: center; font-weight:bold;font-size:11.0pt;'><font color='#FFFFFF'>Dni/Ruc (Promotor)</font></th>\n");
                 sb.Append("<th style='text-align: center; font-weight:bold;font-size:11.0pt;'><font color='#FFFFFF'>Promotor</font></th>\n");
                 sb.Append("<th style='text-align: center; font-weight:bold;font-size:11.0pt;'><font color='#FFFFFF'>Concepto</font></th>\n");
