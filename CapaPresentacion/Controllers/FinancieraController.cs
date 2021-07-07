@@ -1043,9 +1043,12 @@ namespace CapaPresentacion.Controllers
         public ActionResult getEliminarPago(string PagoId)
         {
             bool Result = false;
+            Ent_Usuario _usuario = (Ent_Usuario)Session[Ent_Constantes.NameSessionUser];
             JsonResponse objResult = new JsonResponse();
             Ent_Pago _Ent = new Ent_Pago();
+
             _Ent.Pag_Id = PagoId;
+            _Ent.Pag_Comentario = "Anulado X "+  _usuario.usu_nom_ape + " fecha: " + DateTime.Now.ToString("MMMM, dd yyyy HH:mm:ss");
             try
             {
                 Result = datPago.EliminarPago(_Ent);

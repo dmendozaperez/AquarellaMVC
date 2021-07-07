@@ -137,6 +137,7 @@ namespace CapaDato.Financiera
                 cmd.CommandTimeout = 0;
                 cmd.CommandType = CommandType.StoredProcedure;
                 cmd.Parameters.AddWithValue("@Pag_Id", DbType.Double).Value = ent.Pag_Id;
+                cmd.Parameters.AddWithValue("@Comentario", DbType.Double).Value = ent.Pag_Comentario;
                 cmd.ExecuteNonQuery();
                 result = true;
             }

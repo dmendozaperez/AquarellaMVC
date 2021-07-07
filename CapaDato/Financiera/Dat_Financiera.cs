@@ -429,6 +429,7 @@ namespace CapaDato.Financiera
                 {
                     using (SqlCommand cmd = new SqlCommand(sqlquery, cn))
                     {
+                        cmd.CommandTimeout = 0;
                         cmd.CommandType = CommandType.StoredProcedure;
                         cmd.Parameters.AddWithValue("@fecha_ini", DbType.DateTime).Value = _Ent.FechaInicio;
                         cmd.Parameters.AddWithValue("@fecha_fin", DbType.DateTime).Value = _Ent.FechaFin;
